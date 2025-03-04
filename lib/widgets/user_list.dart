@@ -2,7 +2,24 @@ import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/widgets/user_details.dart';
 
-class UserList extends StatelessWidget {
+class UserList extends StatefulWidget {
+  @override
+  _UserListState createState() => _UserListState();
+}
+
+class _UserListState extends State<UserList> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _refreshData();
+  }
+
+  void _refreshData() async {
+    await userController.get_data();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return userController.users.isEmpty
@@ -23,7 +40,8 @@ class UserList extends StatelessWidget {
                   break;
               }
               return ListTile(
-                title: Text(userController.users[index].first_name!),
+                title: Text(
+                    "${userController.users[index].first_name!} ${userController.users[index].middle_name!} ${userController.users[index].last_name!}"),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -60,6 +78,7 @@ class UserList extends StatelessWidget {
                         onPressed: () {
                           userController.delete_user(
                               userController.users[index].user_id!);
+                          _refreshData();
                           // Call a method to refresh data if needed
                         },
                       ),
