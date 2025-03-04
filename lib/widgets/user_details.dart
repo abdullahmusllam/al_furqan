@@ -49,6 +49,12 @@ class _UserDetailsState extends State<UserDetails> {
             ? "مدير"
             : "معلم";
     _isActivate = widget.user.isActivate == 1;
+    _refreshData();
+  }
+
+  void _refreshData() async {
+    await userController.get_data();
+    setState(() {});
   }
 
   @override
@@ -352,6 +358,7 @@ class _UserDetailsState extends State<UserDetails> {
           setState(() {
             _isEditable = false;
           });
+          _refreshData();
           Navigator.of(context)
               .pop(true); // Return true to indicate that data was updated
         }
