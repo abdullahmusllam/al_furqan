@@ -25,43 +25,63 @@ class SqlDb {
 
   _onUpgrade(Database db, int oldversion, int newversion) async {
     // Check if the column 'isActivate' exists
-    var tableInfo = await db.rawQuery("PRAGMA table_info(Users)");
-    var columnExists =
-        tableInfo.any((column) => column['name'] == 'isActivate');
+    // var tableInfo = await db.rawQuery("PRAGMA table_info(Users)");
+    // var columnExists =
+    //     tableInfo.any((column) => column['name'] == 'isActivate');
 
-    if (!columnExists) {
-      await db
-          .execute('ALTER TABLE Users ADD COLUMN isActivate INTEGER DEFAULT 0');
-    }
+    // if (!columnExists) {
+    //   await db
+    //       .execute('ALTER TABLE Users ADD COLUMN isActivate INTEGER DEFAULT 0');
+    // }
 
     // Check if the column 'date' exists
-    columnExists = tableInfo.any((column) => column['name'] == 'date');
+    // columnExists = tableInfo.any((column) => column['name'] == 'date');
+    await db.execute('ALTER TABLE Users ADD COLUMN school_id INTEGER');
+    await db.execute('ALTER TABLE REQUESTS ADD COLUMN school_id INTEGER');
 
-    if (!columnExists) {
-      await db.execute('ALTER TABLE Users ADD COLUMN date TEXT');
-    }
+    // if (!columnExists) {
+    //   await db.execute('ALTER TABLE Users ADD COLUMN date TEXT');
+    // }
     await db.execute('''
-    CREATE TABLE REQUESTS (
-      user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      first_name TEXT,
-      middle_name TEXT,
-      grandfather_name TEXT,
-      last_name TEXT,
-      phone_number TEXT,
-      telephone_number TEXT,
-      email TEXT,
-      password TEXT,
-      role_id INTEGER,
-      date TEXT,
-      isActivate INTEGER
+    CREATE TABLE SCHOOLS(
+      school_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      school_name TEXT,
+      school_location TEXT,
+      user_id INTEGER
     )
     ''');
+    // await db.execute('''
+    // CREATE TABLE REQUESTS (
+    //   user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    //   first_name TEXT,
+    //   middle_name TEXT,
+    //   grandfather_name TEXT,
+    //   last_name TEXT,
+    //   phone_number TEXT,
+    //   telephone_number TEXT,
+    //   email TEXT,
+    //   password TEXT,
+    //   role_id INTEGER,
+    //   school_id INTEGER,
+    //   date TEXT,
+    //   isActivate INTEGER
+    // )
+    // ''');
 
     print(
         "onUpgrade =========================================================");
   }
 
   _onCreate(Database db, int version) async {
+    await db.execute('''
+    CREATE TABLE SCHOOLS(
+      school_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      school_name TEXT,
+      school_location TEXT,
+      user_id INTEGER
+    )
+    ''');
+
     await db.execute('''
         CREATE TABLE Users (
             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -74,6 +94,7 @@ class SqlDb {
             telephone_number INTEGER,
             email TEXT,
             role_id INTEGER,
+            school_id INTEGER,
             date Date,
             isActivate INTEGER DEFAULT 0,
             FOREIGN KEY(role_id) REFERENCES Roles(role_id)
@@ -98,6 +119,7 @@ class SqlDb {
       email TEXT,
       password TEXT,
       role_id INTEGER,
+      school_id INTEGER,
       date TEXT,
       isActivate INTEGER
     )

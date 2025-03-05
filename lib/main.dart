@@ -2,7 +2,9 @@ import 'package:al_furqan/firebase_options.dart';
 import 'package:al_furqan/views/SchoolDirector/SchoolDirectorHome.dart';
 import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
+import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
 import 'package:al_furqan/views/home_screen.dart';
+import 'package:al_furqan/views/login/login.dart';
 import 'package:al_furqan/widgets/custom_button.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +38,7 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      home: DashboardScreen(),
+      home: UserManagementPage(),
     );
   }
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 
 class RequestsList extends StatelessWidget {
+  const RequestsList({super.key});
+
   @override
   Widget build(BuildContext context) {
     return userController.requests.isEmpty

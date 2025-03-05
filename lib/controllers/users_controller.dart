@@ -27,6 +27,7 @@ class UserController {
         email: response[i]['email'],
         password: response[i]['password'],
         role_id: response[i]['role_id'] as int?, // تأكد من أن role_id هو int
+        school_id: response[i]['school_id'],
         date: response[i]['date'],
         isActivate: response[i]['isActivate'],
       ));
@@ -45,6 +46,7 @@ class UserController {
         password: requestResponse[i]['password'],
         role_id:
             requestResponse[i]['role_id'] as int?, // تأكد من أن role_id هو int
+        school_id: requestResponse[i]['school_id'],
         date: requestResponse[i]['date'],
         isActivate: requestResponse[i]['isActivate'],
       ));
@@ -54,8 +56,8 @@ class UserController {
 
   add_user(UserModel usermodel) async {
     int response = await _sqlDb.insertData('''
-    INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, role_id, date, isActivate)
-    VALUES ('${usermodel.first_name}', '${usermodel.middle_name}', '${usermodel.grandfather_name}', '${usermodel.last_name}', '${usermodel.password}', '${usermodel.email}', '${usermodel.phone_number}', '${usermodel.telephone_number}', ${usermodel.role_id}, '${usermodel.date}', ${usermodel.isActivate});
+    INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, role_id, school_id, date, isActivate)
+    VALUES ('${usermodel.first_name}', '${usermodel.middle_name}', '${usermodel.grandfather_name}', '${usermodel.last_name}', '${usermodel.password}', '${usermodel.email}', '${usermodel.phone_number}', '${usermodel.telephone_number}', ${usermodel.role_id}, ${usermodel.school_id}, '${usermodel.date}', ${usermodel.isActivate});
     ''');
     print(response);
   }
@@ -89,6 +91,7 @@ class UserController {
       phone_number = '${usermodel.phone_number}',
       telephone_number = '${usermodel.telephone_number}',
       role_id = ${usermodel.role_id},
+      school_id = ${usermodel.school_id},
       date = '${usermodel.date}',
       isActivate = ${usermodel.isActivate}
     WHERE user_id = ${usermodel.user_id}

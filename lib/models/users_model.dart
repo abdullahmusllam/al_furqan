@@ -9,6 +9,7 @@ class UserModel {
   String? email;
   int? password;
   int? role_id;
+  int? school_id;
   String? date; // إضافة حقل تاريخ الميلاد
   int? isActivate; // إضافة حقل تفعيل المستخدم
 
@@ -23,6 +24,7 @@ class UserModel {
     this.email,
     this.password,
     this.role_id,
+    this.school_id,
     this.date,
     this.isActivate,
   });

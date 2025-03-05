@@ -2,6 +2,13 @@ import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'build_text_field.dart';
+import 'build_password_field.dart';
+import 'build_date_field.dart';
+import 'build_dropdown_field.dart';
+import 'build_switch_list_tile.dart';
+import 'build_edit_button.dart';
+import 'build_save_button.dart';
 
 class UserDetails extends StatefulWidget {
   final UserModel user;
@@ -70,7 +77,7 @@ class _UserDetailsState extends State<UserDetails> {
             padding: const EdgeInsets.all(10.0),
             child: Column(
               children: [
-                _buildTextField(
+                buildTextField(
                   controller: _firstname,
                   label: 'الاسم الأول',
                   readOnly: !_isEditable,
@@ -81,7 +88,7 @@ class _UserDetailsState extends State<UserDetails> {
                   },
                 ),
                 SizedBox(height: 10),
-                _buildTextField(
+                buildTextField(
                   controller: _fathername,
                   label: 'اسم الأب',
                   readOnly: !_isEditable,
@@ -92,7 +99,7 @@ class _UserDetailsState extends State<UserDetails> {
                   },
                 ),
                 SizedBox(height: 10),
-                _buildTextField(
+                buildTextField(
                   controller: _grandfathername,
                   label: 'اسم الجد',
                   readOnly: !_isEditable,
@@ -103,7 +110,7 @@ class _UserDetailsState extends State<UserDetails> {
                   },
                 ),
                 SizedBox(height: 10),
-                _buildTextField(
+                buildTextField(
                   controller: _lastname,
                   label: 'القبيلة',
                   readOnly: !_isEditable,
@@ -114,7 +121,7 @@ class _UserDetailsState extends State<UserDetails> {
                   },
                 ),
                 SizedBox(height: 10),
-                _buildTextField(
+                buildTextField(
                   controller: _phone,
                   label: 'رقم الجوال',
                   readOnly: !_isEditable,
@@ -130,7 +137,7 @@ class _UserDetailsState extends State<UserDetails> {
                   },
                 ),
                 SizedBox(height: 10),
-                _buildTextField(
+                buildTextField(
                   controller: _telephone,
                   label: 'رقم البيت',
                   readOnly: !_isEditable,
@@ -143,7 +150,7 @@ class _UserDetailsState extends State<UserDetails> {
                   },
                 ),
                 SizedBox(height: 10),
-                _buildTextField(
+                buildTextField(
                   controller: _email,
                   label: 'البريد الإلكتروني',
                   readOnly: !_isEditable,
@@ -160,210 +167,79 @@ class _UserDetailsState extends State<UserDetails> {
                   },
                 ),
                 SizedBox(height: 10),
-                _buildPasswordField(),
+                buildPasswordField(
+                  controller: _password,
+                  isPasswordVisible: _isPasswordVisible,
+                  isEditable: _isEditable,
+                  togglePasswordVisibility: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                ),
                 SizedBox(height: 10),
-                _buildDateField(),
+                buildDateField(
+                  controller: _date,
+                  isEditable: _isEditable,
+                  context: context,
+                ),
                 SizedBox(height: 10),
-                _buildDropdownField(),
+                buildDropdownField(
+                  selectedRole: _selectedRole,
+                  isEditable: _isEditable,
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedRole = newValue;
+                    });
+                  },
+                ),
                 SizedBox(height: 10),
-                _buildSwitchListTile(),
+                buildSwitchListTile(
+                  isActivate: _isActivate,
+                  isEditable: _isEditable,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _isActivate = value;
+                    });
+                  },
+                ),
                 SizedBox(height: 10),
-                _buildEditButton(),
-                if (_isEditable) _buildSaveButton(),
+                buildEditButton(
+                  isEditable: _isEditable,
+                  onPressed: () {
+                    setState(() {
+                      _isEditable = !_isEditable;
+                    });
+                  },
+                ),
+                if (_isEditable)
+                  buildSaveButton(
+                    formKey: _formKey,
+                    user: widget.user,
+                    firstname: _firstname,
+                    fathername: _fathername,
+                    grandfathername: _grandfathername,
+                    lastname: _lastname,
+                    phone: _phone,
+                    telephone: _telephone,
+                    email: _email,
+                    password: _password,
+                    date: _date,
+                    selectedRole: _selectedRole,
+                    isActivate: _isActivate,
+                    refreshData: _refreshData,
+                    context: context,
+                    setEditable: (bool value) {
+                      setState(() {
+                        _isEditable = value;
+                      });
+                    },
+                  ),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    bool readOnly = false,
-    TextInputType keyboardType = TextInputType.text,
-    int? maxLength,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      maxLength: maxLength,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(),
-      ),
-      readOnly: readOnly,
-      validator: validator,
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return TextFormField(
-      controller: _password,
-      obscureText: !_isPasswordVisible,
-      maxLength: 8,
-      keyboardType: TextInputType.number,
-      decoration: InputDecoration(
-        labelText: 'كلمة المرور',
-        border: OutlineInputBorder(),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-          ),
-          onPressed: () {
-            setState(() {
-              _isPasswordVisible = !_isPasswordVisible;
-            });
-          },
-        ),
-      ),
-      readOnly: !_isEditable,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'الرجاء إدخال كلمة المرور';
-        } else if (value.length < 8) {
-          return 'كلمة المرور يجب أن تكون 8 أرقام أو أكثر';
-        }
-      },
-    );
-  }
-
-  Widget _buildDateField() {
-    return TextFormField(
-      controller: _date,
-      readOnly: true,
-      decoration: InputDecoration(
-        labelText: 'تاريخ الميلاد',
-        border: OutlineInputBorder(),
-      ),
-      onTap: () async {
-        if (_isEditable) {
-          DateTime? pickedDate = await showDatePicker(
-            context: context,
-            initialDate: DateTime.now(),
-            firstDate: DateTime(1700),
-            lastDate: DateTime(2300),
-          );
-          if (pickedDate != null) {
-            String formattedDate = DateFormat.yMMMd().format(pickedDate);
-            setState(() {
-              _date.text = formattedDate;
-            });
-          }
-        }
-      },
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'الرجاء إدخال تاريخ الميلاد';
-        }
-      },
-    );
-  }
-
-  Widget _buildDropdownField() {
-    return DropdownButtonFormField<String>(
-      value: _selectedRole,
-      decoration: InputDecoration(
-        labelText: 'اختر الدور',
-        border: OutlineInputBorder(),
-      ),
-      items: <String>['مشرف', 'مدير', 'معلم'].map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-      onChanged: _isEditable
-          ? (newValue) {
-              setState(() {
-                _selectedRole = newValue;
-              });
-            }
-          : null,
-      validator: (value) {
-        if (value == null) {
-          return 'الرجاء اختيار الدور';
-        }
-      },
-    );
-  }
-
-  Widget _buildSwitchListTile() {
-    return SwitchListTile(
-      title: Text('تفعيل المستخدم'),
-      value: _isActivate,
-      onChanged: _isEditable
-          ? (bool value) {
-              setState(() {
-                _isActivate = value;
-              });
-            }
-          : null,
-    );
-  }
-
-  Widget _buildEditButton() {
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          _isEditable = !_isEditable;
-        });
-      },
-      child: Text(_isEditable ? 'إلغاء' : 'تعديل البيانات'),
-    );
-  }
-
-  Widget _buildSaveButton() {
-    return ElevatedButton(
-      onPressed: () {
-        if (_formKey.currentState!.validate()) {
-          // Handle form submission
-          int phone = int.parse(_phone.text);
-          int telephone = int.parse(_telephone.text);
-          int password = int.parse(_password.text);
-          int? role_id;
-          int activate = _isActivate ? 1 : 0;
-
-          widget.user.first_name = _firstname.text;
-          widget.user.middle_name = _fathername.text;
-          widget.user.grandfather_name = _grandfathername.text;
-          widget.user.last_name = _lastname.text;
-          widget.user.phone_number = phone;
-          widget.user.telephone_number = telephone;
-          widget.user.email = _email.text;
-          widget.user.password = password;
-          widget.user.date = _date.text; // تعيين تاريخ الميلاد
-          widget.user.isActivate = activate; // تعيين حالة التفعيل
-
-          switch (_selectedRole) {
-            case "مشرف":
-              role_id = 0;
-              break;
-            case "مدير":
-              role_id = 1;
-              break;
-            case "معلم":
-              role_id = 2;
-              break;
-          }
-          widget.user.role_id = role_id;
-          userController.update_user(widget.user);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("تم حفظ التعديلات بنجاح"),
-            ),
-          );
-          setState(() {
-            _isEditable = false;
-          });
-          _refreshData();
-          Navigator.of(context)
-              .pop(true); // Return true to indicate that data was updated
-        }
-      },
-      child: Text('حفظ التعديلات'),
     );
   }
 }

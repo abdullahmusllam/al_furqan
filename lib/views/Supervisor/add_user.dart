@@ -1,4 +1,5 @@
 import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -26,6 +27,26 @@ class _AddUserState extends State<AddUser> {
 
   bool _isPasswordVisible = false;
   String? _selectedRole;
+  int? _selectedSchoolId;
+  List<DropdownMenuItem<int>> _schoolItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSchools();
+  }
+
+  Future<void> _loadSchools() async {
+    await schoolController.get_data();
+    setState(() {
+      _schoolItems = schoolController.schools
+          .map((school) => DropdownMenuItem<int>(
+                value: school.school_id,
+                child: Text(school.school_name!),
+              ))
+          .toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -211,6 +232,24 @@ class _AddUserState extends State<AddUser> {
                   },
                 ),
                 SizedBox(height: 10),
+                DropdownButtonFormField<int>(
+                  value: _selectedSchoolId,
+                  decoration: InputDecoration(
+                    labelText: 'اختر المدرسة',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _schoolItems,
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedSchoolId = newValue;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'الرجاء اختيار المدرسة';
+                    }
+                  },
+                ),
                 DropdownButtonFormField<String>(
                   value: _selectedRole,
                   decoration: InputDecoration(
@@ -268,6 +307,7 @@ class _AddUserState extends State<AddUser> {
                         _userModel.date = _date.text; // تعيين تاريخ الميلاد
                         print(_date.text);
                         _userModel.isActivate = activate; // تعيين حالة التفعيل
+                        _userModel.school_id = _selectedSchoolId;
 
                         switch (_selectedRole) {
                           case "مشرف":
