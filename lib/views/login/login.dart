@@ -1,13 +1,70 @@
+import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
 import 'package:al_furqan/views/login/profile.dart';
 import 'package:flutter/material.dart';
 // import 'package:lloginn/profile.dart';
+import '../../models/users_model.dart';
 import 'profile_screen.dart';
+import 'signup_screen.dart';
 
 class LoginScreen extends StatelessWidget {
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   LoginScreen({super.key});
+
+  void _login(BuildContext context) async {
+    String phone = phoneController.text;
+    String password = passwordController.text;
+
+    if (phone.isNotEmpty && password.isNotEmpty) {
+      await userController.get_data_users();
+      var user = userController.users.firstWhere(
+          (user) =>
+              user.phone_number == int.parse(phone) &&
+              user.password == int.parse(password),
+          orElse: () => UserModel());
+
+      if (user.user_id != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => UserManagementPage()),
+        );
+      } else {
+        _showErrorDialog(context, "خطأ", "يرجى إنشاء حساب اولاً.");
+      }
+    } else {
+      _showErrorDialog(context, "خطأ", "الرجاء إدخال رقم الجوال وكلمة المرور.");
+    }
+  }
+
+  void _showErrorDialog(BuildContext context, String title, String content) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SignupScreen(),
+                ),
+              );
+            },
+            child: Text("إنشاء حساب"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("موافق"),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,28 +100,13 @@ class LoginScreen extends StatelessWidget {
             ),
             SizedBox(height: 30),
             _buildTextField(
-                emailController, Icons.phone_enabled_rounded, "رقمك"),
+                phoneController, Icons.phone_enabled_rounded, "رقمك"),
             SizedBox(height: 15),
             _buildTextField(passwordController, Icons.lock, "كلمة المرور",
                 obscureText: true),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                if (emailController.text.isNotEmpty &&
-                    passwordController.text.isNotEmpty) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProfileScreen(
-                        name: "Guest User", // اسم افتراضي
-                        email: emailController.text,
-                      ),
-                    ),
-                  );
-                } else {
-                  _showErrorDialog(context);
-                }
-              },
+              onPressed: () => _login(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 minimumSize: Size(double.infinity, 50),
@@ -74,6 +116,26 @@ class LoginScreen extends StatelessWidget {
               ),
               child: Text("سجل الدخول",
                   style: TextStyle(fontSize: 18, color: Colors.white)),
+            ),
+            SizedBox(height: 10),
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SignupScreen(),
+                    ),
+                  );
+                },
+                child: Text(
+                  "ليس لديك حساب؟ إنشاء حساب",
+                  style: TextStyle(
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -94,22 +156,6 @@ class LoginScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(25),
           borderSide: BorderSide(color: Colors.green),
         ),
-      ),
-    );
-  }
-
-  void _showErrorDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Error"),
-        content: Text("Please enter both email and password."),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("OK"),
-          ),
-        ],
       ),
     );
   }

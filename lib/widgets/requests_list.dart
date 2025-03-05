@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 
-class RequestsList extends StatelessWidget {
+class RequestsList extends StatefulWidget {
   const RequestsList({super.key});
 
+  @override
+  _RequestsListState createState() => _RequestsListState();
+}
+
+class _RequestsListState extends State<RequestsList> {
   @override
   Widget build(BuildContext context) {
     return userController.requests.isEmpty
@@ -25,6 +30,7 @@ class RequestsList extends StatelessWidget {
                           userController.activate_user(
                               userController.requests[index].user_id!);
                           // Refresh data callback should be passed from parent
+                          setState(() {});
                         },
                       ),
                       IconButton(

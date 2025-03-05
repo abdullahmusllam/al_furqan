@@ -33,7 +33,9 @@ class _UserManagementPageState extends State<UserManagementPage>
   }
 
   void _refreshData() async {
-    await userController.get_data();
+    await userController.get_data_users();
+    await userController.get_data_requests();
+
     setState(() {});
   }
 
