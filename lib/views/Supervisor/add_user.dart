@@ -1,6 +1,8 @@
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/controllers/school_controller.dart';
+import 'package:al_furqan/models/schools_model.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/views/Supervisor/add_school.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -42,9 +44,14 @@ class _AddUserState extends State<AddUser> {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(
                 value: school.school_id,
-                child: Text(school.school_name!),
+                child:
+                    Text("${school.school_name!}\n${school.school_location}"),
               ))
           .toList();
+      if (_schoolItems.isNotEmpty &&
+          !_schoolItems.any((item) => item.value == _selectedSchoolId)) {
+        _selectedSchoolId = null;
+      }
     });
   }
 
@@ -232,23 +239,35 @@ class _AddUserState extends State<AddUser> {
                   },
                 ),
                 SizedBox(height: 10),
-                DropdownButtonFormField<int>(
-                  value: _selectedSchoolId,
-                  decoration: InputDecoration(
-                    labelText: 'اختر المدرسة',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: _schoolItems,
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedSchoolId = newValue;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'الرجاء اختيار المدرسة';
-                    }
-                  },
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<int>(
+                        value: _selectedSchoolId,
+                        decoration: InputDecoration(
+                          labelText: 'اختر المدرسة',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: _schoolItems,
+                        onChanged: (newValue) {
+                          setState(() {
+                            _selectedSchoolId = newValue;
+                          });
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () async {
+                        await Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => AddSchool()));
+                        await _loadSchools(); // Reload schools after adding a new one
+                      },
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
                 ),
                 DropdownButtonFormField<String>(
                   value: _selectedRole,

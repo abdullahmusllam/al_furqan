@@ -18,7 +18,7 @@ class SchoolController {
         school_id: data[i]['school_id'] as int?,
         school_name: data[i]['school_name'],
         school_location: data[i]['school_location'],
-        user_id: data[i]['user_id'] as int?,
+        // user_id: data[i]['user_id'] as int?,
       ));
     }
     print(_schools.isEmpty);
@@ -27,10 +27,16 @@ class SchoolController {
   // method add
   add_School(SchoolModel schoolmodel) async {
     int response = await _sqlDb.insertData('''
-    INSERT INTO SCHOOLS (school_name, school_location, user_id)
-    VALUES ('${schoolmodel.school_name}', '${schoolmodel.school_location}', '${schoolmodel.user_id}');
+    INSERT INTO SCHOOLS (school_name, school_location)
+    VALUES ('${schoolmodel.school_name}', '${schoolmodel.school_location}');
     ''');
 
+    print(response);
+  }
+
+  Future<void> delete_School(int schoolId) async {
+    int response = await _sqlDb
+        .deleteData("DELETE FROM SCHOOLS WHERE school_id = $schoolId");
     print(response);
   }
 }
