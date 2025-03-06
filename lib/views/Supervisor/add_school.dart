@@ -92,8 +92,10 @@ class _AddSchoolState extends State<AddSchool> {
                 itemBuilder: (context, index) {
                   final school = schoolController.schools[index];
                   return ListTile(
-                    title: Text(
-                        "${school.school_name!} \n  ID: ${school.school_id}"),
+                    leading: CircleAvatar(
+                      child: Text("${school.school_id}"),
+                    ),
+                    title: Text("${school.school_name!}"),
                     subtitle: Text(school.school_location!),
                     trailing: IconButton(
                       icon: Icon(Icons.delete, color: Colors.red),
