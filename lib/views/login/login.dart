@@ -1,4 +1,5 @@
 import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
 import 'package:al_furqan/views/login/profile.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class LoginScreen extends StatelessWidget {
       if (user.user_id != null) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => UserManagementPage()),
+          MaterialPageRoute(builder: (context) => DashboardScreen()),
         );
       } else {
         _showErrorDialog(context, "خطأ", "يرجى إنشاء حساب اولاً.");
@@ -69,10 +70,6 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 2,
-        title: Text("تسجيل الدخول"),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
