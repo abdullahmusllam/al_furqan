@@ -32,11 +32,14 @@ class SchoolController {
     ''');
 
     print(response);
+    print(schoolmodel.school_id);
   }
 
   Future<void> delete_School(int schoolId) async {
     int response = await _sqlDb
         .deleteData("DELETE FROM SCHOOLS WHERE school_id = $schoolId");
+
+    print("Response: $response, school_id : $schoolId");
     print(response);
   }
 }

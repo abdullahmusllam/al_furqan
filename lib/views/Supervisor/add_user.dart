@@ -29,7 +29,7 @@ class _AddUserState extends State<AddUser> {
 
   bool _isPasswordVisible = false;
   String? _selectedRole;
-  int? _selectedSchoolId;
+  int? _selectedSchoolId = 0; // تعيين القيمة الافتراضية إلى صفر
   List<DropdownMenuItem<int>> _schoolItems = [];
 
   @override
@@ -40,6 +40,9 @@ class _AddUserState extends State<AddUser> {
 
   Future<void> _loadSchools() async {
     await schoolController.get_data();
+    schoolController.schools.forEach((element) {
+      print("School ID : ${element.school_id}");
+    });
     setState(() {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(
@@ -48,10 +51,8 @@ class _AddUserState extends State<AddUser> {
                     Text("${school.school_name!}\n${school.school_location}"),
               ))
           .toList();
-      if (_schoolItems.isNotEmpty &&
-          !_schoolItems.any((item) => item.value == _selectedSchoolId)) {
-        _selectedSchoolId = null;
-      }
+
+      _selectedSchoolId = null;// تعيين القيمة الافتراضية إلى null
     });
   }
 
@@ -327,7 +328,7 @@ class _AddUserState extends State<AddUser> {
                         print(_date.text);
                         _userModel.isActivate = activate; // تعيين حالة التفعيل
                         _userModel.school_id = _selectedSchoolId;
-
+                        print("=========================$_selectedSchoolId");
                         switch (_selectedRole) {
                           case "مشرف":
                             role_id = 0;

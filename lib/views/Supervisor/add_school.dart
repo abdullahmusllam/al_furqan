@@ -81,6 +81,7 @@ class _AddSchoolState extends State<AddSchool> {
                     },
                     child: Text('إضافة مدرسة'),
                   ),
+                  SizedBox(height: 10),
                 ],
               ),
             ),
@@ -91,14 +92,14 @@ class _AddSchoolState extends State<AddSchool> {
                 itemBuilder: (context, index) {
                   final school = schoolController.schools[index];
                   return ListTile(
-                    title: Text(school.school_name!),
+                    title: Text(
+                        "${school.school_name!} \n  ID: ${school.school_id}"),
                     subtitle: Text(school.school_location!),
                     trailing: IconButton(
                       icon: Icon(Icons.delete, color: Colors.red),
                       onPressed: () async {
                         await schoolController.delete_School(school.school_id!);
                         await _loadSchools();
-                        Navigator.of(context).pop(); // Close the dialog
                       },
                     ),
                   );

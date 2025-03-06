@@ -1,5 +1,6 @@
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/controllers/school_controller.dart';
+import 'package:al_furqan/views/Supervisor/filter_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/widgets/user_details.dart';
 
@@ -39,75 +40,16 @@ class _UserListState extends State<UserList> {
     showDialog(
       context: context,
       builder: (context) {
-        String? tempSelectedRole = _selectedRole;
-        int? tempSelectedSchoolId = _selectedSchoolId;
-        return AlertDialog(
-          title: Text('تصفية المستخدمين'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButtonFormField<String>(
-                value: tempSelectedRole,
-                decoration: InputDecoration(
-                  labelText: 'اختر الدور',
-                  border: OutlineInputBorder(),
-                ),
-                items: <String>['مشرف', 'مدير', 'معلم'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    tempSelectedRole = newValue;
-                  });
-                },
-              ),
-              SizedBox(height: 10),
-              DropdownButtonFormField<int>(
-                value: tempSelectedSchoolId,
-                decoration: InputDecoration(
-                  labelText: 'اختر المدرسة',
-                  border: OutlineInputBorder(),
-                ),
-                items: _schoolItems,
-                onChanged: (newValue) {
-                  setState(() {
-                    tempSelectedSchoolId = newValue;
-                  });
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('إلغاء'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _selectedRole = tempSelectedRole;
-                  _selectedSchoolId = tempSelectedSchoolId;
-                });
-                Navigator.of(context).pop();
-              },
-              child: Text('تطبيق'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _selectedRole = null;
-                  _selectedSchoolId = null;
-                });
-                Navigator.of(context).pop();
-              },
-              child: Text('إزالة التصفية'),
-            ),
-          ],
+        return FilterDialog(
+          selectedRole: _selectedRole,
+          selectedSchoolId: _selectedSchoolId,
+          schoolItems: _schoolItems,
+          onApply: (String? role, int? schoolId) {
+            setState(() {
+              _selectedRole = role;
+              _selectedSchoolId = schoolId;
+            });
+          },
         );
       },
     );
@@ -117,9 +59,9 @@ class _UserListState extends State<UserList> {
   Widget build(BuildContext context) {
     List filteredUsers = userController.users.where((user) {
       bool matchesSearchQuery = _searchQuery.isEmpty ||
-          user.first_name!.contains(_searchQuery) ||
-          user.middle_name!.contains(_searchQuery) ||
-          user.last_name!.contains(_searchQuery);
+          user.first_name?.contains(_searchQuery) == true ||
+          user.middle_name?.contains(_searchQuery) == true ||
+          user.last_name?.contains(_searchQuery) == true;
       bool matchesRole = _selectedRole == null ||
           (_selectedRole == "مشرف" && user.role_id == 0) ||
           (_selectedRole == "مدير" && user.role_id == 1) ||
@@ -177,11 +119,11 @@ class _UserListState extends State<UserList> {
                     final school = schoolController.schools.firstWhere(
                         (school) =>
                             school.school_id == filteredUsers[index].school_id,
-                        orElse: () => SchoolModel(school_name: "غير معروف"));
+                        orElse: () => SchoolModel(school_name: "المكتب"));
 
                     return ListTile(
                       title: Text(
-                          "${filteredUsers[index].first_name!} ${filteredUsers[index].middle_name!} ${filteredUsers[index].last_name!}"),
+                          "${filteredUsers[index].first_name ?? ''} ${filteredUsers[index].middle_name ?? ''} ${filteredUsers[index].last_name ?? ''}"),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -189,8 +131,8 @@ class _UserListState extends State<UserList> {
                           Text(filteredUsers[index].isActivate == 1
                               ? "مفعل"
                               : "غير مفعل"),
-                          Text("${filteredUsers[index].date}"),
-                          Text(school.school_name!)
+                          Text("${filteredUsers[index].date ?? ''}"),
+                          Text("${school.school_name}"),
                         ],
                       ),
                       trailing: SizedBox(
