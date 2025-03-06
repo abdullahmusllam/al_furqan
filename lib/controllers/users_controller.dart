@@ -1,3 +1,4 @@
+import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
 
@@ -37,10 +38,10 @@ class UserController {
             response[i]['isActivate'] as int?, // تأكد من أن isActivate هو int
       ));
     }
-    users.forEach((element) {
-      print(
-          "USER ID : ${element.user_id}\nUSER NAME : ${element.first_name}\nSCHOOL ID : ${element.school_id}\n____________________________________________________________________________");
-    });
+    // users.forEach((element) {
+    //   print(
+    //       "USER ID : ${element.user_id}\nUSER NAME : ${element.first_name}\nSCHOOL ID : ${element.school_id}\n____________________________________________________________________________");
+    // });
     print("${_users.isEmpty}");
   }
 
@@ -62,13 +63,18 @@ class UserController {
             requestResponse[i]['telephone_number'].toString()), // تحويل إلى int
         email: requestResponse[i]['email'],
         password: int.tryParse(requestResponse[i]['password'].toString()),
-        role_id:
-            requestResponse[i]['role_id'] as int?, // تأكد من أن role_id هو int
+        role_id: requestResponse[i]['role_id'] as int?,
+        school_id: requestResponse[i]['school_id']
+            as int?, // تأكد من أن role_id هو int
         date: requestResponse[i]['date'],
         isActivate: requestResponse[i]['isActivate']
             as int?, // تأكد من أن isActivate هو int
       ));
     }
+    requests.forEach((element) {
+      print(
+          "REQUEST ID : ${element.user_id}\nUSER NAME : ${element.first_name}\n SCHOOL ID:${element.school_id}\n____________________________________________________________________________");
+    });
     print("${_requests.isEmpty}");
   }
 
@@ -125,10 +131,11 @@ class UserController {
 
   add_request(UserModel usermodel) async {
     int response = await _sqlDb.insertData('''
-    INSERT INTO REQUESTS (first_name, middle_name, grandfather_name, last_name, phone_number, telephone_number, email, password, date)
-    VALUES ('${usermodel.first_name}', '${usermodel.middle_name}', '${usermodel.grandfather_name}', '${usermodel.last_name}', '${usermodel.phone_number}', '${usermodel.telephone_number}', '${usermodel.email}', '${usermodel.password}', '${usermodel.date}');
+    INSERT INTO REQUESTS (first_name, middle_name, grandfather_name, last_name, phone_number, telephone_number, email, password,role_id ,school_id, date)
+    VALUES ('${usermodel.first_name}', '${usermodel.middle_name}', '${usermodel.grandfather_name}', '${usermodel.last_name}', '${usermodel.phone_number}', '${usermodel.telephone_number}', '${usermodel.email}', '${usermodel.password}',${usermodel.role_id},${usermodel.school_id}, '${usermodel.date}');
     ''');
-    print(response);
+    print("request school id : ${usermodel.school_id}");
+    print("response = $response");
   }
 }
 

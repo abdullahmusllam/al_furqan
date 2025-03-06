@@ -282,6 +282,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         int phone = int.parse(_phone.text);
                         int telephone = int.parse(_telephone.text);
                         int password = int.parse(_password.text);
+                        int? role_id;
 
                         _userModel.first_name = _firstname.text;
                         _userModel.middle_name = _fathername.text;
@@ -293,8 +294,19 @@ class _SignupScreenState extends State<SignupScreen> {
                         _userModel.password = password;
                         _userModel.date = _date.text; // تعيين تاريخ الميلاد
                         _userModel.school_id = _selectedSchoolId;
-                        _userModel.role_id = _selectedRole == "مدير" ? 1 : 2;
-
+                        switch (_selectedRole) {
+                          case "مشرف":
+                            role_id = 0;
+                            break;
+                          case "مدير":
+                            role_id = 1;
+                            break;
+                          case "معلم":
+                            role_id = 2;
+                            break;
+                        }
+                        _userModel.role_id = role_id;
+                        print("_selectedSchoolId = $_selectedSchoolId");
                         userController.add_request(_userModel);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

@@ -24,7 +24,7 @@ class _UserListState extends State<UserList> {
   }
 
   void _refreshData() async {
-    await userController.get_data();
+    await userController.get_data_users();
     await schoolController.get_data();
     setState(() {
       _schoolItems = schoolController.schools
