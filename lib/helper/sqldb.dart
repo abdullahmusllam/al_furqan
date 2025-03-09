@@ -1,7 +1,8 @@
 // يجب حفظ هذا الملف لإنشاء اي قاعدة بيانات
 
 import 'dart:ui';
-
+import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -13,66 +14,35 @@ class SqlDb {
     return _db!;
   }
 
-  // here we init the database and creat the tables
+  // here we init the database and create the tables
   initalDb() async {
-    String databasepath = await getDatabasesPath();
-    print(databasepath);
-    String path = join(databasepath, 'alforqanDB.db');
-    Database mydb = await openDatabase(path,
-        onCreate: _onCreate, version: 4, onUpgrade: _onUpgrade);
+    String databasePath = await getDatabasesPath();
+    String path = join(databasePath, 'alforqanDB.db');
+
+    // تحقق مما إذا كانت قاعدة البيانات موجودة بالفعل
+    bool dbExists = await databaseExists(path);
+
+    if (!dbExists) {
+      // تعليق الكود القديم الذي ينشئ قاعدة بيانات جديدة
+      /*
+      Database mydb = await openDatabase(path,
+          onCreate: _onCreate, version: 4, onUpgrade: _onUpgrade);
+      return mydb;
+      */
+
+      // تحميل قاعدة البيانات من assets ونسخها إلى المسار الصحيح
+      ByteData data = await rootBundle.load('assets/database/al_furqanDB.db');
+      List<int> bytes = data.buffer.asUint8List();
+      await File(path).writeAsBytes(bytes, flush: true);
+    }
+
+    Database mydb = await openDatabase(path, version: 4, onUpgrade: _onUpgrade);
     return mydb;
   }
 
-  _onUpgrade(Database db, int oldversion, int newversion) async {
-    // Check if the column 'isActivate' exists
-    // var tableInfo = await db.rawQuery("PRAGMA table_info(Users)");
-    // var columnExists =
-    //     tableInfo.any((column) => column['name'] == 'isActivate');
-
-    // if (!columnExists) {
-    //   await db
-    //       .execute('ALTER TABLE Users ADD COLUMN isActivate INTEGER DEFAULT 0');
-    // }
-
-    // Check if the column 'date' exists
-    // columnExists = tableInfo.any((column) => column['name'] == 'date');
+  _onUpgrade(Database db, int oldVersion, int newVersion) async {
     await db.execute('ALTER TABLE Users ADD COLUMN school_id INTEGER');
     await db.execute('ALTER TABLE REQUESTS ADD COLUMN school_id INTEGER');
-
-    // if (!columnExists) {
-    //   await db.execute('ALTER TABLE Users ADD COLUMN date TEXT');
-    // }
-    await db.execute('''
-    CREATE TABLE SCHOOLS(
-      school_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      school_name TEXT,
-      school_location TEXT,
-      user_id INTEGER
-    )
-    ''');
-    // await db.execute('''
-    // CREATE TABLE REQUESTS (
-    //   user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    //   first_name TEXT,
-    //   middle_name TEXT,
-    //   grandfather_name TEXT,
-    //   last_name TEXT,
-    //   phone_number TEXT,
-    //   telephone_number TEXT,
-    //   email TEXT,
-    //   password TEXT,
-    //   role_id INTEGER,
-    //   school_id INTEGER,
-    //   date TEXT,
-    //   isActivate INTEGER
-    // )
-    // ''');
-
-    print(
-        "onUpgrade =========================================================");
-  }
-
-  _onCreate(Database db, int version) async {
     await db.execute('''
     CREATE TABLE SCHOOLS(
       school_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -82,51 +52,64 @@ class SqlDb {
     )
     ''');
 
-    await db.execute('''
-        CREATE TABLE Users (
-            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            first_name TEXT,
-            middle_name TEXT,
-            grandfather_name TEXT,
-            last_name TEXT,
-            password INTEGER,
-            phone_number INTEGER,
-            telephone_number INTEGER,
-            email TEXT,
-            role_id INTEGER,
-            school_id INTEGER,
-            date Date,
-            isActivate INTEGER DEFAULT 0,
-            FOREIGN KEY(role_id) REFERENCES Roles(role_id)
-        )
-''');
-    await db.execute('''
-    CREATE TABLE Roles (
-      role_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      role_name TEXT,
-      role_description TEXT
-  )
-''');
-    await db.execute('''
-    CREATE TABLE REQUESTS (
-      user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      first_name TEXT,
-      middle_name TEXT,
-      grandfather_name TEXT,
-      last_name TEXT,
-      phone_number TEXT,
-      telephone_number TEXT,
-      email TEXT,
-      password TEXT,
-      role_id INTEGER,
-      school_id INTEGER,
-      date TEXT,
-      isActivate INTEGER
-    )
-    ''');
-
-    print("==============onCreate database and tables ================");
+    print("onUpgrade =========================================================");
   }
+
+//   _onCreate(Database db, int version) async {
+//     await db.execute('''
+//     CREATE TABLE SCHOOLS(
+//       school_id INTEGER PRIMARY KEY AUTOINCREMENT,
+//       school_name TEXT,
+//       school_location TEXT,
+//       user_id INTEGER
+//     )
+//     ''');
+
+//     await db.execute('''
+//         CREATE TABLE Users (
+//             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+//             first_name TEXT,
+//             middle_name TEXT,
+//             grandfather_name TEXT,
+//             last_name TEXT,
+//             password INTEGER,
+//             phone_number INTEGER,
+//             telephone_number INTEGER,
+//             email TEXT,
+//             role_id INTEGER,
+//             school_id INTEGER,
+//             date Date,
+//             isActivate INTEGER DEFAULT 0,
+//             FOREIGN KEY(role_id) REFERENCES Roles(role_id)
+//         )
+// ''');
+//     await db.execute('''
+//     CREATE TABLE Roles (
+//       role_id INTEGER PRIMARY KEY AUTOINCREMENT,
+//       role_name TEXT,
+//       role_description TEXT
+//   )
+// ''');
+//     await db.execute('''
+//     CREATE TABLE REQUESTS (
+//       user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+//       first_name TEXT,
+//       middle_name TEXT,
+//       grandfather_name TEXT,
+//       last_name TEXT,
+//       phone_number TEXT,
+//       telephone_number TEXT,
+//       email TEXT,
+//       password TEXT,
+//       role_id INTEGER,
+//       school_id INTEGER,
+//       date TEXT,
+//       isActivate INTEGER
+//     )
+//     ''');
+
+//     print("==============onCreate database and tables ================");
+//   }
 
   // SELECT
   Future<List<Map<String, dynamic>>> readData(String sql) async {

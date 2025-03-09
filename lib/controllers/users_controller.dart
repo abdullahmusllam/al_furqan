@@ -16,7 +16,8 @@ class UserController {
   }
 
   get_data_users() async {
-    List<Map> response = await _sqlDb.readData("SELECT * FROM 'USERS'");
+    List<Map> response =
+        await _sqlDb.readData("SELECT * FROM 'USERS' WHERE isActivate = 1");
     _users.clear();
     for (var i = 0; i < response.length; i++) {
       _users.add(UserModel(
@@ -34,8 +35,7 @@ class UserController {
         role_id: response[i]['role_id'] as int?, // تأكد من أن role_id هو int
         school_id: response[i]['school_id'] as int?,
         date: response[i]['date'],
-        isActivate:
-            response[i]['isActivate'] as int?, // تأكد من أن isActivate هو int
+        // isActivate: response[i]['isActivate'] as int?, // تأكد من أن isActivate هو int
       ));
     }
     // users.forEach((element) {
@@ -47,7 +47,7 @@ class UserController {
 
   get_data_requests() async {
     List<Map> requestResponse =
-        await _sqlDb.readData("SELECT * FROM 'REQUESTS'");
+        await _sqlDb.readData("SELECT * FROM 'USERS' WHERE isActivate = 0");
     _requests.clear();
     for (var i = 0; i < requestResponse.length; i++) {
       _requests.add(UserModel(
@@ -67,8 +67,8 @@ class UserController {
         school_id: requestResponse[i]['school_id']
             as int?, // تأكد من أن role_id هو int
         date: requestResponse[i]['date'],
-        isActivate: requestResponse[i]['isActivate']
-            as int?, // تأكد من أن isActivate هو int
+        // isActivate: requestResponse[i]['isActivate']
+        //     as int?, // تأكد من أن isActivate هو int
       ));
     }
     requests.forEach((element) {
@@ -81,7 +81,7 @@ class UserController {
   add_user(UserModel usermodel) async {
     int response = await _sqlDb.insertData('''
     INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, role_id, school_id, date, isActivate)
-    VALUES ('${usermodel.first_name}', '${usermodel.middle_name}', '${usermodel.grandfather_name}', '${usermodel.last_name}', '${usermodel.password}', '${usermodel.email}', '${usermodel.phone_number}', '${usermodel.telephone_number}', ${usermodel.role_id}, ${usermodel.school_id}, '${usermodel.date}', ${usermodel.isActivate});
+    VALUES ('${usermodel.first_name}', '${usermodel.middle_name}', '${usermodel.grandfather_name}', '${usermodel.last_name}', '${usermodel.password}', '${usermodel.email}', '${usermodel.phone_number}', '${usermodel.telephone_number}', ${usermodel.role_id}, ${usermodel.school_id}, '${usermodel.date}', '${usermodel.isActivate}');
     ''');
 
     print(response);
