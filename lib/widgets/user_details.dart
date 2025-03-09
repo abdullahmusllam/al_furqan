@@ -2,6 +2,8 @@ import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../controllers/school_controller.dart';
+import '../views/Supervisor/add_school.dart';
 import 'build_text_field.dart';
 import 'build_password_field.dart';
 import 'build_date_field.dart';
@@ -34,7 +36,28 @@ class _UserDetailsState extends State<UserDetails> {
   late TextEditingController _date;
   bool _isPasswordVisible = false;
   String? _selectedRole;
+  int? _selectedSchoolId = 0; // تعيين القيمة الافتراضية إلى صفر
+  List<DropdownMenuItem<int>> _schoolItems = [];
+
   bool _isActivate = false;
+
+  Future<void> _loadSchools() async {
+    await schoolController.get_data();
+    schoolController.schools.forEach((element) {
+      print("School ID : ${element.school_id}");
+    });
+    setState(() {
+      _schoolItems = schoolController.schools
+          .map((school) => DropdownMenuItem<int>(
+                value: school.school_id,
+                child:
+                    Text("${school.school_name!}\n${school.school_location}"),
+              ))
+          .toList();
+
+      _selectedSchoolId = null; // تعيين القيمة الافتراضية إلى null
+    });
+  }
 
   @override
   void initState() {
@@ -182,6 +205,34 @@ class _UserDetailsState extends State<UserDetails> {
                   controller: _date,
                   isEditable: _isEditable,
                   context: context,
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<int>(
+                        value: _selectedSchoolId,
+                        decoration: InputDecoration(
+                          labelText: 'اختر المدرسة',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: _schoolItems,
+                        onChanged: (newValue) {
+                          setState(() {
+                            _selectedSchoolId = newValue;
+                          });
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () async {
+                        await Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => AddSchool()));
+                        await _loadSchools(); // Reload schools after adding a new one
+                      },
+                    ),
+                  ],
                 ),
                 SizedBox(height: 10),
                 buildDropdownField(

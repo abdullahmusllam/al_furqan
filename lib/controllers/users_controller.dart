@@ -96,13 +96,14 @@ class UserController {
   activate_user(int userId) async {
     // نسخ جميع أعمدة الصف من جدول REQUESTS إلى جدول USERS
     await _sqlDb.insertData('''
-    INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, role_id, date, isActivate)
-    SELECT first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, role_id, date, 1
+    INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, role_id, school_id, date, isActivate)
+    SELECT first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, role_id, school_id, date, 1
     FROM REQUESTS WHERE user_id = $userId
     ''');
     // حذف الصف من جدول REQUESTS
     await _sqlDb.deleteData("DELETE FROM REQUESTS WHERE user_id = $userId");
     await get_data_users();
+    await get_data_requests();
   }
 
   delete_request(int userId) async {

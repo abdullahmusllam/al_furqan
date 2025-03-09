@@ -1,11 +1,10 @@
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
-import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
-import 'package:al_furqan/views/login/profile.dart';
 import 'package:flutter/material.dart';
-// import 'package:lloginn/profile.dart';
+import 'package:flutter/services.dart';
 import '../../models/users_model.dart';
-import 'profile_screen.dart';
+import '../SchoolDirector/SchoolDirectorHome.dart';
+import '../Teacher/mainTeacher.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -13,6 +12,21 @@ class LoginScreen extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
 
   LoginScreen({super.key});
+
+  void toDashboardAdmin(BuildContext context) {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => DashboardScreen()));
+  }
+
+  void toDashboardManeger(BuildContext context) {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => SchoolManagerScreen()));
+  }
+
+  void toDashboardTeacher(BuildContext context) {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => TeacherDashboard()));
+  }
 
   void _login(BuildContext context) async {
     String phone = phoneController.text;
@@ -26,13 +40,20 @@ class LoginScreen extends StatelessWidget {
               user.password == int.parse(password),
           orElse: () => UserModel());
 
-      if (user.user_id != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => DashboardScreen()),
-        );
-      } else {
-        _showErrorDialog(context, "خطأ", "يرجى إنشاء حساب اولاً.");
+      switch (user.role_id) {
+        case 0:
+          toDashboardAdmin(context);
+          break;
+        case 1:
+          toDashboardManeger(context);
+          break;
+        case 2:
+          toDashboardTeacher(context);
+          break;
+        default:
+          _showErrorDialog(
+              context, "خطأ", "حسابك غير موجود أو غير مفعل تواصل مع مديرك");
+          break;
       }
     } else {
       _showErrorDialog(context, "خطأ", "الرجاء إدخال رقم الجوال وكلمة المرور.");
@@ -46,18 +67,6 @@ class LoginScreen extends StatelessWidget {
         title: Text(title),
         content: Text(content),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SignupScreen(),
-                ),
-              );
-            },
-            child: Text("إنشاء حساب"),
-          ),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text("موافق"),
@@ -143,7 +152,32 @@ class LoginScreen extends StatelessWidget {
   Widget _buildTextField(
       TextEditingController controller, IconData icon, String hint,
       {bool obscureText = false}) {
+    final emojiRegex = RegExp(
+      r'[\u{1F600}-\u{1F64F}' // Emoticons
+      r'\u{1F300}-\u{1F5FF}' // Misc Symbols and Pictographs
+      r'\u{1F680}-\u{1F6FF}' // Transport and Map Symbols
+      r'\u{1F700}-\u{1F77F}' // Alchemical Symbols
+      r'\u{1F780}-\u{1F7FF}' // Geometric Shapes Extended
+      r'\u{1F800}-\u{1F8FF}' // Supplemental Arrows-C
+      r'\u{1F900}-\u{1F9FF}' // Supplemental Symbols and Pictographs
+      r'\u{1FA00}-\u{1FA6F}' // Chess Symbols
+      r'\u{1FA70}-\u{1FAFF}' // Symbols and Pictographs Extended-A
+      r'\u{2600}-\u{26FF}' // Miscellaneous Symbols
+      r'\u{2700}-\u{27BF}' // Dingbats
+      r'\u{2300}-\u{23FF}' // Miscellaneous Technical
+      r'\u{2B50}-\u{2B55}' // Stars and Miscellaneous
+      r'\u{1F1E6}-\u{1F1FF}' // Flags (regional indicator symbols)
+      r'\u{1F201}-\u{1F251}' // Enclosed Ideographic Supplement
+      r'\u{1F004}' // Mahjong Tile Red Dragon
+      r'\u{1F0CF}' // Playing Card Black Joker
+      r'\u{1F9C0}' // Cheese Wedge
+      r'\u{1F018}-\u{1F270}' // Enclosed CJK Letters and Months
+      r'\u{1F202}-\u{1F2FF}]', // More Enclosed Ideographic Supplement
+      unicode: true,
+    );
     return TextField(
+      textInputAction: TextInputAction.next,
+      inputFormatters: [FilteringTextInputFormatter.deny(emojiRegex)],
       controller: controller,
       obscureText: obscureText,
       decoration: InputDecoration(

@@ -23,6 +23,7 @@ class _UserListState extends State<UserList> {
     _refreshData();
   }
 
+  // Fetch user and school data
   void _refreshData() async {
     await userController.get_data_users();
     await schoolController.get_data();
@@ -36,6 +37,7 @@ class _UserListState extends State<UserList> {
     });
   }
 
+  // Show filter dialog
   void _showFilterDialog() {
     showDialog(
       context: context,
@@ -57,6 +59,7 @@ class _UserListState extends State<UserList> {
 
   @override
   Widget build(BuildContext context) {
+    // Filter users based on search query, role, and school
     List filteredUsers = userController.users.where((user) {
       bool matchesSearchQuery = _searchQuery.isEmpty ||
           user.first_name?.contains(_searchQuery) == true ||
@@ -116,6 +119,7 @@ class _UserListState extends State<UserList> {
                         break;
                     }
 
+                    // Find the school name for the user
                     final school = schoolController.schools.firstWhere(
                         (school) =>
                             school.school_id == filteredUsers[index].school_id,
@@ -152,8 +156,19 @@ class _UserListState extends State<UserList> {
                               color: Colors.redAccent,
                               icon: Icon(Icons.delete),
                               onPressed: () {
-                                userController
-                                    .delete_user(filteredUsers[index].user_id!);
+                                // Prevent deletion of supervisors
+                                if (userController.users[index].role_id == 0) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text("لا تملك صلاحية حذف مشرف !!"),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                } else {
+                                  userController.delete_user(
+                                      filteredUsers[index].user_id!);
+                                }
                                 _refreshData();
                               },
                             ),

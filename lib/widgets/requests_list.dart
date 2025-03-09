@@ -11,15 +11,17 @@ class RequestsList extends StatefulWidget {
 }
 
 class _RequestsListState extends State<RequestsList> {
+  // List to hold dropdown menu items for schools
   List<DropdownMenuItem<int>> _schoolItems = [];
 
   @override
   void initState() {
-    // TODO: implement initState
+    // Initialize state and refresh data
     super.initState();
     _refreshData();
   }
 
+  // Function to refresh data from controllers
   void _refreshData() async {
     await userController.get_data_requests();
     await schoolController.get_data();
@@ -36,10 +38,11 @@ class _RequestsListState extends State<RequestsList> {
   @override
   Widget build(BuildContext context) {
     return userController.requests.isEmpty
-        ? Center(child: Text("لا يوجد طلبات"))
+        ? Center(child: Text("لا يوجد طلبات")) // Display message if no requests
         : ListView.builder(
             itemCount: userController.requests.length,
             itemBuilder: (context, index) {
+              // Determine role name based on role_id
               String? role_name;
               switch (userController.requests[index].role_id) {
                 case 0:
@@ -53,6 +56,7 @@ class _RequestsListState extends State<RequestsList> {
                   break;
               }
 
+              // Find the school associated with the request
               final school = schoolController.schools.firstWhere(
                   (school) =>
                       school.school_id ==
@@ -61,46 +65,139 @@ class _RequestsListState extends State<RequestsList> {
 
               return ListTile(
                 leading: CircleAvatar(
-                  child: Text("$index"),
+                  child: Text("${index + 1}"), // Display index in avatar
                 ),
                 title: Text(
-                    "${userController.requests[index].first_name!} ${userController.requests[index].middle_name!} ${userController.requests[index].last_name!}"),
+                    "${userController.requests[index].first_name!} ${userController.requests[index].middle_name!} ${userController.requests[index].last_name!}"), // Display user name
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("$role_name"),
-                    Text(school.school_name!),
-                    Text("طلب تفعيل الحساب"),
+                    Text("$role_name"), // Display role name
+                    Text(school.school_name!), // Display school name
+                    Text("طلب تفعيل الحساب"), // Display request type
                   ],
                 ),
-                trailing: SizedBox(
-                  width: 98,
-                  child: Row(
-                    children: [
-                      IconButton(
-                        color: Colors.green,
-                        icon: Icon(Icons.check),
-                        onPressed: () {
-                          userController.activate_user(
-                              userController.requests[index].user_id!);
-                          // Refresh data callback should be passed from parent
-                          setState(() {});
-                        },
-                      ),
-                      IconButton(
-                        color: Colors.redAccent,
-                        icon: Icon(Icons.delete),
-                        onPressed: () {
-                          userController.delete_request(
-                              userController.requests[index].user_id!);
-                          _refreshData(); // Refresh data callback should be passed from parent
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+                trailing: PopupMenuButton(onSelected: (newValue) {
+                  // Handle popup menu selection
+                  // if (newValue == "accept") {
+                  //   // Accept the request
+                  //   // userController
+                  //   //     .activate_user(userController.requests[index].user_id!);
+                  //   // _refreshData();
+                  //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  //     content: Text("تم تنشيط الحساب"),
+                  //     duration: Duration(seconds: 1),
+                  //     backgroundColor: Colors.green,
+                  //   ));
+                  // } else if (newValue == "delete") {
+                  //   // Reject the request
+                  //   showDialogDeleteRequest(context, index);
+                  // } else
+                  switch (newValue) {
+                    case "accept":
+                      userController.activate_user(
+                          userController.requests[index].user_id!);
+                      _refreshData();
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("تم تنشيط الحساب"),
+                        duration: Duration(seconds: 1),
+                        backgroundColor: Colors.green,
+                      ));
+                      break;
+                    case "details":
+                      showDialogDetailsRequest(context, index);
+                      break;
+                    case "delete":
+                      showDialogDeleteRequest(context, index);
+                  }
+                }, itemBuilder: (BuildContext context) {
+                  return [
+                    PopupMenuItem(value: "accept", child: Text("قبول الطلب")),
+                    PopupMenuItem(
+                        value: "details", child: Text("تفاصيل الطلب")),
+                    PopupMenuItem(value: "delete", child: Text("حذف الطلب")),
+                  ];
+                }),
               );
             },
           );
+  }
+
+  Future<dynamic> showDialogDeleteRequest(BuildContext context, int index) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: Text("تأكيد الحذف"),
+              content: Text("هل تريد حذف الطلب؟"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    userController.delete_request(
+                        userController.requests[index].user_id!);
+                    _refreshData();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("تم حذف الطلب"),
+                        duration: Duration(seconds: 1),
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    );
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("حذف"),
+                )
+              ]);
+        });
+  }
+
+  Column testDropButton(BuildContext context, int index) {
+    return Column(
+      children: [
+        MaterialButton(
+          child: Text("تفاصيل"),
+          onPressed: () {
+            // Show request details in a dialog
+            showDialogDetailsRequest(context, index);
+          },
+        ),
+        MaterialButton(
+          child: Text("رفع طلب"),
+          onPressed: () {
+            // Activate user and refresh data
+          },
+        ),
+        MaterialButton(
+          child: Text("حذف"),
+          onPressed: () {
+            // Delete request and refresh data
+            userController
+                .delete_request(userController.requests[index].user_id!);
+            _refreshData();
+          },
+        ),
+      ],
+    );
+  }
+
+  Future<dynamic> showDialogDetailsRequest(BuildContext context, int index) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("تفاصيل الطلب"),
+          content: Text(
+              "تفاصيل الطلب الخاصة بالمستخدم \n${userController.requests[index].first_name!} ${userController.requests[index].middle_name!} ${userController.requests[index].last_name!}\nرقم الجوال : ${userController.requests[index].phone_number}"),
+          actions: [
+            TextButton(
+              child: Text("إغلاق"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

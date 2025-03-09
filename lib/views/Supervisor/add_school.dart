@@ -100,8 +100,31 @@ class _AddSchoolState extends State<AddSchool> {
                     trailing: IconButton(
                       icon: Icon(Icons.delete, color: Colors.red),
                       onPressed: () async {
-                        await schoolController.delete_School(school.school_id!);
-                        await _loadSchools();
+                        bool confirmDelete = await showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text('تأكيد الحذف'),
+                            content:
+                                Text('هل أنت متأكد أنك تريد حذف هذه المدرسة؟'),
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: Text('إلغاء'),
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
+                                child: Text('حذف'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirmDelete) {
+                          await schoolController
+                              .delete_School(school.school_id!);
+                          await _loadSchools();
+                        }
                       },
                     ),
                   );
