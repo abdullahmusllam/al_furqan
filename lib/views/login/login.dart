@@ -7,6 +7,8 @@ import '../SchoolDirector/SchoolDirectorHome.dart';
 import '../Teacher/mainTeacher.dart';
 import 'signup_screen.dart';
 
+String loginNumber = '';
+
 class LoginScreen extends StatelessWidget {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -18,9 +20,9 @@ class LoginScreen extends StatelessWidget {
         .push(MaterialPageRoute(builder: (context) => DashboardScreen()));
   }
 
-  void toDashboardManeger(BuildContext context) {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => SchoolManagerScreen()));
+  void toDashboardManeger(BuildContext context, UserModel user) {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => SchoolManagerScreen(user: user)));
   }
 
   void toDashboardTeacher(BuildContext context) {
@@ -40,20 +42,28 @@ class LoginScreen extends StatelessWidget {
               user.password == int.parse(password),
           orElse: () => UserModel());
 
-      switch (user.role_id) {
-        case 0:
-          toDashboardAdmin(context);
-          break;
-        case 1:
-          toDashboardManeger(context);
-          break;
-        case 2:
-          toDashboardTeacher(context);
-          break;
-        default:
-          _showErrorDialog(
-              context, "خطأ", "حسابك غير موجود أو غير مفعل تواصل مع مديرك");
-          break;
+      if (user.role_id != null) {
+        // احفظ رقم الهاتف في المتغير بعد التحقق الناجح
+        loginNumber = phone;
+
+        switch (user.role_id) {
+          case 0:
+            toDashboardAdmin(context);
+            break;
+          case 1:
+            toDashboardManeger(context, user);
+            break;
+          case 2:
+            toDashboardTeacher(context,);
+            break;
+          default:
+            _showErrorDialog(
+                context, "خطأ", "حسابك غير موجود أو غير مفعل تواصل مع مديرك");
+            break;
+        }
+      } else {
+        _showErrorDialog(
+            context, "خطأ", "حسابك غير موجود أو غير مفعل تواصل مع مديرك");
       }
     } else {
       _showErrorDialog(context, "خطأ", "الرجاء إدخال رقم الجوال وكلمة المرور.");

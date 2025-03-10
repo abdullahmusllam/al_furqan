@@ -1,4 +1,6 @@
+import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddTeacher.dart';
+import 'package:al_furqan/views/SchoolDirector/DrawerSchoolDirector.dart';
 import 'package:flutter/material.dart';
 
 class SchoolManagerScreen extends StatelessWidget {
@@ -8,10 +10,14 @@ class SchoolManagerScreen extends StatelessWidget {
     {'name': 'علي حسن', 'level': 'الصف الثالث'},
   ];
 
+  final UserModel user;
+  SchoolManagerScreen({required this.user});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('مدير المدرسة')),
+      appBar: AppBar(title: Text('${user.first_name} ${user.last_name}')),
+      drawer: DrawerSchoolDirector(user: user),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -72,8 +78,8 @@ class SchoolManagerScreen extends StatelessWidget {
       // زر إضافة معلم
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => AddTeacherScreen()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => AddTeacherScreen()));
         },
         child: Icon(Icons.add),
         backgroundColor: Colors.blue,

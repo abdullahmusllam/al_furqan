@@ -8,7 +8,7 @@ import 'package:al_furqan/widgets/chart_card.dart';
 import 'package:al_furqan/widgets/notification_card.dart';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
+  const DashboardScreen({super.key,});
 
   @override
   Widget build(BuildContext context) {
