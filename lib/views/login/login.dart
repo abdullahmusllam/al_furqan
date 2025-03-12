@@ -7,7 +7,7 @@ import '../SchoolDirector/SchoolDirectorHome.dart';
 import '../Teacher/mainTeacher.dart';
 import 'signup_screen.dart';
 
-String loginNumber = '';
+int id = 0;
 
 class LoginScreen extends StatelessWidget {
   final TextEditingController phoneController = TextEditingController();
@@ -44,7 +44,7 @@ class LoginScreen extends StatelessWidget {
 
       if (user.role_id != null) {
         // احفظ رقم الهاتف في المتغير بعد التحقق الناجح
-        loginNumber = phone;
+        id = user.user_id!;
 
         switch (user.role_id) {
           case 0:
@@ -54,7 +54,9 @@ class LoginScreen extends StatelessWidget {
             toDashboardManeger(context, user);
             break;
           case 2:
-            toDashboardTeacher(context,);
+            toDashboardTeacher(
+              context,
+            );
             break;
           default:
             _showErrorDialog(

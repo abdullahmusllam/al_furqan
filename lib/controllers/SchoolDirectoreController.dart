@@ -1,12 +1,13 @@
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/views/login/login.dart';
 
 class SchoolDirectorController {
   final SqlDb _sqlDb = SqlDb();
   final List<UserModel> userData = [];
   get_data_users(String phoneNumber) async {
     List<Map> Data = await _sqlDb.readData(
-        "SELECT * FROM 'USERS' WHERE phone_number = '${phoneNumber}'");
+        "SELECT * FROM 'USERS' WHERE phone_number = '${id}'");
     userData.clear();
     for (var i = 0; i < Data.length; i++) {
       userData.add(UserModel(

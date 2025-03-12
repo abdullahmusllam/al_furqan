@@ -55,7 +55,7 @@ class DrawerSchoolDirector extends StatelessWidget {
           // القوائم
           ListTile(
               leading: Icon(Icons.people),
-              title: Text('تحضير الطلاب'),
+              title: Text('تحضير المعلمين'),
               onTap: () {
                 Navigator.push(
                   context,
