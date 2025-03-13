@@ -15,6 +15,7 @@ Widget buildSaveButton({
   required TextEditingController password,
   required TextEditingController date,
   required String? selectedRole,
+  required int? selectedSchoolID,
   required bool isActivate,
   required Function() refreshData,
   required BuildContext context,
@@ -53,14 +54,16 @@ Widget buildSaveButton({
             break;
         }
         user.role_id = roleId;
+        user.school_id = selectedSchoolID; // تعيين رقم المدرسة
         userController.update_user(user);
+        refreshData();
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("تم حفظ التعديلات بنجاح"),
           ),
         );
         setEditable(false);
-        refreshData();
         Navigator.of(context)
             .pop(true); // Return true to indicate that data was updated
       }

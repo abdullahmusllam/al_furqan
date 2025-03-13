@@ -33,8 +33,7 @@ class _UserManagementPageState extends State<UserManagementPage>
   }
 
   void _refreshData() async {
-    await userController.get_data_users();
-    await userController.get_data_requests();
+    await userController.get_data();
 
     setState(() {});
   }
@@ -66,6 +65,7 @@ class _UserManagementPageState extends State<UserManagementPage>
           RequestsList(),
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context)

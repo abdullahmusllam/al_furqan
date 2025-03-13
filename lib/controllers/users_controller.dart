@@ -1,4 +1,3 @@
-import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
 
@@ -10,14 +9,16 @@ class UserController {
   List<UserModel> get users => _users;
   List<UserModel> get requests => _requests;
 
+  // Method to get all data
   get_data() async {
     await get_data_users();
     await get_data_requests();
   }
 
+  // Method to get active users data
   get_data_users() async {
     List<Map> response =
-        await _sqlDb.readData("SELECT * FROM 'USERS' WHERE isActivate = 1");
+        await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 1");
     _users.clear();
     for (var i = 0; i < response.length; i++) {
       _users.add(UserModel(
@@ -35,19 +36,22 @@ class UserController {
         role_id: response[i]['role_id'] as int?, // تأكد من أن role_id هو int
         school_id: response[i]['school_id'] as int?,
         date: response[i]['date'],
-        // isActivate: response[i]['isActivate'] as int?, // تأكد من أن isActivate هو int
+        isActivate:
+            response[i]['isActivate'] as int?, // تأكد من أن isActivate هو int
       ));
     }
     // users.forEach((element) {
     //   print(
-    //       "USER ID : ${element.user_id}\nUSER NAME : ${element.first_name}\nSCHOOL ID : ${element.school_id}\n____________________________________________________________________________");
+    //       "USER ID : ${element.user_id}\nUSER NAME : ${element.first_name}\nisActivate : ${element.isActivate}\n____________________________________________________________________________");
     // });
-    print("${_users.isEmpty}");
+
+    print("User List : ${_users.isEmpty}");
   }
 
+  // Method to get requests data
   get_data_requests() async {
     List<Map> requestResponse =
-        await _sqlDb.readData("SELECT * FROM 'USERS' WHERE isActivate = 0");
+        await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 0");
     _requests.clear();
     for (var i = 0; i < requestResponse.length; i++) {
       _requests.add(UserModel(
@@ -67,50 +71,49 @@ class UserController {
         school_id: requestResponse[i]['school_id']
             as int?, // تأكد من أن role_id هو int
         date: requestResponse[i]['date'],
-        // isActivate: requestResponse[i]['isActivate']
-        //     as int?, // تأكد من أن isActivate هو int
+        isActivate: requestResponse[i]['isActivate'] as int?,
       ));
     }
-    requests.forEach((element) {
-      print(
-          "REQUEST ID : ${element.user_id}\nUSER NAME : ${element.first_name}\n SCHOOL ID:${element.school_id}\n____________________________________________________________________________");
-    });
-    print("${_requests.isEmpty}");
+    // requests.forEach((element) {
+    //   print(
+    //       "REQUEST ID : ${element.user_id}\nUSER NAME : ${element.first_name}\n isActivate :${element.isActivate}\n____________________________________________________________________________");
+    // });
+    print("Request List : ${_requests.isEmpty}");
   }
 
+  // Method to add a new user
   add_user(UserModel usermodel) async {
     int response = await _sqlDb.insertData('''
     INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, role_id, school_id, date, isActivate)
     VALUES ('${usermodel.first_name}', '${usermodel.middle_name}', '${usermodel.grandfather_name}', '${usermodel.last_name}', '${usermodel.password}', '${usermodel.email}', '${usermodel.phone_number}', '${usermodel.telephone_number}', ${usermodel.role_id}, ${usermodel.school_id}, '${usermodel.date}', '${usermodel.isActivate}');
     ''');
 
-    print(response);
+    print("response = $response, isActivate = ${usermodel.isActivate}");
   }
 
+  // Method to delete a user
   delete_user(int userId) async {
     int response =
         await _sqlDb.deleteData("DELETE FROM USERS WHERE user_id = $userId");
     print(response);
   }
 
+  // Method to activate a user
   activate_user(int userId) async {
-    // نسخ جميع أعمدة الصف من جدول REQUESTS إلى جدول USERS
-    await _sqlDb.insertData('''
-    INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, role_id, school_id, date, isActivate)
-    SELECT first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, role_id, school_id, date, 1
-    FROM REQUESTS WHERE user_id = $userId
+    await _sqlDb.updateData('''
+    UPDATE USERS SET isActivate = 1 WHERE user_id = $userId
     ''');
-    // حذف الصف من جدول REQUESTS
-    await _sqlDb.deleteData("DELETE FROM REQUESTS WHERE user_id = $userId");
-    await get_data_users();
-    await get_data_requests();
+    await get_data();
   }
 
+  // Method to delete a request
   delete_request(int userId) async {
-    await _sqlDb.deleteData("DELETE FROM REQUESTS WHERE user_id = $userId");
+    await _sqlDb.deleteData(
+        "DELETE FROM USERS WHERE user_id = $userId AND isActivate = 0 ");
     await get_data_requests();
   }
 
+  // Method to update a user
   update_user(UserModel usermodel) async {
     int response = await _sqlDb.updateData('''
     UPDATE USERS SET
@@ -123,20 +126,22 @@ class UserController {
       phone_number = '${usermodel.phone_number}',
       telephone_number = '${usermodel.telephone_number}',
       role_id = ${usermodel.role_id},
+      school_id = ${usermodel.school_id},
       date = '${usermodel.date}',
       isActivate = ${usermodel.isActivate}
     WHERE user_id = ${usermodel.user_id}
     ''');
-    print(response);
+    print("response = $response");
   }
 
+  // Method to add a new request
   add_request(UserModel usermodel) async {
     int response = await _sqlDb.insertData('''
-    INSERT INTO REQUESTS (first_name, middle_name, grandfather_name, last_name, phone_number, telephone_number, email, password,role_id ,school_id, date)
-    VALUES ('${usermodel.first_name}', '${usermodel.middle_name}', '${usermodel.grandfather_name}', '${usermodel.last_name}', '${usermodel.phone_number}', '${usermodel.telephone_number}', '${usermodel.email}', '${usermodel.password}',${usermodel.role_id},${usermodel.school_id}, '${usermodel.date}');
+    INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, phone_number, telephone_number, email, password,role_id ,school_id, date,isActivate)
+    VALUES ('${usermodel.first_name}', '${usermodel.middle_name}', '${usermodel.grandfather_name}', '${usermodel.last_name}', '${usermodel.phone_number}', '${usermodel.telephone_number}', '${usermodel.email}', '${usermodel.password}',${usermodel.role_id},${usermodel.school_id}, '${usermodel.date}',0);
     ''');
     print("request school id : ${usermodel.school_id}");
-    print("response = $response");
+    print("response = $response, isActivate = ${usermodel.isActivate}");
   }
 }
 

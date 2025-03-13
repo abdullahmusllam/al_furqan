@@ -20,21 +20,7 @@ class _UserListState extends State<UserList> {
   @override
   void initState() {
     super.initState();
-    _refreshData();
-  }
-
-  // Fetch user and school data
-  void _refreshData() async {
-    await userController.get_data_users();
-    await schoolController.get_data();
-    setState(() {
-      _schoolItems = schoolController.schools
-          .map((school) => DropdownMenuItem<int>(
-                value: school.school_id,
-                child: Text(school.school_name!),
-              ))
-          .toList();
-    });
+    userController.get_data();
   }
 
   // Show filter dialog
@@ -169,7 +155,6 @@ class _UserListState extends State<UserList> {
                                   userController.delete_user(
                                       filteredUsers[index].user_id!);
                                 }
-                                _refreshData();
                               },
                             ),
                           ],

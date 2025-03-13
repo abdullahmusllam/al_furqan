@@ -1,6 +1,7 @@
 import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../../models/users_model.dart';
 import '../Supervisor/add_school.dart';
@@ -68,6 +69,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: _firstname,
                   keyboardType: TextInputType.name,
                   maxLength: 20,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(
+                        RegExp(r'[0-9@._\-!#\$%^&*(),?":{}|<>]'))
+                  ],
                   decoration: InputDecoration(
                     labelText: 'الاسم الأول',
                     border: OutlineInputBorder(),
@@ -83,6 +88,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: _fathername,
                   keyboardType: TextInputType.name,
                   maxLength: 20,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(
+                        RegExp(r'[0-9@._\-!#\$%^&*(),?":{}|<>]'))
+                  ],
                   decoration: InputDecoration(
                     labelText: 'اسم الأب',
                     border: OutlineInputBorder(),
@@ -98,6 +107,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: _grandfathername,
                   keyboardType: TextInputType.name,
                   maxLength: 20,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(
+                        RegExp(r'[0-9@._\-!#\$%^&*(),?":{}|<>]'))
+                  ],
                   decoration: InputDecoration(
                     labelText: 'اسم الجد',
                     border: OutlineInputBorder(),
@@ -113,6 +126,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: _lastname,
                   keyboardType: TextInputType.name,
                   maxLength: 20,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(
+                        RegExp(r'[0-9@._\-!#\$%^&*(),?":{}|<>]'))
+                  ],
                   decoration: InputDecoration(
                     labelText: 'القبيلة',
                     border: OutlineInputBorder(),
@@ -128,6 +145,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: _phone,
                   keyboardType: TextInputType.phone,
                   maxLength: 9,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
                     labelText: 'رقم الجوال',
                     border: OutlineInputBorder(),
@@ -146,6 +164,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: _telephone,
                   keyboardType: TextInputType.phone,
                   maxLength: 9,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
                     labelText: 'رقم البيت',
                     border: OutlineInputBorder(),
@@ -161,18 +180,25 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: _email,
                   keyboardType: TextInputType.emailAddress,
                   maxLength: 50,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z0-9@._\-]'),
+                    )
+                  ],
                   decoration: InputDecoration(
                     labelText: 'البريد الإلكتروني',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
+                    final emailRegex =
+                        RegExp(r'^[a-zA-Z0-9@._\-]+@[gmail]+\.[com]');
                     if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال البريد الإلكتروني';
-                    } else if (!value.contains('@')) {
-                      return 'البريد الإلكتروني يجب أن يحتوي على @';
-                    } else if (!value.contains('.')) {
-                      return 'البريد الإلكتروني يجب أن يحتوي على .';
+                      return 'الرجاء إدخال بريد إلكتروني';
+                    } else if (!emailRegex.hasMatch(value)) {
+                      return 'البريد الإلكتروني غير صالح';
+                      // التحقق من صحة البريد الإلكتروني
                     }
+                    return null;
                   },
                 ),
                 SizedBox(height: 10),
@@ -180,6 +206,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: _password,
                   obscureText: !_isPasswordVisible,
                   maxLength: 8,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: 'كلمة المرور',
@@ -294,6 +321,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         _userModel.password = password;
                         _userModel.date = _date.text; // تعيين تاريخ الميلاد
                         _userModel.school_id = _selectedSchoolId;
+                        _userModel.isActivate = 0;
                         switch (_selectedRole) {
                           case "مشرف":
                             role_id = 0;

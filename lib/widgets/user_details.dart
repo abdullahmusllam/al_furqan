@@ -1,4 +1,5 @@
 import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -36,16 +37,18 @@ class _UserDetailsState extends State<UserDetails> {
   late TextEditingController _date;
   bool _isPasswordVisible = false;
   String? _selectedRole;
-  int? _selectedSchoolId = 0; // تعيين القيمة الافتراضية إلى صفر
+  int? _selectedSchoolId; // تعيين القيمة الافتراضية إلى صفر
   List<DropdownMenuItem<int>> _schoolItems = [];
 
   bool _isActivate = false;
 
   Future<void> _loadSchools() async {
     await schoolController.get_data();
+    widget.user.school_id;
     schoolController.schools.forEach((element) {
       print("School ID : ${element.school_id}");
     });
+
     setState(() {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(
@@ -54,8 +57,8 @@ class _UserDetailsState extends State<UserDetails> {
                     Text("${school.school_name!}\n${school.school_location}"),
               ))
           .toList();
-
-      _selectedSchoolId = null; // تعيين القيمة الافتراضية إلى null
+      // _selectedSchoolId =
+      //     widget.user.school_id; // تعيين القيمة الافتراضية إلى null
     });
   }
 
@@ -79,11 +82,13 @@ class _UserDetailsState extends State<UserDetails> {
             ? "مدير"
             : "معلم";
     _isActivate = widget.user.isActivate == 1;
+    _selectedSchoolId = widget.user.school_id;
     _refreshData();
   }
 
   void _refreshData() async {
-    await userController.get_data();
+    await userController.get_data_users();
+    _loadSchools();
     setState(() {});
   }
 
@@ -180,13 +185,15 @@ class _UserDetailsState extends State<UserDetails> {
                   keyboardType: TextInputType.emailAddress,
                   maxLength: 50,
                   validator: (value) {
+                    final emailRegex =
+                        RegExp(r'^[a-zA-Z0-9@._\-]+@[gmail]+\.[com]');
                     if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال البريد الإلكتروني';
-                    } else if (!value.contains('@')) {
-                      return 'البريد الإلكتروني يجب أن يحتوي على @';
-                    } else if (!value.contains('.')) {
-                      return 'البريد الإلكتروني يجب أن يحتوي على .';
+                      return 'الرجاء إدخال بريد إلكتروني';
+                    } else if (!emailRegex.hasMatch(value)) {
+                      return 'البريد الإلكتروني غير صالح';
+                      // التحقق من صحة البريد الإلكتروني
                     }
+                    return null;
                   },
                 ),
                 SizedBox(height: 10),
@@ -217,11 +224,13 @@ class _UserDetailsState extends State<UserDetails> {
                           border: OutlineInputBorder(),
                         ),
                         items: _schoolItems,
-                        onChanged: (newValue) {
-                          setState(() {
-                            _selectedSchoolId = newValue;
-                          });
-                        },
+                        onChanged: _isEditable
+                            ? (newValue) {
+                                setState(() {
+                                  _selectedSchoolId = newValue;
+                                });
+                              }
+                            : null,
                       ),
                     ),
                     IconButton(
@@ -277,6 +286,7 @@ class _UserDetailsState extends State<UserDetails> {
                     password: _password,
                     date: _date,
                     selectedRole: _selectedRole,
+                    selectedSchoolID: _selectedSchoolId,
                     isActivate: _isActivate,
                     refreshData: _refreshData,
                     context: context,

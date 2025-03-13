@@ -95,14 +95,7 @@ class _RequestsListState extends State<RequestsList> {
                   // } else
                   switch (newValue) {
                     case "accept":
-                      userController.activate_user(
-                          userController.requests[index].user_id!);
-                      _refreshData();
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text("تم تنشيط الحساب"),
-                        duration: Duration(seconds: 1),
-                        backgroundColor: Colors.green,
-                      ));
+                      acceptRequest(index, context);
                       break;
                     case "details":
                       showDialogDetailsRequest(context, index);
@@ -121,6 +114,17 @@ class _RequestsListState extends State<RequestsList> {
               );
             },
           );
+  }
+
+  void acceptRequest(int index, BuildContext context) {
+    userController.activate_user(
+        userController.requests[index].user_id!);
+    _refreshData();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("تم تنشيط الحساب"),
+      duration: Duration(seconds: 1),
+      backgroundColor: Colors.green,
+    ));
   }
 
   Future<dynamic> showDialogDeleteRequest(BuildContext context, int index) {

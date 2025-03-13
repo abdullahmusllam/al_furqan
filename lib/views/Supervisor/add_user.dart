@@ -4,6 +4,7 @@ import 'package:al_furqan/models/schools_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/Supervisor/add_school.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class AddUser extends StatefulWidget {
@@ -52,7 +53,7 @@ class _AddUserState extends State<AddUser> {
               ))
           .toList();
 
-      _selectedSchoolId = null;// تعيين القيمة الافتراضية إلى null
+      _selectedSchoolId = null; // تعيين القيمة الافتراضية إلى null
     });
   }
 
@@ -73,6 +74,10 @@ class _AddUserState extends State<AddUser> {
                   controller: _firstname,
                   keyboardType: TextInputType.name,
                   maxLength: 20,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(
+                        RegExp(r'[0-9@._\-!#\$%^&*(),?":{}|<>]'))
+                  ],
                   decoration: InputDecoration(
                     labelText: 'الاسم الأول',
                     border: OutlineInputBorder(),
@@ -88,6 +93,10 @@ class _AddUserState extends State<AddUser> {
                   controller: _fathername,
                   keyboardType: TextInputType.name,
                   maxLength: 20,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(
+                        RegExp(r'[0-9@._\-!#\$%^&*(),?":{}|<>]'))
+                  ],
                   decoration: InputDecoration(
                     labelText: 'اسم الأب',
                     border: OutlineInputBorder(),
@@ -103,6 +112,10 @@ class _AddUserState extends State<AddUser> {
                   controller: _grandfathername,
                   keyboardType: TextInputType.name,
                   maxLength: 20,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(
+                        RegExp(r'[0-9@._\-!#\$%^&*(),?":{}|<>]'))
+                  ],
                   decoration: InputDecoration(
                     labelText: 'اسم الجد',
                     border: OutlineInputBorder(),
@@ -118,6 +131,10 @@ class _AddUserState extends State<AddUser> {
                   controller: _lastname,
                   keyboardType: TextInputType.name,
                   maxLength: 20,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(
+                        RegExp(r'[0-9@._\-!#\$%^&*(),?":{}|<>]'))
+                  ],
                   decoration: InputDecoration(
                     labelText: 'القبيلة',
                     border: OutlineInputBorder(),
@@ -133,6 +150,7 @@ class _AddUserState extends State<AddUser> {
                   controller: _phone,
                   keyboardType: TextInputType.phone,
                   maxLength: 9,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
                     labelText: 'رقم الجوال',
                     border: OutlineInputBorder(),
@@ -140,8 +158,7 @@ class _AddUserState extends State<AddUser> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'الرجاء إدخال رقم الجوال';
-                    }
-                    if (value.length < 9) {
+                    } else if (value.length < 9) {
                       return 'رقم الجوال يجب أن يكون 9 أرقام';
                     }
                   },
@@ -151,6 +168,7 @@ class _AddUserState extends State<AddUser> {
                   controller: _telephone,
                   keyboardType: TextInputType.phone,
                   maxLength: 9,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
                     labelText: 'رقم البيت',
                     border: OutlineInputBorder(),
@@ -166,18 +184,25 @@ class _AddUserState extends State<AddUser> {
                   controller: _email,
                   keyboardType: TextInputType.emailAddress,
                   maxLength: 50,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z0-9@._\-]'),
+                    )
+                  ],
                   decoration: InputDecoration(
                     labelText: 'البريد الإلكتروني',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
+                    final emailRegex =
+                        RegExp(r'^[a-zA-Z0-9@._\-]+@[gmail]+\.[com]');
                     if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال البريد الإلكتروني';
-                    } else if (!value.contains('@')) {
-                      return 'البريد الإلكتروني يجب أن يحتوي على @';
-                    } else if (!value.contains('.')) {
-                      return 'البريد الإلكتروني يجب أن يحتوي على .';
+                      return 'الرجاء إدخال بريد إلكتروني';
+                    } else if (!emailRegex.hasMatch(value)) {
+                      return 'البريد الإلكتروني غير صالح';
+                      // التحقق من صحة البريد الإلكتروني
                     }
+                    return null;
                   },
                 ),
                 SizedBox(height: 10),
@@ -185,6 +210,7 @@ class _AddUserState extends State<AddUser> {
                   controller: _password,
                   obscureText: !_isPasswordVisible,
                   maxLength: 8,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: 'كلمة المرور',

@@ -26,7 +26,7 @@ class UserModel {
     this.role_id,
     this.school_id,
     this.date,
-    this.isActivate,
+    this.isActivate = 0,
   });
 }
 
