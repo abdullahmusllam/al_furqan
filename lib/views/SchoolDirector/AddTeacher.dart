@@ -13,7 +13,8 @@ class _AddTeacherScreenState extends State<AddTeacherScreen> {
 
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController fatherNameController = TextEditingController();
-  final TextEditingController grandFatherNameController = TextEditingController();
+  final TextEditingController grandFatherNameController =
+      TextEditingController();
   final TextEditingController tribeController = TextEditingController();
 
   // لاختيار الصورة من المعرض
@@ -43,7 +44,9 @@ class _AddTeacherScreenState extends State<AddTeacherScreen> {
                   radius: 50,
                   backgroundColor: Colors.grey.shade300,
                   backgroundImage: _image != null ? FileImage(_image!) : null,
-                  child: _image == null ? Icon(Icons.camera_alt, size: 30, color: Colors.grey) : null,
+                  child: _image == null
+                      ? Icon(Icons.camera_alt, size: 30, color: Colors.grey)
+                      : null,
                 ),
               ),
             ),
@@ -67,7 +70,8 @@ class _AddTeacherScreenState extends State<AddTeacherScreen> {
                       // تنفيذ عملية إضافة المعلم
                     },
                     child: Text('إضافة'),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.blue),
                   ),
                 ),
                 SizedBox(width: 10),
@@ -77,7 +81,8 @@ class _AddTeacherScreenState extends State<AddTeacherScreen> {
                       // الانتقال إلى صفحة إدارة المعلمين
                     },
                     child: Text('إدارة'),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   ),
                 ),
               ],

@@ -25,9 +25,9 @@ class LoginScreen extends StatelessWidget {
         builder: (context) => SchoolManagerScreen(user: user)));
   }
 
-  void toDashboardTeacher(BuildContext context) {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => TeacherDashboard()));
+  void toDashboardTeacher(BuildContext context, UserModel user) {
+    Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => TeacherDashboard(user: user)));
   }
 
   void _login(BuildContext context) async {
@@ -54,9 +54,7 @@ class LoginScreen extends StatelessWidget {
             toDashboardManeger(context, user);
             break;
           case 2:
-            toDashboardTeacher(
-              context,
-            );
+            toDashboardTeacher(context, user);
             break;
           default:
             _showErrorDialog(

@@ -5,10 +5,12 @@ import 'package:al_furqan/views/login/login.dart';
 class SchoolDirectorController {
   final SqlDb _sqlDb = SqlDb();
   final List<UserModel> userData = [];
+
   get_data_users(String phoneNumber) async {
     List<Map> Data = await _sqlDb.readData(
         "SELECT * FROM 'USERS' WHERE phone_number = '${id}'");
     userData.clear();
+    
     for (var i = 0; i < Data.length; i++) {
       userData.add(UserModel(
         user_id: Data[i]['user_id'] as int?, // تأكد من أن user_id هو int

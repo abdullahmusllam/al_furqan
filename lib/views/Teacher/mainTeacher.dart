@@ -1,16 +1,19 @@
+import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/Teacher/DrawerTeacher.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Teacher/preparingStudents.dart';
 
 class TeacherDashboard extends StatelessWidget {
+  final UserModel user;
+  TeacherDashboard({required this.user});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title:
-            Text('واجهة المدرس', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('${user.first_name}',
+            style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       drawer: DrawerTeacher(),
       body: SingleChildScrollView(

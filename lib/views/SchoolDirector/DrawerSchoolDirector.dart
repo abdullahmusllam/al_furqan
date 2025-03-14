@@ -3,7 +3,9 @@
 import 'package:al_furqan/controllers/SchoolDirectoreController.dart';
 import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/views/SchoolDirector/AddStuden.dart';
 import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
+import 'package:al_furqan/views/Teacher/addStusentData.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
 
@@ -66,9 +68,11 @@ class DrawerSchoolDirector extends StatelessWidget {
               }),
           ListTile(
             leading: Icon(Icons.event),
-            title: Text('إدارة الأنشطة'),
+            title: Text('إدارة الطلاب'),
             onTap: () {
-              // الانتقال إلى شاشة الأنشطة
+              // الانتقال إلى شاشة الطلاب
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AddStudentScreen()));
             },
           ),
           ListTile(
