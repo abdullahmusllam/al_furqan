@@ -33,50 +33,57 @@ class _UserManagementPageState extends State<UserManagementPage>
   }
 
   void _refreshData() async {
-    await userController.get_data();
-
+    await userController.getData();
     setState(() {});
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Text('إدارة المستخدمين'),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.refresh),
+          onPressed: _refreshData,
+          tooltip: 'تحديث البيانات',
+        ),
+      ],
+      bottom: TabBar(
+        controller: _tabController,
+        tabs: [
+          Tab(text: 'المستخدمين'),
+          Tab(text: 'الطلبات'),
+        ],
+      ),
+    );
+  }
+
+  FloatingActionButton _buildFloatingActionButton() {
+    return FloatingActionButton(
+      onPressed: () {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => AddUser()))
+            .then((_) {
+          _refreshData();
+        });
+      },
+      tooltip: 'إضافة مستخدم جديد',
+      child: Icon(Icons.add),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('إدارة المستخدمين'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: _refreshData,
-            tooltip: 'تحديث البيانات',
-          ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: 'المستخدمين'),
-            Tab(text: 'الطلبات'),
-          ],
-        ),
-      ),
+      appBar: _buildAppBar(),
       body: TabBarView(
         controller: _tabController,
         children: [
-          UserList(), // Use the new widget
+          UserList(),
           RequestsList(),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddUser()))
-              .then((_) {
-            _refreshData();
-          });
-        },
-        tooltip: 'إضافة مستخدم جديد',
-        child: Icon(Icons.add),
-      ),
+      floatingActionButton: _buildFloatingActionButton(),
     );
   }
 }

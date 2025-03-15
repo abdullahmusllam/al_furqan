@@ -3,7 +3,6 @@ import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/views/Supervisor/filter_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/widgets/user_details.dart';
-
 import '../models/schools_model.dart';
 
 class UserList extends StatefulWidget {
@@ -20,10 +19,9 @@ class _UserListState extends State<UserList> {
   @override
   void initState() {
     super.initState();
-    userController.get_data();
+    userController.getData();
   }
 
-  // Show filter dialog
   void _showFilterDialog() {
     showDialog(
       context: context,
@@ -43,10 +41,8 @@ class _UserListState extends State<UserList> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // Filter users based on search query, role, and school
-    List filteredUsers = userController.users.where((user) {
+  List _filterUsers() {
+    return userController.users.where((user) {
       bool matchesSearchQuery = _searchQuery.isEmpty ||
           user.first_name?.contains(_searchQuery) == true ||
           user.middle_name?.contains(_searchQuery) == true ||
@@ -59,110 +55,120 @@ class _UserListState extends State<UserList> {
           _selectedSchoolId == null || user.school_id == _selectedSchoolId;
       return matchesSearchQuery && matchesRole && matchesSchool;
     }).toList();
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              decoration: InputDecoration(
+                labelText: 'بحث',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.filter_list),
+            onPressed: _showFilterDialog,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserList(List filteredUsers) {
+    return filteredUsers.isEmpty
+        ? Center(child: Text("لا يوجد مستخدمين"))
+        : ListView.builder(
+            itemCount: filteredUsers.length,
+            itemBuilder: (context, index) {
+              String? role_name;
+              switch (filteredUsers[index].role_id) {
+                case 0:
+                  role_name = "مشرف";
+                  break;
+                case 1:
+                  role_name = "مدير";
+                  break;
+                case 2:
+                  role_name = "معلم";
+                  break;
+              }
+
+              final school = schoolController.schools.firstWhere(
+                  (school) =>
+                      school.school_id == filteredUsers[index].school_id,
+                  orElse: () => SchoolModel(school_name: "المكتب"));
+
+              return ListTile(
+                title: Text(
+                    "${filteredUsers[index].first_name ?? ''} ${filteredUsers[index].middle_name ?? ''} ${filteredUsers[index].last_name ?? ''}"),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(role_name!),
+                    Text(filteredUsers[index].isActivate == 1
+                        ? "مفعل"
+                        : "غير مفعل"),
+                    Text("${filteredUsers[index].date ?? ''}"),
+                    Text("${school.school_name}"),
+                  ],
+                ),
+                trailing: SizedBox(
+                  width: 98,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        color: Colors.blue,
+                        icon: Icon(Icons.info),
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) =>
+                                  UserDetails(user: filteredUsers[index])));
+                        },
+                      ),
+                      IconButton(
+                        color: Colors.redAccent,
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          if (userController.users[index].role_id == 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("لا تملك صلاحية حذف مشرف !!"),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          } else {
+                            userController
+                                .deleteUser(filteredUsers[index].user_id!);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List filteredUsers = _filterUsers();
 
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'بحث',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
-                  },
-                ),
-              ),
-              IconButton(
-                icon: Icon(Icons.filter_list),
-                onPressed: _showFilterDialog,
-              ),
-            ],
-          ),
-        ),
+        _buildSearchBar(),
         Expanded(
-          child: filteredUsers.isEmpty
-              ? Center(child: Text("لا يوجد مستخدمين"))
-              : ListView.builder(
-                  itemCount: filteredUsers.length,
-                  itemBuilder: (context, index) {
-                    String? role_name;
-                    switch (filteredUsers[index].role_id) {
-                      case 0:
-                        role_name = "مشرف";
-                        break;
-                      case 1:
-                        role_name = "مدير";
-                        break;
-                      case 2:
-                        role_name = "معلم";
-                        break;
-                    }
-
-                    // Find the school name for the user
-                    final school = schoolController.schools.firstWhere(
-                        (school) =>
-                            school.school_id == filteredUsers[index].school_id,
-                        orElse: () => SchoolModel(school_name: "المكتب"));
-
-                    return ListTile(
-                      title: Text(
-                          "${filteredUsers[index].first_name ?? ''} ${filteredUsers[index].middle_name ?? ''} ${filteredUsers[index].last_name ?? ''}"),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(role_name!),
-                          Text(filteredUsers[index].isActivate == 1
-                              ? "مفعل"
-                              : "غير مفعل"),
-                          Text("${filteredUsers[index].date ?? ''}"),
-                          Text("${school.school_name}"),
-                        ],
-                      ),
-                      trailing: SizedBox(
-                        width: 98,
-                        child: Row(
-                          children: [
-                            IconButton(
-                              color: Colors.blue,
-                              icon: Icon(Icons.info),
-                              onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => UserDetails(
-                                        user: filteredUsers[index])));
-                              },
-                            ),
-                            IconButton(
-                              color: Colors.redAccent,
-                              icon: Icon(Icons.delete),
-                              onPressed: () {
-                                // Prevent deletion of supervisors
-                                if (userController.users[index].role_id == 0) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content:
-                                          Text("لا تملك صلاحية حذف مشرف !!"),
-                                      duration: Duration(seconds: 2),
-                                    ),
-                                  );
-                                } else {
-                                  userController.delete_user(
-                                      filteredUsers[index].user_id!);
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+          child: _buildUserList(filteredUsers),
         ),
       ],
     );

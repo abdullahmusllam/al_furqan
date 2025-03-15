@@ -25,12 +25,11 @@ class _AddUserState extends State<AddUser> {
   final _telephone = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
-  final _date = TextEditingController(); // إضافة متغير للتحكم في تاريخ الميلاد
-  bool _isActivate = false; // إضافة متغير للتحكم في تفعيل المستخدم
-
+  final _date = TextEditingController();
+  bool _isActivate = false;
   bool _isPasswordVisible = false;
   String? _selectedRole;
-  int? _selectedSchoolId = 0; // تعيين القيمة الافتراضية إلى صفر
+  int? _selectedSchoolId = 0;
   List<DropdownMenuItem<int>> _schoolItems = [];
 
   @override
@@ -41,9 +40,6 @@ class _AddUserState extends State<AddUser> {
 
   Future<void> _loadSchools() async {
     await schoolController.get_data();
-    schoolController.schools.forEach((element) {
-      print("School ID : ${element.school_id}");
-    });
     setState(() {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(
@@ -52,8 +48,7 @@ class _AddUserState extends State<AddUser> {
                     Text("${school.school_name!}\n${school.school_location}"),
               ))
           .toList();
-
-      _selectedSchoolId = null; // تعيين القيمة الافتراضية إلى null
+      _selectedSchoolId = null;
     });
   }
 
@@ -70,319 +65,308 @@ class _AddUserState extends State<AddUser> {
             padding: const EdgeInsets.all(10.0),
             child: Column(
               children: [
-                TextFormField(
+                _buildTextFormField(
                   controller: _firstname,
-                  keyboardType: TextInputType.name,
+                  label: 'الاسم الأول',
                   maxLength: 20,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.deny(
-                        RegExp(r'[0-9@._\-!#\$%^&*(),?":{}|<>]'))
-                  ],
-                  decoration: InputDecoration(
-                    labelText: 'الاسم الأول',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال الاسم الأول';
-                    }
-                  },
+                  inputType: TextInputType.name,
+                  validatorMsg: 'الرجاء إدخال الاسم الأول',
                 ),
                 SizedBox(height: 10),
-                TextFormField(
+                _buildTextFormField(
                   controller: _fathername,
-                  keyboardType: TextInputType.name,
+                  label: 'اسم الأب',
                   maxLength: 20,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.deny(
-                        RegExp(r'[0-9@._\-!#\$%^&*(),?":{}|<>]'))
-                  ],
-                  decoration: InputDecoration(
-                    labelText: 'اسم الأب',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال اسم الأب';
-                    }
-                  },
+                  inputType: TextInputType.name,
+                  validatorMsg: 'الرجاء إدخال اسم الأب',
                 ),
                 SizedBox(height: 10),
-                TextFormField(
+                _buildTextFormField(
                   controller: _grandfathername,
-                  keyboardType: TextInputType.name,
+                  label: 'اسم الجد',
                   maxLength: 20,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.deny(
-                        RegExp(r'[0-9@._\-!#\$%^&*(),?":{}|<>]'))
-                  ],
-                  decoration: InputDecoration(
-                    labelText: 'اسم الجد',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال اسم الجد';
-                    }
-                  },
+                  inputType: TextInputType.name,
+                  validatorMsg: 'الرجاء إدخال اسم الجد',
                 ),
                 SizedBox(height: 10),
-                TextFormField(
+                _buildTextFormField(
                   controller: _lastname,
-                  keyboardType: TextInputType.name,
+                  label: 'القبيلة',
                   maxLength: 20,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.deny(
-                        RegExp(r'[0-9@._\-!#\$%^&*(),?":{}|<>]'))
-                  ],
-                  decoration: InputDecoration(
-                    labelText: 'القبيلة',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال القبيلة';
-                    }
-                  },
+                  inputType: TextInputType.name,
+                  validatorMsg: 'الرجاء إدخال القبيلة',
                 ),
                 SizedBox(height: 10),
-                TextFormField(
+                _buildTextFormField(
                   controller: _phone,
-                  keyboardType: TextInputType.phone,
+                  label: 'رقم الجوال',
                   maxLength: 9,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(
-                    labelText: 'رقم الجوال',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال رقم الجوال';
-                    } else if (value.length < 9) {
+                  inputType: TextInputType.phone,
+                  validatorMsg: 'الرجاء إدخال رقم الجوال',
+                  additionalValidator: (value) {
+                    if (value!.length < 9) {
                       return 'رقم الجوال يجب أن يكون 9 أرقام';
-                    }
-                  },
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  controller: _telephone,
-                  keyboardType: TextInputType.phone,
-                  maxLength: 9,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(
-                    labelText: 'رقم البيت',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال رقم البيت';
-                    }
-                  },
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  controller: _email,
-                  keyboardType: TextInputType.emailAddress,
-                  maxLength: 50,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp(r'[a-zA-Z0-9@._\-]'),
-                    )
-                  ],
-                  decoration: InputDecoration(
-                    labelText: 'البريد الإلكتروني',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    final emailRegex =
-                        RegExp(r'^[a-zA-Z0-9@._\-]+@[gmail]+\.[com]');
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال بريد إلكتروني';
-                    } else if (!emailRegex.hasMatch(value)) {
-                      return 'البريد الإلكتروني غير صالح';
-                      // التحقق من صحة البريد الإلكتروني
                     }
                     return null;
                   },
                 ),
                 SizedBox(height: 10),
-                TextFormField(
-                  controller: _password,
-                  obscureText: !_isPasswordVisible,
-                  maxLength: 8,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'كلمة المرور',
-                    border: OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال كلمة المرور';
-                    } else if (value.length < 8) {
-                      return 'كلمة المرور يجب أن تكون 8 أرقام أو أكثر';
+                _buildTextFormField(
+                  controller: _telephone,
+                  label: 'رقم البيت',
+                  maxLength: 9,
+                  inputType: TextInputType.phone,
+                  validatorMsg: 'الرجاء إدخال رقم البيت',
+                ),
+                SizedBox(height: 10),
+                _buildTextFormField(
+                  controller: _email,
+                  label: 'البريد الإلكتروني',
+                  maxLength: 50,
+                  inputType: TextInputType.emailAddress,
+                  validatorMsg: 'الرجاء إدخال بريد إلكتروني',
+                  additionalValidator: (value) {
+                    final emailRegex =
+                        RegExp(r'^[a-zA-Z0-9@._\-]+@[gmail]+\.[com]');
+                    if (!emailRegex.hasMatch(value!)) {
+                      return 'البريد الإلكتروني غير صالح';
                     }
+                    return null;
                   },
                 ),
                 SizedBox(height: 10),
-                TextFormField(
-                  controller: _date,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'تاريخ الميلاد',
-                    border: OutlineInputBorder(),
-                  ),
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1700),
-                      lastDate: DateTime(2300),
-                    );
-                    if (pickedDate != null) {
-                      String formattedDate =
-                          DateFormat.yMMMd().format(pickedDate);
-                      setState(() {
-                        _date.text = formattedDate;
-                      });
-                    }
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال تاريخ الميلاد';
-                    }
-                  },
-                ),
+                _buildPasswordFormField(),
                 SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<int>(
-                        value: _selectedSchoolId,
-                        decoration: InputDecoration(
-                          labelText: 'اختر المدرسة',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: _schoolItems,
-                        onChanged: (newValue) {
-                          setState(() {
-                            _selectedSchoolId = newValue;
-                          });
-                        },
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.add),
-                      onPressed: () async {
-                        await Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => AddSchool()));
-                        await _loadSchools(); // Reload schools after adding a new one
-                      },
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                DropdownButtonFormField<String>(
-                  value: _selectedRole,
-                  decoration: InputDecoration(
-                    labelText: 'اختر الدور',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: <String>['مشرف', 'مدير', 'معلم'].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedRole = newValue;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'الرجاء اختيار الدور';
-                    }
-                  },
-                ),
+                _buildDateFormField(),
                 SizedBox(height: 10),
-                SwitchListTile(
-                  title: Text('تفعيل المستخدم'),
-                  value: _isActivate,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _isActivate = value;
-                    });
-                  },
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // Handle form submission
-                        int phone = int.parse(_phone.text);
-                        int telephone = int.parse(_telephone.text);
-                        int password = int.parse(_password.text);
-                        int? role_id;
-                        int activate = _isActivate ? 1 : 0;
-
-                        _userModel.first_name = _firstname.text;
-                        _userModel.middle_name = _fathername.text;
-                        _userModel.grandfather_name = _grandfathername.text;
-                        _userModel.last_name = _lastname.text;
-                        _userModel.phone_number = phone;
-                        _userModel.telephone_number = telephone;
-                        _userModel.email = _email.text;
-                        _userModel.password = password;
-                        _userModel.date = _date.text; // تعيين تاريخ الميلاد
-                        print(_date.text);
-                        _userModel.isActivate = activate; // تعيين حالة التفعيل
-                        _userModel.school_id = _selectedSchoolId;
-                        print("=========================$_selectedSchoolId");
-                        switch (_selectedRole) {
-                          case "مشرف":
-                            role_id = 0;
-                            break;
-                          case "مدير":
-                            role_id = 1;
-                            break;
-                          case "معلم":
-                            role_id = 2;
-                            break;
-                        }
-                        _userModel.role_id = role_id;
-                        userController.add_user(_userModel);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("تمت إضافة مستخدم بنجاح"),
-                          ),
-                        );
-                        setState(() {});
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    child: Text('إضافة المستخدم'))
+                _buildSchoolDropdown(),
+                SizedBox(height: 10),
+                _buildRoleDropdown(),
+                SizedBox(height: 10),
+                _buildActivateSwitch(),
+                SizedBox(height: 10),
+                _buildSubmitButton(),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  TextFormField _buildTextFormField({
+    required TextEditingController controller,
+    required String label,
+    required int maxLength,
+    required TextInputType inputType,
+    required String validatorMsg,
+    String? Function(String?)? additionalValidator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: inputType,
+      maxLength: maxLength,
+      inputFormatters: [
+        FilteringTextInputFormatter.deny(
+            RegExp(r'[0-9@._\-!#\$%^&*(),?":{}|<>]'))
+      ],
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return validatorMsg;
+        }
+        if (additionalValidator != null) {
+          return additionalValidator(value);
+        }
+        return null;
+      },
+    );
+  }
+
+  TextFormField _buildPasswordFormField() {
+    return TextFormField(
+      controller: _password,
+      obscureText: !_isPasswordVisible,
+      maxLength: 8,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      keyboardType: TextInputType.number,
+      decoration: InputDecoration(
+        labelText: 'كلمة المرور',
+        border: OutlineInputBorder(),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+          ),
+          onPressed: () {
+            setState(() {
+              _isPasswordVisible = !_isPasswordVisible;
+            });
+          },
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'الرجاء إدخال كلمة المرور';
+        } else if (value.length < 8) {
+          return 'كلمة المرور يجب أن تكون 8 أرقام أو أكثر';
+        }
+        return null;
+      },
+    );
+  }
+
+  TextFormField _buildDateFormField() {
+    return TextFormField(
+      controller: _date,
+      readOnly: true,
+      decoration: InputDecoration(
+        labelText: 'تاريخ الميلاد',
+        border: OutlineInputBorder(),
+      ),
+      onTap: () async {
+        DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1700),
+          lastDate: DateTime(2300),
+        );
+        if (pickedDate != null) {
+          String formattedDate = DateFormat.yMMMd().format(pickedDate);
+          setState(() {
+            _date.text = formattedDate;
+          });
+        }
+      },
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'الرجاء إدخال تاريخ الميلاد';
+        }
+        return null;
+      },
+    );
+  }
+
+  Row _buildSchoolDropdown() {
+    return Row(
+      children: [
+        Expanded(
+          child: DropdownButtonFormField<int>(
+            value: _selectedSchoolId,
+            decoration: InputDecoration(
+              labelText: 'اختر المدرسة',
+              border: OutlineInputBorder(),
+            ),
+            items: _schoolItems,
+            onChanged: (newValue) {
+              setState(() {
+                _selectedSchoolId = newValue;
+              });
+            },
+          ),
+        ),
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () async {
+            await Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => AddSchool()));
+            await _loadSchools();
+          },
+        ),
+      ],
+    );
+  }
+
+  DropdownButtonFormField<String> _buildRoleDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedRole,
+      decoration: InputDecoration(
+        labelText: 'اختر الدور',
+        border: OutlineInputBorder(),
+      ),
+      items: <String>['مشرف', 'مدير', 'معلم'].map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (newValue) {
+        setState(() {
+          _selectedRole = newValue;
+        });
+      },
+      validator: (value) {
+        if (value == null) {
+          return 'الرجاء اختيار الدور';
+        }
+        return null;
+      },
+    );
+  }
+
+  SwitchListTile _buildActivateSwitch() {
+    return SwitchListTile(
+      title: Text('تفعيل المستخدم'),
+      value: _isActivate,
+      onChanged: (bool value) {
+        setState(() {
+          _isActivate = value;
+        });
+      },
+    );
+  }
+
+  ElevatedButton _buildSubmitButton() {
+    return ElevatedButton(
+      onPressed: () {
+        if (_formKey.currentState!.validate()) {
+          _submitForm();
+        }
+      },
+      child: Text('إضافة المستخدم'),
+    );
+  }
+
+  void _submitForm() {
+    int phone = int.parse(_phone.text);
+    int telephone = int.parse(_telephone.text);
+    int password = int.parse(_password.text);
+    int? role_id;
+    int activate = _isActivate ? 1 : 0;
+
+    _userModel.first_name = _firstname.text;
+    _userModel.middle_name = _fathername.text;
+    _userModel.grandfather_name = _grandfathername.text;
+    _userModel.last_name = _lastname.text;
+    _userModel.phone_number = phone;
+    _userModel.telephone_number = telephone;
+    _userModel.email = _email.text;
+    _userModel.password = password;
+    _userModel.date = _date.text;
+    _userModel.isActivate = activate;
+    _userModel.school_id = _selectedSchoolId;
+
+    switch (_selectedRole) {
+      case "مشرف":
+        role_id = 0;
+        break;
+      case "مدير":
+        role_id = 1;
+        break;
+      case "معلم":
+        role_id = 2;
+        break;
+    }
+    _userModel.role_id = role_id;
+    userController.addUser(_userModel);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("تمت إضافة مستخدم بنجاح"),
+      ),
+    );
+    setState(() {});
+    Navigator.of(context).pop();
   }
 }

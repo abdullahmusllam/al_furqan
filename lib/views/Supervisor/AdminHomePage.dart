@@ -8,7 +8,9 @@ import 'package:al_furqan/widgets/chart_card.dart';
 import 'package:al_furqan/widgets/notification_card.dart';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key,});
+  const DashboardScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,57 +22,64 @@ class DashboardScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // الكروت الأربعة الرئيسية
-            Row(
-              children: [
-                Expanded(
-                    child: StatCard(
-                        title: 'عدد المدارس', value: '12', color: Colors.blue)),
-                SizedBox(width: 10),
-                Expanded(
-                    child: StatCard(
-                        title: 'عدد المعلمين',
-                        value: '250',
-                        color: Colors.green)),
-              ],
-            ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                    child: StatCard(
-                        title: 'عدد الطلاب',
-                        value: '5000',
-                        color: Colors.orange)),
-                SizedBox(width: 10),
-                Expanded(
-                    child: StatCard(
-                        title: 'عدد الإنجازات',
-                        value: '20',
-                        color: Colors.red)),
-              ],
-            ),
+            _buildStatCards(),
             SizedBox(height: 20),
-            // قائمة الاجتماعات
-            Text('الاجتماعات',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            _buildSectionTitle('الاجتماعات'),
             MeetingList(),
             SizedBox(height: 20),
-            // مخطط نسبة تنفيذ الأنشطة
-            ChartCard(
-                title: 'نسبة تنفيذ الأنشطة',
-                color: Colors.blue,
-                percentage: 70),
+            _buildChartCard('نسبة تنفيذ الأنشطة', Colors.blue, 70),
             SizedBox(height: 20),
-            // مخطط نسبة الانضباط
-            ChartCard(
-                title: 'نسبة الانضباط', color: Colors.green, percentage: 85),
+            _buildChartCard('نسبة الانضباط', Colors.green, 85),
             SizedBox(height: 20),
-            // كارد الإشعارات
             NotificationCard(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStatCards() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+                child: StatCard(
+                    title: 'عدد المدارس', value: '12', color: Colors.blue)),
+            SizedBox(width: 10),
+            Expanded(
+                child: StatCard(
+                    title: 'عدد المعلمين', value: '250', color: Colors.green)),
+          ],
+        ),
+        SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+                child: StatCard(
+                    title: 'عدد الطلاب', value: '5000', color: Colors.orange)),
+            SizedBox(width: 10),
+            Expanded(
+                child: StatCard(
+                    title: 'عدد الإنجازات', value: '20', color: Colors.red)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    );
+  }
+
+  Widget _buildChartCard(String title, Color color, double percentage) {
+    return ChartCard(
+      title: title,
+      color: color,
+      percentage: percentage,
     );
   }
 }

@@ -37,18 +37,13 @@ class _UserDetailsState extends State<UserDetails> {
   late TextEditingController _date;
   bool _isPasswordVisible = false;
   String? _selectedRole;
-  int? _selectedSchoolId; // تعيين القيمة الافتراضية إلى صفر
+  int? _selectedSchoolId;
   List<DropdownMenuItem<int>> _schoolItems = [];
 
   bool _isActivate = false;
 
   Future<void> _loadSchools() async {
     await schoolController.get_data();
-    widget.user.school_id;
-    schoolController.schools.forEach((element) {
-      print("School ID : ${element.school_id}");
-    });
-
     setState(() {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(
@@ -57,14 +52,20 @@ class _UserDetailsState extends State<UserDetails> {
                     Text("${school.school_name!}\n${school.school_location}"),
               ))
           .toList();
-      // _selectedSchoolId =
-      //     widget.user.school_id; // تعيين القيمة الافتراضية إلى null
     });
   }
 
   @override
   void initState() {
     super.initState();
+    _initializeControllers();
+    _selectedRole = _getRole(widget.user.role_id!);
+    _isActivate = widget.user.isActivate == 1;
+    _selectedSchoolId = widget.user.school_id;
+    _refreshData();
+  }
+
+  void _initializeControllers() {
     _firstname = TextEditingController(text: widget.user.first_name);
     _fathername = TextEditingController(text: widget.user.middle_name);
     _grandfathername =
@@ -76,18 +77,21 @@ class _UserDetailsState extends State<UserDetails> {
     _email = TextEditingController(text: widget.user.email);
     _password = TextEditingController(text: widget.user.password.toString());
     _date = TextEditingController(text: widget.user.date);
-    _selectedRole = widget.user.role_id == 0
-        ? "مشرف"
-        : widget.user.role_id == 1
-            ? "مدير"
-            : "معلم";
-    _isActivate = widget.user.isActivate == 1;
-    _selectedSchoolId = widget.user.school_id;
-    _refreshData();
+  }
+
+  String _getRole(int roleId) {
+    switch (roleId) {
+      case 0:
+        return "مشرف";
+      case 1:
+        return "مدير";
+      default:
+        return "معلم";
+    }
   }
 
   void _refreshData() async {
-    await userController.get_data_users();
+    await userController.getDataUsers();
     _loadSchools();
     setState(() {});
   }
@@ -105,97 +109,24 @@ class _UserDetailsState extends State<UserDetails> {
             padding: const EdgeInsets.all(10.0),
             child: Column(
               children: [
-                buildTextField(
-                  controller: _firstname,
-                  label: 'الاسم الأول',
-                  readOnly: !_isEditable,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال الاسم الأول';
-                    }
-                  },
-                ),
+                _buildTextField(
+                    _firstname, 'الاسم الأول', TextInputType.text, 50),
                 SizedBox(height: 10),
-                buildTextField(
-                  controller: _fathername,
-                  label: 'اسم الأب',
-                  readOnly: !_isEditable,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال اسم الأب';
-                    }
-                  },
-                ),
+                _buildTextField(
+                    _fathername, 'اسم الأب', TextInputType.text, 50),
                 SizedBox(height: 10),
-                buildTextField(
-                  controller: _grandfathername,
-                  label: 'اسم الجد',
-                  readOnly: !_isEditable,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال اسم الجد';
-                    }
-                  },
-                ),
+                _buildTextField(
+                    _grandfathername, 'اسم الجد', TextInputType.text, 50),
                 SizedBox(height: 10),
-                buildTextField(
-                  controller: _lastname,
-                  label: 'القبيلة',
-                  readOnly: !_isEditable,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال القبيلة';
-                    }
-                  },
-                ),
+                _buildTextField(_lastname, 'القبيلة', TextInputType.text, 50),
                 SizedBox(height: 10),
-                buildTextField(
-                  controller: _phone,
-                  label: 'رقم الجوال',
-                  readOnly: !_isEditable,
-                  keyboardType: TextInputType.phone,
-                  maxLength: 9,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال رقم الجوال';
-                    }
-                    if (value.length < 9) {
-                      return 'رقم الجوال يجب أن يكون 9 أرقام';
-                    }
-                  },
-                ),
+                _buildTextField(_phone, 'رقم الجوال', TextInputType.phone, 9),
                 SizedBox(height: 10),
-                buildTextField(
-                  controller: _telephone,
-                  label: 'رقم البيت',
-                  readOnly: !_isEditable,
-                  keyboardType: TextInputType.phone,
-                  maxLength: 9,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال رقم البيت';
-                    }
-                  },
-                ),
+                _buildTextField(
+                    _telephone, 'رقم البيت', TextInputType.phone, 9),
                 SizedBox(height: 10),
-                buildTextField(
-                  controller: _email,
-                  label: 'البريد الإلكتروني',
-                  readOnly: !_isEditable,
-                  keyboardType: TextInputType.emailAddress,
-                  maxLength: 50,
-                  validator: (value) {
-                    final emailRegex =
-                        RegExp(r'^[a-zA-Z0-9@._\-]+@[gmail]+\.[com]');
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال بريد إلكتروني';
-                    } else if (!emailRegex.hasMatch(value)) {
-                      return 'البريد الإلكتروني غير صالح';
-                      // التحقق من صحة البريد الإلكتروني
-                    }
-                    return null;
-                  },
-                ),
+                _buildTextField(_email, 'البريد الإلكتروني',
+                    TextInputType.emailAddress, 50),
                 SizedBox(height: 10),
                 buildPasswordField(
                   controller: _password,
@@ -214,35 +145,7 @@ class _UserDetailsState extends State<UserDetails> {
                   context: context,
                 ),
                 SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<int>(
-                        value: _selectedSchoolId,
-                        decoration: InputDecoration(
-                          labelText: 'اختر المدرسة',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: _schoolItems,
-                        onChanged: _isEditable
-                            ? (newValue) {
-                                setState(() {
-                                  _selectedSchoolId = newValue;
-                                });
-                              }
-                            : null,
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.add),
-                      onPressed: () async {
-                        await Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => AddSchool()));
-                        await _loadSchools(); // Reload schools after adding a new one
-                      },
-                    ),
-                  ],
-                ),
+                _buildSchoolDropdown(),
                 SizedBox(height: 10),
                 buildDropdownField(
                   selectedRole: _selectedRole,
@@ -301,6 +204,64 @@ class _UserDetailsState extends State<UserDetails> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label,
+      TextInputType keyboardType, int maxLength) {
+    return buildTextField(
+      controller: controller,
+      label: label,
+      readOnly: !_isEditable,
+      keyboardType: keyboardType,
+      maxLength: maxLength,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'الرجاء إدخال $label';
+        }
+        if (keyboardType == TextInputType.phone && value.length < maxLength) {
+          return '$label يجب أن يكون $maxLength أرقام';
+        }
+        if (keyboardType == TextInputType.emailAddress) {
+          final emailRegex = RegExp(r'^[a-zA-Z0-9@._\-]+@[gmail]+\.[com]');
+          if (!emailRegex.hasMatch(value)) {
+            return 'البريد الإلكتروني غير صالح';
+          }
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildSchoolDropdown() {
+    return Row(
+      children: [
+        Expanded(
+          child: DropdownButtonFormField<int>(
+            value: _selectedSchoolId,
+            decoration: InputDecoration(
+              labelText: 'اختر المدرسة',
+              border: OutlineInputBorder(),
+            ),
+            items: _schoolItems,
+            onChanged: _isEditable
+                ? (newValue) {
+                    setState(() {
+                      _selectedSchoolId = newValue;
+                    });
+                  }
+                : null,
+          ),
+        ),
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () async {
+            await Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => AddSchool()));
+            await _loadSchools(); // Reload schools after adding a new one
+          },
+        ),
+      ],
     );
   }
 }

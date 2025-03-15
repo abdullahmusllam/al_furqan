@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import '../controllers/school_controller.dart';
@@ -23,7 +24,7 @@ class _RequestsListState extends State<RequestsList> {
 
   // Function to refresh data from controllers
   void _refreshData() async {
-    await userController.get_data_requests();
+    await userController.getDataRequests();
     await schoolController.get_data();
     setState(() {
       _schoolItems = schoolController.schools
@@ -79,20 +80,6 @@ class _RequestsListState extends State<RequestsList> {
                 ),
                 trailing: PopupMenuButton(onSelected: (newValue) {
                   // Handle popup menu selection
-                  // if (newValue == "accept") {
-                  //   // Accept the request
-                  //   // userController
-                  //   //     .activate_user(userController.requests[index].user_id!);
-                  //   // _refreshData();
-                  //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  //     content: Text("تم تنشيط الحساب"),
-                  //     duration: Duration(seconds: 1),
-                  //     backgroundColor: Colors.green,
-                  //   ));
-                  // } else if (newValue == "delete") {
-                  //   // Reject the request
-                  //   showDialogDeleteRequest(context, index);
-                  // } else
                   switch (newValue) {
                     case "accept":
                       acceptRequest(index, context);
@@ -116,9 +103,9 @@ class _RequestsListState extends State<RequestsList> {
           );
   }
 
+  // Function to accept a request and refresh data
   void acceptRequest(int index, BuildContext context) {
-    userController.activate_user(
-        userController.requests[index].user_id!);
+    userController.activateUser(userController.requests[index].user_id!);
     _refreshData();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text("تم تنشيط الحساب"),
@@ -127,17 +114,25 @@ class _RequestsListState extends State<RequestsList> {
     ));
   }
 
+  // Function to show a dialog for deleting a request
   Future<dynamic> showDialogDeleteRequest(BuildContext context, int index) {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
+          return CupertinoAlertDialog(
               title: Text("تأكيد الحذف"),
               content: Text("هل تريد حذف الطلب؟"),
               actions: [
-                TextButton(
+                CupertinoDialogAction(
+                  child: Text("إلغاء"),
                   onPressed: () {
-                    userController.delete_request(
+                    Navigator.of(context).pop();
+                  },
+                ),
+                CupertinoDialogAction(
+                  child: Text("حذف"),
+                  onPressed: () {
+                    userController.deleteRequest(
                         userController.requests[index].user_id!);
                     _refreshData();
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -149,51 +144,22 @@ class _RequestsListState extends State<RequestsList> {
                     );
                     Navigator.of(context).pop();
                   },
-                  child: Text("حذف"),
-                )
+                ),
               ]);
         });
   }
 
-  Column testDropButton(BuildContext context, int index) {
-    return Column(
-      children: [
-        MaterialButton(
-          child: Text("تفاصيل"),
-          onPressed: () {
-            // Show request details in a dialog
-            showDialogDetailsRequest(context, index);
-          },
-        ),
-        MaterialButton(
-          child: Text("رفع طلب"),
-          onPressed: () {
-            // Activate user and refresh data
-          },
-        ),
-        MaterialButton(
-          child: Text("حذف"),
-          onPressed: () {
-            // Delete request and refresh data
-            userController
-                .delete_request(userController.requests[index].user_id!);
-            _refreshData();
-          },
-        ),
-      ],
-    );
-  }
-
+  // Function to show a dialog with request details
   Future<dynamic> showDialogDetailsRequest(BuildContext context, int index) {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: Text("تفاصيل الطلب"),
           content: Text(
               "تفاصيل الطلب الخاصة بالمستخدم \n${userController.requests[index].first_name!} ${userController.requests[index].middle_name!} ${userController.requests[index].last_name!}\nرقم الجوال : ${userController.requests[index].phone_number}"),
           actions: [
-            TextButton(
+            CupertinoDialogAction(
               child: Text("إغلاق"),
               onPressed: () {
                 Navigator.of(context).pop();

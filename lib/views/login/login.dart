@@ -6,67 +6,137 @@ import '../../models/users_model.dart';
 import '../SchoolDirector/SchoolDirectorHome.dart';
 import '../Teacher/mainTeacher.dart';
 import 'signup_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 int id = 0;
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  LoginScreen({super.key});
-
-  void toDashboardAdmin(BuildContext context) {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => DashboardScreen()));
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
   }
 
-  void toDashboardManeger(BuildContext context, UserModel user) {
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => SchoolManagerScreen(user: user)));
+  Future<void> saveUserLogin(String phoneUser, int roleId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('phoneUser', phoneUser);
+    await prefs.setInt('role_id', roleId);
+    await prefs.setBool('isLoggedIn', true);
   }
 
-  void toDashboardTeacher(BuildContext context, UserModel user) {
-    Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => TeacherDashboard(user: user)));
+  Future<void> logoutUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // حذف جميع البيانات المحفوظة
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => LoginScreen()));
+  }
+
+  Future<bool> isUserLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isLoggedIn') ?? false;
+  }
+
+  Future<String?> getUserphone() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('phoneUser');
+  }
+
+  void _checkLoginStatus() async {
+    print(
+        "----------------------Here checkLoginStatus--------------------------");
+    bool isLogin = await isUserLoggedIn();
+    if (isLogin) {
+      print(
+          "----------------------Here if checkLoginStatus--------------------------");
+      _loginPref();
+    }
+  }
+
+  void _loginPref() async {
+    String? phone = await getUserphone();
+    print("----------------------Here _loginPref--------------------------");
+    // if (phone == null) return;
+    await userController.getData();
+    setState(() {
+      print(
+          "----------------------Here users List empty : ${userController.users.isEmpty}--------------------------");
+    });
+
+    for (var element in userController.users) {
+      print("----------------------Here for --------------------------");
+      if (element.phone_number == int.tryParse(phone!)) {
+        print(
+            "----------------------Here if _loginPref--------------------------");
+        chiceRole(element, context, phone);
+        return;
+      }
+    }
   }
 
   void _login(BuildContext context) async {
-    String phone = phoneController.text;
-    String password = passwordController.text;
+    String phone = phoneController.text.trim();
+    String password = passwordController.text.trim();
 
-    if (phone.isNotEmpty && password.isNotEmpty) {
-      await userController.get_data_users();
-      var user = userController.users.firstWhere(
-          (user) =>
-              user.phone_number == int.parse(phone) &&
-              user.password == int.parse(password),
-          orElse: () => UserModel());
-
-      if (user.role_id != null) {
-        // احفظ رقم الهاتف في المتغير بعد التحقق الناجح
-        id = user.user_id!;
-
-        switch (user.role_id) {
-          case 0:
-            toDashboardAdmin(context);
-            break;
-          case 1:
-            toDashboardManeger(context, user);
-            break;
-          case 2:
-            toDashboardTeacher(context, user);
-            break;
-          default:
-            _showErrorDialog(
-                context, "خطأ", "حسابك غير موجود أو غير مفعل تواصل مع مديرك");
-            break;
-        }
-      } else {
-        _showErrorDialog(
-            context, "خطأ", "حسابك غير موجود أو غير مفعل تواصل مع مديرك");
-      }
-    } else {
+    if (phone.isEmpty || password.isEmpty) {
       _showErrorDialog(context, "خطأ", "الرجاء إدخال رقم الجوال وكلمة المرور.");
+      return;
+    }
+
+    await userController.getDataUsers();
+    var user = userController.users.firstWhere(
+      (user) =>
+          user.phone_number == int.tryParse(phone) &&
+          user.password == int.tryParse(password),
+      orElse: () => UserModel(),
+    );
+
+    if (user.user_id == null) {
+      _showErrorDialog(context, "خطأ",
+          "بيانات تسجيل الدخول غير صحيحة، يرجى المحاولة مرة أخرى.");
+      return;
+    }
+
+    chiceRole(user, context, phone);
+  }
+
+  void chiceRole(UserModel user, BuildContext context, String phone) {
+    if (user.role_id == null) {
+      _showErrorDialog(context, "خطأ", "حسابك غير مفعل، تواصل مع الإدارة.");
+      return;
+    }
+
+    id = user.user_id!;
+    saveUserLogin(phone, user.role_id!);
+
+    switch (user.role_id) {
+      case 0:
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => DashboardScreen()));
+        break;
+      case 1:
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => SchoolManagerScreen(user: user)));
+        break;
+      case 2:
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => TeacherDashboard(user: user)));
+        break;
+      default:
+        _showErrorDialog(context, "خطأ", "حسابك غير مفعل، تواصل مع الإدارة.");
     }
   }
 
@@ -162,32 +232,7 @@ class LoginScreen extends StatelessWidget {
   Widget _buildTextField(
       TextEditingController controller, IconData icon, String hint,
       {bool obscureText = false}) {
-    final emojiRegex = RegExp(
-      r'[\u{1F600}-\u{1F64F}' // Emoticons
-      r'\u{1F300}-\u{1F5FF}' // Misc Symbols and Pictographs
-      r'\u{1F680}-\u{1F6FF}' // Transport and Map Symbols
-      r'\u{1F700}-\u{1F77F}' // Alchemical Symbols
-      r'\u{1F780}-\u{1F7FF}' // Geometric Shapes Extended
-      r'\u{1F800}-\u{1F8FF}' // Supplemental Arrows-C
-      r'\u{1F900}-\u{1F9FF}' // Supplemental Symbols and Pictographs
-      r'\u{1FA00}-\u{1FA6F}' // Chess Symbols
-      r'\u{1FA70}-\u{1FAFF}' // Symbols and Pictographs Extended-A
-      r'\u{2600}-\u{26FF}' // Miscellaneous Symbols
-      r'\u{2700}-\u{27BF}' // Dingbats
-      r'\u{2300}-\u{23FF}' // Miscellaneous Technical
-      r'\u{2B50}-\u{2B55}' // Stars and Miscellaneous
-      r'\u{1F1E6}-\u{1F1FF}' // Flags (regional indicator symbols)
-      r'\u{1F201}-\u{1F251}' // Enclosed Ideographic Supplement
-      r'\u{1F004}' // Mahjong Tile Red Dragon
-      r'\u{1F0CF}' // Playing Card Black Joker
-      r'\u{1F9C0}' // Cheese Wedge
-      r'\u{1F018}-\u{1F270}' // Enclosed CJK Letters and Months
-      r'\u{1F202}-\u{1F2FF}]', // More Enclosed Ideographic Supplement
-      unicode: true,
-    );
     return TextField(
-      textInputAction: TextInputAction.next,
-      inputFormatters: [FilteringTextInputFormatter.deny(emojiRegex)],
       controller: controller,
       obscureText: obscureText,
       decoration: InputDecoration(
@@ -195,7 +240,6 @@ class LoginScreen extends StatelessWidget {
         hintText: hint,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(25),
-          borderSide: BorderSide(color: Colors.green),
         ),
       ),
     );
