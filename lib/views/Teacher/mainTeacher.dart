@@ -17,7 +17,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
   getDataByPref() async {
     final pref = await SharedPreferences.getInstance();
     String? phoneUser = pref.getString('phoneUser');
-    // int? roleId = pref.getInt('role_id');
+    // int? roleId = pref.getInt('roleID');
     // int? isActivate = pref.getInt('isActivate');
 
     userController.getDataUsers();

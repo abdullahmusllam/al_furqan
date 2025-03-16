@@ -48,11 +48,11 @@ class _UserListState extends State<UserList> {
           user.middle_name?.contains(_searchQuery) == true ||
           user.last_name?.contains(_searchQuery) == true;
       bool matchesRole = _selectedRole == null ||
-          (_selectedRole == "مشرف" && user.role_id == 0) ||
-          (_selectedRole == "مدير" && user.role_id == 1) ||
-          (_selectedRole == "معلم" && user.role_id == 2);
+          (_selectedRole == "مشرف" && user.roleID == 0) ||
+          (_selectedRole == "مدير" && user.roleID == 1) ||
+          (_selectedRole == "معلم" && user.roleID == 2);
       bool matchesSchool =
-          _selectedSchoolId == null || user.school_id == _selectedSchoolId;
+          _selectedSchoolId == null || user.schoolID == _selectedSchoolId;
       return matchesSearchQuery && matchesRole && matchesSchool;
     }).toList();
   }
@@ -91,7 +91,7 @@ class _UserListState extends State<UserList> {
             itemCount: filteredUsers.length,
             itemBuilder: (context, index) {
               String? role_name;
-              switch (filteredUsers[index].role_id) {
+              switch (filteredUsers[index].roleID) {
                 case 0:
                   role_name = "مشرف";
                   break;
@@ -104,8 +104,7 @@ class _UserListState extends State<UserList> {
               }
 
               final school = schoolController.schools.firstWhere(
-                  (school) =>
-                      school.school_id == filteredUsers[index].school_id,
+                  (school) => school.schoolID == filteredUsers[index].schoolID,
                   orElse: () => SchoolModel(school_name: "المكتب"));
 
               return ListTile(
@@ -139,7 +138,7 @@ class _UserListState extends State<UserList> {
                         color: Colors.redAccent,
                         icon: Icon(Icons.delete),
                         onPressed: () {
-                          if (userController.users[index].role_id == 0) {
+                          if (userController.users[index].roleID == 0) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text("لا تملك صلاحية حذف مشرف !!"),

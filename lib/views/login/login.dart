@@ -37,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
       String phoneUser, int roleId, int isActivate) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('phoneUser', phoneUser);
-    await prefs.setInt('role_id', roleId);
+    await prefs.setInt('roleID', roleId);
     await prefs.setInt('isActivate', isActivate);
     await prefs.setBool('isLoggedIn', true);
   }
@@ -65,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
   /// الحصول على رقم الدور المحفوظ في SharedPreferences
   Future<int?> getUserRoleId() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('role_id');
+    return prefs.getInt('roleID');
   }
 
   /// الحصول على رقم التفعيل المحفوظ في SharedPreferences
@@ -133,12 +133,12 @@ class _LoginScreenState extends State<LoginScreen> {
   /// اختيار الدور المناسب للمستخدم وتوجيهه إلى الشاشة المناسبة
   Future<void> chiceRole(
       UserModel user, BuildContext context, String phone) async {
-    if (user.role_id == null || user.isActivate == 0) {
+    if (user.roleID == null || user.isActivate == 0) {
       _showErrorDialog(context, "خطأ", "حسابك غير مفعل، تواصل مع الإدارة.");
       return;
     }
     id = user.user_id!;
-    await saveUserLogin(phone, user.role_id!, user.isActivate!);
+    await saveUserLogin(phone, user.roleID!, user.isActivate!);
     await chooseScreen(context);
   }
 

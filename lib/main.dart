@@ -1,6 +1,6 @@
+import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/material.dart';
-
 
 void main() async {
   runApp(MyApp());
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      home: LoginScreen(),
+      home: UserManagementPage(),
     );
   }
 }

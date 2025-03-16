@@ -8,8 +8,8 @@ class UserModel {
   int? telephone_number;
   String? email;
   int? password;
-  int? role_id;
-  int? school_id;
+  int? roleID;
+  int? schoolID;
   String? date; // إضافة حقل تاريخ الميلاد
   int? isActivate; // إضافة حقل تفعيل المستخدم
 
@@ -23,8 +23,8 @@ class UserModel {
     this.telephone_number,
     this.email,
     this.password,
-    this.role_id,
-    this.school_id,
+    this.roleID,
+    this.schoolID,
     this.date,
     this.isActivate = 0,
   });
@@ -41,8 +41,8 @@ class UserModel {
       'telephone_number': telephone_number,
       'email': email,
       'password': password,
-      'role_id': role_id,
-      'school_id': school_id,
+      'roleID': roleID,
+      'schoolID': schoolID,
       'date': date,
       'isActivate': isActivate,
     };
@@ -60,8 +60,8 @@ class UserModel {
       telephone_number: map['telephone_number'] as int?,
       email: map['email'] as String?,
       password: map['password'] as int?,
-      role_id: map['role_id'] as int?,
-      school_id: map['school_id'] as int?,
+      roleID: map['roleID'] as int?,
+      schoolID: map['schoolID'] as int?,
       date: map['date'] as String?,
       isActivate: map['isActivate'] as int?,
     );

@@ -82,8 +82,8 @@ void _handleFormSubmission({
   user.password = passwordNumber;
   user.date = date.text;
   user.isActivate = activate;
-  user.role_id = roleId;
-  user.school_id = selectedSchoolID;
+  user.roleID = roleId;
+  user.schoolID = selectedSchoolID;
 
   userController.updateUser(user);
   refreshData();

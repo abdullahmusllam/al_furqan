@@ -29,7 +29,7 @@ class _RequestsListState extends State<RequestsList> {
     setState(() {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(
-                value: school.school_id,
+                value: school.schoolID,
                 child: Text(school.school_name!),
               ))
           .toList();
@@ -43,9 +43,9 @@ class _RequestsListState extends State<RequestsList> {
         : ListView.builder(
             itemCount: userController.requests.length,
             itemBuilder: (context, index) {
-              // Determine role name based on role_id
+              // Determine role name based on roleID
               String? role_name;
-              switch (userController.requests[index].role_id) {
+              switch (userController.requests[index].roleID) {
                 case 0:
                   role_name = "مشرف";
                   break;
@@ -60,8 +60,8 @@ class _RequestsListState extends State<RequestsList> {
               // Find the school associated with the request
               final school = schoolController.schools.firstWhere(
                   (school) =>
-                      school.school_id ==
-                      userController.requests[index].school_id,
+                      school.schoolID ==
+                      userController.requests[index].schoolID,
                   orElse: () => SchoolModel(school_name: "المكتب"));
 
               return ListTile(
@@ -132,8 +132,8 @@ class _RequestsListState extends State<RequestsList> {
                 CupertinoDialogAction(
                   child: Text("حذف"),
                   onPressed: () {
-                    userController.deleteRequest(
-                        userController.requests[index].user_id!);
+                    userController
+                        .deleteRequest(userController.requests[index].user_id!);
                     _refreshData();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

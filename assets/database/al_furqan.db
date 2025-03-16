@@ -26,12 +26,12 @@ CREATE TABLE "Users" (
 	"email" TEXT,
     "phone_number" INTEGER,
     "telephone_number" INTEGER,
-	"role_id" INTEGER,
-	"school_id" INTEGER NULL,
+	"roleID" INTEGER,
+	"schoolID" INTEGER NULL,
 	"date" DATE,
 	"isActivate" INTEGER,
-    CONSTRAINT "schoolID_fk" FOREIGN KEY("school_id") REFERENCES "Schools"("SchoolID"),
-    CONSTRAINT "roleID_fk" FOREIGN KEY("role_id") REFERENCES "Roles"("RoleID"),
+    CONSTRAINT "schoolID_fk" FOREIGN KEY("schoolID") REFERENCES "Schools"("SchoolID"),
+    CONSTRAINT "roleID_fk" FOREIGN KEY("roleID") REFERENCES "Roles"("RoleID"),
     CONSTRAINT "activityID_fk" FOREIGN KEY("ActivityID") REFERENCES "Activities"("ActivityID"),
     CONSTRAINT "elhalagatID_fk" FOREIGN KEY("ElhalagatID") REFERENCES "Elhalagat"("halagaID")
 );

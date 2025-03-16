@@ -48,7 +48,7 @@ class _UserDetailsState extends State<UserDetails> {
     setState(() {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(
-                value: school.school_id,
+                value: school.schoolID,
                 child:
                     Text("${school.school_name!}\n${school.school_location}"),
               ))
@@ -60,9 +60,9 @@ class _UserDetailsState extends State<UserDetails> {
   void initState() {
     super.initState();
     _initializeControllers();
-    _selectedRole = _getRole(widget.user.role_id!);
+    _selectedRole = _getRole(widget.user.roleID!);
     _isActivate = widget.user.isActivate == 1;
-    _selectedSchoolId = widget.user.school_id;
+    _selectedSchoolId = widget.user.schoolID;
     _refreshData();
   }
 

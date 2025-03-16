@@ -41,7 +41,7 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(
-                value: school.school_id,
+                value: school.schoolID,
                 child: Text(school.school_name!),
               ))
           .toList();
@@ -314,7 +314,7 @@ class _SignupScreenState extends State<SignupScreen> {
       int phone = int.parse(_phone.text);
       int telephone = int.parse(_telephone.text);
       int password = int.parse(_password.text);
-      int? role_id;
+      int? roleID;
 
       _userModel.first_name = _firstname.text;
       _userModel.middle_name = _fathername.text;
@@ -325,20 +325,20 @@ class _SignupScreenState extends State<SignupScreen> {
       _userModel.email = _email.text;
       _userModel.password = password;
       _userModel.date = _date.text;
-      _userModel.school_id = _selectedSchoolId;
+      _userModel.schoolID = _selectedSchoolId;
       _userModel.isActivate = 0;
       switch (_selectedRole) {
         case "مشرف":
-          role_id = 0;
+          roleID = 0;
           break;
         case "مدير":
-          role_id = 1;
+          roleID = 1;
           break;
         case "معلم":
-          role_id = 2;
+          roleID = 2;
           break;
       }
-      _userModel.role_id = role_id;
+      _userModel.roleID = roleID;
       print("_selectedSchoolId = $_selectedSchoolId");
       userController.addRequest(_userModel);
       ScaffoldMessenger.of(context).showSnackBar(

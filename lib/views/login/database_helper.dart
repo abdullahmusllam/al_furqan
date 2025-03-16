@@ -30,7 +30,7 @@ class DatabaseHelper {
             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
             phone_number TEXT UNIQUE,
             password TEXT,
-            role_id INTEGER
+            roleID INTEGER
           )
         ''');
         // إضافة فهرس لتحسين الأداء على phone_number
@@ -38,8 +38,6 @@ class DatabaseHelper {
       },
     );
   }
-
-
 
   /// جلب مستخدم بناءً على رقم الهاتف فقط (للتسجيل التلقائي)
   Future<UserModel?> getUserByPhone(String phone) async {

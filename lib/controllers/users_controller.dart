@@ -36,8 +36,8 @@ class UserController {
   // Method to add a new user
   Future<void> addUser(UserModel userModel) async {
     int response = await _sqlDb.insertData('''
-    INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, role_id, school_id, date, isActivate)
-    VALUES ('${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.password}', '${userModel.email}', '${userModel.phone_number}', '${userModel.telephone_number}', ${userModel.role_id}, ${userModel.school_id}, '${userModel.date}', '${userModel.isActivate}');
+    INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
+    VALUES ('${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.password}', '${userModel.email}', '${userModel.phone_number}', '${userModel.telephone_number}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', '${userModel.isActivate}');
     ''');
     print("response = $response, isActivate = ${userModel.isActivate}");
   }
@@ -76,8 +76,8 @@ class UserController {
       email = '${userModel.email}',
       phone_number = '${userModel.phone_number}',
       telephone_number = '${userModel.telephone_number}',
-      role_id = ${userModel.role_id},
-      school_id = ${userModel.school_id},
+      roleID = ${userModel.roleID},
+      schoolID = ${userModel.schoolID},
       date = '${userModel.date}',
       isActivate = ${userModel.isActivate}
     WHERE user_id = ${userModel.user_id}
@@ -88,10 +88,10 @@ class UserController {
   // Method to add a new request
   Future<void> addRequest(UserModel userModel) async {
     int response = await _sqlDb.insertData('''
-    INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, phone_number, telephone_number, email, password, role_id, school_id, date, isActivate)
-    VALUES ('${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.phone_number}', '${userModel.telephone_number}', '${userModel.email}', '${userModel.password}', ${userModel.role_id}, ${userModel.school_id}, '${userModel.date}', 0);
+    INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, phone_number, telephone_number, email, password, roleID, schoolID, date, isActivate)
+    VALUES ('${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.phone_number}', '${userModel.telephone_number}', '${userModel.email}', '${userModel.password}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', 0);
     ''');
-    print("request school id : ${userModel.school_id}");
+    print("request school id : ${userModel.schoolID}");
     print("response = $response, isActivate = ${userModel.isActivate}");
   }
 
@@ -108,8 +108,8 @@ class UserController {
         telephone_number: int.tryParse(data['telephone_number'].toString()),
         email: data['email'],
         password: data['password'] as int?, // Ensure password is a string
-        role_id: data['role_id'] as int?,
-        school_id: data['school_id'] as int?,
+        roleID: data['roleID'] as int?,
+        schoolID: data['schoolID'] as int?,
         date: data['date'],
         isActivate: data['isActivate'] as int?,
       );
