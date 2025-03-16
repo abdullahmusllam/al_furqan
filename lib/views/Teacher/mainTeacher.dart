@@ -1,18 +1,49 @@
+import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/Teacher/DrawerTeacher.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Teacher/preparingStudents.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class TeacherDashboard extends StatelessWidget {
-  final UserModel user;
-  TeacherDashboard({required this.user});
+class TeacherDashboard extends StatefulWidget {
+  const TeacherDashboard({super.key});
+
+  @override
+  State<TeacherDashboard> createState() => _TeacherDashboardState();
+}
+
+class _TeacherDashboardState extends State<TeacherDashboard> {
+  UserModel? user;
+  getDataByPref() async {
+    final pref = await SharedPreferences.getInstance();
+    String? phoneUser = pref.getString('phoneUser');
+    // int? roleId = pref.getInt('roleID');
+    // int? isActivate = pref.getInt('isActivate');
+
+    userController.getDataUsers();
+    setState(() {});
+    userController.users.forEach(
+      (element) {
+        if (int.tryParse(phoneUser!) == element.phone_number) {
+          user = element;
+        }
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getDataByPref();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('${user.first_name}',
+        title: Text('${user!.first_name}',
             style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       drawer: DrawerTeacher(),

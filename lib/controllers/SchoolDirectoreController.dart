@@ -7,10 +7,10 @@ class SchoolDirectorController {
   final List<UserModel> userData = [];
 
   get_data_users(String phoneNumber) async {
-    List<Map> Data = await _sqlDb.readData(
-        "SELECT * FROM 'USERS' WHERE phone_number = '${id}'");
+    List<Map> Data = await _sqlDb
+        .readData("SELECT * FROM 'USERS' WHERE phone_number = '${id}'");
     userData.clear();
-    
+
     for (var i = 0; i < Data.length; i++) {
       userData.add(UserModel(
         user_id: Data[i]['user_id'] as int?, // تأكد من أن user_id هو int
@@ -24,15 +24,15 @@ class SchoolDirectorController {
             Data[i]['telephone_number'].toString()), // تحويل إلى int
         email: Data[i]['email'],
         password: Data[i]['password'],
-        role_id: Data[i]['role_id'] as int?, // تأكد من أن role_id هو int
-        school_id: Data[i]['school_id'] as int?,
+        roleID: Data[i]['roleID'] as int?, // تأكد من أن roleID هو int
+        schoolID: Data[i]['schoolID'] as int?,
         date: Data[i]['date'],
         // isActivate: response[i]['isActivate'] as int?, // تأكد من أن isActivate هو int
       ));
     }
     // users.forEach((element) {
     //   print(
-    //       "USER ID : ${element.user_id}\nUSER NAME : ${element.first_name}\nSCHOOL ID : ${element.school_id}\n____________________________________________________________________________");
+    //       "USER ID : ${element.user_id}\nUSER NAME : ${element.first_name}\nSCHOOL ID : ${element.schoolID}\n____________________________________________________________________________");
     // });
     print("${userData.isEmpty}");
   }

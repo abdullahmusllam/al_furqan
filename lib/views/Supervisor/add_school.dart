@@ -93,7 +93,7 @@ class _AddSchoolState extends State<AddSchool> {
                   final school = schoolController.schools[index];
                   return ListTile(
                     leading: CircleAvatar(
-                      child: Text("${school.school_id}"),
+                      child: Text("${school.schoolID}"),
                     ),
                     title: Text("${school.school_name!}"),
                     subtitle: Text(school.school_location!),
@@ -122,7 +122,7 @@ class _AddSchoolState extends State<AddSchool> {
                         );
                         if (confirmDelete) {
                           await schoolController
-                              .delete_School(school.school_id!);
+                              .delete_School(school.schoolID!);
                           await _loadSchools();
                         }
                       },

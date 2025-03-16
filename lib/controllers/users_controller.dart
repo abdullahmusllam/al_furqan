@@ -10,138 +10,110 @@ class UserController {
   List<UserModel> get requests => _requests;
 
   // Method to get all data
-  get_data() async {
-    await get_data_users();
-    await get_data_requests();
+  Future<void> getData() async {
+    await getDataUsers();
+    await getDataRequests();
   }
 
   // Method to get active users data
-  get_data_users() async {
+  Future<void> getDataUsers() async {
     List<Map> response =
         await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 1");
     _users.clear();
-    for (var i = 0; i < response.length; i++) {
-      _users.add(UserModel(
-        user_id: response[i]['user_id'] as int?, // تأكد من أن user_id هو int
-        first_name: response[i]['first_name'],
-        middle_name: response[i]['middle_name'],
-        grandfather_name: response[i]['grandfather_name'],
-        last_name: response[i]['last_name'],
-        phone_number: int.tryParse(
-            response[i]['phone_number'].toString()), // تحويل إلى int
-        telephone_number: int.tryParse(
-            response[i]['telephone_number'].toString()), // تحويل إلى int
-        email: response[i]['email'],
-        password: response[i]['password'],
-        role_id: response[i]['role_id'] as int?, // تأكد من أن role_id هو int
-        school_id: response[i]['school_id'] as int?,
-        date: response[i]['date'],
-        isActivate:
-            response[i]['isActivate'] as int?, // تأكد من أن isActivate هو int
-      ));
-    }
-    // users.forEach((element) {
-    //   print(
-    //       "USER ID : ${element.user_id}\nUSER NAME : ${element.first_name}\nisActivate : ${element.isActivate}\n____________________________________________________________________________");
-    // });
-
-    print("User List : ${_users.isEmpty}");
+    _users.addAll(_mapResponseToUserModel(response));
+    print("Users List : ${_users.isEmpty}");
   }
 
   // Method to get requests data
-  get_data_requests() async {
-    List<Map> requestResponse =
+  Future<void> getDataRequests() async {
+    List<Map> response =
         await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 0");
     _requests.clear();
-    for (var i = 0; i < requestResponse.length; i++) {
-      _requests.add(UserModel(
-        user_id:
-            requestResponse[i]['user_id'] as int?, // تأكد من أن user_id هو int
-        first_name: requestResponse[i]['first_name'],
-        middle_name: requestResponse[i]['middle_name'],
-        grandfather_name: requestResponse[i]['grandfather_name'],
-        last_name: requestResponse[i]['last_name'],
-        phone_number: int.tryParse(
-            requestResponse[i]['phone_number'].toString()), // تحويل إلى int
-        telephone_number: int.tryParse(
-            requestResponse[i]['telephone_number'].toString()), // تحويل إلى int
-        email: requestResponse[i]['email'],
-        password: int.tryParse(requestResponse[i]['password'].toString()),
-        role_id: requestResponse[i]['role_id'] as int?,
-        school_id: requestResponse[i]['school_id']
-            as int?, // تأكد من أن role_id هو int
-        date: requestResponse[i]['date'],
-        isActivate: requestResponse[i]['isActivate'] as int?,
-      ));
-    }
-    // requests.forEach((element) {
-    //   print(
-    //       "REQUEST ID : ${element.user_id}\nUSER NAME : ${element.first_name}\n isActivate :${element.isActivate}\n____________________________________________________________________________");
-    // });
+    _requests.addAll(_mapResponseToUserModel(response));
     print("Request List : ${_requests.isEmpty}");
   }
 
   // Method to add a new user
-  add_user(UserModel usermodel) async {
+  Future<void> addUser(UserModel userModel) async {
     int response = await _sqlDb.insertData('''
-    INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, role_id, school_id, date, isActivate)
-    VALUES ('${usermodel.first_name}', '${usermodel.middle_name}', '${usermodel.grandfather_name}', '${usermodel.last_name}', '${usermodel.password}', '${usermodel.email}', '${usermodel.phone_number}', '${usermodel.telephone_number}', ${usermodel.role_id}, ${usermodel.school_id}, '${usermodel.date}', '${usermodel.isActivate}');
+    INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
+    VALUES ('${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.password}', '${userModel.email}', '${userModel.phone_number}', '${userModel.telephone_number}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', '${userModel.isActivate}');
     ''');
-
-    print("response = $response, isActivate = ${usermodel.isActivate}");
+    print("response = $response, isActivate = ${userModel.isActivate}");
   }
 
   // Method to delete a user
-  delete_user(int userId) async {
+  Future<void> deleteUser(int userId) async {
     int response =
         await _sqlDb.deleteData("DELETE FROM USERS WHERE user_id = $userId");
     print(response);
   }
 
   // Method to activate a user
-  activate_user(int userId) async {
+  Future<void> activateUser(int userId) async {
     await _sqlDb.updateData('''
     UPDATE USERS SET isActivate = 1 WHERE user_id = $userId
     ''');
-    await get_data();
+    await getData();
   }
 
   // Method to delete a request
-  delete_request(int userId) async {
+  Future<void> deleteRequest(int userId) async {
     await _sqlDb.deleteData(
-        "DELETE FROM USERS WHERE user_id = $userId AND isActivate = 0 ");
-    await get_data_requests();
+        "DELETE FROM USERS WHERE user_id = $userId AND isActivate = 0");
+    await getDataRequests();
   }
 
   // Method to update a user
-  update_user(UserModel usermodel) async {
+  Future<void> updateUser(UserModel userModel) async {
     int response = await _sqlDb.updateData('''
     UPDATE USERS SET
-      first_name = '${usermodel.first_name}',
-      middle_name = '${usermodel.middle_name}',
-      grandfather_name = '${usermodel.grandfather_name}',
-      last_name = '${usermodel.last_name}',
-      password = '${usermodel.password}',
-      email = '${usermodel.email}',
-      phone_number = '${usermodel.phone_number}',
-      telephone_number = '${usermodel.telephone_number}',
-      role_id = ${usermodel.role_id},
-      school_id = ${usermodel.school_id},
-      date = '${usermodel.date}',
-      isActivate = ${usermodel.isActivate}
-    WHERE user_id = ${usermodel.user_id}
+      first_name = '${userModel.first_name}',
+      middle_name = '${userModel.middle_name}',
+      grandfather_name = '${userModel.grandfather_name}',
+      last_name = '${userModel.last_name}',
+      password = '${userModel.password}',
+      email = '${userModel.email}',
+      phone_number = '${userModel.phone_number}',
+      telephone_number = '${userModel.telephone_number}',
+      roleID = ${userModel.roleID},
+      schoolID = ${userModel.schoolID},
+      date = '${userModel.date}',
+      isActivate = ${userModel.isActivate}
+    WHERE user_id = ${userModel.user_id}
     ''');
     print("response = $response");
   }
 
   // Method to add a new request
-  add_request(UserModel usermodel) async {
+  Future<void> addRequest(UserModel userModel) async {
     int response = await _sqlDb.insertData('''
-    INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, phone_number, telephone_number, email, password,role_id ,school_id, date,isActivate)
-    VALUES ('${usermodel.first_name}', '${usermodel.middle_name}', '${usermodel.grandfather_name}', '${usermodel.last_name}', '${usermodel.phone_number}', '${usermodel.telephone_number}', '${usermodel.email}', '${usermodel.password}',${usermodel.role_id},${usermodel.school_id}, '${usermodel.date}',0);
+    INSERT INTO USERS (first_name, middle_name, grandfather_name, last_name, phone_number, telephone_number, email, password, roleID, schoolID, date, isActivate)
+    VALUES ('${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.phone_number}', '${userModel.telephone_number}', '${userModel.email}', '${userModel.password}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', 0);
     ''');
-    print("request school id : ${usermodel.school_id}");
-    print("response = $response, isActivate = ${usermodel.isActivate}");
+    print("request school id : ${userModel.schoolID}");
+    print("response = $response, isActivate = ${userModel.isActivate}");
+  }
+
+  // Helper method to map response to UserModel
+  List<UserModel> _mapResponseToUserModel(List<Map> response) {
+    return response.map((data) {
+      return UserModel(
+        user_id: data['user_id'] as int?,
+        first_name: data['first_name'],
+        middle_name: data['middle_name'],
+        grandfather_name: data['grandfather_name'],
+        last_name: data['last_name'],
+        phone_number: int.tryParse(data['phone_number'].toString()),
+        telephone_number: int.tryParse(data['telephone_number'].toString()),
+        email: data['email'],
+        password: data['password'] as int?, // Ensure password is a string
+        roleID: data['roleID'] as int?,
+        schoolID: data['schoolID'] as int?,
+        date: data['date'],
+        isActivate: data['isActivate'] as int?,
+      );
+    }).toList();
   }
 }
 

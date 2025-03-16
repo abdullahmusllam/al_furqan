@@ -1,85 +1,183 @@
 import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
+import 'package:al_furqan/views/login/database_helper.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/users_model.dart';
 import '../SchoolDirector/SchoolDirectorHome.dart';
 import '../Teacher/mainTeacher.dart';
 import 'signup_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 int id = 0;
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  DatabaseHelper dbHelper = DatabaseHelper();
+  bool _isLoading = false;
 
-  LoginScreen({super.key});
-
-  void toDashboardAdmin(BuildContext context) {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => DashboardScreen()));
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
   }
 
-  void toDashboardManeger(BuildContext context, UserModel user) {
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => SchoolManagerScreen(user: user)));
+  /// حفظ بيانات تسجيل الدخول في SharedPreferences
+  Future<void> saveUserLogin(
+      String phoneUser, int roleId, int isActivate) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('phoneUser', phoneUser);
+    await prefs.setInt('roleID', roleId);
+    await prefs.setInt('isActivate', isActivate);
+    await prefs.setBool('isLoggedIn', true);
   }
 
-  void toDashboardTeacher(BuildContext context, UserModel user) {
-    Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => TeacherDashboard(user: user)));
+  /// تسجيل خروج المستخدم وحذف جميع البيانات المحفوظة
+  Future<void> logoutUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // حذف جميع البيانات المحفوظة
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => LoginScreen()));
   }
 
-  void _login(BuildContext context) async {
-    String phone = phoneController.text;
-    String password = passwordController.text;
+  /// التحقق مما إذا كان المستخدم مسجل الدخول
+  Future<bool> isUserLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isLoggedIn') ?? false;
+  }
 
-    if (phone.isNotEmpty && password.isNotEmpty) {
-      await userController.get_data_users();
-      var user = userController.users.firstWhere(
-          (user) =>
-              user.phone_number == int.parse(phone) &&
-              user.password == int.parse(password),
-          orElse: () => UserModel());
+  /// الحصول على رقم الهاتف المحفوظ في SharedPreferences
+  Future<String?> getUserphone() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('phoneUser');
+  }
 
-      if (user.role_id != null) {
-        // احفظ رقم الهاتف في المتغير بعد التحقق الناجح
-        id = user.user_id!;
+  /// الحصول على رقم الدور المحفوظ في SharedPreferences
+  Future<int?> getUserRoleId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('roleID');
+  }
 
-        switch (user.role_id) {
-          case 0:
-            toDashboardAdmin(context);
-            break;
-          case 1:
-            toDashboardManeger(context, user);
-            break;
-          case 2:
-            toDashboardTeacher(context, user);
-            break;
-          default:
-            _showErrorDialog(
-                context, "خطأ", "حسابك غير موجود أو غير مفعل تواصل مع مديرك");
-            break;
-        }
-      } else {
-        _showErrorDialog(
-            context, "خطأ", "حسابك غير موجود أو غير مفعل تواصل مع مديرك");
-      }
-    } else {
-      _showErrorDialog(context, "خطأ", "الرجاء إدخال رقم الجوال وكلمة المرور.");
+  /// الحصول على رقم التفعيل المحفوظ في SharedPreferences
+  Future<int?> getIsActivate() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('isActivate');
+  }
+
+  /// التحقق من حالة تسجيل الدخول واستدعاء _loginPref إذا كان المستخدم مسجل الدخول
+  void _checkLoginStatus() async {
+    print(
+        "----------------------Here checkLoginStatus--------------------------");
+    bool isLogin = await isUserLoggedIn();
+    if (isLogin) {
+      print(
+          "----------------------Here if checkLoginStatus--------------------------");
+      _loginPref();
     }
   }
 
+  /// تسجيل الدخول باستخدام البيانات المحفوظة في SharedPreferences
+  void _loginPref() async {
+    setState(() => _isLoading = true);
+    try {
+      int? roleId = await getUserRoleId();
+      int? isActivate = await getIsActivate();
+      setState(() => _isLoading = false);
+      if (roleId != null && isActivate != null && isActivate == 1) {
+        await chooseScreen(context);
+      } else {
+        _showErrorDialog(context, "خطأ", "حسابك غير مفعل أو بيانات غير صحيحة.");
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      _showErrorDialog(context, "خطأ", "حدث خطأ: $e");
+    }
+  }
+
+  /// تسجيل الدخول باستخدام رقم الهاتف وكلمة المرور
+  void _login(BuildContext context) async {
+    String phone = phoneController.text.trim();
+    String password = passwordController.text.trim();
+    setState(() => _isLoading = true);
+
+    /// التحقق من أن الحقول غير فارغة
+    if (phone.isEmpty || password.isEmpty) {
+      _showErrorDialog(context, "خطأ", "الرجاء إدخال رقم الجوال وكلمة المرور.");
+      return;
+    }
+
+    /// التحقق من صحة بيانات تسجيل الدخول
+    final user = await SqlDb().getUser(phone, password);
+    setState(() => _isLoading = false);
+
+    /// التحقق من أن المستخدم موجود
+    if (user == null || user.user_id == null) {
+      _showErrorDialog(context, "خطأ", "بيانات تسجيل الدخول غير صحيحة.");
+      return;
+    }
+
+    /// التحقق من أن الحساب مفعل
+    await chiceRole(user, context, phone);
+  }
+
+  /// اختيار الدور المناسب للمستخدم وتوجيهه إلى الشاشة المناسبة
+  Future<void> chiceRole(
+      UserModel user, BuildContext context, String phone) async {
+    if (user.roleID == null || user.isActivate == 0) {
+      _showErrorDialog(context, "خطأ", "حسابك غير مفعل، تواصل مع الإدارة.");
+      return;
+    }
+    id = user.user_id!;
+    await saveUserLogin(phone, user.roleID!, user.isActivate!);
+    await chooseScreen(context);
+  }
+
+  /// اختيار الشاشة المناسبة للمستخدم بناءً على دوره
+  Future<void> chooseScreen(BuildContext context) async {
+    int? roleId = await getUserRoleId();
+    if (roleId == null) {
+      _showErrorDialog(context, "خطأ", "فشل في تحديد دور المستخدم.");
+      return;
+    }
+    switch (roleId) {
+      case 0:
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => DashboardScreen()));
+        break;
+      case 1:
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => SchoolManagerScreen()));
+        break;
+      case 2:
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => TeacherDashboard()));
+        break;
+      default:
+        _showErrorDialog(context, "خطأ", "حسابك غير مفعل، تواصل مع الإدارة.");
+    }
+  }
+
+  /// عرض رسالة خطأ في حوار
   void _showErrorDialog(BuildContext context, String title, String content) {
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(title),
         content: Text(content),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
+          CupertinoDialogAction(
             child: Text("موافق"),
+            onPressed: () => Navigator.pop(context),
           ),
         ],
       ),
@@ -91,103 +189,81 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Column(
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    "مرحباً",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                  Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          "مرحباً",
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          "سجل الدخول باستخدام رقمك ",
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    "سجل الدخول باستخدام رقمك ",
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  SizedBox(height: 30),
+                  _buildTextField(
+                      phoneController, Icons.phone_enabled_rounded, "رقمك"),
+                  SizedBox(height: 15),
+                  _buildTextField(passwordController, Icons.lock, "كلمة المرور",
+                      obscureText: true),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () => _login(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      minimumSize: Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    child: Text("سجل الدخول",
+                        style: TextStyle(fontSize: 18, color: Colors.white)),
+                  ),
+                  SizedBox(height: 10),
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SignupScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "ليس لديك حساب؟ إنشاء حساب",
+                        style: TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
-            SizedBox(height: 30),
-            _buildTextField(
-                phoneController, Icons.phone_enabled_rounded, "رقمك"),
-            SizedBox(height: 15),
-            _buildTextField(passwordController, Icons.lock, "كلمة المرور",
-                obscureText: true),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => _login(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                minimumSize: Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
-              child: Text("سجل الدخول",
-                  style: TextStyle(fontSize: 18, color: Colors.white)),
-            ),
-            SizedBox(height: 10),
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SignupScreen(),
-                    ),
-                  );
-                },
-                child: Text(
-                  "ليس لديك حساب؟ إنشاء حساب",
-                  style: TextStyle(
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
 
+  /// بناء حقل نصي مع أيقونة
   Widget _buildTextField(
       TextEditingController controller, IconData icon, String hint,
       {bool obscureText = false}) {
-    final emojiRegex = RegExp(
-      r'[\u{1F600}-\u{1F64F}' // Emoticons
-      r'\u{1F300}-\u{1F5FF}' // Misc Symbols and Pictographs
-      r'\u{1F680}-\u{1F6FF}' // Transport and Map Symbols
-      r'\u{1F700}-\u{1F77F}' // Alchemical Symbols
-      r'\u{1F780}-\u{1F7FF}' // Geometric Shapes Extended
-      r'\u{1F800}-\u{1F8FF}' // Supplemental Arrows-C
-      r'\u{1F900}-\u{1F9FF}' // Supplemental Symbols and Pictographs
-      r'\u{1FA00}-\u{1FA6F}' // Chess Symbols
-      r'\u{1FA70}-\u{1FAFF}' // Symbols and Pictographs Extended-A
-      r'\u{2600}-\u{26FF}' // Miscellaneous Symbols
-      r'\u{2700}-\u{27BF}' // Dingbats
-      r'\u{2300}-\u{23FF}' // Miscellaneous Technical
-      r'\u{2B50}-\u{2B55}' // Stars and Miscellaneous
-      r'\u{1F1E6}-\u{1F1FF}' // Flags (regional indicator symbols)
-      r'\u{1F201}-\u{1F251}' // Enclosed Ideographic Supplement
-      r'\u{1F004}' // Mahjong Tile Red Dragon
-      r'\u{1F0CF}' // Playing Card Black Joker
-      r'\u{1F9C0}' // Cheese Wedge
-      r'\u{1F018}-\u{1F270}' // Enclosed CJK Letters and Months
-      r'\u{1F202}-\u{1F2FF}]', // More Enclosed Ideographic Supplement
-      unicode: true,
-    );
     return TextField(
-      textInputAction: TextInputAction.next,
-      inputFormatters: [FilteringTextInputFormatter.deny(emojiRegex)],
       controller: controller,
       obscureText: obscureText,
       decoration: InputDecoration(
@@ -195,7 +271,6 @@ class LoginScreen extends StatelessWidget {
         hintText: hint,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(25),
-          borderSide: BorderSide(color: Colors.green),
         ),
       ),
     );

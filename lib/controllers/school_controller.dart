@@ -15,7 +15,7 @@ class SchoolController {
     _schools.clear();
     for (var i = 0; i < data.length; i++) {
       _schools.add(SchoolModel(
-        school_id: data[i]['school_id'] as int?,
+        schoolID: data[i]['schoolID'] as int?,
         school_name: data[i]['school_name'],
         school_location: data[i]['school_location'],
         // user_id: data[i]['user_id'] as int?,
@@ -32,14 +32,14 @@ class SchoolController {
     ''');
 
     print(response);
-    print(schoolmodel.school_id);
+    print(schoolmodel.schoolID);
   }
 
   Future<void> delete_School(int schoolId) async {
     int response = await _sqlDb
-        .deleteData("DELETE FROM SCHOOLS WHERE school_id = $schoolId");
+        .deleteData("DELETE FROM SCHOOLS WHERE schoolID = $schoolId");
 
-    print("Response: $response, school_id : $schoolId");
+    print("Response: $response, schoolID : $schoolId");
     print(response);
   }
 }

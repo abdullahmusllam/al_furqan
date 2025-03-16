@@ -1,23 +1,54 @@
+import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddTeacher.dart';
 import 'package:al_furqan/views/SchoolDirector/DrawerSchoolDirector.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class SchoolManagerScreen extends StatelessWidget {
+class SchoolManagerScreen extends StatefulWidget {
+  const SchoolManagerScreen({super.key});
+
+  @override
+  State<SchoolManagerScreen> createState() => _SchoolManagerScreenState();
+}
+
+class _SchoolManagerScreenState extends State<SchoolManagerScreen> {
   final List<Map<String, String>> teachers = [
     {'name': 'أحمد محمد', 'level': 'الصف الأول'},
     {'name': 'منى خالد', 'level': 'الصف الثاني'},
     {'name': 'علي حسن', 'level': 'الصف الثالث'},
   ];
 
-  final UserModel user;
-  SchoolManagerScreen({required this.user});
+  UserModel? user;
+
+  @override
+  void initState() {
+    super.initState();
+    getDataByPref();
+  }
+
+  getDataByPref() async {
+    final pref = await SharedPreferences.getInstance();
+    String? phoneUser = pref.getString('phoneUser');
+    // int? roleId = pref.getInt('roleID');
+    // int? isActivate = pref.getInt('isActivate');
+
+    userController.getDataUsers();
+    setState(() {});
+    userController.users.forEach(
+      (element) {
+        if (int.tryParse(phoneUser!) == element.phone_number) {
+          user = element;
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('${user.first_name} ${user.last_name}')),
-      drawer: DrawerSchoolDirector(user: user),
+      appBar: AppBar(title: Text('${user!.first_name} ${user!.last_name}')),
+      drawer: DrawerSchoolDirector(user: user!),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
