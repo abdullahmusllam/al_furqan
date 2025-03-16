@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -6,7 +7,7 @@ import 'package:path/path.dart';
 class SqlDb {
   static Database? _db;
 
-  Future<Database> get db async {
+  Future<Database> get database async {
     if (_db == null) _db = await initalDb();
     return _db!;
   }
@@ -43,23 +44,43 @@ class SqlDb {
     return await rootBundle.loadString('assets/database/al_furqan.db');
   }
 
+  /// جلب مستخدم بناءً على رقم الهاتف وكلمة المرور
+  Future<UserModel?> getUser(String phone, String password) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'users',
+      where: 'phone_number = ? AND password = ?',
+      whereArgs: [phone, password],
+    );
+
+    print(" phone: $phone, password: $password");
+    if (maps.isNotEmpty) {
+      return UserModel.fromMap(maps.first);
+    } else {
+      print("لم يتم العثور على مستخدم بـ phone: $phone و password: $password");
+      final allUsers = await db.query('users');
+      print("All Users: $allUsers");
+      return null;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> readData(String sql) async {
-    Database mydb = await db;
+    Database mydb = await database;
     return await mydb.rawQuery(sql);
   }
 
   insertData(String sql) async {
-    Database mydb = await db;
+    Database mydb = await database;
     return await mydb.rawInsert(sql);
   }
 
   updateData(String sql) async {
-    Database mydb = await db;
+    Database mydb = await database;
     return await mydb.rawUpdate(sql);
   }
 
   deleteData(String sql) async {
-    Database mydb = await db;
+    Database mydb = await database;
     return await mydb.rawDelete(sql);
   }
 }
