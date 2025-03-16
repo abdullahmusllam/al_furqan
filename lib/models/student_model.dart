@@ -5,6 +5,10 @@ class StudentModel {
   String? middleName;
   String? grandfatherName;
   String? lastName;
+  int? AttendanceDays;
+  int? AbsenceDays;
+  String? Excuse;
+  String? ReasonAbsence;
 
   StudentModel(
       {this.studentID,
@@ -12,5 +16,9 @@ class StudentModel {
       this.firstName,
       this.middleName,
       this.grandfatherName,
-      this.lastName});
+      this.lastName,
+      this.AttendanceDays,
+      this.AbsenceDays,
+      this.Excuse,
+      this.ReasonAbsence});
 }

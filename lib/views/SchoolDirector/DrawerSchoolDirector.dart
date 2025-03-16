@@ -4,7 +4,9 @@ import 'package:al_furqan/controllers/SchoolDirectoreController.dart';
 import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddStuden.dart';
+import 'package:al_furqan/views/SchoolDirector/ElhalagatList.dart';
 import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
+import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
 import 'package:al_furqan/views/Teacher/addStusentData.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
@@ -72,7 +74,16 @@ class DrawerSchoolDirector extends StatelessWidget {
             onTap: () {
               // الانتقال إلى شاشة الطلاب
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => AddStudentScreen()));
+                  MaterialPageRoute(builder: (context) => StudentsListPage()));
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.event),
+            title: Text('إدارة الحلقات'),
+            onTap: () {
+              // الانتقال إلى شاشة الحلقات
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => HalqatListPage(user: user)));
             },
           ),
           ListTile(

@@ -1,3 +1,4 @@
+import 'package:al_furqan/views/SchoolDirector/AddStuden.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Teacher/StudentDetilesPage.dart';
 
@@ -16,7 +17,7 @@ class StudentsListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('طلاب الحلقة',
+        title: Text('طلاب المدرسة',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
@@ -68,32 +69,43 @@ class StudentsListPage extends StatelessWidget {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'إلغاء',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.all(16.0),
+          //   child: SizedBox(
+          //     width: double.infinity,
+          //     child: ElevatedButton(
+          //       onPressed: () {
+          //         Navigator.pop(context);
+          //       },
+          //       style: ElevatedButton.styleFrom(
+          //         backgroundColor: Colors.red,
+          //         padding: EdgeInsets.symmetric(vertical: 16),
+          //         shape: RoundedRectangleBorder(
+          //           borderRadius: BorderRadius.circular(12),
+          //         ),
+          //       ),
+          //       child: Text(
+          //         'إلغاء',
+          //         style: TextStyle(
+          //             color: Colors.white,
+          //             fontSize: 18,
+          //             fontWeight: FontWeight.bold),
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // هنا يمكنك تنفيذ عملية الإضافة مثل الانتقال لصفحة إضافة طالب جديد
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddStudentScreen()),
+          );
+        },
+        backgroundColor: Colors.teal,
+        child: Icon(Icons.add, color: Colors.white),
       ),
     );
   }

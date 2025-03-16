@@ -38,4 +38,8 @@ class SchoolDirectorController {
   }
 }
 
+addHalaga(){
+  
+}
+
 SchoolDirectorController schoolDirectorController = SchoolDirectorController();
