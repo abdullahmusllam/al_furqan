@@ -26,11 +26,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final pref = await SharedPreferences.getInstance();
     String? phoneUser = pref.getString('phoneUser');
 
-    userController.getDataUsers();
+    await userController.getDataUsers();
     setState(() {});
+    print("userLis : ${userController.users.isEmpty}");
     userController.users.forEach(
       (element) {
         if (int.tryParse(phoneUser!) == element.phone_number) {
+          print("----------------");
           user = element;
         }
       },
