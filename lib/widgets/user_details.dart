@@ -3,6 +3,7 @@ import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../controllers/school_controller.dart';
 import '../views/Supervisor/add_school.dart';
 import 'build_text_field.dart';
@@ -123,7 +124,7 @@ class _UserDetailsState extends State<UserDetails> {
                 _buildTextField(_phone, 'رقم الجوال', TextInputType.phone, 9),
                 SizedBox(height: 10),
                 _buildTextField(
-                    _telephone, 'رقم البيت', TextInputType.phone, 9),
+                    _telephone, 'رقم البيت', TextInputType.phone, 6),
                 SizedBox(height: 10),
                 _buildTextField(_email, 'البريد الإلكتروني',
                     TextInputType.emailAddress, 50),

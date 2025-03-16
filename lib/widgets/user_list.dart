@@ -147,8 +147,11 @@ class _UserListState extends State<UserList> {
                               ),
                             );
                           } else {
-                            userController
-                                .deleteUser(filteredUsers[index].user_id!);
+                            setState(() {
+                              userController
+                                  .deleteUser(filteredUsers[index].user_id!);
+                              userController.getData();
+                            });
                           }
                         },
                       ),

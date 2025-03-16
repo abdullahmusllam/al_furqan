@@ -1,4 +1,7 @@
 // ignore: file_names
+import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/views/login/login.dart';
 import 'package:al_furqan/widgets/drawer_list.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart'; // مكتبة المخططات
@@ -6,17 +9,57 @@ import 'package:al_furqan/widgets/stat_card.dart';
 import 'package:al_furqan/widgets/meeting_list.dart';
 import 'package:al_furqan/widgets/chart_card.dart';
 import 'package:al_furqan/widgets/notification_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({
     super.key,
   });
 
   @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  UserModel? user;
+  getDataByPref() async {
+    final pref = await SharedPreferences.getInstance();
+    String? phoneUser = pref.getString('phoneUser');
+
+    userController.getDataUsers();
+    setState(() {});
+    userController.users.forEach(
+      (element) {
+        if (int.tryParse(phoneUser!) == element.phone_number) {
+          user = element;
+        }
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getDataByPref();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('لوحة تحكم المشرف')),
-      drawer: DrawerList(),
+      appBar: AppBar(title: Text('لوحة تحكم المشرف'), actions: [
+        IconButton(
+            onPressed: () async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.clear(); // حذف جميع البيانات المحفوظة
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()));
+            },
+            icon: Icon(Icons.logout)),
+      ]),
+      drawer: DrawerList(
+        user: user,
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(

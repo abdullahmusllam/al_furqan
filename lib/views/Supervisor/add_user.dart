@@ -44,8 +44,7 @@ class _AddUserState extends State<AddUser> {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(
                 value: school.school_id,
-                child:
-                    Text("${school.school_name!}\n${school.school_location}"),
+                child: Text("${school.school_name!} ${school.school_location}"),
               ))
           .toList();
       _selectedSchoolId = null;
@@ -97,26 +96,35 @@ class _AddUserState extends State<AddUser> {
                   validatorMsg: 'الرجاء إدخال القبيلة',
                 ),
                 SizedBox(height: 10),
-                _buildTextFormField(
-                  controller: _phone,
-                  label: 'رقم الجوال',
-                  maxLength: 9,
+                _buildNumberFormField(
+                    controller: _phone,
+                    label: 'رقم الجوال',
+                    maxLength: 9,
+                    inputType: TextInputType.phone,
+                    validatorMsg: 'الرجاء إدخال رقم الجوال',
+                    additionalValidator: (value) {
+                      if (value!.length < 9) {
+                        return 'رقم الجوال يجب أن يكون 9 أرقام';
+                      } else if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                        return 'ادخل ارقاماً';
+                      }
+                      return null;
+                    }),
+                SizedBox(height: 10),
+                _buildNumberFormField(
+                  controller: _telephone,
+                  label: 'رقم البيت',
+                  maxLength: 6,
                   inputType: TextInputType.phone,
-                  validatorMsg: 'الرجاء إدخال رقم الجوال',
+                  validatorMsg: 'الرجاء إدخال رقم البيت',
                   additionalValidator: (value) {
-                    if (value!.length < 9) {
-                      return 'رقم الجوال يجب أن يكون 9 أرقام';
+                    if (value!.length < 6) {
+                      return 'رقم البيت يجب أن يكون 6 أرقام';
+                    } else if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                      return 'ادخل ارقاماً';
                     }
                     return null;
                   },
-                ),
-                SizedBox(height: 10),
-                _buildTextFormField(
-                  controller: _telephone,
-                  label: 'رقم البيت',
-                  maxLength: 9,
-                  inputType: TextInputType.phone,
-                  validatorMsg: 'الرجاء إدخال رقم البيت',
                 ),
                 SizedBox(height: 10),
                 _buildTextFormField(
@@ -167,8 +175,39 @@ class _AddUserState extends State<AddUser> {
       keyboardType: inputType,
       maxLength: maxLength,
       inputFormatters: [
+        FilteringTextInputFormatter.deny(RegExp(r'[0-9_\-!#\$%^&*(),?":{}|<>]'))
+      ],
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return validatorMsg;
+        }
+        if (additionalValidator != null) {
+          return additionalValidator(value);
+        }
+        return null;
+      },
+    );
+  }
+
+  TextFormField _buildNumberFormField({
+    required TextEditingController controller,
+    required String label,
+    required int maxLength,
+    required TextInputType inputType,
+    required String validatorMsg,
+    String? Function(String?)? additionalValidator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: inputType,
+      maxLength: maxLength,
+      inputFormatters: [
         FilteringTextInputFormatter.deny(
-            RegExp(r'[0-9@._\-!#\$%^&*(),?":{}|<>]'))
+            RegExp(r'[ا-يa-zA-Z@._\-!#\$%^&*(),?":{}|<>]'))
       ],
       decoration: InputDecoration(
         labelText: label,

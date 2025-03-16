@@ -1,5 +1,8 @@
 import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
+import 'package:al_furqan/views/login/database_helper.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/users_model.dart';
@@ -20,6 +23,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  DatabaseHelper dbHelper = DatabaseHelper();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -27,13 +32,17 @@ class _LoginScreenState extends State<LoginScreen> {
     _checkLoginStatus();
   }
 
-  Future<void> saveUserLogin(String phoneUser, int roleId) async {
+  /// حفظ بيانات تسجيل الدخول في SharedPreferences
+  Future<void> saveUserLogin(
+      String phoneUser, int roleId, int isActivate) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('phoneUser', phoneUser);
     await prefs.setInt('role_id', roleId);
+    await prefs.setInt('isActivate', isActivate);
     await prefs.setBool('isLoggedIn', true);
   }
 
+  /// تسجيل خروج المستخدم وحذف جميع البيانات المحفوظة
   Future<void> logoutUser() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear(); // حذف جميع البيانات المحفوظة
@@ -41,16 +50,31 @@ class _LoginScreenState extends State<LoginScreen> {
         context, MaterialPageRoute(builder: (context) => LoginScreen()));
   }
 
+  /// التحقق مما إذا كان المستخدم مسجل الدخول
   Future<bool> isUserLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('isLoggedIn') ?? false;
   }
 
+  /// الحصول على رقم الهاتف المحفوظ في SharedPreferences
   Future<String?> getUserphone() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('phoneUser');
   }
 
+  /// الحصول على رقم الدور المحفوظ في SharedPreferences
+  Future<int?> getUserRoleId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('role_id');
+  }
+
+  /// الحصول على رقم التفعيل المحفوظ في SharedPreferences
+  Future<int?> getIsActivate() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('isActivate');
+  }
+
+  /// التحقق من حالة تسجيل الدخول واستدعاء _loginPref إذا كان المستخدم مسجل الدخول
   void _checkLoginStatus() async {
     print(
         "----------------------Here checkLoginStatus--------------------------");
@@ -62,94 +86,98 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  /// تسجيل الدخول باستخدام البيانات المحفوظة في SharedPreferences
   void _loginPref() async {
-    String? phone = await getUserphone();
-    print("----------------------Here _loginPref--------------------------");
-    // if (phone == null) return;
-    await userController.getData();
-    setState(() {
-      print(
-          "----------------------Here users List empty : ${userController.users.isEmpty}--------------------------");
-    });
-
-    for (var element in userController.users) {
-      print("----------------------Here for --------------------------");
-      if (element.phone_number == int.tryParse(phone!)) {
-        print(
-            "----------------------Here if _loginPref--------------------------");
-        chiceRole(element, context, phone);
-        return;
+    setState(() => _isLoading = true);
+    try {
+      int? roleId = await getUserRoleId();
+      int? isActivate = await getIsActivate();
+      setState(() => _isLoading = false);
+      if (roleId != null && isActivate != null && isActivate == 1) {
+        await chooseScreen(context);
+      } else {
+        _showErrorDialog(context, "خطأ", "حسابك غير مفعل أو بيانات غير صحيحة.");
       }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      _showErrorDialog(context, "خطأ", "حدث خطأ: $e");
     }
   }
 
+  /// تسجيل الدخول باستخدام رقم الهاتف وكلمة المرور
   void _login(BuildContext context) async {
     String phone = phoneController.text.trim();
     String password = passwordController.text.trim();
+    setState(() => _isLoading = true);
 
+    /// التحقق من أن الحقول غير فارغة
     if (phone.isEmpty || password.isEmpty) {
       _showErrorDialog(context, "خطأ", "الرجاء إدخال رقم الجوال وكلمة المرور.");
       return;
     }
 
-    await userController.getDataUsers();
-    var user = userController.users.firstWhere(
-      (user) =>
-          user.phone_number == int.tryParse(phone) &&
-          user.password == int.tryParse(password),
-      orElse: () => UserModel(),
-    );
+    /// التحقق من صحة بيانات تسجيل الدخول
+    final user = await SqlDb().getUser(phone, password);
+    setState(() => _isLoading = false);
 
-    if (user.user_id == null) {
-      _showErrorDialog(context, "خطأ",
-          "بيانات تسجيل الدخول غير صحيحة، يرجى المحاولة مرة أخرى.");
+    /// التحقق من أن المستخدم موجود
+    if (user == null || user.user_id == null) {
+      _showErrorDialog(context, "خطأ", "بيانات تسجيل الدخول غير صحيحة.");
       return;
     }
 
-    chiceRole(user, context, phone);
+    /// التحقق من أن الحساب مفعل
+    await chiceRole(user, context, phone);
   }
 
-  void chiceRole(UserModel user, BuildContext context, String phone) {
-    if (user.role_id == null) {
+  /// اختيار الدور المناسب للمستخدم وتوجيهه إلى الشاشة المناسبة
+  Future<void> chiceRole(
+      UserModel user, BuildContext context, String phone) async {
+    if (user.role_id == null || user.isActivate == 0) {
       _showErrorDialog(context, "خطأ", "حسابك غير مفعل، تواصل مع الإدارة.");
       return;
     }
-
     id = user.user_id!;
-    saveUserLogin(phone, user.role_id!);
+    await saveUserLogin(phone, user.role_id!, user.isActivate!);
+    await chooseScreen(context);
+  }
 
-    switch (user.role_id) {
+  /// اختيار الشاشة المناسبة للمستخدم بناءً على دوره
+  Future<void> chooseScreen(BuildContext context) async {
+    int? roleId = await getUserRoleId();
+    if (roleId == null) {
+      _showErrorDialog(context, "خطأ", "فشل في تحديد دور المستخدم.");
+      return;
+    }
+    switch (roleId) {
       case 0:
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => DashboardScreen()));
         break;
       case 1:
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => SchoolManagerScreen(user: user)));
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => SchoolManagerScreen()));
         break;
       case 2:
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => TeacherDashboard(user: user)));
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => TeacherDashboard()));
         break;
       default:
         _showErrorDialog(context, "خطأ", "حسابك غير مفعل، تواصل مع الإدارة.");
     }
   }
 
+  /// عرض رسالة خطأ في حوار
   void _showErrorDialog(BuildContext context, String title, String content) {
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(title),
         content: Text(content),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
+          CupertinoDialogAction(
             child: Text("موافق"),
+            onPressed: () => Navigator.pop(context),
           ),
         ],
       ),
@@ -161,74 +189,77 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Column(
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    "مرحباً",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                  Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          "مرحباً",
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          "سجل الدخول باستخدام رقمك ",
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    "سجل الدخول باستخدام رقمك ",
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  SizedBox(height: 30),
+                  _buildTextField(
+                      phoneController, Icons.phone_enabled_rounded, "رقمك"),
+                  SizedBox(height: 15),
+                  _buildTextField(passwordController, Icons.lock, "كلمة المرور",
+                      obscureText: true),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () => _login(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      minimumSize: Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    child: Text("سجل الدخول",
+                        style: TextStyle(fontSize: 18, color: Colors.white)),
+                  ),
+                  SizedBox(height: 10),
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SignupScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "ليس لديك حساب؟ إنشاء حساب",
+                        style: TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
-            SizedBox(height: 30),
-            _buildTextField(
-                phoneController, Icons.phone_enabled_rounded, "رقمك"),
-            SizedBox(height: 15),
-            _buildTextField(passwordController, Icons.lock, "كلمة المرور",
-                obscureText: true),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => _login(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                minimumSize: Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
-              child: Text("سجل الدخول",
-                  style: TextStyle(fontSize: 18, color: Colors.white)),
-            ),
-            SizedBox(height: 10),
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SignupScreen(),
-                    ),
-                  );
-                },
-                child: Text(
-                  "ليس لديك حساب؟ إنشاء حساب",
-                  style: TextStyle(
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
 
+  /// بناء حقل نصي مع أيقونة
   Widget _buildTextField(
       TextEditingController controller, IconData icon, String hint,
       {bool obscureText = false}) {

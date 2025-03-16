@@ -2,13 +2,13 @@
 
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
 
 class DrawerList extends StatelessWidget {
-  const DrawerList({
-    super.key,
-  });
+  UserModel? user;
+  DrawerList({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -18,15 +18,20 @@ class DrawerList extends StatelessWidget {
         children: <Widget>[
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: Colors.green,
             ),
             child: Column(
               children: [
                 CircleAvatar(
                   maxRadius: 45,
+                  child: Icon(
+                    CupertinoIcons.person_alt,
+                    color: Colors.white,
+                    size: 65,
+                  ),
                 ),
                 Text(
-                  'القائمة الرئيسية',
+                  '${user!.first_name} ${user!.middle_name} ${user!.last_name}',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,

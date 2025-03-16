@@ -28,6 +28,44 @@ class UserModel {
     this.date,
     this.isActivate = 0,
   });
+
+  // تحويل الكائن إلى Map
+  Map<String, dynamic> toMap() {
+    return {
+      'user_id': user_id,
+      'first_name': first_name,
+      'middle_name': middle_name,
+      'grandfather_name': grandfather_name,
+      'last_name': last_name,
+      'phone_number': phone_number,
+      'telephone_number': telephone_number,
+      'email': email,
+      'password': password,
+      'role_id': role_id,
+      'school_id': school_id,
+      'date': date,
+      'isActivate': isActivate,
+    };
+  }
+
+  // تحويل Map إلى كائن UserModel
+  factory UserModel.fromMap(Map<String, dynamic> map) {
+    return UserModel(
+      user_id: map['user_id'] as int?,
+      first_name: map['first_name'] as String?,
+      middle_name: map['middle_name'] as String?,
+      grandfather_name: map['grandfather_name'] as String?,
+      last_name: map['last_name'] as String?,
+      phone_number: map['phone_number'] as int?,
+      telephone_number: map['telephone_number'] as int?,
+      email: map['email'] as String?,
+      password: map['password'] as int?,
+      role_id: map['role_id'] as int?,
+      school_id: map['school_id'] as int?,
+      date: map['date'] as String?,
+      isActivate: map['isActivate'] as int?,
+    );
+  }
 }
 
 // UserModel userModel = UserModel();
