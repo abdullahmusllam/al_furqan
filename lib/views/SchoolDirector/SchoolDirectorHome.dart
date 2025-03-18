@@ -30,18 +30,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen> {
   getDataByPref() async {
     final pref = await SharedPreferences.getInstance();
     String? phoneUser = pref.getString('phoneUser');
-    // int? roleId = pref.getInt('roleID');
-    // int? isActivate = pref.getInt('isActivate');
 
-    userController.getDataUsers();
-    setState(() {});
-    userController.users.forEach(
-      (element) {
-        if (int.tryParse(phoneUser!) == element.phone_number) {
-          user = element;
-        }
-      },
-    );
   }
 
   @override
