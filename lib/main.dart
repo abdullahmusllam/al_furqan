@@ -1,3 +1,4 @@
+import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      home: UserManagementPage(),
+      home: LoginScreen(),
     );
   }
 }

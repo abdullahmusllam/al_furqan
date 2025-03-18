@@ -66,7 +66,7 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           // هنا يتم تنفيذ عملية إضافة الحلقة بعد التحقق
-                          _halaqaModel.SchoolID = widget.user.school_id;
+                          _halaqaModel.SchoolID = widget.user.schoolID;
                           _halaqaModel.Name = halqaNameController.text;
                           _halaqaModel.NumberStudent =
                               int.parse(numberStudentController.text);
