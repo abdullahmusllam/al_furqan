@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
 
 class DrawerTeacher extends StatelessWidget {
-  const DrawerTeacher({
+   DrawerTeacher({
     super.key,
   });
 
@@ -22,7 +22,7 @@ class DrawerTeacher extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Container(
+                SizedBox(
                   width: 65,
                   height: 65,
                   child: CircleAvatar(

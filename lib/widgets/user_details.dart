@@ -17,7 +17,7 @@ import 'build_save_button.dart';
 class UserDetails extends StatefulWidget {
   final UserModel user;
 
-  UserDetails({Key? key, required this.user}) : super(key: key);
+  const UserDetails({super.key, required this.user});
 
   @override
   _UserDetailsState createState() => _UserDetailsState();

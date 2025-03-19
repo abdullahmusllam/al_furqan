@@ -108,13 +108,11 @@ getNameAdmin() async {
   UserModel adimnName;
   print(userController.users.isEmpty);
   if (admin.isNotEmpty) {
-    admin.forEach(
-      (element) {
+    for (var element in admin) {
         if (element.roleID == 0) {
           adimnName = element;
         }
         // Do nothing
-      },
-    );
+      }
   }
 }

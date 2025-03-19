@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AddIslamicStudiesPlanPage extends StatefulWidget {
+  const AddIslamicStudiesPlanPage({super.key});
+
   @override
   _AddIslamicStudiesPlanPageState createState() =>
       _AddIslamicStudiesPlanPageState();
@@ -154,10 +156,10 @@ class _AddIslamicStudiesPlanPageState extends State<AddIslamicStudiesPlanPage> {
                       // تنفيذ عملية الإلغاء
                       Navigator.pop(context);
                     },
-                    child: Text('إلغاء'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                     ),
+                    child: Text('إلغاء'),
                   ),
                 ],
               ),

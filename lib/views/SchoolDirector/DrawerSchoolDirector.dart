@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
 
 class DrawerSchoolDirector extends StatelessWidget {
-  final UserModel user;
-  DrawerSchoolDirector({required this.user});
+  UserModel? user;
+  DrawerSchoolDirector({super.key, required this.user});
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -27,7 +27,7 @@ class DrawerSchoolDirector extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Container(
+                SizedBox(
                   width: 65,
                   height: 65,
                   child: CircleAvatar(
@@ -38,7 +38,7 @@ class DrawerSchoolDirector extends StatelessWidget {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  '${user.first_name} ${user.last_name}', // اسم المستخدم
+                  '${user!.first_name} ${user!.last_name}', // اسم المستخدم
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 17,
@@ -82,8 +82,10 @@ class DrawerSchoolDirector extends StatelessWidget {
             title: Text('إدارة الحلقات'),
             onTap: () {
               // الانتقال إلى شاشة الحلقات
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => HalqatListPage(user: user)));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => HalqatListPage(user: user!)));
             },
           ),
           ListTile(

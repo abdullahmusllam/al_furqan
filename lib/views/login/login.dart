@@ -1,6 +1,5 @@
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
-import 'package:al_furqan/views/login/database_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../models/users_model.dart';
@@ -21,7 +20,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  DatabaseHelper dbHelper = DatabaseHelper();
   bool _isLoading = false;
 
   @override
@@ -80,7 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (isLogin) {
       print(
           "----------------------Here if check Login Status--------------------------");
-      _loginPref();
+      // _loginPref();
+      logoutUser();
     }
   }
 
@@ -91,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
       int? roleId = await getUserRoleId();
       int? isActivate = await getIsActivate();
       setState(() => _isLoading = false);
-      if (roleId != null && isActivate != null && isActivate == 1) {
+      if (roleId != null) {
         await chooseScreen(context);
       } else {
         _showErrorDialog(context, "خطأ", "حسابك غير مفعل أو بيانات غير صحيحة.");

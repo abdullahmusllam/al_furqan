@@ -11,6 +11,8 @@ class StatisticsScreen extends StatelessWidget {
     {"name": "تدريب", "category": "تطوير ذاتي", "date": "2025-02-08", "status": "تم"},
   ];
 
+   StatisticsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,7 +77,7 @@ class StatCard extends StatelessWidget {
   final String title;
   final String value;
 
-  StatCard({required this.title, required this.value});
+  const StatCard({super.key, required this.title, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +101,8 @@ class StatCard extends StatelessWidget {
 
 // ويدجت المخطط المتعرج
 class ActivityChart extends StatelessWidget {
+  const ActivityChart({super.key});
+
   @override
   Widget build(BuildContext context) {
     return LineChart(

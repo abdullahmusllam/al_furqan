@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class MeetingList extends StatelessWidget {
+  const MeetingList({super.key});
+
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> meetings = [

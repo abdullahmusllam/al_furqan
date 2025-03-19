@@ -8,7 +8,7 @@ class SqlDb {
   static Database? _db;
 
   Future<Database> get database async {
-    if (_db == null) _db = await initalDb();
+    _db ??= await initalDb();
     return _db!;
   }
 

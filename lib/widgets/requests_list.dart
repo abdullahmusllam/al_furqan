@@ -44,16 +44,16 @@ class _RequestsListState extends State<RequestsList> {
             itemCount: userController.requests.length,
             itemBuilder: (context, index) {
               // Determine role name based on roleID
-              String? role_name;
+              String? roleName;
               switch (userController.requests[index].roleID) {
                 case 0:
-                  role_name = "مشرف";
+                  roleName = "مشرف";
                   break;
                 case 1:
-                  role_name = "مدير";
+                  roleName = "مدير";
                   break;
                 case 2:
-                  role_name = "معلم";
+                  roleName = "معلم";
                   break;
               }
 
@@ -73,7 +73,7 @@ class _RequestsListState extends State<RequestsList> {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("$role_name"), // Display role name
+                    Text("$roleName"), // Display role name
                     Text(school.school_name!), // Display school name
                     Text("طلب تفعيل الحساب"), // Display request type
                   ],

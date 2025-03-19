@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class StudentDetailsPage extends StatelessWidget {
   final String studentName;
   @override
-  StudentDetailsPage({required this.studentName});
+  const StudentDetailsPage({super.key, required this.studentName});
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -79,7 +80,7 @@ class StudentDetailsPage extends StatelessWidget {
                 elevation: 4,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
-                child: Container(
+                child: SizedBox(
                   height: 200,
                   child: Center(
                     child: Text(

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:al_furqan/models/student_model.dart';
 
 class AddStudentScreen extends StatefulWidget {
+  const AddStudentScreen({super.key});
+
   @override
   _AddStudentScreenState createState() => _AddStudentScreenState();
 }
@@ -55,18 +57,18 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _submitForm,
-                      child: Text('إضافة'),
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue),
+                      child: Text('إضافة'),
                     ),
                   ),
                   SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {},
-                      child: Text('إدارة'),
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green),
+                      child: Text('إدارة'),
                     ),
                   ),
                 ],

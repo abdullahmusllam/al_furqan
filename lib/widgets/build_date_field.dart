@@ -31,6 +31,7 @@ Widget buildDateField({
       if (value == null || value.isEmpty) {
         return 'الرجاء إدخال تاريخ الميلاد';
       }
+      return null;
     },
   );
 }

@@ -14,7 +14,7 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  UserModel _userModel = UserModel();
+  final UserModel _userModel = UserModel();
   final _formKey = GlobalKey<FormState>();
   final _firstname = TextEditingController();
   final _fathername = TextEditingController();
@@ -169,6 +169,7 @@ class _SignupScreenState extends State<SignupScreen> {
         if (value == null || value.isEmpty) {
           return validatorText;
         }
+        return null;
       },
     );
   }
@@ -195,6 +196,7 @@ class _SignupScreenState extends State<SignupScreen> {
         if (lengthValidatorText != null && value.length < 9) {
           return lengthValidatorText;
         }
+        return null;
       },
     );
   }
@@ -252,6 +254,7 @@ class _SignupScreenState extends State<SignupScreen> {
         } else if (value.length < 8) {
           return 'كلمة المرور يجب أن تكون 8 أرقام أو أكثر';
         }
+        return null;
       },
     );
   }
@@ -282,6 +285,7 @@ class _SignupScreenState extends State<SignupScreen> {
         if (value == null || value.isEmpty) {
           return 'الرجاء إدخال تاريخ الميلاد';
         }
+        return null;
       },
     );
   }
@@ -305,6 +309,7 @@ class _SignupScreenState extends State<SignupScreen> {
         if (validatorText != null && value == null) {
           return validatorText;
         }
+        return null;
       },
     );
   }

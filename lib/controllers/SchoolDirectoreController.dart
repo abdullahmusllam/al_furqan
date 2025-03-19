@@ -8,7 +8,7 @@ class SchoolDirectorController {
 
   get_data_users(String phoneNumber) async {
     List<Map> Data = await _sqlDb
-        .readData("SELECT * FROM 'USERS' WHERE phone_number = '${id}'");
+        .readData("SELECT * FROM 'USERS' WHERE phone_number = '$id'");
     userData.clear();
 
     for (var i = 0; i < Data.length; i++) {

@@ -12,6 +12,8 @@ class StudentsListPage extends StatelessWidget {
     {'name': 'أحمد إبراهيم', 'progress': 'الملك: آية 10'},
   ];
 
+   StudentsListPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

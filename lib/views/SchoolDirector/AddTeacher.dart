@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
 class AddTeacherScreen extends StatefulWidget {
+  const AddTeacherScreen({super.key});
+
   @override
   _AddTeacherScreenState createState() => _AddTeacherScreenState();
 }
@@ -69,9 +71,9 @@ class _AddTeacherScreenState extends State<AddTeacherScreen> {
                     onPressed: () {
                       // تنفيذ عملية إضافة المعلم
                     },
-                    child: Text('إضافة'),
                     style:
                         ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                    child: Text('إضافة'),
                   ),
                 ),
                 SizedBox(width: 10),
@@ -80,9 +82,9 @@ class _AddTeacherScreenState extends State<AddTeacherScreen> {
                     onPressed: () {
                       // الانتقال إلى صفحة إدارة المعلمين
                     },
-                    child: Text('إدارة'),
                     style:
                         ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    child: Text('إدارة'),
                   ),
                 ),
               ],

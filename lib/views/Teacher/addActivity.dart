@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AddActivityScreen extends StatefulWidget {
+  const AddActivityScreen({super.key});
+
   @override
   _AddActivityScreenState createState() => _AddActivityScreenState();
 }

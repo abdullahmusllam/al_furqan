@@ -28,6 +28,7 @@ Widget buildPasswordField({
       } else if (value.length < 8) {
         return 'كلمة المرور يجب أن تكون 8 أرقام أو أكثر';
       }
+      return null;
     },
   );
 }

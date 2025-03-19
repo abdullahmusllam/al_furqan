@@ -6,7 +6,7 @@ class FilterDialog extends StatefulWidget {
   final List<DropdownMenuItem<int>> schoolItems;
   final Function(String?, int?) onApply;
 
-  FilterDialog({
+  const FilterDialog({super.key, 
     required this.selectedRole,
     required this.selectedSchoolId,
     required this.schoolItems,

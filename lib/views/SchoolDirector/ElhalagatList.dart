@@ -7,8 +7,8 @@ import 'package:al_furqan/views/SchoolDirector/AddHalaga.dart';
 import 'package:flutter/material.dart';
 
 class HalqatListPage extends StatefulWidget {
-  final UserModel user;
-  HalqatListPage({required this.user});
+  UserModel? user;
+  HalqatListPage({super.key, required this.user});
 
   @override
   State<HalqatListPage> createState() => _HalqatListPageState();
@@ -17,6 +17,7 @@ class HalqatListPage extends StatefulWidget {
 class _HalqatListPageState extends State<HalqatListPage> {
   // قائمة افتراضية تحتوي على بيانات الحلقات
   List<HalagaModel> halaqat = [];
+  @override
   void initState() {
     super.initState();
     _loadHalaqat(); // استدعاء دالة جلب الحلقات عند تهيئة الصفحة
@@ -25,7 +26,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
   // دالة لجلب الحلقات من قاعدة البيانات
   void _loadHalaqat() async {
     List<HalagaModel> loadedHalaqat =
-        await halagaController.gitData(widget.user.schoolID as HalagaModel);
+        await halagaController.gitData(widget.user!.schoolID as HalagaModel);
 
     setState(() {
       halaqat = loadedHalaqat;
@@ -111,7 +112,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => AddHalaqaScreen(user: widget.user)));
+                  builder: (context) => AddHalaqaScreen(user: widget.user!)));
         },
         backgroundColor: Colors.teal,
         child: Icon(Icons.add, color: Colors.white),

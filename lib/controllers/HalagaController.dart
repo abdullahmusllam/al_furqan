@@ -9,7 +9,7 @@ class HalagaController {
 
   gitData(HalagaModel id) async {
     List<Map> Data = await _sqlDb
-        .readData("SELECT * FROM 'Elhalagat' WHERE SchoolID = ${id}");
+        .readData("SELECT * FROM 'Elhalagat' WHERE SchoolID = $id");
     for (var i = 0; i < Data.length; i++) {
       halagaData.add(HalagaModel(
           halagaID: Data[i]['halagaID'] as int?,

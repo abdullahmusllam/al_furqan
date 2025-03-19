@@ -6,7 +6,7 @@ class ChartCard extends StatelessWidget {
   final Color color;
   final double percentage;
 
-  const ChartCard({
+  const ChartCard({super.key, 
     required this.title,
     required this.color,
     required this.percentage,

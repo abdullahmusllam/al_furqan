@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AttendanceScreen extends StatefulWidget {
+  const AttendanceScreen({super.key});
+
   @override
   _AttendanceScreenState createState() => _AttendanceScreenState();
 }
@@ -95,12 +97,12 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             // زر موافق لحفظ الحضور
             ElevatedButton(
               onPressed: saveAttendance,
-              child: Text("موافق"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                 textStyle: TextStyle(fontSize: 18),
               ),
+              child: Text("موافق"),
             ),
           ],
         ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Teacher/addActivity.dart';
 
 class ActivityListScreen extends StatefulWidget {
+  const ActivityListScreen({super.key});
+
   @override
   _ActivityListScreenState createState() => _ActivityListScreenState();
 }

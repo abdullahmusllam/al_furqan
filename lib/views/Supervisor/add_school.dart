@@ -51,6 +51,7 @@ class _AddSchoolState extends State<AddSchool> {
                       if (value == null || value.isEmpty) {
                         return 'الرجاء كتابة اسم المدرسة';
                       }
+                      return null;
                     },
                   ),
                   SizedBox(height: 10),
@@ -64,6 +65,7 @@ class _AddSchoolState extends State<AddSchool> {
                       if (value == null || value.isEmpty) {
                         return 'الرجاء كتابة موقع المدرسة';
                       }
+                      return null;
                     },
                   ),
                   SizedBox(height: 20),
@@ -95,7 +97,7 @@ class _AddSchoolState extends State<AddSchool> {
                     leading: CircleAvatar(
                       child: Text("${school.schoolID}"),
                     ),
-                    title: Text("${school.school_name!}"),
+                    title: Text(school.school_name!),
                     subtitle: Text(school.school_location!),
                     trailing: IconButton(
                       icon: Icon(Icons.delete, color: Colors.red),

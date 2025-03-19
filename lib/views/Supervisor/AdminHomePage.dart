@@ -1,5 +1,6 @@
 // ignore: file_names
 import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:al_furqan/widgets/drawer_list.dart';
@@ -20,66 +21,47 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
-  UserModel? user;
-  getDataByPref() async {
-    final pref = await SharedPreferences.getInstance();
-    String? phoneUser = pref.getString('phoneUser');
-
-    await userController.getDataUsers();
-    setState(() {});
-    print("userLis : ${userController.users.isEmpty}");
-    userController.users.forEach(
-      (element) {
-        if (int.tryParse(phoneUser!) == element.phone_number) {
-          print("----------------");
-          user = element;
-        }
-      },
-    );
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getDataByPref();
-  }
-
+class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('لوحة تحكم المشرف'), actions: [
-        IconButton(
+      appBar: AppBar(
+        title: Text('لوحة تحكم المشرف'),
+        actions: [
+          IconButton(
             onPressed: () async {
               final prefs = await SharedPreferences.getInstance();
-              await prefs.clear(); // حذف جميع البيانات المحفوظة
+              await prefs.clear();
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) => LoginScreen()));
             },
-            icon: Icon(Icons.logout)),
-      ]),
-      drawer: DrawerList(
-        user: user,
+            icon: Icon(Icons.logout),
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildStatCards(),
-            SizedBox(height: 20),
-            _buildSectionTitle('الاجتماعات'),
-            MeetingList(),
-            SizedBox(height: 20),
-            _buildChartCard('نسبة تنفيذ الأنشطة', Colors.blue, 70),
-            SizedBox(height: 20),
-            _buildChartCard('نسبة الانضباط', Colors.green, 85),
-            SizedBox(height: 20),
-            NotificationCard(),
-          ],
-        ),
-      ),
+      drawer: user == null ? null : DrawerList(user: user),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : user == null
+              ? Center(child: Text("فشل في جلب بيانات المستخدم"))
+              : SingleChildScrollView(
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildStatCards(),
+                      SizedBox(height: 20),
+                      _buildSectionTitle('الاجتماعات'),
+                      MeetingList(),
+                      SizedBox(height: 20),
+                      _buildChartCard('نسبة تنفيذ الأنشطة', Colors.blue, 70),
+                      SizedBox(height: 20),
+                      _buildChartCard('نسبة الانضباط', Colors.green, 85),
+                      SizedBox(height: 20),
+                      NotificationCard(),
+                    ],
+                  ),
+                ),
     );
   }
 

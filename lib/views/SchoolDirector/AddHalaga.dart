@@ -7,12 +7,12 @@ class AddHalaqaScreen extends StatefulWidget {
   @override
   _AddHalaqaScreenState createState() => _AddHalaqaScreenState();
   final UserModel user;
-  AddHalaqaScreen({required this.user});
+  const AddHalaqaScreen({super.key, required this.user});
 }
 
 class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
   final _formKey = GlobalKey<FormState>();
-  HalagaModel _halaqaModel = HalagaModel();
+  final HalagaModel _halaqaModel = HalagaModel();
   final TextEditingController halqaNameController = TextEditingController();
   final TextEditingController numberStudentController = TextEditingController();
 
@@ -79,9 +79,9 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                           Navigator.pop(context);
                         }
                       },
-                      child: Text('إضافة'),
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue),
+                      child: Text('إضافة'),
                     ),
                   ),
                   SizedBox(width: 10),
@@ -90,9 +90,9 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                       onPressed: () {
                         // الانتقال إلى صفحة إدارة الحلقات
                       },
-                      child: Text('إدارة'),
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green),
+                      child: Text('إدارة'),
                     ),
                   ),
                 ],

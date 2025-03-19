@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AddStudentData extends StatelessWidget {
+  const AddStudentData({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

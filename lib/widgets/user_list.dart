@@ -6,6 +6,8 @@ import 'package:al_furqan/widgets/user_details.dart';
 import '../models/schools_model.dart';
 
 class UserList extends StatefulWidget {
+  const UserList({super.key});
+
   @override
   _UserListState createState() => _UserListState();
 }
@@ -14,13 +16,15 @@ class _UserListState extends State<UserList> {
   String _searchQuery = '';
   String? _selectedRole;
   int? _selectedSchoolId;
-  List<DropdownMenuItem<int>> _schoolItems = [];
+  final List<DropdownMenuItem<int>> _schoolItems = [];
 
   @override
   void initState() {
     super.initState();
     userController.getData();
+    schoolController.get_data(); /// تحميل المدارس علشان ما يعطي نل
   }
+
 
   void _showFilterDialog() {
     showDialog(
@@ -90,16 +94,16 @@ class _UserListState extends State<UserList> {
         : ListView.builder(
             itemCount: filteredUsers.length,
             itemBuilder: (context, index) {
-              String? role_name;
+              String? roleName;
               switch (filteredUsers[index].roleID) {
                 case 0:
-                  role_name = "مشرف";
+                  roleName = "مشرف";
                   break;
                 case 1:
-                  role_name = "مدير";
+                  roleName = "مدير";
                   break;
                 case 2:
-                  role_name = "معلم";
+                  roleName = "معلم";
                   break;
               }
 
@@ -113,12 +117,12 @@ class _UserListState extends State<UserList> {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(role_name!),
+                    Text(roleName!),
                     Text(filteredUsers[index].isActivate == 1
                         ? "مفعل"
                         : "غير مفعل"),
                     Text("${filteredUsers[index].date ?? ''}"),
-                    Text("${school.school_name}"),
+                    Text("${school.school_name} ${school.schoolID}"),
                   ],
                 ),
                 trailing: SizedBox(

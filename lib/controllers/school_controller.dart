@@ -4,8 +4,8 @@ import 'package:al_furqan/models/users_model.dart';
 import '../models/schools_model.dart';
 
 class SchoolController {
-  List<SchoolModel> _schools = [];
-  SqlDb _sqlDb = SqlDb();
+  final List<SchoolModel> _schools = [];
+  final SqlDb _sqlDb = SqlDb();
 
   List<SchoolModel> get schools => _schools;
 
@@ -13,15 +13,20 @@ class SchoolController {
     final data = await _sqlDb.readData('SELECT * FROM schools');
     // schools = data.map((item) => SchoolModel.fromMap(item)).toList();
     _schools.clear();
+    print(data.isEmpty);
     for (var i = 0; i < data.length; i++) {
       _schools.add(SchoolModel(
-        schoolID: data[i]['schoolID'] as int?,
+        schoolID: data[i]['SchoolID'] as int?,
         school_name: data[i]['school_name'],
         school_location: data[i]['school_location'],
         // user_id: data[i]['user_id'] as int?,
       ));
+      // print("school_id: ${data[i]['schoolID']}");
     }
-    print(_schools.isEmpty);
+    // print("_schools.isEmpty: ${_schools.isEmpty}");
+    // for (var element in _schools) {
+      // print("school_id: ${element.schoolID}");
+    // }
   }
 
   // method add
@@ -37,7 +42,7 @@ class SchoolController {
 
   Future<void> delete_School(int schoolId) async {
     int response = await _sqlDb
-        .deleteData("DELETE FROM SCHOOLS WHERE schoolID = $schoolId");
+        .deleteData("DELETE FROM SCHOOLS WHERE SchoolID = $schoolId");
 
     print("Response: $response, schoolID : $schoolId");
     print(response);

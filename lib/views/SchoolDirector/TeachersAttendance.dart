@@ -7,6 +7,8 @@ class AttendanceScreen extends StatelessWidget {
   final TextEditingController absenceReasonController = TextEditingController();
   final TextEditingController notesController = TextEditingController();
 
+  AttendanceScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,11 +51,11 @@ class AttendanceScreen extends StatelessWidget {
                 onPressed: () {
                   // تنفيذ عملية حفظ البيانات
                 },
-                child: Text('حفظ'),
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   backgroundColor: Colors.blue,
                 ),
+                child: Text('حفظ'),
               ),
             ),
           ],

@@ -22,6 +22,7 @@ Widget buildDropdownField({
       if (value == null) {
         return 'الرجاء اختيار الدور';
       }
+      return null;
     },
   );
 }

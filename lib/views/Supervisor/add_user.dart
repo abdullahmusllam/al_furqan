@@ -15,7 +15,7 @@ class AddUser extends StatefulWidget {
 }
 
 class _AddUserState extends State<AddUser> {
-  UserModel _userModel = UserModel();
+  final UserModel _userModel = UserModel();
   final _formKey = GlobalKey<FormState>();
   final _firstname = TextEditingController();
   final _fathername = TextEditingController();
