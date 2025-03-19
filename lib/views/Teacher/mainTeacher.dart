@@ -2,6 +2,7 @@ import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/Teacher/DrawerTeacher.dart';
+import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Teacher/preparingStudents.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,6 +21,17 @@ class _TeacherDashboardState extends State<TeacherDashboard>
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            onPressed: () async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.clear();
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()));
+            },
+            icon: Icon(Icons.logout),
+          ),
+        ],
         title: isLoading || user == null
             ? Text("جاري التحميل...")
             : Text('${user!.first_name} ${user!.last_name}'),

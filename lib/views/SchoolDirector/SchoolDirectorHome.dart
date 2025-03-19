@@ -113,7 +113,6 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => AddTeacherScreen()));
         },
-        backgroundColor: Colors.blue,
         child: Icon(Icons.add),
       ),
     );
@@ -122,8 +121,14 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   // كارد إحصائي
   Widget _buildStatCard(String title, String value, Color color) {
     return Card(
-      elevation: 4,
-      color: color.withOpacity(0.1),
+      elevation: 5,
+      // surfaceTintColor: تحدد لون التظليل لسطح البطاقة.
+      surfaceTintColor: Color.fromARGB(255, 1, 117, 70),
+      // shape: تحدد شكل وحدود البطاقة.
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+          side: BorderSide(color: Colors.green, width: 2)),
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
