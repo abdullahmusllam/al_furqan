@@ -7,7 +7,7 @@ import 'package:al_furqan/views/Teacher/preparingStudents.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TeacherDashboard extends StatefulWidget {
-  TeacherDashboard({super.key});
+  const TeacherDashboard({super.key});
 
   @override
   State<TeacherDashboard> createState() => _TeacherDashboardState();

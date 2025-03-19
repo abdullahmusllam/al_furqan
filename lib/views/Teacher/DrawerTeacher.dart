@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
 
 class DrawerTeacher extends StatelessWidget {
-   DrawerTeacher({
+   const DrawerTeacher({
     super.key,
   });
 

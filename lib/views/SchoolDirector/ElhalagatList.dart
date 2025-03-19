@@ -6,6 +6,7 @@ import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddHalaga.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class HalqatListPage extends StatefulWidget {
   UserModel? user;
   HalqatListPage({super.key, required this.user});
