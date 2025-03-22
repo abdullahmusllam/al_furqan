@@ -2,10 +2,23 @@ import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/student_model.dart';
 
 class StudentController {
-  final List<StudentModel> students = [];
+  List<StudentModel> students = [];
   final SqlDb _sqldb = SqlDb();
-  gitData() async {
-    await _sqldb.readData("sql");
+  Future<List<StudentModel>> getStudents(int halagaID) async {
+    // جلب الطلاب المرتبطين بالحلقة بناءً على halagaID
+    List<Map> studentData = await _sqldb
+        .readData("SELECT * FROM 'Students' WHERE halagaID = $halagaID");
+
+    students = studentData.map((student) {
+      return StudentModel(
+        studentID: student['StudentID'],
+        firstName: student['FirstName'],
+        middleName: student['MiddleName'],
+        lastName: student['LastName'],
+      );
+    }).toList();
+
+    return students;
   }
 
   addStudent(StudentModel studentData) async {

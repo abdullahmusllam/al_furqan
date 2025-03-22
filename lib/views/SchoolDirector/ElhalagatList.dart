@@ -4,6 +4,7 @@ import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddHalaga.dart';
+import 'package:al_furqan/views/SchoolDirector/halagaDetails.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
@@ -26,13 +27,25 @@ class _HalqatListPageState extends State<HalqatListPage> {
 
   // دالة لجلب الحلقات من قاعدة البيانات
   void _loadHalaqat() async {
-    List<HalagaModel> loadedHalaqat =
-        await halagaController.gitData(widget.user!.schoolID as HalagaModel);
+    int? schoolID = widget.user?.schoolID;
 
-    setState(() {
-      halaqat = loadedHalaqat;
-      // isLoading = false; // إخفاء مؤشر التحميل بعد جلب البيانات
-    });
+    if (schoolID != null) {
+      // التأكد من أن القيمة التي تُرجعها gitData ليست null
+      List<HalagaModel>? loadedHalaqat =
+          await halagaController.gitData(schoolID);
+
+      setState(() {
+        if (loadedHalaqat!.isNotEmpty) {
+          halaqat = loadedHalaqat;
+        } else {
+          // عرض رسالة توضيحية عندما تكون القائمة فارغة أو null
+          // halaqat = [];
+          print("لا يوجد حلقات");
+        }
+      });
+    } else {
+      print("schoolID is null");
+    }
   }
 
   @override
@@ -83,21 +96,26 @@ class _HalqatListPageState extends State<HalqatListPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'المعلم: ${halqa.NumberStudent}', // عرض اسم المعلم
+                                  'المعلم: ${halqa.TeacherName}', // عرض اسم المعلم
                                   style: TextStyle(
                                       fontSize: 16, color: Colors.grey[600]),
                                 ),
-                                // Text(
-                                //   'الوقت: ${halqa.time}', // عرض وقت الحلقة
-                                //   style: TextStyle(
-                                //       fontSize: 16, color: Colors.grey[600]),
-                                // ),
+                                Text(
+                                  'عدد الطلاب: ${halqa.NumberStudent}', // عرض وقت الحلقة
+                                  style: TextStyle(
+                                      fontSize: 16, color: Colors.grey[600]),
+                                ),
                               ],
                             ),
                             trailing: Icon(Icons.arrow_forward_ios,
                                 color: Colors.teal),
                             onTap: () {
-                              // يمكن إضافة عملية الانتقال إلى صفحة تفاصيل الحلقة هنا
+                              //الانتقال إلى صفحة تفاصيل الحلقة
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          HalqaDetailsPage(halqa: halqa)));
                             },
                           ),
                         ),
@@ -109,7 +127,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // هنا يمكنك تنفيذ عملية الإضافة مثل الانتقال لصفحة إضافة حلقة جديدة
+          //   الانتقال لصفحة إضافة حلقة جديدة
           Navigator.push(
               context,
               MaterialPageRoute(

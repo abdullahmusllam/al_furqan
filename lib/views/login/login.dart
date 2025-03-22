@@ -75,11 +75,12 @@ class _LoginScreenState extends State<LoginScreen> {
     print(
         "----------------------Here check Login Status--------------------------");
     bool isLogin = await isUserLoggedIn();
+    print("-------------: $isLogin");
     if (isLogin) {
       print(
           "----------------------Here if check Login Status--------------------------");
-      // _loginPref();
-      logoutUser();
+      _loginPref();
+      // logoutUser();
     }
   }
 
