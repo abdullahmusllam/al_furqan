@@ -8,21 +8,24 @@ class HalagaController {
   // final List<HalagaModel> halagaData = [];
 
   gitData(int id) async {
-    // قراءة البيانات من قاعدة البيانات بناءً على SchoolID مع معلومات المدرس
     List<Map> data = await _sqlDb.readData(
-        "SELECT Elhalagat.halagaID, Elhalagat.Name, Elhalagat.NumberStudent, Elhalagat.SchoolID, Users.first_name, Users.last_name FROM Elhalagat JOIN Users ON Users.ElhalagatID = Elhalagat.halagaID WHERE Elhalagat.SchoolID = $id");
+        "SELECT Elhalagat.halagaID, Elhalagat.Name, Elhalagat.NumberStudent, Elhalagat.SchoolID, Users.first_name, Users.last_name FROM Elhalagat LEFT JOIN Users ON Users.ElhalagatID = Elhalagat.halagaID WHERE Elhalagat.SchoolID = $id");
 
     List<HalagaModel> halagaData = [];
 
     if (data.isNotEmpty) {
       for (var i = 0; i < data.length; i++) {
-        int? halagaID = data[i]['Elhalagat.halagaID'] as int?;
-        String name = data[i]['Elhalagat.Name'] ?? 'اسم غير متوفر';
+        int? halagaID = data[i]['halagaID'] as int?;
+        String name = data[i]['Name'] ?? 'اسم غير متوفر';
         int numberStudent =
-            int.tryParse(data[i]['Elhalagat.NumberStudent'].toString()) ?? 0;
-        int? schoolID = data[i]['Elhalagat.SchoolID'] as int?;
-        String teacherName =
-            "${data[i]['Users.first_name']} ${data[i]['Users.last_name']}"; // اسم المدرس
+            int.tryParse(data[i]['NumberStudent'].toString()) ?? 0;
+        int? schoolID = data[i]['SchoolID'] as int?;
+
+        // تحقق إذا كانت أسماء المعلم موجودة أو ضع null
+        String? teacherName =
+            (data[i]['first_name'] != null && data[i]['last_name'] != null)
+                ? "${data[i]['first_name']} ${data[i]['last_name']}"
+                : 'لا يوجد معلم للحلقة';
 
         // إنشاء نموذج الحلقة مع اسم المدرس
         halagaData.add(HalagaModel(
@@ -30,7 +33,7 @@ class HalagaController {
           Name: name,
           NumberStudent: numberStudent,
           SchoolID: schoolID,
-          TeacherName: teacherName, // إضافة اسم المدرس
+          TeacherName: teacherName, // إضافة اسم المدرس أو null
         ));
       }
     }

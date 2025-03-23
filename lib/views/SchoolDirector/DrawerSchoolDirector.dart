@@ -74,7 +74,7 @@ class DrawerSchoolDirector extends StatelessWidget {
             onTap: () {
               // الانتقال إلى شاشة الطلاب
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => StudentsListPage()));
+                  MaterialPageRoute(builder: (context) => StudentsListPage(user: user)));
             },
           ),
           ListTile(

@@ -11,7 +11,7 @@ class StudentsListPage extends StatelessWidget {
     {'name': 'أحمد إبراهيم', 'progress': 'الملك: آية 10'},
   ];
 
-   StudentsListPage({super.key});
+  StudentsListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -56,13 +56,13 @@ class StudentsListPage extends StatelessWidget {
                       trailing:
                           Icon(Icons.arrow_forward_ios, color: Colors.teal),
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => StudentDetailsPage(
-                                studentName: student['name']!),
-                          ),
-                        );
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => StudentDetailsPage(
+                        //         studentName: student['name']!),
+                        //   ),
+                        // );
                       },
                     ),
                   ),

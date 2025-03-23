@@ -1,9 +1,11 @@
 import 'package:al_furqan/controllers/StudentController.dart';
+import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/student_model.dart';
 
 class AddStudentScreen extends StatefulWidget {
-  const AddStudentScreen({super.key});
+  final UserModel? user;
+  const AddStudentScreen({super.key, required this.user});
 
   @override
   _AddStudentScreenState createState() => _AddStudentScreenState();
@@ -22,6 +24,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
+      studentModel.studentID = widget.user?.schoolID;
       studentModel.firstName = firstNameController.text;
       studentModel.middleName = middleNameController.text;
       studentModel.grandfatherName = grandfatherNameController.text;
