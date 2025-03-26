@@ -66,6 +66,8 @@ class UserModel {
       isActivate: map['isActivate'] as int?,
     );
   }
+
+  int get userID => null;
 }
 
 // UserModel userModel = UserModel();

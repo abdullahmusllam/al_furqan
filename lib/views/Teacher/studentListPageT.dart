@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:al_furqan/views/Teacher/StudentDetilesPage.dart';
+import 'package:al_furqan/views/Teacher/StudentDataPage.dart';
 
 class StudentsListPage extends StatelessWidget {
   // قائمة افتراضية تحتوي على بيانات الطلاب

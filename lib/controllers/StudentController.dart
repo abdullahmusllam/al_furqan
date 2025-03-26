@@ -41,6 +41,13 @@ class StudentController {
         "INSERT INTO Students (SchoolID, FirstName, MiddleName, grandfatherName, LastName) VALUES ('${studentData.studentID}','${studentData.firstName}', '${studentData.middleName}','${studentData.grandfatherName}','${studentData.lastName}')");
     print(add);
   }
+
+  updateStudent(StudentModel student, int id) async {
+    // تعديل بيانات الطالب
+    int update = await _sqldb.updateData(
+        "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = '${student.AttendanceDays}', AbsenceDays = '${student.AbsenceDays}', Excuse = '${student.Excuse}', ReasonAbsence = '${student.ReasonAbsence}' WHERE StudentID = ${id}");
+    print(update);
+  }
 }
 
 StudentController studentController = StudentController();

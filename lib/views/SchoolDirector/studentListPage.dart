@@ -2,8 +2,9 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddStuden.dart';
+import 'package:al_furqan/views/SchoolDirector/updateStudent.dart';
 import 'package:flutter/material.dart';
-import 'package:al_furqan/views/Teacher/StudentDetilesPage.dart';
+import 'package:al_furqan/views/Teacher/StudentDataPage.dart';
 
 class StudentsListPage extends StatefulWidget {
   final UserModel? user;
@@ -99,10 +100,8 @@ class _StudentsListPageState extends State<StudentsListPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => StudentDetailsPage(
-                                    student: student,
-                                    studentName: '',
-                                  ),
+                                  builder: (context) =>
+                                      EditStudentScreen(student: student),
                                 ),
                               );
                             },

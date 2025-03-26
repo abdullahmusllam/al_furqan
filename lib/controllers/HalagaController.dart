@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/halaga_model.dart';
+import 'package:al_furqan/models/users_model.dart';
 
 class HalagaController {
   final SqlDb _sqlDb = SqlDb();
@@ -41,10 +42,41 @@ class HalagaController {
     return halagaData;
   }
 
-  addHalaga(HalagaModel halagaData) async {
+  gitTecher(int SchoolID) async {
+    List<Map> data = await _sqlDb.readData(
+        "SELECT Users.userID, Users.first_name, Users.last_name, Users.roleID, Users.SchoolID FROM Users WHERE Users.SchoolID = ${SchoolID} AND Users.roleID = 2");
+
+    List<UserModel> Techer = [];
+
+    if (data.isNotEmpty) {
+      for (var i = 0; i < data.length; i++) {
+        int? userID = data[i]['userID'] as int?;
+        String firstName = data[i]['first_name'] ?? 'اسم غير متوفر';
+        String lastName = data[i]['last_name'] ?? 'اسم غير متوفر';
+        int? roleID = data[i]['roleID'] as int?;
+        int? schoolID = data[i]['SchoolID'] as int?;
+
+        // إنشاء نموذج الحلقة مع اسم المدرس
+        Techer.add(UserModel(
+          user_id: userID,
+          first_name: firstName,
+          last_name: lastName,
+          roleID: roleID,
+          schoolID: schoolID,
+        ));
+      }
+    }
+    print(data);
+    return Techer;
+  }
+
+  addHalaga(HalagaModel halagaData, int TeacherID) async {
     int add = await _sqlDb.insertData(
         "INSERT INTO 'Elhalagat' (SchoolID, Name, NumberStudent) VALUES ('${halagaData.SchoolID}', '${halagaData.Name}', '${halagaData.NumberStudent}')");
+    int addTeacher = await _sqlDb.insertData(
+        "UPDATE Users SET ElhalagatID = '${halagaData.halagaID}' WHERE user_id = '${TeacherID}'");
     print(add);
+    print(addTeacher);
   }
 
   updateHalaga() async {}
