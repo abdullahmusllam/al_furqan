@@ -4,7 +4,7 @@ import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddStuden.dart';
 import 'package:al_furqan/views/SchoolDirector/updateStudent.dart';
 import 'package:flutter/material.dart';
-import 'package:al_furqan/views/Teacher/StudentDataPage.dart';
+// import 'package:al_furqan/views/Teacher/StudentDataPage.dart';
 
 class StudentsListPage extends StatefulWidget {
   final UserModel? user;

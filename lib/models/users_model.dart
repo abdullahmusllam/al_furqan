@@ -67,7 +67,7 @@ class UserModel {
     );
   }
 
-  int get userID => null;
+  int get userID => null!;
 }
 
 // UserModel userModel = UserModel();

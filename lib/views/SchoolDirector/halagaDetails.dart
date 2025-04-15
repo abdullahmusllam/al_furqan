@@ -115,7 +115,6 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                           },
                         ),
                 )
-
                 // SizedBox(height: 10),
                 // يمكن إضافة المزيد من التفاصيل هنا حسب الحاجة
               ],
