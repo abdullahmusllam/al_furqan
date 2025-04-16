@@ -1,5 +1,6 @@
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/student_model.dart';
+import 'package:al_furqan/services/firebase_service.dart';
 
 class StudentController {
   List<StudentModel> students = [];
@@ -38,8 +39,8 @@ class StudentController {
 
   addStudent(StudentModel studentData) async {
     int add = await _sqldb.insertData(
-        "INSERT INTO Students (SchoolID, FirstName, MiddleName, grandfatherName, LastName) VALUES ('${studentData.studentID}','${studentData.firstName}', '${studentData.middleName}','${studentData.grandfatherName}','${studentData.lastName}')");
-    print(add);
+        "INSERT INTO Students (SchoolID, FirstName, MiddleName, grandfatherName, LastName) VALUES ('${studentData.SchoolId}','${studentData.firstName}', '${studentData.middleName}','${studentData.grandfatherName}','${studentData.lastName}')");
+    // firebasehelper.addStudent(add, studentData);
   }
 
   updateStudent(StudentModel student, int id) async {

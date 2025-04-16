@@ -1,5 +1,6 @@
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/services/firebase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/student_model.dart';
 
@@ -30,7 +31,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       studentModel.grandfatherName = grandfatherNameController.text;
       studentModel.lastName = lastNameController.text;
 
-      studentController.addStudent(studentModel);
+      firebasehelper.addStudent(studentModel);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('تمت إضافة الطالب بنجاح')),
         //  setState(() {});

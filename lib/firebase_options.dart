@@ -50,20 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA4JmTxd1HDWm0s8TfsvxWWiXqLYYVuV2o',
-    appId: '1:970158680323:web:522e23adf0ba69617c2136',
-    messagingSenderId: '970158680323',
-    projectId: 'alfurqan-ddcda',
-    authDomain: 'alfurqan-ddcda.firebaseapp.com',
-    storageBucket: 'alfurqan-ddcda.firebasestorage.app',
-    measurementId: 'G-LKGXREDLLM',
+    apiKey: 'AIzaSyDSlxgrUwxMUjBiZ3dBQmesN-tMT5yEia8',
+    appId: '1:373944200372:web:238e0f3fca95ad7063fbe1',
+    messagingSenderId: '373944200372',
+    projectId: 'alforqan-36e33',
+    authDomain: 'alforqan-36e33.firebaseapp.com',
+    storageBucket: 'alforqan-36e33.firebasestorage.app',
+    measurementId: 'G-9PJCY0CJPJ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyB5JcTLLGUChh9Zqvw7hao-QbbCH9BFHwA',
-    appId: '1:970158680323:android:06779c60e775e7147c2136',
-    messagingSenderId: '970158680323',
-    projectId: 'alfurqan-ddcda',
-    storageBucket: 'alfurqan-ddcda.firebasestorage.app',
+    apiKey: 'AIzaSyD3btSmACPC00fs_JqUwfDnn6x5_koAWmI',
+    appId: '1:373944200372:android:4c23ff4c0bf5680a63fbe1',
+    messagingSenderId: '373944200372',
+    projectId: 'alforqan-36e33',
+    storageBucket: 'alforqan-36e33.firebasestorage.app',
   );
 }
