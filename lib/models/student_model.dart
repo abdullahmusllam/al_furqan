@@ -23,4 +23,14 @@ class StudentModel {
       this.AbsenceDays,
       this.Excuse,
       this.ReasonAbsence});
+
+       Map<String, dynamic> toMap() {
+    return {
+      'SchoolID': SchoolId,
+      'FirstName': firstName,
+      'MiddleName': middleName,
+      'grandfatherName': grandfatherName,
+      'LastName': lastName,
+    };
+  }
 }

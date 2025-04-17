@@ -1,9 +1,12 @@
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/views/SchoolDirector/AddStuden.dart';
 import 'package:al_furqan/views/SchoolDirector/updateStudent.dart';
 import 'package:flutter/material.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
 // import 'package:al_furqan/views/Teacher/StudentDataPage.dart';
 
 class StudentsListPage extends StatefulWidget {
@@ -23,11 +26,28 @@ class _StudentsListPageState extends State<StudentsListPage> {
   }
 
   // دالة لجلب الطلاب من قاعدة البيانات
-  void _loadStudent() async {
-    int? schoolID = widget.user?.schoolID;
 
-    if (schoolID != null) {
-      // التأكد من أن القيمة التي تُرجعها getSchoolStudents ليست null
+void _loadStudent() async {
+  int? schoolID = widget.user?.schoolID;
+
+  if (schoolID != null) {
+    try {
+      // 1. التحقق من الاتصال بالإنترنت
+      var connectivityResult = await Connectivity().checkConnectivity();
+
+      if (connectivityResult != ConnectivityResult.none) {
+        // يوجد اتصال بالإنترنت - جلب البيانات من Firebase
+        Map<String, dynamic>? firebaseStudents =
+            (await firebasehelper.getPrivateData('students', 1, 'schoolId'));
+
+        if (firebaseStudents != null && firebaseStudents.isNotEmpty) {
+          await studentController.addStudent(firebaseStudents as StudentModel);
+        }
+      } else {
+        print("لا يوجد اتصال بالإنترنت، سيتم تحميل البيانات من القاعدة المحلية.");
+      }
+
+      // 2. تحميل البيانات من قاعدة البيانات المحلية
       List<StudentModel>? loadedStudent =
           await studentController.getSchoolStudents(schoolID);
 
@@ -36,15 +56,25 @@ class _StudentsListPageState extends State<StudentsListPage> {
           students = loadedStudent;
           print(students);
         } else {
-          // عرض رسالة توضيحية عندما تكون القائمة فارغة أو null
           students = [];
           print("لا يوجد طلاب");
         }
       });
-    } else {
-      print("schoolID is null");
+    } catch (e) {
+      print("حدث خطأ أثناء تحميل الطلاب: $e");
+
+      // محاولة التحميل من القاعدة المحلية حتى عند حدوث خطأ
+      List<StudentModel>? fallbackStudents =
+          await studentController.getSchoolStudents(schoolID);
+
+      setState(() {
+        students = fallbackStudents ?? [];
+      });
     }
+  } else {
+    print("schoolID is null");
   }
+}
 
   @override
   Widget build(BuildContext context) {

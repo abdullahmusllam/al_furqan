@@ -2,35 +2,45 @@
 import 'package:al_furqan/models/student_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class firebaseHelper{
-  Future<void> addStudent(StudentModel studentData) async {
-    final studentsRef = FirebaseFirestore.instance.collection('students');
+class FirebaseHelper{
+ Future<void> add(int id, Map<String, dynamic> modelData, String collection) async {
+  final modelRef = FirebaseFirestore.instance.collection('${collection}');
 
-    // الخطوة 1: الحصول على أعلى ID موجود
-    final snapshot = await studentsRef.get();
-
-    int newId = 1;
-    if (snapshot.docs.isNotEmpty) {
-      final ids = snapshot.docs
-          .map((doc) => int.tryParse(doc.id) ?? 0)
-          .toList()
-        ..sort();
-
-      newId = ids.last + 1;
-    }
-
-
-    // الخطوة 2: إضافة الطالب الجديد بالـ ID الجديد
-    await studentsRef.doc(newId.toString()).set({
-      'schoolId': studentData.SchoolId,
-      'firstName': studentData.firstName,
-      'middleName': studentData.middleName,
-      'grandfatherName': studentData.grandfatherName,
-      'lastName': studentData.lastName
-    });
-
-    print('تمت إضافة الطالب بالرقم $newId بنجاح ✅');
+  if (modelData.isNotEmpty) {
+    await modelRef.doc(id.toString()).set(
+      modelData,
+      SetOptions(merge: true), // دمج بدلاً من الاستبدال الكامل
+    );
+    print('تمت إضافة/تحديث العنص بالرقم $id بنجاح ');
+  } else {
+    print('studentData فارغ ');
   }
 }
 
-firebaseHelper firebasehelper = firebaseHelper();
+Future<Map<String, dynamic>?> getPrivateData(
+  String collection,
+  int id,
+  String fieldName,
+) async {
+  try {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(collection)
+        .where(fieldName, isEqualTo: id)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      print(' تم العثور على مستند');
+      return querySnapshot.docs.first.data() as Map<String, dynamic>;
+    } else {
+      print(' لا توجد مستندات تطابق الشرط');
+      return null;
+    }
+  } catch (e) {
+    print(' خطأ أثناء جلب البيانات: $e');
+    return null;
+  }
+}
+
+}
+FirebaseHelper firebasehelper = FirebaseHelper();

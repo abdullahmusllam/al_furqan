@@ -40,7 +40,9 @@ class StudentController {
   addStudent(StudentModel studentData) async {
     int add = await _sqldb.insertData(
         "INSERT INTO Students (SchoolID, FirstName, MiddleName, grandfatherName, LastName) VALUES ('${studentData.SchoolId}','${studentData.firstName}', '${studentData.middleName}','${studentData.grandfatherName}','${studentData.lastName}')");
-    // firebasehelper.addStudent(add, studentData);
+    
+    Map<String, dynamic> studentMap = studentData.toMap(); // تحويل إلى Map
+    firebasehelper.add(add, studentMap, 'student');
   }
 
   updateStudent(StudentModel student, int id) async {
@@ -49,6 +51,7 @@ class StudentController {
         "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = '${student.AttendanceDays}', AbsenceDays = '${student.AbsenceDays}', Excuse = '${student.Excuse}', ReasonAbsence = '${student.ReasonAbsence}' WHERE StudentID = ${id}");
     print(update);
   }
+  
 }
 
 StudentController studentController = StudentController();

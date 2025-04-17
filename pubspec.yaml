@@ -42,6 +42,7 @@ dependencies:
   path:
   intl:
   shared_preferences: 
+  connectivity_plus:
 
 dev_dependencies:
   flutter_test:

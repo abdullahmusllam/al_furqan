@@ -31,7 +31,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       studentModel.grandfatherName = grandfatherNameController.text;
       studentModel.lastName = lastNameController.text;
 
-      firebasehelper.addStudent(studentModel);
+      studentController.addStudent(studentModel);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('تمت إضافة الطالب بنجاح')),
         //  setState(() {});
