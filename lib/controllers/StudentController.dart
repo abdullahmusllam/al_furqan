@@ -41,6 +41,18 @@ class StudentController {
         "INSERT INTO Students (SchoolID, FirstName, MiddleName, grandfatherName, LastName) VALUES ('${studentData.studentID}','${studentData.firstName}', '${studentData.middleName}','${studentData.grandfatherName}','${studentData.lastName}')");
     print(add);
   }
+
+  // getAllStudent() async {
+  //   List<Map> response = await _sqldb.readData("SELECT * FROM STUDENTS ");
+  //   students = response.map((student) {
+  //     return StudentModel(
+  //       studentID: int.tryParse(student['StudentID'].toString()),
+  //       firstName: student['FirstName']?.toString(),
+  //       middleName: student['MiddleName']?.toString(),
+  //       lastName: student['LastName']?.toString(),
+  //     );
+  //   }).toList();
+  // }
 }
 
 StudentController studentController = StudentController();

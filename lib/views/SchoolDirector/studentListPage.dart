@@ -7,7 +7,7 @@ import 'package:al_furqan/views/Teacher/StudentDetilesPage.dart';
 
 class StudentsListPage extends StatefulWidget {
   final UserModel? user;
-  StudentsListPage({super.key, required this.user});
+  StudentsListPage({super.key, this.user});
 
   @override
   State<StudentsListPage> createState() => _StudentsListPageState();

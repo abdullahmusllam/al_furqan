@@ -2,8 +2,8 @@ import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/views/Supervisor/filter_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:al_furqan/widgets/user_details.dart';
-import '../models/schools_model.dart';
+import 'package:al_furqan/views/Supervisor/user_details.dart';
+import '../../models/schools_model.dart';
 
 class UserList extends StatefulWidget {
   const UserList({super.key});
@@ -22,9 +22,10 @@ class _UserListState extends State<UserList> {
   void initState() {
     super.initState();
     userController.getData();
-    schoolController.get_data(); /// تحميل المدارس علشان ما يعطي نل
-  }
+    schoolController.get_data();
 
+    /// تحميل المدارس علشان ما يعطي نل
+  }
 
   void _showFilterDialog() {
     showDialog(
@@ -122,7 +123,7 @@ class _UserListState extends State<UserList> {
                         ? "مفعل"
                         : "غير مفعل"),
                     Text("${filteredUsers[index].date ?? ''}"),
-                    Text("${school.school_name} ${school.schoolID}"),
+                    Text("${school.school_name}"),
                   ],
                 ),
                 trailing: SizedBox(

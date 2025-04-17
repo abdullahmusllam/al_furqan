@@ -2,8 +2,8 @@ import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/views/Supervisor/add_user.dart';
 import 'package:flutter/material.dart';
-import 'package:al_furqan/widgets/requests_list.dart';
-import 'package:al_furqan/widgets/user_list.dart';
+import 'package:al_furqan/views/Supervisor/requests_list.dart';
+import 'package:al_furqan/views/Supervisor/user_list.dart';
 
 class UserManagementPage extends StatefulWidget {
   const UserManagementPage({super.key});

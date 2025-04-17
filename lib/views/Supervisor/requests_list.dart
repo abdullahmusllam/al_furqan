@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
-import '../controllers/school_controller.dart';
-import '../models/schools_model.dart';
+import '../../controllers/school_controller.dart';
+import '../../models/schools_model.dart';
 
 class RequestsList extends StatefulWidget {
   const RequestsList({super.key});
@@ -78,29 +78,60 @@ class _RequestsListState extends State<RequestsList> {
                     Text("طلب تفعيل الحساب"), // Display request type
                   ],
                 ),
-                trailing: PopupMenuButton(onSelected: (newValue) {
-                  // Handle popup menu selection
-                  switch (newValue) {
-                    case "accept":
-                      acceptRequest(index, context);
-                      break;
-                    case "details":
-                      showDialogDetailsRequest(context, index);
-                      break;
-                    case "delete":
-                      showDialogDeleteRequest(context, index);
-                  }
-                }, itemBuilder: (BuildContext context) {
-                  return [
-                    PopupMenuItem(value: "accept", child: Text("قبول الطلب")),
-                    PopupMenuItem(
-                        value: "details", child: Text("تفاصيل الطلب")),
-                    PopupMenuItem(value: "delete", child: Text("حذف الطلب")),
-                  ];
-                }),
+                trailing: IconButton(
+                  icon: Icon(CupertinoIcons.ellipsis),
+                  onPressed: () {
+                    _showCupertinoActionSheet(
+                        context, index); // Call action sheet
+                  },
+                ),
               );
             },
           );
+  }
+
+  // Function to show CupertinoActionSheet
+  void _showCupertinoActionSheet(BuildContext context, int index) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoActionSheet(
+          title: Text('اختر إجراء'),
+          actions: <Widget>[
+            CupertinoActionSheetAction(
+              onPressed: () {
+                acceptRequest(index, context); // Accept request action
+                Navigator.pop(context);
+              },
+              child: Text('قبول الطلب'),
+            ),
+            CupertinoActionSheetAction(
+              onPressed: () {
+                showDialogDetailsRequest(
+                    context, index); // Show request details
+                Navigator.pop(context);
+              },
+              child: Text('تفاصيل الطلب'),
+            ),
+            CupertinoActionSheetAction(
+              isDestructiveAction: true, // Highlight destructive actions
+              onPressed: () {
+                showDialogDeleteRequest(context, index); // Delete request
+                Navigator.pop(context);
+              },
+              child: Text('حذف الطلب'),
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(context); // Close action sheet
+            },
+            child: Text('إلغاء'),
+            isDefaultAction: true,
+          ),
+        );
+      },
+    );
   }
 
   // Function to accept a request and refresh data

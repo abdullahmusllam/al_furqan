@@ -2,6 +2,8 @@
 
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
+import 'package:al_furqan/views/Supervisor/show_all_teacher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
@@ -59,14 +61,8 @@ class DrawerList extends StatelessWidget {
             text: 'المعلمين',
             onTap: () {
               // Navigate to teachers page
-            },
-          ),
-          _createDrawerItem(
-            icon: Icons.people,
-            text: 'الطلاب',
-            onTap: () {
-              // Navigate to students page
-              getNameAdmin();
+              Navigator.of(context).push(CupertinoDialogRoute(
+                  builder: (context) => ShowAllTeacher(), context: context));
             },
           ),
           _createDrawerItem(
@@ -100,19 +96,5 @@ class DrawerList extends StatelessWidget {
       title: Text(text),
       onTap: onTap,
     );
-  }
-}
-
-getNameAdmin() async {
-  var admin = userController.users;
-  UserModel adimnName;
-  print(userController.users.isEmpty);
-  if (admin.isNotEmpty) {
-    for (var element in admin) {
-        if (element.roleID == 0) {
-          adimnName = element;
-        }
-        // Do nothing
-      }
   }
 }
