@@ -1,6 +1,7 @@
 class StudentModel {
   int? studentID;
   int? elhalaqaID;
+  int? SchoolId;
   String? firstName;
   String? middleName;
   String? grandfatherName;
@@ -13,6 +14,7 @@ class StudentModel {
   StudentModel(
       {this.studentID,
       this.elhalaqaID,
+      this.SchoolId,
       this.firstName,
       this.middleName,
       this.grandfatherName,

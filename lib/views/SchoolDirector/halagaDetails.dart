@@ -1,5 +1,6 @@
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/models/student_model.dart';
+import 'package:al_furqan/views/SchoolDirector/EditHalaga.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 
@@ -49,8 +50,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
             icon: Icon(Icons.edit, color: Colors.white),
             onPressed: () {
               // الانتقال إلى صفحة تعديل بيانات الحلقة
-              // يمكن استدعاء صفحة التعديل هنا
-              // Navigator.push(...);
+              Navigator.push(context, MaterialPageRoute(builder: (context)=> EditHalagaScreen(halga: widget.halqa)));
             },
           ),
         ],
@@ -115,7 +115,6 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                           },
                         ),
                 )
-
                 // SizedBox(height: 10),
                 // يمكن إضافة المزيد من التفاصيل هنا حسب الحاجة
               ],

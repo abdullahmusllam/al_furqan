@@ -14,7 +14,23 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
   final _formKey = GlobalKey<FormState>();
   final HalagaModel _halaqaModel = HalagaModel();
   final TextEditingController halqaNameController = TextEditingController();
-  final TextEditingController numberStudentController = TextEditingController();
+  
+  List<UserModel> teachers = [];
+  UserModel? selectedTeacher; // المتغير الذي يخزن المعلم المختار
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTeachers(); // استدعاء دالة تحميل المعلمين
+  }
+
+  void _loadTeachers() async {
+    // جلب المعلمين حسب SchoolID
+    List<UserModel> loadedTeachers = await halagaController.gitTecher(widget.user.schoolID!);
+    setState(() {
+      teachers = loadedTeachers; // تعيين المعلمين في القائمة
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +46,6 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // حقول إدخال البيانات
               _buildTextFormField(
                 controller: halqaNameController,
                 label: 'اسم الحلقة',
@@ -41,16 +56,30 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                   return null;
                 },
               ),
-              _buildTextFormField(
-                controller: numberStudentController,
-                label: 'عدد الطلاب',
-                isNumber: true,
+              
+              SizedBox(height: 20),
+
+              // القائمة المنسدلة لاختيار المعلم
+              DropdownButtonFormField<UserModel>(
+                value: selectedTeacher,
+                items: teachers.map((teacher) {
+                  return DropdownMenuItem<UserModel>(
+                    value: teacher,
+                    child: Text('${teacher.first_name} ${teacher.last_name}'),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedTeacher = value; // تعيين المعلم المختار
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'اختر المعلم',
+                  border: OutlineInputBorder(),
+                ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'الرجاء إدخال عدد الطلاب';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'الرجاء إدخال عدد صحيح';
+                  if (value == null) {
+                    return 'الرجاء اختيار معلم';
                   }
                   return null;
                 },
@@ -58,19 +87,18 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
 
               SizedBox(height: 20),
 
-              // الأزرار
               Row(
                 children: [
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          // هنا يتم تنفيذ عملية إضافة الحلقة بعد التحقق
+                          // إضافة الحلقة مع البيانات
                           _halaqaModel.SchoolID = widget.user.schoolID;
                           _halaqaModel.Name = halqaNameController.text;
-                          _halaqaModel.NumberStudent =
-                              int.parse(numberStudentController.text);
-                          halagaController.addHalaga(_halaqaModel);
+                          int TeacherID = selectedTeacher!.userID; // تعيين ID المعلم
+
+                          halagaController.addHalaga(_halaqaModel, TeacherID);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('تم إضافة الحلقة بنجاح'),

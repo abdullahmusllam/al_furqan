@@ -1,18 +1,18 @@
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/models/users_model.dart';
-import 'package:al_furqan/services/firebase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/student_model.dart';
 
-class AddStudentScreen extends StatefulWidget {
-  final UserModel? user;
-  const AddStudentScreen({super.key, required this.user});
+class EditStudentScreen extends StatefulWidget {
+  // final UserModel? user;
+  final StudentModel student; // استلام بيانات الطالب لتعديلها
+  const EditStudentScreen({super.key, required this.student});
 
   @override
-  _AddStudentScreenState createState() => _AddStudentScreenState();
+  _EditStudentScreenState createState() => _EditStudentScreenState();
 }
 
-class _AddStudentScreenState extends State<AddStudentScreen> {
+class _EditStudentScreenState extends State<EditStudentScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController firstNameController = TextEditingController();
@@ -21,20 +21,29 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
 
-  StudentModel studentModel = StudentModel();
+  @override
+  void initState() {
+    super.initState();
+
+    // تعبئة الحقول بالبيانات الحالية للطالب
+    firstNameController.text = widget.student.firstName ?? '';
+    middleNameController.text = widget.student.middleName ?? '';
+    grandfatherNameController.text = widget.student.grandfatherName ?? '';
+    lastNameController.text = widget.student.lastName ?? '';
+  }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      studentModel.studentID = widget.user?.schoolID;
-      studentModel.firstName = firstNameController.text;
-      studentModel.middleName = middleNameController.text;
-      studentModel.grandfatherName = grandfatherNameController.text;
-      studentModel.lastName = lastNameController.text;
+      widget.student.firstName = firstNameController.text;
+      widget.student.middleName = middleNameController.text;
+      widget.student.grandfatherName = grandfatherNameController.text;
+      widget.student.lastName = lastNameController.text;
 
-      firebasehelper.addStudent(studentModel);
+      studentController.updateStudent(widget.student,
+          widget.student.studentID!); // استخدام الدالة لتحديث بيانات الطالب
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تمت إضافة الطالب بنجاح')),
-        //  setState(() {});
+        SnackBar(content: Text('تم تعديل بيانات الطالب بنجاح')),
       );
       Navigator.pop(context);
     }
@@ -43,7 +52,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('إضافة طالب')),
+      appBar: AppBar(title: Text('تعديل بيانات الطالب')),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Form(
@@ -63,16 +72,18 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                       onPressed: _submitForm,
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue),
-                      child: Text('إضافة'),
+                      child: Text('تعديل'),
                     ),
                   ),
                   SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green),
-                      child: Text('إدارة'),
+                      onPressed: () {
+                        Navigator.pop(context); // العودة بدون حفظ التعديلات
+                      },
+                      style:
+                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      child: Text('إلغاء'),
                     ),
                   ),
                 ],
