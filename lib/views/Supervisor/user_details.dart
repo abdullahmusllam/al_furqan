@@ -93,8 +93,8 @@ class _UserDetailsState extends State<UserDetails> {
 
   void _refreshData() async {
     await userController.getDataUsers();
-    _loadSchools();
-    setState(() {});
+    await _loadSchools();
+    // setState(() {});
   }
 
   @override
@@ -170,7 +170,7 @@ class _UserDetailsState extends State<UserDetails> {
                 SizedBox(height: 10),
                 buildEditButton(
                   isEditable: _isEditable,
-                  onPressed: () {
+                  onPressed: ()  {
                     setState(() {
                       _isEditable = !_isEditable;
                     });

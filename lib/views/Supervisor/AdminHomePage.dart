@@ -1,9 +1,12 @@
 // ignore: file_names
+import 'package:al_furqan/controllers/TeacherController.dart';
+import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:al_furqan/widgets/drawer_list.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart'; // مكتبة المخططات
 import 'package:al_furqan/widgets/stat_card.dart';
@@ -22,6 +25,8 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
+  final _schools = schoolController.schools;
+  final _teachers = teacherController.teachers;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +38,7 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
               final prefs = await SharedPreferences.getInstance();
               await prefs.clear();
               Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()));
+                  CupertinoPageRoute(builder: (context) => LoginScreen()));
             },
             icon: Icon(Icons.logout),
           ),
@@ -72,11 +77,15 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
           children: [
             Expanded(
                 child: StatCard(
-                    title: 'عدد المدارس', value: '12', color: Colors.blue)),
+                    title: 'عدد المدارس',
+                    value: _schools.length,
+                    color: Colors.blue)),
             SizedBox(width: 10),
             Expanded(
                 child: StatCard(
-                    title: 'عدد المعلمين', value: '250', color: Colors.green)),
+                    title: 'عدد المعلمين',
+                    value: _teachers.length,
+                    color: Colors.green)),
           ],
         ),
         SizedBox(height: 10),
@@ -84,11 +93,11 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
           children: [
             Expanded(
                 child: StatCard(
-                    title: 'عدد الطلاب', value: '5000', color: Colors.orange)),
+                    title: 'عدد الطلاب', value: 5000, color: Colors.orange)),
             SizedBox(width: 10),
             Expanded(
                 child: StatCard(
-                    title: 'عدد الإنجازات', value: '20', color: Colors.red)),
+                    title: 'عدد الإنجازات', value: 20, color: Colors.red)),
           ],
         ),
       ],

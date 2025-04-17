@@ -1,9 +1,11 @@
+import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddTeacher.dart';
 import 'package:al_furqan/views/SchoolDirector/DrawerSchoolDirector.dart';
 import 'package:al_furqan/views/login/login.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,16 +18,13 @@ class SchoolManagerScreen extends StatefulWidget {
 
 class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     with UserDataMixin {
-  final List<Map<String, String>> teachers = [
-    {'name': 'أحمد محمد', 'level': 'الصف الأول'},
-    {'name': 'منى خالد', 'level': 'الصف الثاني'},
-    {'name': 'علي حسن', 'level': 'الصف الثالث'},
-  ];
+  final teacher = teacherController.teachers;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: CupertinoColors.activeGreen.withOpacity(0.5),
         title: isLoading || user == null
             ? Text("جاري التحميل...")
             : Text('${user!.first_name} ${user!.last_name}'),
@@ -55,7 +54,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                         children: [
                           Expanded(
                               child: _buildStatCard(
-                                  'عدد المعلمين', '15', Colors.blue)),
+                                  'عدد المعلمين', '${teacher.length}', Colors.blue)),
                           SizedBox(width: 10),
                           Expanded(
                               child: _buildStatCard(
@@ -72,13 +71,13 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
 
                       Expanded(
                         child: ListView.builder(
-                          itemCount: teachers.length,
+                          itemCount: teacher.length,
                           itemBuilder: (context, index) {
                             return Card(
                               child: ListTile(
-                                title: Text(teachers[index]['name']!),
+                                title: Text("${teacher[index].first_name!} ${teacher[index].middle_name} ${teacher[index].last_name}"),
                                 subtitle: Text(
-                                    'المستوى: ${teachers[index]['level']}'),
+                                    'المستوى: اسم الحلقة'),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [

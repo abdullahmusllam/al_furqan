@@ -3,6 +3,7 @@
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
+import 'package:al_furqan/views/Supervisor/show_all_schools.dart';
 import 'package:al_furqan/views/Supervisor/show_all_teacher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,13 +26,13 @@ class DrawerList extends StatelessWidget {
             child: Column(
               children: [
                 CircleAvatar(
-                  maxRadius: 45,
-                  child: Icon(
-                    CupertinoIcons.person_alt,
-                    color: Colors.white,
-                    size: 65,
-                  ),
-                ),
+                    maxRadius: 40,
+                    child: Center(
+                      child: Text(
+                        user!.first_name!.substring(0, 1),
+                        style: TextStyle(fontSize: 45),
+                      ),
+                    )),
                 Text(
                   '${user!.first_name} ${user!.middle_name} ${user!.last_name}',
                   style: TextStyle(
@@ -47,6 +48,7 @@ class DrawerList extends StatelessWidget {
             text: 'الصفحة الرئيسية',
             onTap: () {
               // Navigate to home page
+              Navigator.of(context).pop();
             },
           ),
           _createDrawerItem(
@@ -54,6 +56,8 @@ class DrawerList extends StatelessWidget {
             text: 'المدارس',
             onTap: () {
               // Navigate to schools page
+              Navigator.of(context).push(
+                  CupertinoPageRoute(builder: (context) => ShowAllSchools()));
             },
           ),
           _createDrawerItem(
@@ -61,8 +65,8 @@ class DrawerList extends StatelessWidget {
             text: 'المعلمين',
             onTap: () {
               // Navigate to teachers page
-              Navigator.of(context).push(CupertinoDialogRoute(
-                  builder: (context) => ShowAllTeacher(), context: context));
+              Navigator.of(context).push(
+                  CupertinoPageRoute(builder: (context) => ShowAllTeacher()));
             },
           ),
           _createDrawerItem(
@@ -71,7 +75,7 @@ class DrawerList extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => UserManagementPage()),
+                CupertinoPageRoute(builder: (context) => UserManagementPage()),
               );
             },
           ),

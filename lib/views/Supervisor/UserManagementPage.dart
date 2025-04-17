@@ -1,6 +1,7 @@
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/views/Supervisor/add_user.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/requests_list.dart';
 import 'package:al_furqan/views/Supervisor/user_list.dart';
@@ -40,6 +41,7 @@ class _UserManagementPageState extends State<UserManagementPage>
   AppBar _buildAppBar() {
     return AppBar(
       title: Text('إدارة المستخدمين'),
+      backgroundColor: CupertinoColors.activeGreen.withOpacity(0.5),
       actions: [
         IconButton(
           icon: Icon(Icons.refresh),
