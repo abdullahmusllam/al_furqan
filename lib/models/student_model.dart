@@ -1,26 +1,27 @@
 class StudentModel {
   int? studentID;
   int? elhalaqaID;
-  int? SchoolId;
+  int? schoolId;
   String? firstName;
   String? middleName;
   String? grandfatherName;
   String? lastName;
-  int? AttendanceDays;
-  int? AbsenceDays;
-  String? Excuse;
-  String? ReasonAbsence;
+  int? attendanceDays;
+  int? absenceDays;
+  String? excuse;
+  String? reasonAbsence;
 
   StudentModel(
       {this.studentID,
       this.elhalaqaID,
-      this.SchoolId,
+      this.schoolId,
       this.firstName,
       this.middleName,
       this.grandfatherName,
       this.lastName,
-      this.AttendanceDays,
-      this.AbsenceDays,
-      this.Excuse,
-      this.ReasonAbsence});
+      this.attendanceDays,
+      this.absenceDays,
+      this.excuse,
+      this.reasonAbsence});
+
 }

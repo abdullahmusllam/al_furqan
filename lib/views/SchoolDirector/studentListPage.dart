@@ -23,26 +23,34 @@ class _StudentsListPageState extends State<StudentsListPage> {
   }
 
   // دالة لجلب الطلاب من قاعدة البيانات
-  void _loadStudent() async {
-    int? schoolID = widget.user?.schoolID;
+  Future<void> _loadStudent() async {
+    final int? schoolID = widget.user?.schoolID;
 
-    if (schoolID != null) {
-      // التأكد من أن القيمة التي تُرجعها getSchoolStudents ليست null
-      List<StudentModel>? loadedStudent =
-          await studentController.getSchoolStudents(schoolID);
-
-      setState(() {
-        if (loadedStudent != null && loadedStudent.isNotEmpty) {
-          students = loadedStudent;
-          print(students);
-        } else {
-          // عرض رسالة توضيحية عندما تكون القائمة فارغة أو null
-          students = [];
-          print("لا يوجد طلاب");
-        }
-      });
-    } else {
+    if (schoolID == null) {
       print("schoolID is null");
+      if (mounted) {
+        setState(() => students = []);
+      }
+      return;
+    }
+
+    try {
+      final List<StudentModel> loadedStudents =
+          await studentController.getSchoolStudents(schoolID) ?? [];
+      if (mounted) {
+        setState(() {
+          students = loadedStudents;
+          print("Loaded students: ${students.length}");
+        });
+      }
+    } catch (e) {
+      print("Error loading students: $e");
+      if (mounted) {
+        setState(() => students = []);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('فشل في جلب الطلاب: $e')),
+        );
+      }
     }
   }
 
@@ -54,6 +62,9 @@ class _StudentsListPageState extends State<StudentsListPage> {
         title: Text('طلاب المدرسة',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         centerTitle: true,
+        actions: [
+          IconButton(onPressed: () => _loadStudent(), icon: Icon(Icons.refresh))
+        ],
       ),
       body: Column(
         children: [
@@ -71,41 +82,45 @@ class _StudentsListPageState extends State<StudentsListPage> {
                     itemBuilder: (context, index) {
                       final student = students[index];
                       return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8.0),
-                        child: Card(
-                          elevation: 5,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.teal,
+                            child: Icon(Icons.person, color: Colors.white),
                           ),
-                          child: ListTile(
-                            contentPadding: EdgeInsets.all(16),
-                            leading: CircleAvatar(
-                              backgroundColor: Colors.teal,
-                              child: Icon(Icons.person, color: Colors.white),
-                            ),
-                            title: Text(
-                              student.firstName!,
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Text(
-                              student.lastName!,
-                              style: TextStyle(
-                                  fontSize: 16, color: Colors.grey[600]),
-                            ),
-                            trailing: Icon(Icons.arrow_forward_ios,
-                                color: Colors.teal),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      EditStudentScreen(student: student),
-                                ),
-                              );
-                            },
+                          title: Text(
+                            "${student.firstName!} ${student.middleName} ${student.lastName}",
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
+                          subtitle: Text(
+                            "اسم الحلقة اللي هو فيها",
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
+                          trailing: IconButton(
+                              onPressed: () async {
+                                print("${student.studentID}");
+                                await studentController
+                                    .delete(student.studentID!);
+                                await _loadStudent();
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  content: Text("delelted!"),
+                                  duration: Duration(milliseconds: 10),
+                                ));
+                              },
+                              icon: Icon(Icons.delete),
+                              color: Colors.redAccent),
+                          onTap: () {
+                            print(student.grandfatherName);
+                            print(student.lastName);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    EditStudentScreen(student: student),
+                              ),
+                            );
+                          },
                         ),
                       );
                     },
@@ -145,7 +160,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
             context,
             MaterialPageRoute(
                 builder: (context) => AddStudentScreen(user: widget.user)),
-          );
+          ).then((_) => _loadStudent());
         },
         backgroundColor: Colors.teal,
         child: Icon(Icons.add, color: Colors.white),

@@ -45,6 +45,7 @@ dependencies:
   shared_preferences:
     # اضفت ذي المكتبة علشان نتحقق من اتصال الشبكة وهل المستخدم متصل بالنت ولا لا
   connectivity_plus:
+  random_string:
 
 
 dev_dependencies:

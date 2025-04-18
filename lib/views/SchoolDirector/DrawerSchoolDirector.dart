@@ -7,7 +7,9 @@ import 'package:al_furqan/views/SchoolDirector/AddStuden.dart';
 import 'package:al_furqan/views/SchoolDirector/ElhalagatList.dart';
 import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
 import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
+import 'package:al_furqan/views/SchoolDirector/teacher_management.dart';
 import 'package:al_furqan/views/Teacher/addStusentData.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
 
@@ -69,12 +71,22 @@ class DrawerSchoolDirector extends StatelessWidget {
                 );
               }),
           ListTile(
+            leading: Icon(Icons.manage_accounts),
+            title: Text("إدارة المعلمين"),
+            onTap: () {
+              Navigator.of(context).push(CupertinoPageRoute(
+                  builder: (context) => TeacherManagement()));
+            },
+          ),
+          ListTile(
             leading: Icon(Icons.event),
             title: Text('إدارة الطلاب'),
             onTap: () {
               // الانتقال إلى شاشة الطلاب
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => StudentsListPage(user: user)));
+              Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                      builder: (context) => StudentsListPage(user: user)));
             },
           ),
           ListTile(
@@ -84,7 +96,7 @@ class DrawerSchoolDirector extends StatelessWidget {
               // الانتقال إلى شاشة الحلقات
               Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
                       builder: (context) => HalqatListPage(user: user!)));
             },
           ),

@@ -1,3 +1,4 @@
+import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
@@ -19,6 +20,18 @@ class SchoolManagerScreen extends StatefulWidget {
 class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     with UserDataMixin {
   final teacher = teacherController.teachers;
+  final student = studentController.students;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _refreshData();
+  }
+
+  void _refreshData() async {
+    await teacherController.getTeachers(); // Load schools
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +66,12 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                       Row(
                         children: [
                           Expanded(
-                              child: _buildStatCard(
-                                  'عدد المعلمين', '${teacher.length}', Colors.blue)),
+                              child: _buildStatCard('عدد المعلمين',
+                                  '${teacher.length}', Colors.blue)),
                           SizedBox(width: 10),
                           Expanded(
-                              child: _buildStatCard(
-                                  'نسبة الانضباط', '90%', Colors.green)),
+                              child: _buildStatCard('عدد الطلاب',
+                                  '${student.length}', Colors.green)),
                         ],
                       ),
 
@@ -75,9 +88,9 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                           itemBuilder: (context, index) {
                             return Card(
                               child: ListTile(
-                                title: Text("${teacher[index].first_name!} ${teacher[index].middle_name} ${teacher[index].last_name}"),
-                                subtitle: Text(
-                                    'المستوى: اسم الحلقة'),
+                                title: Text(
+                                    "${teacher[index].first_name!} ${teacher[index].middle_name} ${teacher[index].last_name}"),
+                                subtitle: Text('المستوى: اسم الحلقة'),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [

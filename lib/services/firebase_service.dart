@@ -27,7 +27,7 @@ class FirebaseHelper{
 
     // الخطوة 2: إضافة الطالب الجديد بالـ ID الجديد
     await studentsRef.doc(newId.toString()).set({
-      'schoolId': studentData.SchoolId,
+      'schoolId': newId,
       'firstName': studentData.firstName,
       'middleName': studentData.middleName,
       'grandfatherName': studentData.grandfatherName,

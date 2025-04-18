@@ -26,30 +26,38 @@ class StudentController {
     // جلب الطلاب المرتبطين بالمدارس
     List<Map> studentData =
         await _sqldb.readData("SELECT * FROM 'Students' WHERE SchoolID = $id");
+    print("Response Get : ${studentData.isEmpty}");
     students = studentData.map((student) {
       return StudentModel(
         studentID: student['StudentID'],
         firstName: student['FirstName'],
         middleName: student['MiddleName'],
+        grandfatherName: student['grandfatherName'],
         lastName: student['LastName'],
       );
     }).toList();
+    print("students.length : ${students.length}");
     return students;
   }
 
   addStudent(StudentModel studentData) async {
-    int add = await _sqldb.insertData(
-        "INSERT INTO Students (SchoolID, FirstName, MiddleName, grandfatherName, LastName) VALUES ('${studentData.SchoolId}','${studentData.firstName}', '${studentData.middleName}','${studentData.grandfatherName}','${studentData.lastName}')");
+    int response = await _sqldb.insertData(
+        "INSERT INTO Students (SchoolID, FirstName, MiddleName, grandfatherName, LastName) VALUES ('${studentData.schoolId}','${studentData.firstName}', '${studentData.middleName}','${studentData.grandfatherName}','${studentData.lastName}')");
     // firebasehelper.addStudent(add, studentData);
+
+    print("Response : $response, School ID : ${studentData.grandfatherName}");
   }
 
   updateStudent(StudentModel student, int id) async {
+    print("Student in upadte : ${student.grandfatherName}");
     // تعديل بيانات الطالب
     int update = await _sqldb.updateData(
-        "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = '${student.AttendanceDays}', AbsenceDays = '${student.AbsenceDays}', Excuse = '${student.Excuse}', ReasonAbsence = '${student.ReasonAbsence}' WHERE StudentID = ${id}");
+        "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = '${student.attendanceDays}', AbsenceDays = '${student.absenceDays}', Excuse = '${student.excuse}', ReasonAbsence = '${student.reasonAbsence}' WHERE StudentID = ${id}");
     print(update);
   }
-
+delete(int id)async{
+    int response=await _sqldb.deleteData("DELETE FROM STUDENTS WHERE StudentID = $id");
+}
   // getAllStudent() async {
   //   List<Map> response = await _sqldb.readData("SELECT * FROM STUDENTS ");
   //   students = response.map((student) {

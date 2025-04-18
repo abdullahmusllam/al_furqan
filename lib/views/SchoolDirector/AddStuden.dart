@@ -1,8 +1,9 @@
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/models/users_model.dart';
-import 'package:al_furqan/services/firebase_service.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/student_model.dart';
+import 'package:flutter/services.dart';
 
 class AddStudentScreen extends StatefulWidget {
   final UserModel? user;
@@ -14,24 +15,23 @@ class AddStudentScreen extends StatefulWidget {
 
 class _AddStudentScreenState extends State<AddStudentScreen> {
   final _formKey = GlobalKey<FormState>();
+  final firstNameController = TextEditingController();
+  final middleNameController = TextEditingController();
+  final grandfatherNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final studentModel = StudentModel();
+  final _connectivity = Connectivity().checkConnectivity();
 
-  final TextEditingController firstNameController = TextEditingController();
-  final TextEditingController middleNameController = TextEditingController();
-  final TextEditingController grandfatherNameController =
-      TextEditingController();
-  final TextEditingController lastNameController = TextEditingController();
-
-  StudentModel studentModel = StudentModel();
-
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      // user is manager of school
       studentModel.studentID = widget.user?.schoolID;
       studentModel.firstName = firstNameController.text;
       studentModel.middleName = middleNameController.text;
       studentModel.grandfatherName = grandfatherNameController.text;
       studentModel.lastName = lastNameController.text;
 
-      firebasehelper.addStudent(studentModel);
+      // firebasehelper.addStudent(studentModel);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('تمت إضافة الطالب بنجاح')),
         //  setState(() {});
@@ -42,6 +42,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final _schoolId = widget.user?.schoolID;
     return Scaffold(
       appBar: AppBar(title: Text('إضافة طالب')),
       body: Padding(
@@ -60,10 +61,35 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _submitForm,
+                      onPressed: () async {
+                        print(
+                            "widget.user?.schoolID : ${widget.user?.schoolID}");
+                        if (_formKey.currentState!.validate()) {
+                          studentModel.schoolId = _schoolId;
+                          studentModel.firstName = firstNameController.text;
+                          studentModel.middleName = middleNameController.text;
+                          studentModel.grandfatherName =
+                              grandfatherNameController.text;
+                          studentModel.lastName = lastNameController.text;
+                          print(
+                              "Student Models in Add Student : ${studentModel.grandfatherName}");
+                          await studentController.addStudent(studentModel);
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(
+                              "Adedd!",
+                            ),
+                            duration: Duration(seconds: 1),
+                            backgroundColor: Colors.green,
+                          ));
+                          Navigator.of(context).pop();
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue),
-                      child: Text('إضافة'),
+                      child: Text(
+                        'إضافة',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                   SizedBox(width: 10),
@@ -72,7 +98,10 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green),
-                      child: Text('إدارة'),
+                      child: Text(
+                        'جلب ملف إكسل',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                 ],
@@ -88,6 +117,10 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
+        keyboardType: TextInputType.name,
+        inputFormatters: [
+          FilteringTextInputFormatter.deny(RegExp(r'[0-9٠-٩]'))
+        ],
         controller: controller,
         validator: (value) {
           if (value == null || value.isEmpty) {

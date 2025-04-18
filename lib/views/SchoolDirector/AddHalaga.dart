@@ -77,12 +77,12 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                   labelText: 'اختر المعلم',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null) {
-                    return 'الرجاء اختيار معلم';
-                  }
-                  return null;
-                },
+                // validator: (value) {
+                //   if (value == null) {
+                //     return 'الرجاء اختيار معلم';
+                //   }
+                //   return null;
+                // },
               ),
 
               SizedBox(height: 20),
@@ -96,9 +96,9 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                           // إضافة الحلقة مع البيانات
                           _halaqaModel.SchoolID = widget.user.schoolID;
                           _halaqaModel.Name = halqaNameController.text;
-                          int TeacherID = selectedTeacher!.userID; // تعيين ID المعلم
+                          // int TeacherID = selectedTeacher!.userID; // تعيين ID المعلم
 
-                          halagaController.addHalaga(_halaqaModel, TeacherID);
+                          halagaController.addHalaga(_halaqaModel);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('تم إضافة الحلقة بنجاح'),

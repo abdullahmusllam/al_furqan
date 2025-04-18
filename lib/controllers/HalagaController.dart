@@ -6,7 +6,7 @@ import 'package:al_furqan/models/users_model.dart';
 
 class HalagaController {
   final SqlDb _sqlDb = SqlDb();
-  // final List<HalagaModel> halagaData = [];
+  final List<HalagaModel> halagaData = [];
 
   gitData(int id) async {
     List<Map> data = await _sqlDb.readData(
@@ -70,13 +70,13 @@ class HalagaController {
     return Techer;
   }
 
-  addHalaga(HalagaModel halagaData, int TeacherID) async {
+  addHalaga(HalagaModel halagaData) async {
     int add = await _sqlDb.insertData(
-        "INSERT INTO 'Elhalagat' (SchoolID, Name, NumberStudent) VALUES ('${halagaData.SchoolID}', '${halagaData.Name}', '${halagaData.NumberStudent}')");
-    int addTeacher = await _sqlDb.insertData(
-        "UPDATE Users SET ElhalagatID = '${halagaData.halagaID}' WHERE user_id = '${TeacherID}'");
+        "INSERT INTO 'Elhalagat' (SchoolID, Name, NumberStudent) VALUES ('${halagaData.SchoolID}', '${halagaData.Name}', 5)");
+    // int addTeacher = await _sqlDb.insertData(
+    //     "UPDATE Users SET ElhalagatID = '${halagaData.halagaID}' WHERE user_id = '${TeacherID}'");
     print(add);
-    print(addTeacher);
+    // print(addTeacher);
   }
 
   updateHalaga() async {}
