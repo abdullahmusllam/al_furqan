@@ -24,14 +24,15 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   StudentModel studentModel = StudentModel();
 
   void _submitForm() {
+      int? SchoolID = widget.user!.schoolID;
+      print("asasasasasasas$SchoolID");
     if (_formKey.currentState!.validate()) {
-      studentModel.studentID = widget.user?.schoolID;
       studentModel.firstName = firstNameController.text;
       studentModel.middleName = middleNameController.text;
       studentModel.grandfatherName = grandfatherNameController.text;
       studentModel.lastName = lastNameController.text;
 
-      studentController.addStudent(studentModel);
+      studentController.addStudentToFirebase(studentModel, SchoolID!);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('تمت إضافة الطالب بنجاح')),
         //  setState(() {});
