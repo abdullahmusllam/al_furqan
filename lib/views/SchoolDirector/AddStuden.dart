@@ -85,7 +85,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     }
   }
 
-/// export excel file and handling it
+  /// export excel file and handling it
   Future<void> _pickAndProcessExcel() async {
     // طلب إذن التخزين
     if (await Permission.storage.request().isDenied) {
@@ -98,17 +98,19 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       );
       return;
     }
-  
-    setState(() => _isProcessingExcel = true);// بدء عملية المعالجة
+
+    setState(() => _isProcessingExcel = true); // بدء عملية المعالجة
 
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles( // اختيار ملف
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        // اختيار ملف
         type: FileType.custom,
         allowedExtensions: ['xlsx', 'xls'],
         allowMultiple: false,
       );
 
-      if (result == null || result.files.isEmpty) {// التحقق من اختيار ملف
+      if (result == null || result.files.isEmpty) {
+        // التحقق من اختيار ملف
         // إظهار رسالة خطأ إذا لم يتم اختيار ملف
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -117,12 +119,15 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
             duration: Duration(seconds: 2),
           ),
         );
-        setState(() => _isProcessingExcel = false);// إنهاء عملية المعالجة
+        setState(() => _isProcessingExcel = false); // إنهاء عملية المعالجة
         return;
       }
 
-      String? fileName = result.files.first.name; //
-      if (fileName == null || (!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls'))) {
+      String? fileName = result.files.first.name; // اسم الملف
+      if (fileName == null ||
+          (!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls'))) {
+        // التحقق من نوع الملف
+        // إظهار رسالة خطأ إذا كان الملف ليس من نوع Excel
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('الملف المختار ليس ملف Excel (.xlsx أو .xls)'),
@@ -134,7 +139,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         return;
       }
 
-      Uint8List? fileBytes = result.files.first.bytes;
+      Uint8List? fileBytes = result.files.first.bytes; // قراءة محتوى الملف
       if (fileBytes == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -147,15 +152,18 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         return;
       }
 
-      var excel = Excel.decodeBytes(fileBytes);
+      var excel = Excel.decodeBytes(fileBytes); // فك تشفير محتوى الملف
       bool dataAdded = false;
 
       for (var table in excel.tables.keys) {
+        // معالجة كل جدول في الملف
         var sheet = excel.tables[table];
         if (sheet == null || sheet.rows.isEmpty) continue;
 
         // افتراض أن الصف الأول يحتوي على رؤوس الأعمدة
-        List<String> headers = sheet.rows[0].map((cell) => cell?.value?.toString() ?? '').toList();
+        List<String> headers = sheet.rows[0]
+            .map((cell) => cell?.value?.toString() ?? '')
+            .toList(); // استخراج رؤوس الأعمدة
         print("Headers: $headers");
 
         // تحقق من وجود الأعمدة المتوقعة
@@ -175,7 +183,8 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
           'FatherDateOfBirth'
         ];
 
-        bool isValidFormat = expectedHeaders.every((header) => headers.contains(header));
+        bool isValidFormat =
+            expectedHeaders.every((header) => headers.contains(header));
         if (!isValidFormat) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -195,24 +204,35 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
           try {
             // استخراج بيانات الطالب
             StudentModel student = StudentModel(
-              studentID: int.tryParse(row[headers.indexOf('StudentID')]?.value?.toString() ?? ''),
+              studentID: int.tryParse(
+                  row[headers.indexOf('StudentID')]?.value?.toString() ?? ''),
               firstName: row[headers.indexOf('FirstName')]?.value?.toString(),
               middleName: row[headers.indexOf('MiddleName')]?.value?.toString(),
-              grandfatherName: row[headers.indexOf('GrandfatherName')]?.value?.toString(),
+              grandfatherName:
+                  row[headers.indexOf('GrandfatherName')]?.value?.toString(),
               lastName: row[headers.indexOf('LastName')]?.value?.toString(),
               schoolId: widget.user!.schoolID,
             );
 
             // استخراج بيانات الأب
             UserModel father = UserModel(
-              first_name: row[headers.indexOf('FatherFirstName')]?.value?.toString(),
-              middle_name: row[headers.indexOf('FatherMiddleName')]?.value?.toString(),
-              grandfather_name: row[headers.indexOf('FatherGrandfatherName')]?.value?.toString(),
-              last_name: row[headers.indexOf('FatherLastName')]?.value?.toString(),
+              first_name:
+                  row[headers.indexOf('FatherFirstName')]?.value?.toString(),
+              middle_name:
+                  row[headers.indexOf('FatherMiddleName')]?.value?.toString(),
+              grandfather_name: row[headers.indexOf('FatherGrandfatherName')]
+                  ?.value
+                  ?.toString(),
+              last_name:
+                  row[headers.indexOf('FatherLastName')]?.value?.toString(),
               email: row[headers.indexOf('FatherEmail')]?.value?.toString(),
-              phone_number: int.tryParse(row[headers.indexOf('FatherPhone')]?.value?.toString() ?? ''),
-              telephone_number: int.tryParse(row[headers.indexOf('FatherTelephone')]?.value?.toString() ?? ''),
-              date: row[headers.indexOf('FatherDateOfBirth')]?.value?.toString(),
+              phone_number: int.tryParse(
+                  row[headers.indexOf('FatherPhone')]?.value?.toString() ?? ''),
+              telephone_number: int.tryParse(
+                  row[headers.indexOf('FatherTelephone')]?.value?.toString() ??
+                      ''),
+              date:
+                  row[headers.indexOf('FatherDateOfBirth')]?.value?.toString(),
               password: 12345678,
               roleID: 3,
               schoolID: widget.user!.schoolID,
@@ -237,7 +257,8 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
             // إضافة الطالب
             await studentController.addStudent(student);
             dataAdded = true;
-            print("Added student: ${student.firstName}, Father: ${father.first_name}");
+            print(
+                "Added student: ${student.firstName}, Father: ${father.first_name}");
           } catch (e) {
             print("Error processing row: $row, Error: $e");
             continue;
@@ -248,7 +269,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       setState(() => _isProcessingExcel = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(dataAdded ? 'تمت إضافة الطلاب من ملف Excel بنجاح' : 'لم يتم إضافة أي بيانات من الملف'),
+          content: Text(dataAdded
+              ? 'تمت إضافة الطلاب من ملف Excel بنجاح'
+              : 'لم يتم إضافة أي بيانات من الملف'),
           backgroundColor: dataAdded ? Colors.green : Colors.orange,
           duration: Duration(seconds: 3),
         ),
@@ -306,7 +329,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                       child: ElevatedButton(
                         onPressed: () async {
                           /// export excel file
-                          
+                          _pickAndProcessExcel();
                         },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green),
