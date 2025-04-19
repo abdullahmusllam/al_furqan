@@ -28,7 +28,7 @@ class _ShowAllTeacherState extends State<ShowAllTeacher> {
     setState(() => _isLoading = true);
     try {
       await teacherController.getTeachers();
-      await schoolController.get_data();
+      await schoolController.getData();
       setState(() => _isLoading = false);
     } catch (e) {
       setState(() => _isLoading = false);

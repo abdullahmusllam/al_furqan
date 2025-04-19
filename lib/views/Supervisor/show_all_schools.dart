@@ -26,7 +26,7 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
   void _refreshData() async {
     setState(() => _isLoading = true);
     try {
-      await schoolController.get_data();
+      await schoolController.getData();
       setState(() => _isLoading = false);
     } catch (e) {
       setState(() => _isLoading = false);

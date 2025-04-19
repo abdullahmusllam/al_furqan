@@ -1,7 +1,7 @@
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/TeacherController.dart';
-import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
+import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddTeacher.dart';
 import 'package:al_furqan/views/SchoolDirector/DrawerSchoolDirector.dart';
@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SchoolManagerScreen extends StatefulWidget {
-  const SchoolManagerScreen({super.key});
+  SchoolManagerScreen({super.key});
 
   @override
   State<SchoolManagerScreen> createState() => _SchoolManagerScreenState();
@@ -21,16 +21,20 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     with UserDataMixin {
   final teacher = teacherController.teachers;
   final student = studentController.students;
+  bool _isLoading = false;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _refreshData();
+    fetchUserData();
+    countStudent();
   }
 
-  void _refreshData() async {
-    await teacherController.getTeachers(); // Load schools
-    setState(() {});
+  Future<int> countStudent() async {
+    List<StudentModel> countStudents =
+        await studentController.getSchoolStudents(1);
+    int number = countStudents.length;
+    return number;
   }
 
   @override
@@ -71,55 +75,52 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                           SizedBox(width: 10),
                           Expanded(
                               child: _buildStatCard('عدد الطلاب',
-                                  '${student.length}', Colors.green)),
+                                  '${countStudent()}', Colors.green)),
                         ],
                       ),
-
                       SizedBox(height: 20),
-
-                      // قائمة المعلمين
                       Text('قائمة المعلمين',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
-
                       Expanded(
-                        child: ListView.builder(
-                          itemCount: teacher.length,
-                          itemBuilder: (context, index) {
-                            return Card(
-                              child: ListTile(
-                                title: Text(
-                                    "${teacher[index].first_name!} ${teacher[index].middle_name} ${teacher[index].last_name}"),
-                                subtitle: Text('المستوى: اسم الحلقة'),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      icon:
-                                          Icon(Icons.info, color: Colors.blue),
-                                      onPressed: () {
-                                        // الانتقال إلى صفحة معلومات المعلم
-                                      },
+                        child: teacher.isEmpty
+                            ? Center(child: Text("لا يوجد معلمين متاحين"))
+                            : ListView.builder(
+                                itemCount: teacher.length,
+                                itemBuilder: (context, index) {
+                                  return Card(
+                                    child: ListTile(
+                                      title: Text(
+                                          "${teacher[index].first_name ?? ''} ${teacher[index].middle_name ?? ''} ${teacher[index].last_name ?? ''}"
+                                              .trim()),
+                                      subtitle: Text('المستوى: اسم الحلقة'),
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(Icons.info,
+                                                color: Colors.blue),
+                                            onPressed: () {
+                                              // الانتقال إلى صفحة معلومات المعلم
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.edit,
+                                                color: Colors.orange),
+                                            onPressed: () {
+                                              // تعديل بيانات المعلم
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    IconButton(
-                                      icon: Icon(Icons.edit,
-                                          color: Colors.orange),
-                                      onPressed: () {
-                                        // تعديل بيانات المعلم
-                                      },
-                                    ),
-                                  ],
-                                ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
                       ),
                     ],
                   ),
                 ),
-
-      // زر إضافة معلم
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context,
@@ -130,13 +131,10 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     );
   }
 
-  // كارد إحصائي
   Widget _buildStatCard(String title, String value, Color color) {
     return Card(
       elevation: 5,
-      // surfaceTintColor: تحدد لون التظليل لسطح البطاقة.
       surfaceTintColor: Color.fromARGB(255, 1, 117, 70),
-      // shape: تحدد شكل وحدود البطاقة.
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5),
           side: BorderSide(color: Colors.green, width: 2)),

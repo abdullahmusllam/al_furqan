@@ -26,7 +26,7 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
 
   void _loadTeachers() async {
     // جلب المعلمين حسب SchoolID
-    List<UserModel> loadedTeachers = await halagaController.gitTecher(widget.user.schoolID!);
+    List<UserModel> loadedTeachers = await halagaController.getTeachers(widget.user.schoolID!);
     setState(() {
       teachers = loadedTeachers; // تعيين المعلمين في القائمة
     });

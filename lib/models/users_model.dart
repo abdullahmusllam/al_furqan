@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+
 class UserModel {
   int? user_id;
   String? first_name;
@@ -66,8 +68,6 @@ class UserModel {
       isActivate: map['isActivate'] as int?,
     );
   }
-
-  int get userID => null!;
 }
 
 // UserModel userModel = UserModel();

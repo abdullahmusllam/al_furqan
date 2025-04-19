@@ -24,7 +24,7 @@ class _RequestsListState extends State<RequestsList> {
   // Function to refresh data from controllers
   void _refreshData() async {
     await userController.getDataRequests();
-    await schoolController.get_data();
+    await schoolController.getData();
     setState(() {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(

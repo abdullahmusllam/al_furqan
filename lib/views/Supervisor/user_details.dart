@@ -44,7 +44,7 @@ class _UserDetailsState extends State<UserDetails> {
   bool _isActivate = false;
 
   Future<void> _loadSchools() async {
-    await schoolController.get_data();
+    await schoolController.getData();
     setState(() {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(

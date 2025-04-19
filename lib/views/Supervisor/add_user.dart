@@ -39,7 +39,7 @@ class _AddUserState extends State<AddUser> {
   }
 
   Future<void> _loadSchools() async {
-    await schoolController.get_data();
+    await schoolController.getData();
     setState(() {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(
@@ -177,6 +177,7 @@ class _AddUserState extends State<AddUser> {
       inputFormatters: [
         FilteringTextInputFormatter.deny(RegExp(r'[0-9_\-!#\$%^&*(),?":{}|<>]'))
       ],
+      textInputAction: TextInputAction.next,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(),
@@ -205,6 +206,7 @@ class _AddUserState extends State<AddUser> {
       controller: controller,
       keyboardType: inputType,
       maxLength: maxLength,
+      textInputAction: TextInputAction.next,
       inputFormatters: [
         FilteringTextInputFormatter.deny(
             RegExp(r'[ا-يa-zA-Z@._\-!#\$%^&*(),?":{}|<>]'))
@@ -229,6 +231,7 @@ class _AddUserState extends State<AddUser> {
     return TextFormField(
       controller: _password,
       obscureText: !_isPasswordVisible,
+      textInputAction: TextInputAction.next,
       maxLength: 8,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       keyboardType: TextInputType.number,
@@ -259,6 +262,7 @@ class _AddUserState extends State<AddUser> {
 
   TextFormField _buildDateFormField() {
     return TextFormField(
+      textInputAction: TextInputAction.next,
       controller: _date,
       readOnly: true,
       decoration: InputDecoration(

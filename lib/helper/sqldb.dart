@@ -17,7 +17,7 @@ class SqlDb {
     String path = join(databasePath, 'alforqanDB.db');
     Database mydb = await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -37,8 +37,14 @@ class SqlDb {
   }
 
   _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    print("Database Upgraded from $oldVersion to $newVersion");
+  try {
+    await db.execute("ALTER TABLE Students ADD COLUMN userID INTEGER NULL");
+    print("Column added successfully!");
+  } catch (e) {
+    print("Error upgrading database: $e");
   }
+  print("Database upgraded from $oldVersion to $newVersion");
+}
 
   Future<String> loadSqlScript() async {
     return await rootBundle.loadString('assets/database/al_furqan.db');
@@ -82,5 +88,15 @@ class SqlDb {
   deleteData(String sql) async {
     Database mydb = await database;
     return await mydb.rawDelete(sql);
+  }
+
+  Future<bool> checkIfitemExists(String table, int id, String column) async {
+    final db = await database;
+    final result = await db.query(
+      table,
+      where: '$column = ?',
+      whereArgs: [id],
+    );
+    return result.isNotEmpty;
   }
 }

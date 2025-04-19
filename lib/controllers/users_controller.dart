@@ -37,38 +37,38 @@ class UserController {
     print("Users List (Local): ${_users.isEmpty}");
 
     // 2. محاولة جلب البيانات من Firebase
-    try {
-      // جلب البيانات من Firebase
-      List<UserModel> responseFirebase = await firebasehelper.getUsers();
+    // try {
+    //   // جلب البيانات من Firebase
+    //   List<UserModel> responseFirebase = await firebasehelper.getUsers();
 
-      // 3. التحقق إن responseFirebase مش null ومش فاضية
-      if (responseFirebase.isNotEmpty) {
-        // مسح البيانات القديمة من الجدول (النشطين فقط)
-        await _sqlDb.deleteData("DELETE FROM USERS WHERE isActivate = 1");
+    //   // 3. التحقق إن responseFirebase مش null ومش فاضية
+    //   if (responseFirebase.isNotEmpty) {
+    //     // مسح البيانات القديمة من الجدول (النشطين فقط)
+    //     await _sqlDb.deleteData("DELETE FROM USERS WHERE isActivate = 1");
 
-        // إضافة البيانات الجديدة من Firebase
-        for (var user in responseFirebase) {
-          if (user.user_id != null) {
-            await _sqlDb.insertData('''
-            INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
-            VALUES (${user.user_id}, '${user.first_name ?? ''}', '${user.middle_name ?? ''}', '${user.grandfather_name ?? ''}', '${user.last_name ?? ''}', '${user.password ?? 0}', '${user.email ?? ''}', ${user.phone_number ?? 0}, ${user.telephone_number ?? 0}, ${user.roleID ?? 0}, ${user.schoolID ?? 0}, '${user.date ?? ''}', 1)
-          ''');
-          }
-        }
+    //     // إضافة البيانات الجديدة من Firebase
+    //     for (var user in responseFirebase) {
+    //       if (user.user_id != null) {
+    //         await _sqlDb.insertData('''
+    //         INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
+    //         VALUES (${user.user_id}, '${user.first_name ?? ''}', '${user.middle_name ?? ''}', '${user.grandfather_name ?? ''}', '${user.last_name ?? ''}', '${user.password ?? 0}', '${user.email ?? ''}', ${user.phone_number ?? 0}, ${user.telephone_number ?? 0}, ${user.roleID ?? 0}, ${user.schoolID ?? 0}, '${user.date ?? ''}', 1)
+    //       ''');
+    //       }
+    //     }
 
-        // 4. إعادة جلب البيانات من SQLite بعد التحديث
-        response =
-            await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 1");
-        _users.clear();
-        _users.addAll(_mapResponseToUserModel(response));
-        print("Users List (After Firebase Sync): ${_users.isEmpty}");
-      } else {
-        print("لا توجد بيانات من Firebase لتحديث قاعدة البيانات المحلية");
-      }
-    } catch (e) {
-      print("خطأ أثناء مزامنة البيانات من Firebase: $e");
-      // لو حصل خطأ (مثل ما فيه إنترنت أو مشكلة في Firestore)، بنعتمد على البيانات المحلية
-    }
+    //     // 4. إعادة جلب البيانات من SQLite بعد التحديث
+    //     response =
+    //         await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 1");
+    //     _users.clear();
+    //     _users.addAll(_mapResponseToUserModel(response));
+    //     print("Users List (After Firebase Sync): ${_users.isEmpty}");
+    //   } else {
+    //     print("لا توجد بيانات من Firebase لتحديث قاعدة البيانات المحلية");
+    //   }
+    // } catch (e) {
+    //   print("خطأ أثناء مزامنة البيانات من Firebase: $e");
+    //   // لو حصل خطأ (مثل ما فيه إنترنت أو مشكلة في Firestore)، بنعتمد على البيانات المحلية
+    // }
   }
 
   // Method to get requests data
@@ -88,38 +88,38 @@ class UserController {
     print("_requests List (Local): ${_requests.isEmpty}");
 
     // 2. محاولة جلب البيانات من Firebase
-    try {
-      // جلب البيانات من Firebase
-      List<UserModel> responseFirebase = await firebasehelper.getUsers();
+    // try {
+    //   // جلب البيانات من Firebase
+    //   List<UserModel> responseFirebase = await firebasehelper.getUsers();
 
-      // 3. التحقق إن responseFirebase مش null ومش فاضية
-      if (responseFirebase.isNotEmpty) {
-        // مسح البيانات القديمة من الجدول (الغبر مفعلين فقط)
-        await _sqlDb.deleteData("DELETE FROM USERS WHERE isActivate = 0");
+    //   // 3. التحقق إن responseFirebase مش null ومش فاضية
+    //   if (responseFirebase.isNotEmpty) {
+    //     // مسح البيانات القديمة من الجدول (الغبر مفعلين فقط)
+    //     await _sqlDb.deleteData("DELETE FROM USERS WHERE isActivate = 0");
 
-        // إضافة البيانات الجديدة من Firebase
-        for (var user in responseFirebase) {
-          if (user.user_id != null) {
-            await _sqlDb.insertData('''
-            INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
-            VALUES (${user.user_id}, '${user.first_name ?? ''}', '${user.middle_name ?? ''}', '${user.grandfather_name ?? ''}', '${user.last_name ?? ''}', '${user.password ?? 0}', '${user.email ?? ''}', ${user.phone_number ?? 0}, ${user.telephone_number ?? 0}, ${user.roleID ?? 0}, ${user.schoolID ?? 0}, '${user.date ?? ''}', 0)
-          ''');
-          }
-        }
+    //     // إضافة البيانات الجديدة من Firebase
+    //     for (var user in responseFirebase) {
+    //       if (user.user_id != null) {
+    //         await _sqlDb.insertData('''
+    //         INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
+    //         VALUES (${user.user_id}, '${user.first_name ?? ''}', '${user.middle_name ?? ''}', '${user.grandfather_name ?? ''}', '${user.last_name ?? ''}', '${user.password ?? 0}', '${user.email ?? ''}', ${user.phone_number ?? 0}, ${user.telephone_number ?? 0}, ${user.roleID ?? 0}, ${user.schoolID ?? 0}, '${user.date ?? ''}', 0)
+    //       ''');
+    //       }
+    //     }
 
-        // 4. إعادة جلب البيانات من SQLite بعد التحديث
-        response =
-            await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 0");
-        _users.clear();
-        _users.addAll(_mapResponseToUserModel(response));
-        print("Users List (After Firebase Sync): ${_users.isEmpty}");
-      } else {
-        print("لا توجد بيانات من Firebase لتحديث قاعدة البيانات المحلية");
-      }
-    } catch (e) {
-      print("خطأ أثناء مزامنة البيانات من Firebase: $e");
-      // لو حصل خطأ (مثل ما فيه إنترنت أو مشكلة في Firestore)، بنعتمد على البيانات المحلية
-    }
+    //     // 4. إعادة جلب البيانات من SQLite بعد التحديث
+    //     response =
+    //         await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 0");
+    //     _users.clear();
+    //     _users.addAll(_mapResponseToUserModel(response));
+    //     print("Users List (After Firebase Sync): ${_users.isEmpty}");
+    //   } else {
+    //     print("لا توجد بيانات من Firebase لتحديث قاعدة البيانات المحلية");
+    //   }
+    // } catch (e) {
+    //   print("خطأ أثناء مزامنة البيانات من Firebase: $e");
+    //   // لو حصل خطأ (مثل ما فيه إنترنت أو مشكلة في Firestore)، بنعتمد على البيانات المحلية
+    // }
   }
 
   // Method to add a new user
@@ -155,6 +155,7 @@ class UserController {
 
   // Method to update a user
   Future<void> updateUser(UserModel userModel) async {
+    print("Hi from updateUser method");
     int response = await _sqlDb.updateData('''
     UPDATE USERS SET
       first_name = '${userModel.first_name}',
@@ -171,7 +172,10 @@ class UserController {
       isActivate = ${userModel.isActivate}
     WHERE user_id = ${userModel.user_id}
     ''');
-    print("response = $response");
+    print("Update response: $response");
+    if (response == 0) {
+      throw Exception("Failed to update user ${userModel.user_id}");
+    }
   }
 
   // Method to add a new request

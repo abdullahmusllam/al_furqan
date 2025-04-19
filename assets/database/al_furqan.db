@@ -70,6 +70,7 @@ CREATE TABLE "Students" (
     "StudentID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "ElhalagatID" INTEGER NULL,
     "SchoolID" INTEGER NULL,
+    "userID" INTEGER NULL,
     "FirstName" TEXT NOT NULL,
     "MiddleName" TEXT NOT NULL,
     "grandfatherName" TEXT NOT NULL,

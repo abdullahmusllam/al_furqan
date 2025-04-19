@@ -1,9 +1,13 @@
 import 'package:al_furqan/controllers/StudentController.dart';
+import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddStuden.dart';
 import 'package:al_furqan/views/SchoolDirector/updateStudent.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+
+import '../../services/firebase_service.dart';
 // import 'package:al_furqan/views/Teacher/StudentDataPage.dart';
 
 class StudentsListPage extends StatefulWidget {
@@ -16,6 +20,7 @@ class StudentsListPage extends StatefulWidget {
 
 class _StudentsListPageState extends State<StudentsListPage> {
   List<StudentModel> students = [];
+  final sqlDb = SqlDb();
   @override
   void initState() {
     super.initState();
@@ -23,33 +28,82 @@ class _StudentsListPageState extends State<StudentsListPage> {
   }
 
   // دالة لجلب الطلاب من قاعدة البيانات
+  // Future<void> _loadStudent() async {
+  //   final int? schoolID = widget.user?.schoolID;
+
+  //   if (schoolID == null) {
+  //     print("schoolID is null");
+  //     if (mounted) {
+  //       setState(() => students = []);
+  //     }
+  //     return;
+  //   }
+
+  //   try {
+  //     final List<StudentModel> loadedStudents =
+  //         await studentController.getSchoolStudents(schoolID) ?? [];
+  //     if (mounted) {
+  //       setState(() {
+  //         students = loadedStudents;
+  //         print("Loaded students: ${students.length}");
+  //       });
+  //     }
+  //   } catch (e) {
+  //     print("Error loading students: $e");
+  //     if (mounted) {
+  //       setState(() => students = []);
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('فشل في جلب الطلاب: $e')),
+  //       );
+  //     }
+  //   }
+  // }
   Future<void> _loadStudent() async {
-    final int? schoolID = widget.user?.schoolID;
+    int schoolID = widget.user!.schoolID!;
 
-    if (schoolID == null) {
-      print("schoolID is null");
-      if (mounted) {
-        setState(() => students = []);
-      }
-      return;
-    }
+    if (schoolID != null) {
+      var connectivityResult = await Connectivity().checkConnectivity();
 
-    try {
-      final List<StudentModel> loadedStudents =
-          await studentController.getSchoolStudents(schoolID) ?? [];
-      if (mounted) {
+      if (connectivityResult != ConnectivityResult.none) {
+        // جلب بيانات الطلاب من Firebase
+        List<Map<String, dynamic>> studentsList =
+            await firebasehelper.getStudentData(schoolID);
+
+        for (var studentData in studentsList) {
+          // تحويل البيانات إلى StudentModel
+          StudentModel student = StudentModel.fromJson(studentData);
+
+          // التحقق إذا كان الطالب موجودًا في قاعدة البيانات المحلية
+          bool exists = await sqlDb.checkIfitemExists(
+              "Students", student.studentID!, 'StudentID');
+
+          if (exists) {
+            // إذا كان موجودًا، يتم التحديث
+            await studentController.updateStudent(student, student.studentID!);
+            print("تم تحديث بيانات الطالب ${student.firstName}");
+          } else {
+            // إذا لم يكن موجودًا، يتم إضافته
+            await studentController.addStudentToLocal(student);
+            print("تم إضافة بيانات الطالب ${student.firstName}");
+          }
+        }
+
+        // تحميل البيانات من القاعدة المحلية
+        List<StudentModel>? loadedStudent =
+            await studentController.getSchoolStudents(schoolID);
+        if (mounted) {
+          setState(() {
+            students = loadedStudent ?? [];
+          });
+        }
+      } else {
+        // إذا لم يكن هناك اتصال بالإنترنت، يتم تحميل البيانات من القاعدة المحلية فقط
+        List<StudentModel>? loadedStudent =
+            await studentController.getSchoolStudents(schoolID);
+        print("hi Am Here in else statement");
         setState(() {
-          students = loadedStudents;
-          print("Loaded students: ${students.length}");
+          students = loadedStudent ?? [];
         });
-      }
-    } catch (e) {
-      print("Error loading students: $e");
-      if (mounted) {
-        setState(() => students = []);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('فشل في جلب الطلاب: $e')),
-        );
       }
     }
   }
@@ -81,16 +135,16 @@ class _StudentsListPageState extends State<StudentsListPage> {
                     itemCount: students.length,
                     itemBuilder: (context, index) {
                       final student = students[index];
+
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: ListTile(
                           leading: CircleAvatar(
                             backgroundColor: Colors.teal,
-                            child: Icon(Icons.person, color: Colors.white),
+                            child: Text("${student.studentID}"),
                           ),
                           title: Text(
-                            "${student.firstName!} ${student.middleName} ${student.lastName}",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            "First name: ${student.firstName!}\nmiddleName: ${student.middleName}\nLast name: ${student.lastName}",
                           ),
                           subtitle: Text(
                             "اسم الحلقة اللي هو فيها",
@@ -98,28 +152,37 @@ class _StudentsListPageState extends State<StudentsListPage> {
                           ),
                           trailing: IconButton(
                               onPressed: () async {
-                                print("${student.studentID}");
-                                await studentController
-                                    .delete(student.studentID!);
-                                await _loadStudent();
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  content: Text("delelted!"),
-                                  duration: Duration(milliseconds: 10),
-                                ));
+                                try {
+                                  print("${student.studentID}");
+                                  await studentController
+                                      .delete(student.studentID!);
+                                  await _loadStudent();
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    content: Text("delelted!"),
+                                    duration: Duration(milliseconds: 10),
+                                  ));
+                                } catch (e) {
+                                  showAboutDialog(
+                                      context: context,
+                                      applicationName: "Error",
+                                      applicationVersion: "Error",
+                                      children: [
+                                        Text("Error in delete student"),
+                                      ]);
+                                }
                               },
                               icon: Icon(Icons.delete),
                               color: Colors.redAccent),
-                          onTap: () {
+                          onTap: () async {
                             print(student.grandfatherName);
                             print(student.lastName);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    EditStudentScreen(student: student),
-                              ),
-                            );
+                                  builder: (context) =>
+                                      EditStudentScreen(student: student)),
+                            ).then((_) => _loadStudent());
                           },
                         ),
                       );

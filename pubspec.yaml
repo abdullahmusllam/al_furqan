@@ -45,7 +45,10 @@ dependencies:
   shared_preferences:
     # اضفت ذي المكتبة علشان نتحقق من اتصال الشبكة وهل المستخدم متصل بالنت ولا لا
   connectivity_plus:
-  random_string:
+  file_picker:
+  flutter_excel:
+  permission_handler:
+
 
 
 dev_dependencies:

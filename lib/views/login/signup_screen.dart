@@ -37,7 +37,7 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<void> _loadSchools() async {
-    await schoolController.get_data();
+    await schoolController.getData();
     setState(() {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(
