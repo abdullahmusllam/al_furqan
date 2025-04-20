@@ -203,7 +203,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
           } else {
             // إذا لم يكن موجودًا، يتم إضافته
             await studentController.addStudentToLocal(student);
-            print("تم إضافة بيانات الطالب ${student.firstName}");
+            print(" : تم إضافة بيانات الطالب ${student.firstName}");
           }
         }
 
@@ -257,7 +257,6 @@ class _StudentsListPageState extends State<StudentsListPage> {
 //                             backgroundColor: Colors.teal,
 //                             child: Text("${student.studentID}"),
 //                           ),
-// // <<<<<<< HEAD
                         // title: Text(
                         //   "First name: ${student.firstName!}\nmiddleName: ${student.middleName}\nLast name: ${student.lastName}",
                         // ),
@@ -295,7 +294,6 @@ class _StudentsListPageState extends State<StudentsListPage> {
                         //   Navigator.push(
                         //     context,
                         //     MaterialPageRoute(
-// =======
                         child: ListTile(
                           contentPadding: EdgeInsets.all(16),
                           leading: CircleAvatar(
@@ -318,7 +316,6 @@ class _StudentsListPageState extends State<StudentsListPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-// >>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
                                   builder: (context) =>
                                       EditStudentScreen(student: student)),
                             ).then((_) => _loadStudent());
