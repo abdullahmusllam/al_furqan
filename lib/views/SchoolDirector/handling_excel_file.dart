@@ -13,13 +13,20 @@ import '../../models/student_model.dart';
 import '../../models/users_model.dart';
 
 class HandlingExcelFile extends StatefulWidget {
-  const HandlingExcelFile({super.key});
+  int? schoolID;
+  HandlingExcelFile({super.key, required this.schoolID});
 
   @override
-  State<HandlingExcelFile> createState() => _HandlingExcelFileState();
+  State<HandlingExcelFile> createState() =>
+      _HandlingExcelFileState(schoolID: schoolID);
 }
 
 class _HandlingExcelFileState extends State<HandlingExcelFile> {
+  int? schoolID;
+  late ExcelTesting excelTesting;
+  _HandlingExcelFileState({required this.schoolID}) {
+    excelTesting = ExcelTesting(schoolID: schoolID);
+  }
   bool _isProcessingExcel = false;
 
   /// export excel file and handling it

@@ -2,50 +2,29 @@
 import 'package:al_furqan/models/student_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-<<<<<<< HEAD
 class FirebaseHelper {
   // ======================= Start Student ==============
-  Future<void> addStudent(
-      int id, StudentModel StudentData, int schoolID) async {
-    final StudentRef = FirebaseFirestore.instance.collection('Students');
+  Future<void> addStudent(int id, StudentModel studentData, int schoolID) async {
+    final studentRef = FirebaseFirestore.instance.collection('Students');
 
-    if (StudentData != Null) {
-      await StudentRef.doc(id.toString()).set({
+    if (studentData != null) {
+      await studentRef.doc(id.toString()).set({
         'StudentID': id,
-        'ElhalagatID': StudentData.elhalaqaID,
+        'ElhalagatID': studentData.elhalaqaID,
         'SchoolID': schoolID,
-        'FirstName': StudentData.firstName,
-        'MiddleName': StudentData.middleName,
-        'grandfatherName': StudentData.grandfatherName,
-        'LastName': StudentData.lastName,
-        'AttendanceDays': StudentData.attendanceDays,
-        'AbsenceDays': StudentData.absenceDays,
-        'Excuse': StudentData.excuse,
-        'ReasonAbsence': StudentData.reasonAbsence
+        'FirstName': studentData.firstName,
+        'MiddleName': studentData.middleName,
+        'grandfatherName': studentData.grandfatherName,
+        'LastName': studentData.lastName,
+        'AttendanceDays': studentData.attendanceDays,
+        'AbsenceDays': studentData.absenceDays,
+        'Excuse': studentData.excuse,
+        'ReasonAbsence': studentData.reasonAbsence
       });
-      print('تمت إضافة/تحديث العنص بالرقم $id بنجاح ');
+      print('تمت إضافة/تحديث العنصر بالرقم $id بنجاح');
     } else {
-      print('studentData فارغ ');
+      print('studentData فارغ');
     }
-=======
-class FirebaseHelper{
- Future<void> addStudent(int id, StudentModel StudentData, int schoolID) async {
-  final StudentRef = FirebaseFirestore.instance.collection('Students');
-
-  if (StudentData != Null) {
-    await StudentRef.doc(id.toString()).set({
-      'StudentID': id,
-      'SchoolID': schoolID,
-      'FirstName': StudentData.firstName,
-      'MiddleName': StudentData.middleName,
-      'grandfatherName': StudentData.grandfatherName,
-      'LastName': StudentData.lastName
-    }
-    );
-    print('تمت إضافة/تحديث العنص بالرقم $id بنجاح ');
-  } else {
-    print('studentData فارغ ');
->>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
   }
 
   Future<List<Map<String, dynamic>>> getStudentData(int id) async {
@@ -70,63 +49,35 @@ class FirebaseHelper{
     }
   }
 
-  updateStudentData(StudentModel Student, int id) async {
+  Future<void> updateStudentData(StudentModel student, int id) async {
     final docRef =
         FirebaseFirestore.instance.collection('Students').doc(id.toString());
 
     await docRef.update({
       'StudentID': id,
-      'ElhalagatID': Student.elhalaqaID,
-      'SchoolID': Student.schoolId,
-      'FirstName': Student.firstName,
-      'MiddleName': Student.middleName,
-      'grandfatherName': Student.grandfatherName,
-      'LastName': Student.lastName,
-      'AttendanceDays': Student.attendanceDays,
-      'AbsenceDays': Student.absenceDays,
-      'Excuse': Student.excuse,
-      'ReasonAbsence': Student.reasonAbsence
+      'ElhalagatID': student.elhalaqaID,
+      'SchoolID': student.schoolId,
+      'FirstName': student.firstName,
+      'MiddleName': student.middleName,
+      'grandfatherName': student.grandfatherName,
+      'LastName': student.lastName,
+      'AttendanceDays': student.attendanceDays,
+      'AbsenceDays': student.absenceDays,
+      'Excuse': student.excuse,
+      'ReasonAbsence': student.reasonAbsence
     }).then((_) {
       print('تم التعديل بنجاح');
     }).catchError((error) {
       print('حدث خطأ: $error');
     });
   }
-// ===================== End Student ===========================
+  // ===================== End Student ===========================
 
-// =========================== Start Elhalaga ===========================
+  // =========================== Start Elhalaga ===========================
 
-  addHalaga() async {}
-}
-
-<<<<<<< HEAD
-FirebaseHelper firebasehelper = FirebaseHelper();
-=======
- Future<List<Map<String, dynamic>>> getStudentData(int id) async {
-  try {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('Students')
-        .where('SchoolID', isEqualTo: id)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      print('تم العثور على مستند');
-      return querySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList();
-    } else {
-      print('لا توجد مستندات تطابق الشرط');
-      return [];
-    }
-  } catch (e) {
-    print('خطأ أثناء جلب البيانات: $e');
-    return [];
+  Future<void> addHalaga() async {
+    // Add Halaga logic here
   }
 }
 
-
-
-}
-
 FirebaseHelper firebasehelper = FirebaseHelper();
->>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa

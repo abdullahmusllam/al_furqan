@@ -7,13 +7,13 @@ import 'package:al_furqan/views/SchoolDirector/AddStuden.dart';
 import 'package:al_furqan/views/SchoolDirector/updateStudent.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
+// <<<<<<< HEAD
 
-import '../../services/firebase_service.dart';
+// import '../../services/firebase_service.dart';
 // import 'package:al_furqan/views/Teacher/StudentDataPage.dart';
-=======
+// =======
 import 'package:connectivity_plus/connectivity_plus.dart';
->>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
+// >>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
 
 class StudentsListPage extends StatefulWidget {
   final UserModel? user;
@@ -25,97 +25,97 @@ class StudentsListPage extends StatefulWidget {
 
 class _StudentsListPageState extends State<StudentsListPage> {
   List<StudentModel> students = [];
-<<<<<<< HEAD
-  final sqlDb = SqlDb();
-=======
+// <<<<<<< HEAD
+  // final sqlDb = SqlDb();
+// =======
 
->>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
+// >>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
   @override
   void initState() {
     super.initState();
     _loadStudent(); // استدعاء دالة جلب الطلاب عند تهيئة الصفحة
   }
 
-<<<<<<< HEAD
-  // دالة لجلب الطلاب من قاعدة البيانات
-  // Future<void> _loadStudent() async {
-  //   final int? schoolID = widget.user?.schoolID;
+// <<<<<<< HEAD
+//   // دالة لجلب الطلاب من قاعدة البيانات
+//   // Future<void> _loadStudent() async {
+//   //   final int? schoolID = widget.user?.schoolID;
 
-  //   if (schoolID == null) {
-  //     print("schoolID is null");
-  //     if (mounted) {
-  //       setState(() => students = []);
-  //     }
-  //     return;
-  //   }
+//   //   if (schoolID == null) {
+//   //     print("schoolID is null");
+//   //     if (mounted) {
+//   //       setState(() => students = []);
+//   //     }
+//   //     return;
+//   //   }
 
-  //   try {
-  //     final List<StudentModel> loadedStudents =
-  //         await studentController.getSchoolStudents(schoolID) ?? [];
-  //     if (mounted) {
-  //       setState(() {
-  //         students = loadedStudents;
-  //         print("Loaded students: ${students.length}");
-  //       });
-  //     }
-  //   } catch (e) {
-  //     print("Error loading students: $e");
-  //     if (mounted) {
-  //       setState(() => students = []);
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('فشل في جلب الطلاب: $e')),
-  //       );
-  //     }
-  //   }
-  // }
-  Future<void> _loadStudent() async {
-    int schoolID = widget.user!.schoolID!;
+//   //   try {
+//   //     final List<StudentModel> loadedStudents =
+//   //         await studentController.getSchoolStudents(schoolID) ?? [];
+//   //     if (mounted) {
+//   //       setState(() {
+//   //         students = loadedStudents;
+//   //         print("Loaded students: ${students.length}");
+//   //       });
+//   //     }
+//   //   } catch (e) {
+//   //     print("Error loading students: $e");
+//   //     if (mounted) {
+//   //       setState(() => students = []);
+//   //       ScaffoldMessenger.of(context).showSnackBar(
+//   //         SnackBar(content: Text('فشل في جلب الطلاب: $e')),
+//   //       );
+//   //     }
+//   //   }
+//   // }
+//   Future<void> _loadStudent() async {
+//     int schoolID = widget.user!.schoolID!;
 
-    if (schoolID != null) {
-      var connectivityResult = await Connectivity().checkConnectivity();
+//     if (schoolID != null) {
+//       var connectivityResult = await Connectivity().checkConnectivity();
 
-      if (connectivityResult != ConnectivityResult.none) {
-        // جلب بيانات الطلاب من Firebase
-        List<Map<String, dynamic>> studentsList =
-            await firebasehelper.getStudentData(schoolID);
+//       if (connectivityResult != ConnectivityResult.none) {
+//         // جلب بيانات الطلاب من Firebase
+//         List<Map<String, dynamic>> studentsList =
+//             await firebasehelper.getStudentData(schoolID);
 
-        for (var studentData in studentsList) {
-          // تحويل البيانات إلى StudentModel
-          StudentModel student = StudentModel.fromJson(studentData);
+//         for (var studentData in studentsList) {
+//           // تحويل البيانات إلى StudentModel
+//           StudentModel student = StudentModel.fromJson(studentData);
 
-          // التحقق إذا كان الطالب موجودًا في قاعدة البيانات المحلية
-          bool exists = await sqlDb.checkIfitemExists(
-              "Students", student.studentID!, 'StudentID');
+//           // التحقق إذا كان الطالب موجودًا في قاعدة البيانات المحلية
+//           bool exists = await sqlDb.checkIfitemExists(
+//               "Students", student.studentID!, 'StudentID');
 
-          if (exists) {
-            // إذا كان موجودًا، يتم التحديث
-            await studentController.updateStudent(student, student.studentID!);
-            print("تم تحديث بيانات الطالب ${student.firstName}");
-          } else {
-            // إذا لم يكن موجودًا، يتم إضافته
-            await studentController.addStudentToLocal(student);
-            print("تم إضافة بيانات الطالب ${student.firstName}");
-          }
-        }
+//           if (exists) {
+//             // إذا كان موجودًا، يتم التحديث
+//             await studentController.updateStudent(student, student.studentID!);
+//             print("تم تحديث بيانات الطالب ${student.firstName}");
+//           } else {
+//             // إذا لم يكن موجودًا، يتم إضافته
+//             await studentController.addStudentToLocal(student);
+//             print("تم إضافة بيانات الطالب ${student.firstName}");
+//           }
+//         }
 
-        // تحميل البيانات من القاعدة المحلية
-        List<StudentModel>? loadedStudent =
-            await studentController.getSchoolStudents(schoolID);
-        if (mounted) {
-          setState(() {
-            students = loadedStudent ?? [];
-          });
-        }
-      } else {
-        // إذا لم يكن هناك اتصال بالإنترنت، يتم تحميل البيانات من القاعدة المحلية فقط
-        List<StudentModel>? loadedStudent =
-            await studentController.getSchoolStudents(schoolID);
-        print("hi Am Here in else statement");
-        setState(() {
-          students = loadedStudent ?? [];
-        });
-      }
-=======
+//         // تحميل البيانات من القاعدة المحلية
+//         List<StudentModel>? loadedStudent =
+//             await studentController.getSchoolStudents(schoolID);
+//         if (mounted) {
+//           setState(() {
+//             students = loadedStudent ?? [];
+//           });
+//         }
+//       } else {
+//         // إذا لم يكن هناك اتصال بالإنترنت، يتم تحميل البيانات من القاعدة المحلية فقط
+//         List<StudentModel>? loadedStudent =
+//             await studentController.getSchoolStudents(schoolID);
+//         print("hi Am Here in else statement");
+//         setState(() {
+//           students = loadedStudent ?? [];
+//         });
+//       }
+// =======
 //  Future<void> _loadStudent() async {
 //   int? schoolID = widget.user?.schoolID;
 
@@ -177,52 +177,54 @@ class _StudentsListPageState extends State<StudentsListPage> {
 //   }
 // }
 
- Future<void> _loadStudent() async {
-  int schoolID = widget.user!.schoolID!;
+  Future<void> _loadStudent() async {
+    int schoolID = widget.user!.schoolID!;
 
-  if (schoolID != null) {
-    var connectivityResult = await Connectivity().checkConnectivity();
-    
-    if (connectivityResult != ConnectivityResult.none) {
-      // جلب بيانات الطلاب من Firebase
-      List<Map<String, dynamic>> studentsList = await firebasehelper.getStudentData(schoolID);
+    if (schoolID != null) {
+      var connectivityResult = await Connectivity().checkConnectivity();
 
-      for (var studentData in studentsList) {
-        // تحويل البيانات إلى StudentModel
-        StudentModel student = StudentModel.fromJson(studentData);
+      if (connectivityResult != ConnectivityResult.none) {
+        // جلب بيانات الطلاب من Firebase
+        List<Map<String, dynamic>> studentsList =
+            await firebasehelper.getStudentData(schoolID);
 
-        // التحقق إذا كان الطالب موجودًا في قاعدة البيانات المحلية
-        bool exists = await sqlDb.checkIfitemExists("Students", student.studentID!, 'StudentID');
+        for (var studentData in studentsList) {
+          // تحويل البيانات إلى StudentModel
+          StudentModel student = StudentModel.fromJson(studentData);
 
-        if (exists) {
-          // إذا كان موجودًا، يتم التحديث
-          await studentController.updateStudent(student, student.studentID!);
-          print("تم تحديث بيانات الطالب ${student.firstName}");
-        } else {
-          // إذا لم يكن موجودًا، يتم إضافته
-          await studentController.addStudentToLocal(student);
-          print("تم إضافة بيانات الطالب ${student.firstName}");
+          // التحقق إذا كان الطالب موجودًا في قاعدة البيانات المحلية
+          bool exists = await sqlDb.checkIfitemExists(
+              "Students", student.studentID!, 'StudentID');
+
+          if (exists) {
+            // إذا كان موجودًا، يتم التحديث
+            await studentController.updateStudent(student, student.studentID!);
+            print("تم تحديث بيانات الطالب ${student.firstName}");
+          } else {
+            // إذا لم يكن موجودًا، يتم إضافته
+            await studentController.addStudentToLocal(student);
+            print("تم إضافة بيانات الطالب ${student.firstName}");
+          }
         }
+
+        // تحميل البيانات من القاعدة المحلية
+        List<StudentModel>? loadedStudent =
+            await studentController.getSchoolStudents(schoolID);
+
+        setState(() {
+          students = loadedStudent ?? [];
+        });
+      } else {
+        // إذا لم يكن هناك اتصال بالإنترنت، يتم تحميل البيانات من القاعدة المحلية فقط
+        List<StudentModel>? loadedStudent =
+            await studentController.getSchoolStudents(schoolID);
+        setState(() {
+          students = loadedStudent ?? [];
+        });
+// >>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
       }
-
-      // تحميل البيانات من القاعدة المحلية
-      List<StudentModel>? loadedStudent = await studentController.getSchoolStudents(schoolID);
-
-      setState(() {
-        students = loadedStudent ?? [];
-      });
-
-    } else {
-      // إذا لم يكن هناك اتصال بالإنترنت، يتم تحميل البيانات من القاعدة المحلية فقط
-      List<StudentModel>? loadedStudent = await studentController.getSchoolStudents(schoolID);
-      setState(() {
-        students = loadedStudent ?? [];
-      });
->>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
     }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -250,73 +252,73 @@ class _StudentsListPageState extends State<StudentsListPage> {
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
+//                         child: ListTile(
+//                           leading: CircleAvatar(
+//                             backgroundColor: Colors.teal,
+//                             child: Text("${student.studentID}"),
+//                           ),
+// // <<<<<<< HEAD
+                        // title: Text(
+                        //   "First name: ${student.firstName!}\nmiddleName: ${student.middleName}\nLast name: ${student.lastName}",
+                        // ),
+                        // subtitle: Text(
+                        //   "اسم الحلقة اللي هو فيها",
+                        //   style: TextStyle(color: Colors.grey[600]),
+                        // ),
+                        // trailing: IconButton(
+                        //     onPressed: () async {
+                        //       try {
+                        //         print("${student.studentID}");
+                        //         await studentController
+                        //             .delete(student.studentID!);
+                        //         await _loadStudent();
+                        //         ScaffoldMessenger.of(context)
+                        //             .showSnackBar(SnackBar(
+                        //           content: Text("delelted!"),
+                        //           duration: Duration(milliseconds: 10),
+                        //         ));
+                        //       } catch (e) {
+                        //         showAboutDialog(
+                        //             context: context,
+                        //             applicationName: "Error",
+                        //             applicationVersion: "Error",
+                        //             children: [
+                        //               Text("Error in delete student"),
+                        //             ]);
+                        //       }
+                        //     },
+                        //     icon: Icon(Icons.delete),
+                        //     color: Colors.redAccent),
+                        // onTap: () async {
+                        //   print(student.grandfatherName);
+                        //   print(student.lastName);
+                        //   Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+// =======
                         child: ListTile(
+                          contentPadding: EdgeInsets.all(16),
                           leading: CircleAvatar(
                             backgroundColor: Colors.teal,
-                            child: Text("${student.studentID}"),
+                            child: Icon(Icons.person, color: Colors.white),
                           ),
-<<<<<<< HEAD
                           title: Text(
-                            "First name: ${student.firstName!}\nmiddleName: ${student.middleName}\nLast name: ${student.lastName}",
+                            student.firstName ?? '',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text(
-                            "اسم الحلقة اللي هو فيها",
-                            style: TextStyle(color: Colors.grey[600]),
+                            student.lastName ?? '',
+                            style: TextStyle(
+                                fontSize: 16, color: Colors.grey[600]),
                           ),
-                          trailing: IconButton(
-                              onPressed: () async {
-                                try {
-                                  print("${student.studentID}");
-                                  await studentController
-                                      .delete(student.studentID!);
-                                  await _loadStudent();
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(SnackBar(
-                                    content: Text("delelted!"),
-                                    duration: Duration(milliseconds: 10),
-                                  ));
-                                } catch (e) {
-                                  showAboutDialog(
-                                      context: context,
-                                      applicationName: "Error",
-                                      applicationVersion: "Error",
-                                      children: [
-                                        Text("Error in delete student"),
-                                      ]);
-                                }
-                              },
-                              icon: Icon(Icons.delete),
-                              color: Colors.redAccent),
-                          onTap: () async {
-                            print(student.grandfatherName);
-                            print(student.lastName);
+                          trailing:
+                              Icon(Icons.arrow_forward_ios, color: Colors.teal),
+                          onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-=======
-                          child: ListTile(
-                            contentPadding: EdgeInsets.all(16),
-                            leading: CircleAvatar(
-                              backgroundColor: Colors.teal,
-                              child: Icon(Icons.person, color: Colors.white),
-                            ),
-                            title: Text(
-                              student.firstName ?? '',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Text(
-                              student.lastName ?? '',
-                              style: TextStyle(
-                                  fontSize: 16, color: Colors.grey[600]),
-                            ),
-                            trailing: Icon(Icons.arrow_forward_ios,
-                                color: Colors.teal),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
->>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
+// >>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
                                   builder: (context) =>
                                       EditStudentScreen(student: student)),
                             ).then((_) => _loadStudent());

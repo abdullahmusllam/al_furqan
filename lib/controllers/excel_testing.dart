@@ -12,8 +12,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart'; // For dynamic file paths
 
 class ExcelTesting {
-  // int? schoolID;
-  // ExcelTesting({required this.schoolID});
+  int? schoolID;
+  ExcelTesting({required this.schoolID});
   var excel = Excel.createExcel();
   List<Map<String, dynamic>> dataList = []; // قائمة لتخزين البيانات
   bool _isProcessingExcel = false;
@@ -151,6 +151,7 @@ class ExcelTesting {
                   middleName: rowData[headers[1]],
                   grandfatherName: rowData[headers[2]],
                   lastName: rowData[headers[4]],
+                  schoolId: schoolID,
                 );
 
                 /// Father Data
@@ -169,32 +170,49 @@ class ExcelTesting {
                 );
 
                 // التحقق من صحة البيانات
-                if (student.studentID == null ||
-                    student.firstName == null ||
+                if (student.firstName == null ||
                     student.lastName == null ||
                     father.first_name == null ||
                     father.last_name == null ||
                     father.email == null) {
-                  print(
-                      "Skipping invalid row-----------------------------------------------------------");
-                  // continue;
+                  print("تخطي الصف بسبب بيانات غير صالحة");
+                  continue;
                 }
 
-                // إضافة الأب
-                father.user_id =
-                    await fathersController.addFather(father).then((_) {
-                  print(
-                      "------------------------------here added father${father.user_id}----------------------------------");
-                });
-                student.userID = father.user_id;
+                try {
+                  // إضافة الأب
+                  father.user_id = await fathersController.addFather(father);
+                  if (father.user_id != null) {
+                    student.userID = father.user_id;
+                    print("تم إضافة الأب بمعرف: ${father.user_id}");
 
-                // إضافة الطالب
+                    // إضافة الطالب
+                    int studentId = await studentController.addStudent(student);
+                    student.studentID = studentId;
+                    print(
+                        "تم إضافة الطالب بمعرف: $studentId، معرف الأب: ${father.user_id}, معرف المدرسة : ${student.schoolId}");
+                  } else {
+                    print("فشل إضافة الأب");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('فشل في إضافة الأب'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  print("خطأ أثناء إضافة الأب أو الطالب: $e");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('حصل خطأ أثناء إضافة البيانات: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+
+                // طباعة التحقق النهائي
                 print(
-                    "student.userID = father.user_id ::::: ${student.userID},${father.user_id}");
-                await studentController.addStudent(student);
-                // dataAdded = true;
-                print(
-                    "=======Added student: ${student.firstName}, Father: ${father.user_id}");
+                    "student.userID = father.user_id ::::: ${student.userID},${student.studentID}");
               }
               rowIndex++;
             }
@@ -209,4 +227,4 @@ class ExcelTesting {
   }
 }
 
-ExcelTesting excelTesting = ExcelTesting();
+// ExcelTesting excelTesting = ExcelTesting();

@@ -39,27 +39,27 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   final _connectivity = Connectivity().checkConnectivity();
   bool _isProcessingExcel = false;
 
-<<<<<<< HEAD
-  Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      // user is manager of school
-      studentModel.schoolId = widget.user?.schoolID;
-      print(
-          "School ID into Student in AddStudent Page : ${studentModel.schoolId}");
-=======
-  StudentModel studentModel = StudentModel();
+// // <<<<<<< HEAD
+//   Future<void> _submitForm() async {
+//     if (_formKey.currentState!.validate()) {
+//       // user is manager of school
+//       studentModel.schoolId = widget.user?.schoolID;
+//       print(
+//           "School ID into Student in AddStudent Page : ${studentModel.schoolId}");
+// =======
+  // StudentModel studentModel = StudentModel();
 
-  void _submitForm() {
-      int? SchoolID = widget.user!.schoolID;
-      print("asasasasasasas$SchoolID");
+  void _submitForm() async {
+    int? SchoolID = widget.user!.schoolID;
+    print("asasasasasasas$SchoolID");
     if (_formKey.currentState!.validate()) {
->>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
+// >>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
       studentModel.firstName = firstNameController.text;
       studentModel.middleName = middleNameController.text;
       studentModel.grandfatherName = grandfatherNameController.text;
       studentModel.lastName = lastNameController.text;
 
-<<<<<<< HEAD
+// <<<<<<< HEAD
       // بيانات ولي الامر
       fatherModel.schoolID = widget.user!.schoolID;
       fatherModel.first_name = middleNameController.text;
@@ -86,9 +86,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       print("Student ID in AddStudent Page : ${studentModel.userID}");
       await studentController.addStudent(studentModel); // then add student
 
-=======
+// =======
       studentController.addStudentToFirebase(studentModel, SchoolID!);
->>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
+// >>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('تمت إضافة الطالب بنجاح'),
@@ -102,7 +102,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final _schoolId = widget.user?.schoolID;
+    // final _schoolId = widget.user?.schoolID;
     return Scaffold(
       appBar: AppBar(title: Text('إضافة طالب')),
       body: SingleChildScrollView(
@@ -142,9 +142,13 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                           /// export excel file
                           // _pickAndProcessExcel();
                           Navigator.push(
-                              context,
-                              CupertinoPageRoute(
-                                  builder: (context) => HandlingExcelFile()));
+                            context,
+                            CupertinoPageRoute(
+                              builder: (context) => HandlingExcelFile(
+                                schoolID: widget.user?.schoolID,
+                              ),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green),
