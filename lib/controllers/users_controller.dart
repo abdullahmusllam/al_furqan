@@ -1,8 +1,5 @@
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
-import 'package:al_furqan/services/firebase_service.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:al_furqan/controllers/some_controller.dart';
 
 class UserController {
   final List<UserModel> _users = [];
@@ -160,8 +157,7 @@ class UserController {
   }
 
   // Method to update a user
-  Future<void> updateUser(UserModel userModel, int type) async {
-    if (type == 1) {
+  Future<void> updateUser(UserModel userModel) async {
     int response = await _sqlDb.updateData('''
     UPDATE USERS SET
       ActivityID = ${userModel.ActivityID},
@@ -204,7 +200,6 @@ class UserController {
     WHERE user_id = ${userModel.user_id}
     ''');
     print("response = $response");
-    }
   }
 
   // Method to add a new request

@@ -38,12 +38,28 @@ dependencies:
   image_picker:
   firebase_core:
   cloud_firestore:
+  firebase_auth:
   sqflite:
   path:
   intl:
-  shared_preferences: 
+#<<<<<<< HEAD
+  shared_preferences:
+    # اضفت ذي المكتبة علشان نتحقق من اتصال الشبكة وهل المستخدم متصل بالنت ولا لا
   connectivity_plus:
+<<<<<<< HEAD
   # firebase_auth:
+=======
+  file_picker:
+  flutter_excel:
+  permission_handler:
+  path_provider: ^2.1.5
+
+
+#=======
+#  shared_preferences:
+#  connectivity_plus:
+#>>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
+>>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
 
 dev_dependencies:
   flutter_test:

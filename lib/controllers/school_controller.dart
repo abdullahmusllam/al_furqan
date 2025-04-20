@@ -51,11 +51,18 @@ class SchoolController {
 
   /// إضافة مدرسة جديدة
   Future<void> addSchool(SchoolModel schoolModel) async {
+<<<<<<< HEAD
     schoolModel.schoolID = await someController.newId("Schools", "schoolID");
     try {
       int response = await _sqlDb.insertData('''
         INSERT INTO Schools (schoolID, school_name, school_location)
         VALUES (${schoolModel.schoolID}, '${schoolModel.school_name}', '${schoolModel.school_location}')
+=======
+    try {
+      int response = await _sqlDb.insertData('''
+        INSERT INTO Schools (school_name, school_location)
+        VALUES ('${schoolModel.school_name}', '${schoolModel.school_location}')
+>>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
       ''');
       print("Added school, response: $response");
       if (response == 0) {

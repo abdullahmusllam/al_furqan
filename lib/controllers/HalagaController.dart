@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import 'package:al_furqan/controllers/some_controller.dart';
+=======
+>>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/models/users_model.dart';
@@ -68,9 +71,14 @@ class HalagaController {
 
   Future<void> addHalaga(HalagaModel halagaData) async {
     try {
+<<<<<<< HEAD
       halagaData.halagaID = await someController.newId("Elhalagat", "halagaID");
       int response = await _sqlDb.insertData(
           "INSERT INTO Elhalagat (halagaID, SchoolID, Name, NumberStudent) VALUES (${halagaData.halagaID}, ${halagaData.SchoolID}, '${halagaData.Name}', 0)");
+=======
+      int response = await _sqlDb.insertData(
+          "INSERT INTO Elhalagat (SchoolID, Name, NumberStudent) VALUES (${halagaData.SchoolID}, '${halagaData.Name}', 0)");
+>>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
       print("Added halaga, response: $response");
       if (response == 0) {
         throw Exception("Failed to add halaga");

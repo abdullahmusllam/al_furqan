@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+
 class UserModel {
   int? user_id;
   int? ActivityID;
@@ -74,6 +76,7 @@ class UserModel {
       isActivate: map['isActivate'] as int?,
     );
   }
+<<<<<<< HEAD
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       user_id: json['user_id'] as int?,
@@ -96,6 +99,8 @@ class UserModel {
 
 
   int get userID => null!;
+=======
+>>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
 }
 
 // UserModel userModel = UserModel();
