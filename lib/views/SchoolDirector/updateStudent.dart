@@ -87,7 +87,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
 
       studentController.updateStudent(widget.student,
           widget.student.studentID!); // استخدام الدالة لتحديث بيانات الطالب
-      userController.updateUser(father).then((_) async {
+      userController.updateUser(father,1).then((_) async {
         // تحميل البيانات من القاعدة المحلية
 
         // إذا لم يكن هناك اتصال بالإنترنت، يتم تحميل البيانات من القاعدة المحلية فقط
