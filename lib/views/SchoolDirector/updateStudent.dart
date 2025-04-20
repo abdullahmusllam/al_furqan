@@ -5,10 +5,7 @@ import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:flutter/services.dart';
-<<<<<<< HEAD
-=======
 import 'package:intl/intl.dart';
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
 
 class EditStudentScreen extends StatefulWidget {
   // final UserModel? user;
@@ -79,8 +76,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
       widget.student.middleName = middleNameController.text;
       widget.student.grandfatherName = grandfatherNameController.text;
       widget.student.lastName = lastNameController.text;
-<<<<<<< HEAD
-=======
       father.first_name = middleNameController.text;
       father.middle_name = grandfatherNameController.text;
       father.grandfather_name = grandFatherNameForFatherStudent.text;
@@ -90,7 +85,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
       father.email = gmailOfFatherStudent.text;
       father.date = dateFatherStudent.text;
 
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
       studentController.updateStudent(widget.student,
           widget.student.studentID!); // استخدام الدالة لتحديث بيانات الطالب
       userController.updateUser(father).then((_) async {
@@ -249,17 +243,11 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
         keyboardType: TextInputType.name,
-<<<<<<< HEAD
-=======
         textInputAction: TextInputAction.next,
         inputFormatters: [
           FilteringTextInputFormatter.deny(RegExp(r'[0-9٠-٩]'))
         ],
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
         controller: controller,
-        inputFormatters: [
-          FilteringTextInputFormatter.deny(RegExp(r'[0-9٠-٩]'))
-        ],
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'الرجاء إدخال $label';

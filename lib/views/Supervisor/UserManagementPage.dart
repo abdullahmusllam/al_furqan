@@ -34,7 +34,6 @@ class _UserManagementPageState extends State<UserManagementPage>
   }
 
   void _refreshData() async {
-    await userController.addToLocalOfFirebase();
     await userController.getData();
     setState(() {});
   }
