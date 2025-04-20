@@ -18,6 +18,7 @@ class StudentsListPage extends StatefulWidget {
 }
 
 class _StudentsListPageState extends State<StudentsListPage> {
+  final sqlDb= SqlDb();
   List<StudentModel> students = [];
   @override
   void initState() {
