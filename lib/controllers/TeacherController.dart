@@ -28,6 +28,7 @@ class TeacherController {
       List<Map> response = await _sqlDb.readData(
           "SELECT * FROM Users WHERE roleID = 2 AND schoolID = $schoolID");
       teachers.clear();
+
       teachers.addAll(mapResponseToUserModel(response));
       print(
           "Teachers fetched for schoolID $schoolID: ${teachers.length} teachers");

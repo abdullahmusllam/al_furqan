@@ -52,11 +52,6 @@ dependencies:
   path_provider: ^2.1.5
 
 
-#=======
-#  shared_preferences:
-#  connectivity_plus:
-#>>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

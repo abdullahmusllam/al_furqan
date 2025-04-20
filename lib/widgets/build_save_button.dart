@@ -86,7 +86,7 @@ Future<bool> _handleFormSubmission({
     user.roleID = roleId;
     user.schoolID = selectedSchoolID;
 
-    await userController.updateUser(user);
+    await userController.updateUser(user, 0);
     setEditable(false);
 
     ScaffoldMessenger.of(context).showSnackBar(

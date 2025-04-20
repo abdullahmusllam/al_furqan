@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class UserModel {
   int? user_id;
+  int? activityID;
+  int? elhalagatID;
   String? first_name;
   String? middle_name;
   String? grandfather_name;
@@ -17,6 +19,8 @@ class UserModel {
 
   UserModel({
     this.user_id,
+    this.activityID,
+    this.elhalagatID,
     this.first_name,
     this.middle_name,
     this.grandfather_name,
@@ -35,6 +39,8 @@ class UserModel {
   Map<String, dynamic> toMap() {
     return {
       'user_id': user_id,
+      'ActivityID': activityID,
+      'ElhalagatID': elhalagatID,
       'first_name': first_name,
       'middle_name': middle_name,
       'grandfather_name': grandfather_name,
@@ -54,6 +60,8 @@ class UserModel {
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
       user_id: map['user_id'] as int?,
+      activityID: map['ActivityID'] as int?,
+      elhalagatID: map['ElhalagatID'] as int?,
       first_name: map['first_name'] as String?,
       middle_name: map['middle_name'] as String?,
       grandfather_name: map['grandfather_name'] as String?,
@@ -68,6 +76,28 @@ class UserModel {
       isActivate: map['isActivate'] as int?,
     );
   }
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      user_id: json['user_id'] as int?,
+      activityID: json['ActivityID'] as int?,
+      elhalagatID: json['ElhalagatID'] as int?,
+      first_name: json['first_name'] as String?,
+      middle_name: json['middle_name'] as String?,
+      grandfather_name: json['grandfather_name'] as String?,
+      last_name: json['last_name'] as String?,
+      phone_number: json['phone_number'] as int?,
+      telephone_number: json['telephone_number'] as int?,
+      email: json['email'] as String?,
+      password: json['password'] as int?,
+      roleID: json['roleID'] as int?,
+      schoolID: json['schoolID'] as int?,
+      date: json['date'] as String?,
+      isActivate: json['isActivate'] as int?,
+    );
+  }
+
+
+  int get userID => null!;
 }
 
 // UserModel userModel = UserModel();

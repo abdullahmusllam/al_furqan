@@ -1,3 +1,4 @@
+import 'package:al_furqan/controllers/some_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/schools_model.dart';
 

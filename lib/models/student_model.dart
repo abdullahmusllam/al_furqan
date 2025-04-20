@@ -1,10 +1,8 @@
-import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
-
 class StudentModel {
   int? studentID;
   int? elhalaqaID;
   int? schoolId;
-  int? userID;
+  int? userID;// father
   String? firstName;
   String? middleName;
   String? grandfatherName;
@@ -42,24 +40,26 @@ class StudentModel {
       'AttendanceDays': attendanceDays,
       'AbsenceDays': absenceDays,
       'Excuse': excuse,
-      'ReasonAbsence': reasonAbsence,
+      'ReasonAbsence': reasonAbsence
+
     };
   }
 
   factory StudentModel.fromJson(Map<String, dynamic> json) {
     return StudentModel(
-      studentID: json['StudentID'],
-      elhalaqaID: json['ElhalagatID'],
-      schoolId: json['SchoolID'],
-      userID: json['userID'],
-      firstName: json['FirstName'],
-      middleName: json['MiddleName'],
-      grandfatherName: json['grandfatherName'],
-      lastName: json['LastName'],
-      attendanceDays: json['AttendanceDays'],
-      absenceDays: json['AbsenceDays'],
-      excuse: json['Excuse'],
-      reasonAbsence: json['ReasonAbsence'],
+      studentID: json['StudentID'] as int?,
+      elhalaqaID: json['ElhalagatID'] as int?,
+      schoolId: json['SchoolID'] as int?,
+      userID: json['userID'] as int?,
+      firstName: json['FirstName'] as String?,
+      middleName: json['MiddleName'] as String?,
+      grandfatherName: json['grandfatherName'] as String?,
+      lastName: json['LastName'] as String?,
+      attendanceDays: json['AttendanceDays'] as int?,
+      absenceDays: json['AbsenceDays'] as int?,
+      excuse: json['Excuse'] as String?,
+      reasonAbsence: json['ReasonAbsence'] as String?,
+
     );
   }
 }

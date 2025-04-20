@@ -100,5 +100,3 @@ class SqlDb {
     return result.isNotEmpty;
   }
 }
-
-SqlDb sqlDb = SqlDb();
