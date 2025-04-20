@@ -24,11 +24,29 @@ class StudentController {
     return students;
   }
 
+<<<<<<< HEAD
   Future<List<StudentModel>> getSchoolStudents(int schoolID) async {
     List<Map> studentData = await _sqldb
         .readData("SELECT * FROM Students WHERE SchoolID = $schoolID");
     print("Response Get : ${studentData.isEmpty}");
     students = studentData.map((student) {
+=======
+  Future<List<StudentModel>> getSchoolStudents(int id) async {
+  try {
+    // جلب الطلاب المرتبطين بالمدارس
+    List<Map<String, dynamic>> studentData = await _sqldb.readData(
+        "SELECT * FROM Students WHERE SchoolID = '$id'");
+
+    print("الطلاب الذين تم جلبهم من القاعدة المحلية: $studentData");
+
+    if (studentData.isEmpty) {
+      print("لا توجد بيانات للطلاب مع SchoolID: $id");
+      return []; // إذا كانت البيانات فارغة، نرجع قائمة فارغة.
+    }
+
+    // تحويل البيانات المسترجعة إلى قائمة من StudentModel
+    List<StudentModel> students = studentData.map((student) {
+>>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
       return StudentModel(
         studentID: student['StudentID'],
         // elhalaqaID: student['ElhalagatID'], ///
@@ -39,10 +57,35 @@ class StudentController {
         lastName: student['LastName'],
       );
     }).toList();
+<<<<<<< HEAD
     print("students.length : ${students.length}");
+=======
+
+    print("عدد الطلاب الذين تم جلبهم: ${students.length}");
+
+>>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
     return students;
+  } catch (e) {
+    print("حدث خطأ أثناء جلب الطلاب: $e");
+    return [];
+  }
+}
+
+
+  addStudentToFirebase(StudentModel student, int schoolID) async {
+    print("id id id id id id id ${schoolID}");
+   int? schoolIDF = schoolID;
+  int add = await _sqldb.insertData(
+    "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) "
+    "VALUES ('${student.elhalaqaID}', ${schoolID}, "
+    "'${student.firstName}', '${student.middleName}', '${student.grandfatherName}', "
+    "'${student.lastName}', '${student.AttendanceDays}', '${student.AbsenceDays}', "
+    "'${student.Excuse}', '${student.ReasonAbsence}')"
+  );// تحويل إلى Map
+    firebasehelper.addStudent(add, student, schoolIDF);
   }
 
+<<<<<<< HEAD
   Future<int> getTotalStudents() async {
     try {
       final count =
@@ -152,7 +195,27 @@ class StudentController {
     int idStudent = await _sqldb.insertData(
         "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) VALUES ('${student.elhalaqaID}', ${schoolID}, '${student.firstName}', '${student.middleName}', '${student.grandfatherName}', ${student.lastName}', '${student.attendanceDays}', '${student.absenceDays}', '${student.excuse}', '${student.reasonAbsence}')"); // تحويل إلى Map
     await firebasehelper.addStudent(idStudent, student, schoolID);
+=======
+ Future<void> addStudentToLocal(StudentModel student) async {
+  int add = await _sqldb.insertData(
+    "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) "
+    "VALUES (''${student.elhalaqaID}', '${student.SchoolId}', "
+    "'${student.firstName}', '${student.middleName}', '${student.grandfatherName}', "
+    "'${student.lastName}', '${student.AttendanceDays}', '${student.AbsenceDays}', "
+    "'${student.Excuse}', '${student.ReasonAbsence}')"
+  );
+
+  print("تمت الإضافة بنجاح: $add");
+}
+
+  updateStudent(StudentModel student, int id) async {
+    // تعديل بيانات الطالب
+    int update = await _sqldb.updateData(
+        "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', SchoolID = '${student.SchoolId}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = '${student.AttendanceDays}', AbsenceDays = '${student.AbsenceDays}', Excuse = '${student.Excuse}', ReasonAbsence = '${student.ReasonAbsence}' WHERE StudentID = ${id}");
+    print("uuuuuuuuuuuuuuuuuuu$update");
+>>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
   }
+  
 }
 
 StudentController studentController = StudentController();
