@@ -1,23 +1,20 @@
-import 'package:al_furqan/controllers/users_controller.dart';
-import 'package:al_furqan/helper/sqldb.dart';
-import 'package:al_furqan/views/Supervisor/add_user.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:al_furqan/controllers/TeacherController.dart';
+import 'package:al_furqan/views/SchoolDirector/teacher_list.dart';
+import 'package:al_furqan/views/SchoolDirector/teacher_request.dart';
+// import 'package:al_furqan/views/Supervisor/add_teacher.dart';
 import 'package:al_furqan/views/Supervisor/requests_list.dart';
 import 'package:al_furqan/views/Supervisor/user_list.dart';
+import 'package:flutter/material.dart';
 
-class UserManagementPage extends StatefulWidget {
-  const UserManagementPage({super.key});
+class TeacherManagement extends StatefulWidget {
+  const TeacherManagement({super.key});
 
   @override
-  _UserManagementPageState createState() => _UserManagementPageState();
+  State<TeacherManagement> createState() => _TeacherManagementState();
 }
 
-class _UserManagementPageState extends State<UserManagementPage>
+class _TeacherManagementState extends State<TeacherManagement>
     with SingleTickerProviderStateMixin {
-  String? _selectedRole;
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  SqlDb sqlDb = SqlDb();
   late TabController _tabController;
 
   @override
@@ -34,26 +31,25 @@ class _UserManagementPageState extends State<UserManagementPage>
   }
 
   void _refreshData() async {
-    await userController.addToLocalOfFirebase();
-    await userController.getData();
+    await teacherController.getTeachers();
     setState(() {});
   }
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: Text('إدارة المستخدمين'),
-      backgroundColor: CupertinoColors.activeGreen.withOpacity(0.5),
+      title: const Text('إدارة المعلمين'),
+      backgroundColor: Colors.green.withOpacity(0.5),
       actions: [
         IconButton(
-          icon: Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh),
           onPressed: _refreshData,
           tooltip: 'تحديث البيانات',
         ),
       ],
       bottom: TabBar(
         controller: _tabController,
-        tabs: [
-          Tab(text: 'المستخدمين'),
+        tabs: const [
+          Tab(text: 'المعلمين'),
           Tab(text: 'الطلبات'),
         ],
       ),
@@ -63,14 +59,14 @@ class _UserManagementPageState extends State<UserManagementPage>
   FloatingActionButton _buildFloatingActionButton() {
     return FloatingActionButton(
       onPressed: () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => AddUser()))
-            .then((_) {
-          _refreshData();
-        });
+        // Navigator.of(context)
+        //     .push(MaterialPageRoute(builder: (context) => const AddTeacher()))
+        //     .then((_) {
+        //   _refreshData();
+        // });
       },
-      tooltip: 'إضافة مستخدم جديد',
-      child: Icon(Icons.add),
+      tooltip: 'إضافة معلم جديد',
+      child: const Icon(Icons.add),
     );
   }
 
@@ -80,9 +76,9 @@ class _UserManagementPageState extends State<UserManagementPage>
       appBar: _buildAppBar(),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          UserList(),
-          RequestsList(),
+        children: const [
+          TeacherList(),
+          TeacherRequest(),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

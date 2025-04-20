@@ -1,60 +1,57 @@
-import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
-
 class StudentModel {
   int? studentID;
   int? elhalaqaID;
-  int? SchoolId;
+  int? schoolId;
   String? firstName;
   String? middleName;
   String? grandfatherName;
   String? lastName;
-  int? AttendanceDays;
-  int? AbsenceDays;
-  String? Excuse;
-  String? ReasonAbsence;
+  int? attendanceDays;
+  int? absenceDays;
+  String? excuse;
+  String? reasonAbsence;
 
   StudentModel(
       {this.studentID,
       this.elhalaqaID,
-      this.SchoolId,
+      this.schoolId,
       this.firstName,
       this.middleName,
       this.grandfatherName,
       this.lastName,
-      this.AttendanceDays,
-      this.AbsenceDays,
-      this.Excuse,
-      this.ReasonAbsence});
-
-       Map<String, dynamic> toMap() {
+      this.attendanceDays,
+      this.absenceDays,
+      this.excuse,
+      this.reasonAbsence});
+    Map<String, dynamic> toMap() {
     return {
       'StudentID': studentID,
       'ElhalagatID': elhalaqaID,
-      'SchoolID': SchoolId,
+      'SchoolID': schoolId,
       'FirstName': firstName,
       'MiddleName': middleName,
       'grandfatherName': grandfatherName,
       'LastName': lastName,
-      'AttendanceDays': AttendanceDays,
-      'AbsenceDays': AbsenceDays,
-      'Excuse': Excuse,
-      'ReasonAbsence': ReasonAbsence
+      'AttendanceDays': attendanceDays,
+      'AbsenceDays': absenceDays,
+      'Excuse': excuse,
+      'ReasonAbsence': reasonAbsence
     };
   }
 
-   factory StudentModel.fromJson(Map<String, dynamic> json) {
+  factory StudentModel.fromJson(Map<String, dynamic> json) {
     return StudentModel(
-      studentID: json['StudentID'],
-      elhalaqaID: json['ElhalagatID'],
-      SchoolId: json['SchoolID'],
-      firstName: json['FirstName'],
-      middleName: json['MiddleName'],
-      grandfatherName: json['grandfatherName'],
-      lastName: json['LastName'],
-      AttendanceDays: json['AttendanceDays'],
-      AbsenceDays: json['AbsenceDays'],
-      Excuse: json['Excuse'],
-      ReasonAbsence: json['ReasonAbsence']
+      studentID: json['StudentID'] as int?,
+      elhalaqaID: json['ElhalagatID'] as int?,
+      schoolId: json['SchoolID'] as int?,
+      firstName: json['FirstName'] as String?,
+      middleName: json['MiddleName'] as String?,
+      grandfatherName: json['grandfatherName'] as String?,
+      lastName: json['LastName'] as String?,
+      attendanceDays: json['AttendanceDays'] as int?,
+      absenceDays: json['AbsenceDays'] as int?,
+      excuse: json['Excuse'] as String?,
+      reasonAbsence: json['ReasonAbsence'] as String?,
     );
   }
 }

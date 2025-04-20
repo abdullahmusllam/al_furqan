@@ -2,8 +2,8 @@ import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/views/Supervisor/filter_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:al_furqan/widgets/user_details.dart';
-import '../models/schools_model.dart';
+import 'package:al_furqan/views/Supervisor/user_details.dart';
+import '../../models/schools_model.dart';
 
 class UserList extends StatefulWidget {
   const UserList({super.key});
@@ -16,15 +16,26 @@ class _UserListState extends State<UserList> {
   String _searchQuery = '';
   String? _selectedRole;
   int? _selectedSchoolId;
-  final List<DropdownMenuItem<int>> _schoolItems = [];
+  List<DropdownMenuItem<int>> _schoolItems = [];
 
   @override
   void initState() {
     super.initState();
-    userController.getData();
-    schoolController.get_data(); /// تحميل المدارس علشان ما يعطي نل
+    _refreshData();
   }
 
+  void _refreshData() async {
+    await schoolController.getData(); // Load schools
+    await userController.getData(); // Load users
+    setState(() {
+      _schoolItems = schoolController.schools
+          .map((school) => DropdownMenuItem<int>(
+                value: school.schoolID,
+                child: Text(school.school_name!),
+              ))
+          .toList();
+    });
+  }
 
   void _showFilterDialog() {
     showDialog(
@@ -71,6 +82,7 @@ class _UserListState extends State<UserList> {
               decoration: InputDecoration(
                 labelText: 'بحث',
                 border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.search),
               ),
               onChanged: (value) {
                 setState(() {
@@ -113,16 +125,19 @@ class _UserListState extends State<UserList> {
 
               return ListTile(
                 title: Text(
-                    "${filteredUsers[index].first_name ?? ''} ${filteredUsers[index].middle_name ?? ''} ${filteredUsers[index].last_name ?? ''}"),
+                  "${filteredUsers[index].first_name ?? ''} ${filteredUsers[index].middle_name ?? ''} ${filteredUsers[index].last_name ?? ''}",
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(height: 4),
                     Text(roleName!),
                     Text(filteredUsers[index].isActivate == 1
                         ? "مفعل"
                         : "غير مفعل"),
                     Text("${filteredUsers[index].date ?? ''}"),
-                    Text("${school.school_name} ${school.schoolID}"),
+                    Text("${school.school_name}"),
                   ],
                 ),
                 trailing: SizedBox(
@@ -132,17 +147,23 @@ class _UserListState extends State<UserList> {
                       IconButton(
                         color: Colors.blue,
                         icon: Icon(Icons.info),
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
+                        onPressed: () async {
+                          final result = await Navigator.of(context).push(
+                            MaterialPageRoute(
                               builder: (context) =>
-                                  UserDetails(user: filteredUsers[index])));
+                                  UserDetails(user: filteredUsers[index]),
+                            ),
+                          );
+                          if (result == true) {
+                            _refreshData(); // Refresh data after editing
+                          }
                         },
                       ),
                       IconButton(
                         color: Colors.redAccent,
                         icon: Icon(Icons.delete),
                         onPressed: () {
-                          if (userController.users[index].roleID == 0) {
+                          if (filteredUsers[index].roleID == 0) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text("لا تملك صلاحية حذف مشرف !!"),
@@ -150,11 +171,9 @@ class _UserListState extends State<UserList> {
                               ),
                             );
                           } else {
-                            setState(() {
-                              userController
-                                  .deleteUser(filteredUsers[index].user_id!);
-                              userController.getData();
-                            });
+                            userController
+                                .deleteUser(filteredUsers[index].user_id!);
+                            _refreshData();
                           }
                         },
                       ),
@@ -170,13 +189,15 @@ class _UserListState extends State<UserList> {
   Widget build(BuildContext context) {
     List filteredUsers = _filterUsers();
 
-    return Column(
-      children: [
-        _buildSearchBar(),
-        Expanded(
-          child: _buildUserList(filteredUsers),
-        ),
-      ],
+    return Scaffold(
+      body: Column(
+        children: [
+          _buildSearchBar(),
+          Expanded(
+            child: _buildUserList(filteredUsers),
+          ),
+        ],
+      ),
     );
   }
 }

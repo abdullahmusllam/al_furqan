@@ -22,9 +22,9 @@ Widget buildSaveButton({
   required Function(bool) setEditable,
 }) {
   return ElevatedButton(
-    onPressed: () {
+    onPressed: () async {
       if (formKey.currentState!.validate()) {
-        _handleFormSubmission(
+        await _handleFormSubmission(
           user: user,
           firstname: firstname,
           fathername: fathername,
@@ -48,7 +48,7 @@ Widget buildSaveButton({
   );
 }
 
-void _handleFormSubmission({
+Future<bool> _handleFormSubmission({
   required UserModel user,
   required TextEditingController firstname,
   required TextEditingController fathername,
@@ -65,36 +65,49 @@ void _handleFormSubmission({
   required Function() refreshData,
   required BuildContext context,
   required Function(bool) setEditable,
-}) {
-  int phoneNumber = int.parse(phone.text);
-  int telephoneNumber = int.parse(telephone.text);
-  int passwordNumber = int.parse(password.text);
-  int? roleId = _getRoleId(selectedRole);
-  int activate = isActivate ? 1 : 0;
+}) async {
+  try {
+    int phoneNumber = int.parse(phone.text);
+    int telephoneNumber = int.parse(telephone.text);
+    int passwordNumber = int.parse(password.text);
+    int? roleId = _getRoleId(selectedRole);
+    int activate = isActivate ? 1 : 0;
 
-  user.first_name = firstname.text;
-  user.middle_name = fathername.text;
-  user.grandfather_name = grandfathername.text;
-  user.last_name = lastname.text;
-  user.phone_number = phoneNumber;
-  user.telephone_number = telephoneNumber;
-  user.email = email.text;
-  user.password = passwordNumber;
-  user.date = date.text;
-  user.isActivate = activate;
-  user.roleID = roleId;
-  user.schoolID = selectedSchoolID;
+    user.first_name = firstname.text;
+    user.middle_name = fathername.text;
+    user.grandfather_name = grandfathername.text;
+    user.last_name = lastname.text;
+    user.phone_number = phoneNumber;
+    user.telephone_number = telephoneNumber;
+    user.email = email.text;
+    user.password = passwordNumber;
+    user.date = date.text;
+    user.isActivate = activate;
+    user.roleID = roleId;
+    user.schoolID = selectedSchoolID;
 
-  userController.updateUser(user);
-  refreshData();
+    await userController.updateUser(user,0);
+    setEditable(false);
 
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text("تم حفظ التعديلات بنجاح"),
-    ),
-  );
-  setEditable(false);
-  Navigator.of(context).pop(true);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("تم حفظ التعديلات بنجاح"),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    Navigator.of(context).pop(true); // Return true to indicate success
+    return true;
+  } catch (e) {
+    print("Error in _handleFormSubmission: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("حدث خطأ أثناء حفظ التعديلات"),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
+    return false;
+  }
 }
 
 int? _getRoleId(String? selectedRole) {

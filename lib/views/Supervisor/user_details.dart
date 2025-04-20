@@ -4,15 +4,15 @@ import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../controllers/school_controller.dart';
-import '../views/Supervisor/add_school.dart';
-import 'build_text_field.dart';
-import 'build_password_field.dart';
-import 'build_date_field.dart';
-import 'build_dropdown_field.dart';
-import 'build_switch_list_tile.dart';
-import 'build_edit_button.dart';
-import 'build_save_button.dart';
+import '../../controllers/school_controller.dart';
+import 'add_school.dart';
+import '../../widgets/build_text_field.dart';
+import '../../widgets/build_password_field.dart';
+import '../../widgets/build_date_field.dart';
+import '../../widgets/build_dropdown_field.dart';
+import '../../widgets/build_switch_list_tile.dart';
+import '../../widgets/build_edit_button.dart';
+import '../../widgets/build_save_button.dart';
 
 class UserDetails extends StatefulWidget {
   final UserModel user;
@@ -44,7 +44,7 @@ class _UserDetailsState extends State<UserDetails> {
   bool _isActivate = false;
 
   Future<void> _loadSchools() async {
-    await schoolController.get_data();
+    await schoolController.getData();
     setState(() {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(
@@ -93,8 +93,8 @@ class _UserDetailsState extends State<UserDetails> {
 
   void _refreshData() async {
     await userController.getDataUsers();
-    _loadSchools();
-    setState(() {});
+    await _loadSchools();
+    // setState(() {});
   }
 
   @override
@@ -170,7 +170,7 @@ class _UserDetailsState extends State<UserDetails> {
                 SizedBox(height: 10),
                 buildEditButton(
                   isEditable: _isEditable,
-                  onPressed: () {
+                  onPressed: ()  {
                     setState(() {
                       _isEditable = !_isEditable;
                     });

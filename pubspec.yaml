@@ -43,6 +43,7 @@ dependencies:
   intl:
   shared_preferences: 
   connectivity_plus:
+  # firebase_auth:
 
 dev_dependencies:
   flutter_test:

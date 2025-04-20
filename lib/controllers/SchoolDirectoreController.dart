@@ -36,9 +36,6 @@ class SchoolDirectorController {
     // });
     print("${userData.isEmpty}");
   }
-}
-
-addHalaga(){
   
 }
 

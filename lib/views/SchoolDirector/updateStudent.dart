@@ -2,6 +2,7 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/student_model.dart';
+import 'package:flutter/services.dart';
 
 class EditStudentScreen extends StatefulWidget {
   // final UserModel? user;
@@ -38,7 +39,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
       widget.student.middleName = middleNameController.text;
       widget.student.grandfatherName = grandfatherNameController.text;
       widget.student.lastName = lastNameController.text;
-
       studentController.updateStudent(widget.student,
           widget.student.studentID!); // استخدام الدالة لتحديث بيانات الطالب
 
@@ -99,7 +99,11 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
+        keyboardType: TextInputType.name,
         controller: controller,
+        inputFormatters: [
+          FilteringTextInputFormatter.deny(RegExp(r'[0-9٠-٩]'))
+        ],
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'الرجاء إدخال $label';

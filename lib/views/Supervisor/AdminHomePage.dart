@@ -1,27 +1,53 @@
-// ignore: file_names
-import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/controllers/StudentController.dart';
+import 'package:al_furqan/controllers/TeacherController.dart';
+import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/login/login.dart';
-import 'package:al_furqan/widgets/drawer_list.dart';
-import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart'; // مكتبة المخططات
-import 'package:al_furqan/widgets/stat_card.dart';
-import 'package:al_furqan/widgets/meeting_list.dart';
 import 'package:al_furqan/widgets/chart_card.dart';
-import 'package:al_furqan/widgets/notification_card.dart';
+import 'package:al_furqan/widgets/drawer_list.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../widgets/meeting_list.dart';
+import '../../widgets/notification_card.dart';
+import '../Teacher/activitiesOfficer.dart';
+
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({
-    super.key,
-  });
+  const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
+  final _schools = schoolController.schools;
+  final _teachers = teacherController.teachers;
+  int _totalStudents = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshData();
+  }
+
+  Future<void> _refreshData() async {
+    try {
+      await schoolController.getData();
+      await teacherController.getTeachers();
+      _totalStudents = await studentController.getTotalStudents();
+      setState(() {});
+      print(
+          "Refreshed admin data: ${_schools.length} schools, ${_teachers.length} teachers, $_totalStudents students");
+    } catch (e) {
+      print("Error refreshing admin data: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('فشل في جلب البيانات: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +59,7 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
               final prefs = await SharedPreferences.getInstance();
               await prefs.clear();
               Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()));
+                  CupertinoPageRoute(builder: (context) => LoginScreen()));
             },
             icon: Icon(Icons.logout),
           ),
@@ -72,11 +98,15 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
           children: [
             Expanded(
                 child: StatCard(
-                    title: 'عدد المدارس', value: '12', color: Colors.blue)),
+              title: 'عدد المدارس',
+              value: '${_schools.length}',
+            )),
             SizedBox(width: 10),
             Expanded(
                 child: StatCard(
-                    title: 'عدد المعلمين', value: '250', color: Colors.green)),
+                    title: 'عدد المعلمين',
+                    value: '${_teachers.length}',
+                    )),
           ],
         ),
         SizedBox(height: 10),
@@ -84,11 +114,13 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
           children: [
             Expanded(
                 child: StatCard(
-                    title: 'عدد الطلاب', value: '5000', color: Colors.orange)),
+                    title: 'عدد الطلاب',
+                    value: '$_totalStudents',
+                    )),
             SizedBox(width: 10),
             Expanded(
                 child: StatCard(
-                    title: 'عدد الإنجازات', value: '20', color: Colors.red)),
+                    title: 'عدد الإنجازات', value: '20')),
           ],
         ),
       ],

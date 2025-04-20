@@ -2,6 +2,9 @@
 
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
+import 'package:al_furqan/views/Supervisor/show_all_schools.dart';
+import 'package:al_furqan/views/Supervisor/show_all_teacher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
@@ -23,13 +26,13 @@ class DrawerList extends StatelessWidget {
             child: Column(
               children: [
                 CircleAvatar(
-                  maxRadius: 45,
-                  child: Icon(
-                    CupertinoIcons.person_alt,
-                    color: Colors.white,
-                    size: 65,
-                  ),
-                ),
+                    maxRadius: 40,
+                    child: Center(
+                      child: Text(
+                        user!.first_name!.substring(0, 1),
+                        style: TextStyle(fontSize: 45),
+                      ),
+                    )),
                 Text(
                   '${user!.first_name} ${user!.middle_name} ${user!.last_name}',
                   style: TextStyle(
@@ -45,6 +48,7 @@ class DrawerList extends StatelessWidget {
             text: 'الصفحة الرئيسية',
             onTap: () {
               // Navigate to home page
+              Navigator.of(context).pop();
             },
           ),
           _createDrawerItem(
@@ -52,6 +56,8 @@ class DrawerList extends StatelessWidget {
             text: 'المدارس',
             onTap: () {
               // Navigate to schools page
+              Navigator.of(context).push(
+                  CupertinoPageRoute(builder: (context) => ShowAllSchools()));
             },
           ),
           _createDrawerItem(
@@ -59,14 +65,8 @@ class DrawerList extends StatelessWidget {
             text: 'المعلمين',
             onTap: () {
               // Navigate to teachers page
-            },
-          ),
-          _createDrawerItem(
-            icon: Icons.people,
-            text: 'الطلاب',
-            onTap: () {
-              // Navigate to students page
-              getNameAdmin();
+              Navigator.of(context).push(
+                  CupertinoPageRoute(builder: (context) => ShowAllTeacher()));
             },
           ),
           _createDrawerItem(
@@ -75,7 +75,7 @@ class DrawerList extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => UserManagementPage()),
+                CupertinoPageRoute(builder: (context) => UserManagementPage()),
               );
             },
           ),
@@ -100,19 +100,5 @@ class DrawerList extends StatelessWidget {
       title: Text(text),
       onTap: onTap,
     );
-  }
-}
-
-getNameAdmin() async {
-  var admin = userController.users;
-  UserModel adimnName;
-  print(userController.users.isEmpty);
-  if (admin.isNotEmpty) {
-    for (var element in admin) {
-        if (element.roleID == 0) {
-          adimnName = element;
-        }
-        // Do nothing
-      }
   }
 }

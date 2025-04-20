@@ -37,7 +37,7 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<void> _loadSchools() async {
-    await schoolController.get_data();
+    await schoolController.getData();
     setState(() {
       _schoolItems = schoolController.schools
           .map((school) => DropdownMenuItem<int>(
@@ -90,17 +90,17 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 SizedBox(height: 10),
                 _buildPhoneFormField(
-                  controller: _phone,
-                  labelText: 'رقم الجوال',
-                  validatorText: 'الرجاء إدخال رقم الجوال',
-                  lengthValidatorText: 'رقم الجوال يجب أن يكون 9 أرقام',
-                ),
+                    controller: _phone,
+                    labelText: 'رقم الجوال',
+                    validatorText: 'الرجاء إدخال رقم الجوال',
+                    lengthValidatorText: 'رقم الجوال يجب أن يكون 9 أرقام',
+                    maxLength: 9),
                 SizedBox(height: 10),
                 _buildPhoneFormField(
-                  controller: _telephone,
-                  labelText: 'رقم البيت',
-                  validatorText: 'الرجاء إدخال رقم البيت',
-                ),
+                    controller: _telephone,
+                    labelText: 'رقم البيت',
+                    validatorText: 'الرجاء إدخال رقم البيت',
+                    maxLength: 6),
                 SizedBox(height: 10),
                 _buildEmailFormField(),
                 SizedBox(height: 10),
@@ -138,7 +138,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: _handleSubmit,
-                  child: Text('إرسال الطلب'),
+                  child: Text('إنشاء حساب'),
                 ),
               ],
             ),
@@ -179,6 +179,7 @@ class _SignupScreenState extends State<SignupScreen> {
     required String labelText,
     required String validatorText,
     String? lengthValidatorText,
+    required int maxLength,
   }) {
     return TextFormField(
       controller: controller,

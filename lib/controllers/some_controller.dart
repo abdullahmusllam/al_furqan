@@ -13,4 +13,17 @@ class SomeController {
     List<Map> response = await _sqlDb.readData("SELECT * FROM 'collection'");
     // ...process response...
   }
+ Future<int> newId(String table, String column) async {
+  List<Map> response = await _sqlDb.readData("SELECT MAX($column) AS max_id FROM $table");
+
+  var maxId = response[0]['max_id'];
+  // var maxID=response.last['max_id'];
+  if (maxId == null) {
+    return 1; // يعني أول رقم جديد
+  }
+  return maxId + 1;
 }
+
+  }
+
+SomeController someController = SomeController();

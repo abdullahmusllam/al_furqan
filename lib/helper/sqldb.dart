@@ -83,15 +83,14 @@ class SqlDb {
     Database mydb = await database;
     return await mydb.rawDelete(sql);
   }
-  Future<bool> checkIfitemExists(String table, int id, String Column) async {
-  final db = await database; // احصل على قاعدة البيانات
-  final result = await db.query(
-    '${table}',
-    where: '${Column} = ?',
-    whereArgs: [id],
-  );
-  return result.isNotEmpty;
-}
 
+  Future<bool> checkIfitemExists(String table, int id, String column) async {
+    final db = await database;
+    final result = await db.query(
+      table,
+      where: '$column = ?',
+      whereArgs: [id],
+    );
+    return result.isNotEmpty;
+  }
 }
-SqlDb sqlDb = SqlDb();

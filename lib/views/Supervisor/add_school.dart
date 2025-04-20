@@ -22,7 +22,7 @@ class _AddSchoolState extends State<AddSchool> {
   }
 
   Future<void> _loadSchools() async {
-    await schoolController.get_data();
+    await schoolController.getData();
     setState(() {});
   }
 
@@ -72,7 +72,7 @@ class _AddSchoolState extends State<AddSchool> {
                   ElevatedButton(
                     onPressed: () async {
                       if (formKey.currentState!.validate()) {
-                        await schoolController.add_School(SchoolModel(
+                        await schoolController.addSchool(SchoolModel(
                           school_name: _schoolNameController.text,
                           school_location: _schoolLocationController.text,
                         ));
@@ -124,7 +124,7 @@ class _AddSchoolState extends State<AddSchool> {
                         );
                         if (confirmDelete) {
                           await schoolController
-                              .delete_School(school.schoolID!);
+                              .deleteSchool(school.schoolID!);
                           await _loadSchools();
                         }
                       },

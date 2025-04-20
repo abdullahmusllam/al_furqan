@@ -32,7 +32,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
     if (schoolID != null) {
       // التأكد من أن القيمة التي تُرجعها gitData ليست null
       List<HalagaModel>? loadedHalaqat =
-          await halagaController.gitData(schoolID);
+          await halagaController.getData(schoolID);
       setState(() {
         if (loadedHalaqat!.isNotEmpty) {
           halaqat = loadedHalaqat;
