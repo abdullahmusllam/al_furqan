@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseHelper {
   // ======================= Start Student ==============
-<<<<<<< HEAD
   Future<void> addStudent(
       int id, StudentModel StudentData, int schoolID) async {
     final StudentRef = FirebaseFirestore.instance.collection('Students');
@@ -27,28 +26,6 @@ class FirebaseHelper {
       print('تمت إضافة/تحديث العنص بالرقم $id بنجاح ');
     } else {
       print('studentData فارغ ');
-=======
-  Future<void> addStudent(int id, StudentModel studentData, int schoolID) async {
-    final studentRef = FirebaseFirestore.instance.collection('Students');
-
-    if (studentData != null) {
-      await studentRef.doc(id.toString()).set({
-        'StudentID': id,
-        'ElhalagatID': studentData.elhalaqaID,
-        'SchoolID': schoolID,
-        'FirstName': studentData.firstName,
-        'MiddleName': studentData.middleName,
-        'grandfatherName': studentData.grandfatherName,
-        'LastName': studentData.lastName,
-        'AttendanceDays': studentData.attendanceDays,
-        'AbsenceDays': studentData.absenceDays,
-        'Excuse': studentData.excuse,
-        'ReasonAbsence': studentData.reasonAbsence
-      });
-      print('تمت إضافة/تحديث العنصر بالرقم $id بنجاح');
-    } else {
-      print('studentData فارغ');
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
     }
   }
 
@@ -74,17 +51,12 @@ class FirebaseHelper {
     }
   }
 
-<<<<<<< HEAD
   updateStudentData(StudentModel Student, int id) async {
-=======
-  Future<void> updateStudentData(StudentModel student, int id) async {
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
     final docRef =
         FirebaseFirestore.instance.collection('Students').doc(id.toString());
 
     await docRef.update({
       'StudentID': id,
-<<<<<<< HEAD
       'ElhalagatID': Student.elhalaqaID,
       'SchoolID': Student.schoolId,
       'FirstName': Student.firstName,
@@ -95,25 +67,12 @@ class FirebaseHelper {
       'AbsenceDays': Student.absenceDays,
       'Excuse': Student.excuse,
       'ReasonAbsence': Student.reasonAbsence
-=======
-      'ElhalagatID': student.elhalaqaID,
-      'SchoolID': student.schoolId,
-      'FirstName': student.firstName,
-      'MiddleName': student.middleName,
-      'grandfatherName': student.grandfatherName,
-      'LastName': student.lastName,
-      'AttendanceDays': student.attendanceDays,
-      'AbsenceDays': student.absenceDays,
-      'Excuse': student.excuse,
-      'ReasonAbsence': student.reasonAbsence
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
     }).then((_) {
       print('تم التعديل بنجاح');
     }).catchError((error) {
       print('حدث خطأ: $error');
     });
   }
-<<<<<<< HEAD
 // ===================== End Student ===========================
 
 // =========================== Start Elhalaga ===========================
@@ -127,8 +86,8 @@ class FirebaseHelper {
     if (user != null) {
       await docRef.doc(id.toString()).set({
         'user_id': id,
-        'ActivityID': user.ActivityID,
-        'ElhalagatID': user.ElhalagatID,
+        'ActivityID': user.activityID,
+        'ElhalagatID': user.elhalagatID,
         'first_name': user.first_name,
         'middle_name': user.middle_name,
         'grandfather_name': user.grandfather_name,
@@ -153,8 +112,8 @@ class FirebaseHelper {
         FirebaseFirestore.instance.collection('Users').doc(id.toString());
     await docRef.update({
       'user_id': id,
-      'ActivityID': user.ActivityID,
-      'ElhalagatID': user.ElhalagatID,
+      'ActivityID': user.activityID,
+      'ElhalagatID': user.elhalagatID,
       'first_name': user.first_name,
       'middle_name': user.middle_name,
       'grandfather_name': user.grandfather_name,
@@ -244,15 +203,5 @@ class FirebaseHelper {
 }
 // =========================== End User =================================
 }
-=======
-  // ===================== End Student ===========================
-
-  // =========================== Start Elhalaga ===========================
-
-  Future<void> addHalaga() async {
-    // Add Halaga logic here
-  }
-}
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
 
 FirebaseHelper firebasehelper = FirebaseHelper();
