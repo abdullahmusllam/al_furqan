@@ -2,8 +2,10 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/views/SchoolDirector/handling_excel_file.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:flutter/services.dart';
@@ -85,210 +87,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     }
   }
 
-  /// export excel file and handling it
-  Future<void> _pickAndProcessExcel() async {
-    // طلب إذن التخزين
-    if (await Permission.storage.request().isDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('يرجى منح إذن الوصول إلى التخزين'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
-    setState(() => _isProcessingExcel = true); // بدء عملية المعالجة
-
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        // اختيار ملف
-        type: FileType.custom,
-        allowedExtensions: ['xlsx', 'xls'],
-        allowMultiple: false,
-      );
-
-      if (result == null || result.files.isEmpty) {
-        // التحقق من اختيار ملف
-        // إظهار رسالة خطأ إذا لم يتم اختيار ملف
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('لم يتم اختيار ملف'),
-            backgroundColor: Colors.orange,
-            duration: Duration(seconds: 2),
-          ),
-        );
-        setState(() => _isProcessingExcel = false); // إنهاء عملية المعالجة
-        return;
-      }
-
-      String? fileName = result.files.first.name; // اسم الملف
-      if (fileName == null ||
-          (!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls'))) {
-        // التحقق من نوع الملف
-        // إظهار رسالة خطأ إذا كان الملف ليس من نوع Excel
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('الملف المختار ليس ملف Excel (.xlsx أو .xls)'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 2),
-          ),
-        );
-        setState(() => _isProcessingExcel = false);
-        return;
-      }
-
-      Uint8List? fileBytes = result.files.first.bytes; // قراءة محتوى الملف
-      if (fileBytes == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('فشل في قراءة محتوى الملف'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 2),
-          ),
-        );
-        setState(() => _isProcessingExcel = false);
-        return;
-      }
-
-      var excel = Excel.decodeBytes(fileBytes); // فك تشفير محتوى الملف
-      bool dataAdded = false;
-
-      for (var table in excel.tables.keys) {
-        // معالجة كل جدول في الملف
-        var sheet = excel.tables[table];
-        if (sheet == null || sheet.rows.isEmpty) continue;
-
-        // افتراض أن الصف الأول يحتوي على رؤوس الأعمدة
-        List<String> headers = sheet.rows[0]
-            .map((cell) => cell?.value?.toString() ?? '')
-            .toList(); // استخراج رؤوس الأعمدة
-        print("Headers: $headers");
-
-        // تحقق من وجود الأعمدة المتوقعة
-        List<String> expectedHeaders = [
-          'StudentID',
-          'FirstName',
-          'MiddleName',
-          'GrandfatherName',
-          'LastName',
-          'FatherFirstName',
-          'FatherMiddleName',
-          'FatherGrandfatherName',
-          'FatherLastName',
-          'FatherEmail',
-          'FatherPhone',
-          'FatherTelephone',
-          'FatherDateOfBirth'
-        ];
-
-        bool isValidFormat =
-            expectedHeaders.every((header) => headers.contains(header));
-        if (!isValidFormat) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('تنسيق ملف Excel غير صحيح. تحقق من أسماء الأعمدة.'),
-              backgroundColor: Colors.red,
-              duration: Duration(seconds: 3),
-            ),
-          );
-          setState(() => _isProcessingExcel = false);
-          return;
-        }
-
-        // معالجة الصفوف (تخطي رأس الجدول)
-        for (var row in sheet.rows.skip(1)) {
-          if (row.isEmpty) continue;
-
-          try {
-            // استخراج بيانات الطالب
-            StudentModel student = StudentModel(
-              studentID: int.tryParse(
-                  row[headers.indexOf('StudentID')]?.value?.toString() ?? ''),
-              firstName: row[headers.indexOf('FirstName')]?.value?.toString(),
-              middleName: row[headers.indexOf('MiddleName')]?.value?.toString(),
-              grandfatherName:
-                  row[headers.indexOf('GrandfatherName')]?.value?.toString(),
-              lastName: row[headers.indexOf('LastName')]?.value?.toString(),
-              schoolId: widget.user!.schoolID,
-            );
-
-            // استخراج بيانات الأب
-            UserModel father = UserModel(
-              first_name:
-                  row[headers.indexOf('FatherFirstName')]?.value?.toString(),
-              middle_name:
-                  row[headers.indexOf('FatherMiddleName')]?.value?.toString(),
-              grandfather_name: row[headers.indexOf('FatherGrandfatherName')]
-                  ?.value
-                  ?.toString(),
-              last_name:
-                  row[headers.indexOf('FatherLastName')]?.value?.toString(),
-              email: row[headers.indexOf('FatherEmail')]?.value?.toString(),
-              phone_number: int.tryParse(
-                  row[headers.indexOf('FatherPhone')]?.value?.toString() ?? ''),
-              telephone_number: int.tryParse(
-                  row[headers.indexOf('FatherTelephone')]?.value?.toString() ??
-                      ''),
-              date:
-                  row[headers.indexOf('FatherDateOfBirth')]?.value?.toString(),
-              password: 12345678,
-              roleID: 3,
-              schoolID: widget.user!.schoolID,
-              isActivate: 0,
-            );
-
-            // التحقق من صحة البيانات
-            if (student.studentID == null ||
-                student.firstName == null ||
-                student.lastName == null ||
-                father.first_name == null ||
-                father.last_name == null ||
-                father.email == null) {
-              print("Skipping invalid row: $row");
-              continue;
-            }
-
-            // إضافة الأب
-            father.user_id = await fathersController.addFather(father);
-            student.userID = father.user_id;
-
-            // إضافة الطالب
-            await studentController.addStudent(student);
-            dataAdded = true;
-            print(
-                "Added student: ${student.firstName}, Father: ${father.first_name}");
-          } catch (e) {
-            print("Error processing row: $row, Error: $e");
-            continue;
-          }
-        }
-      }
-
-      setState(() => _isProcessingExcel = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(dataAdded
-              ? 'تمت إضافة الطلاب من ملف Excel بنجاح'
-              : 'لم يتم إضافة أي بيانات من الملف'),
-          backgroundColor: dataAdded ? Colors.green : Colors.orange,
-          duration: Duration(seconds: 3),
-        ),
-      );
-    } catch (e) {
-      print("Error processing Excel file: $e");
-      setState(() => _isProcessingExcel = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('فشل في معالجة ملف Excel: $e'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final _schoolId = widget.user?.schoolID;
@@ -329,7 +127,11 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                       child: ElevatedButton(
                         onPressed: () async {
                           /// export excel file
-                          _pickAndProcessExcel();
+                          // _pickAndProcessExcel();
+                          Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                  builder: (context) => HandlingExcelFile()));
                         },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green),

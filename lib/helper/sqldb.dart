@@ -37,14 +37,14 @@ class SqlDb {
   }
 
   _onUpgrade(Database db, int oldVersion, int newVersion) async {
-  try {
-    await db.execute("ALTER TABLE Students ADD COLUMN userID INTEGER NULL");
-    print("Column added successfully!");
-  } catch (e) {
-    print("Error upgrading database: $e");
+    try {
+      await db.execute("ALTER TABLE Students ADD COLUMN userID INTEGER NULL");
+      print("Column added successfully!");
+    } catch (e) {
+      print("Error upgrading database: $e");
+    }
+    print("Database upgraded from $oldVersion to $newVersion");
   }
-  print("Database upgraded from $oldVersion to $newVersion");
-}
 
   Future<String> loadSqlScript() async {
     return await rootBundle.loadString('assets/database/al_furqan.db');
@@ -100,3 +100,5 @@ class SqlDb {
     return result.isNotEmpty;
   }
 }
+
+SqlDb sqlDb = SqlDb();
