@@ -2,13 +2,6 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
-<<<<<<< HEAD
-import 'package:al_furqan/services/firebase_service.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/material.dart';
-import 'package:al_furqan/models/student_model.dart';
-import 'package:flutter/services.dart';
-=======
 import 'package:al_furqan/views/SchoolDirector/handling_excel_file.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
@@ -19,7 +12,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_excel/excel.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
 
 class AddStudentScreen extends StatefulWidget {
   final UserModel? user;
@@ -35,15 +27,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   final middleNameController = TextEditingController();
   final grandfatherNameController = TextEditingController();
   final lastNameController = TextEditingController();
-<<<<<<< HEAD
-  final studentModel = StudentModel();
-  final _connectivity = Connectivity().checkConnectivity();
-
-  void _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      // user is manager of school
-      studentModel.studentID = widget.user?.schoolID;
-=======
   final grandFatherNameForFatherStudent = TextEditingController();
   final gmailOfFatherStudent = TextEditingController();
   final passwordFatherStudent = TextEditingController();
@@ -64,22 +47,15 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 //       print(
 //           "School ID into Student in AddStudent Page : ${studentModel.schoolId}");
 // =======
-  // StudentModel studentModel = StudentModel();
-
-  void _submitForm() async {
     int? SchoolID = widget.user!.schoolID;
     print("asasasasasasas$SchoolID");
     if (_formKey.currentState!.validate()) {
 // >>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
       studentModel.firstName = firstNameController.text;
       studentModel.middleName = middleNameController.text;
       studentModel.grandfatherName = grandfatherNameController.text;
       studentModel.lastName = lastNameController.text;
 
-<<<<<<< HEAD
-      studentController.addStudent(studentModel, 1);
-=======
 // <<<<<<< HEAD
       // بيانات ولي الامر
       fatherModel.schoolID = widget.user!.schoolID;
@@ -95,7 +71,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       fatherModel.roleID = 3; // 3 means fathers in display later
       fatherModel.schoolID = widget.user!.schoolID;
       print(
-          "School ID into Father in AddStudent Page : : ${fatherModel.schoolID}");
       fatherModel.isActivate = 0; // not actinates
 
       // firebasehelper.addStudent(studentModel);
@@ -110,7 +85,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 // =======
       studentController.addStudentToFirebase(studentModel, SchoolID!);
 // >>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('تمت إضافة الطالب بنجاح'),
@@ -124,11 +98,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
     final _schoolId = widget.user?.schoolID;
-=======
-    // final _schoolId = widget.user?.schoolID;
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
     return Scaffold(
       appBar: AppBar(title: Text('إضافة طالب')),
       body: SingleChildScrollView(
@@ -203,69 +173,11 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-<<<<<<< HEAD
-              _buildTextField(firstNameController, 'الاسم الأول'),
-              _buildTextField(middleNameController, 'الاسم الأوسط'),
-              _buildTextField(grandfatherNameController, 'اسم الجد'),
-              _buildTextField(lastNameController, 'اسم العائلة'),
-              SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        print(
-                            "widget.user?.schoolID : ${widget.user?.schoolID}");
-                        if (_formKey.currentState!.validate()) {
-                          studentModel.schoolId = _schoolId;
-                          studentModel.firstName = firstNameController.text;
-                          studentModel.middleName = middleNameController.text;
-                          studentModel.grandfatherName =
-                              grandfatherNameController.text;
-                          studentModel.lastName = lastNameController.text;
-                          print(
-                              "Student Models in Add Student : ${studentModel.grandfatherName}");
-                          await studentController.addStudent(studentModel, 1);
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(
-                              "Adedd!",
-                            ),
-                            duration: Duration(seconds: 1),
-                            backgroundColor: Colors.green,
-                          ));
-                          Navigator.of(context).pop();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue),
-                      child: Text(
-                        'إضافة',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green),
-                      child: Text(
-                        'جلب ملف إكسل',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-=======
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: const Text(
                   "بيانات ولي الامر",
                   style: TextStyle(fontSize: 18),
-                ),
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
               ),
               _buildTextField(middleNameController, "اسم ولى الامر"),
               _buildTextField(

@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class UserModel {
   int? user_id;
-  int? ActivityID;
-  int? ElhalagatID;
+  int? activityID;
+  int? elhalagatID;
   String? first_name;
   String? middle_name;
   String? grandfather_name;
@@ -19,8 +19,8 @@ class UserModel {
 
   UserModel({
     this.user_id,
-    this.ActivityID,
-    this.ElhalagatID,
+    this.activityID,
+    this.elhalagatID,
     this.first_name,
     this.middle_name,
     this.grandfather_name,
@@ -39,8 +39,8 @@ class UserModel {
   Map<String, dynamic> toMap() {
     return {
       'user_id': user_id,
-      'ActivityID': ActivityID,
-      'ElhalagatID': ElhalagatID,
+      'ActivityID': activityID,
+      'ElhalagatID': elhalagatID,
       'first_name': first_name,
       'middle_name': middle_name,
       'grandfather_name': grandfather_name,
@@ -60,8 +60,8 @@ class UserModel {
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
       user_id: map['user_id'] as int?,
-      ActivityID: map['ActivityID'] as int?,
-      ElhalagatID: map['ElhalagatID'] as int?,
+      activityID: map['ActivityID'] as int?,
+      elhalagatID: map['ElhalagatID'] as int?,
       first_name: map['first_name'] as String?,
       middle_name: map['middle_name'] as String?,
       grandfather_name: map['grandfather_name'] as String?,
@@ -76,12 +76,11 @@ class UserModel {
       isActivate: map['isActivate'] as int?,
     );
   }
-<<<<<<< HEAD
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       user_id: json['user_id'] as int?,
-      ActivityID: json['ActivityID'] as int?,
-      ElhalagatID: json['ElhalagatID'] as int?,
+      activityID: json['ActivityID'] as int?,
+      elhalagatID: json['ElhalagatID'] as int?,
       first_name: json['first_name'] as String?,
       middle_name: json['middle_name'] as String?,
       grandfather_name: json['grandfather_name'] as String?,
@@ -99,8 +98,6 @@ class UserModel {
 
 
   int get userID => null!;
-=======
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
 }
 
 // UserModel userModel = UserModel();
