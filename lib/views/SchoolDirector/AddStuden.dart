@@ -47,6 +47,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 //       print(
 //           "School ID into Student in AddStudent Page : ${studentModel.schoolId}");
 // =======
+  // StudentModel studentModel = StudentModel();
+
+  void _submitForm() async {
     int? SchoolID = widget.user!.schoolID;
     print("asasasasasasas$SchoolID");
     if (_formKey.currentState!.validate()) {
@@ -71,6 +74,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       fatherModel.roleID = 3; // 3 means fathers in display later
       fatherModel.schoolID = widget.user!.schoolID;
       print(
+          "School ID into Father in AddStudent Page : : ${fatherModel.schoolID}");
       fatherModel.isActivate = 0; // not actinates
 
       // firebasehelper.addStudent(studentModel);
@@ -98,7 +102,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final _schoolId = widget.user?.schoolID;
+    // final _schoolId = widget.user?.schoolID;
     return Scaffold(
       appBar: AppBar(title: Text('إضافة طالب')),
       body: SingleChildScrollView(
@@ -173,11 +177,13 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: const Text(
                   "بيانات ولي الامر",
                   style: TextStyle(fontSize: 18),
+                ),
               ),
               _buildTextField(middleNameController, "اسم ولى الامر"),
               _buildTextField(
@@ -234,10 +240,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
         keyboardType: TextInputType.name,
-<<<<<<< HEAD
-=======
         textInputAction: TextInputAction.next,
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
         inputFormatters: [
           FilteringTextInputFormatter.deny(RegExp(r'[0-9٠-٩]'))
         ],
