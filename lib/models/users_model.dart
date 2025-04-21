@@ -95,9 +95,6 @@ class UserModel {
       isActivate: json['isActivate'] as int?,
     );
   }
-
-
-  int get userID => null!;
 }
 
 // UserModel userModel = UserModel();

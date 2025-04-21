@@ -39,7 +39,7 @@ class StudentController {
       }
 
       // تحويل البيانات المسترجعة إلى قائمة من StudentModel
-      List<StudentModel> students = studentData.map((student) {
+      students = studentData.map((student) {
         return StudentModel(
           studentID: student['StudentID'],
           schoolId: student['SchoolID'],
@@ -182,7 +182,6 @@ class StudentController {
         "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) VALUES ('${student.elhalaqaID}', ${schoolID}, '${student.firstName}', '${student.middleName}', '${student.grandfatherName}', ${student.lastName}', '${student.attendanceDays}', '${student.absenceDays}', '${student.excuse}', '${student.reasonAbsence}')"); // تحويل إلى Map
     await firebasehelper.addStudent(idStudent, student, schoolID);
   }
-
 }
 
 StudentController studentController = StudentController();

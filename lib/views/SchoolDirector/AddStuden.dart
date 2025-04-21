@@ -12,6 +12,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_excel/excel.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../../controllers/excel_testing.dart';
+
 
 class AddStudentScreen extends StatefulWidget {
   final UserModel? user;
@@ -37,29 +39,17 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   final studentModel = StudentModel();
   final fatherModel = UserModel();
   final _connectivity = Connectivity().checkConnectivity();
-  bool _isProcessingExcel = false;
 
-// // <<<<<<< HEAD
-//   Future<void> _submitForm() async {
-//     if (_formKey.currentState!.validate()) {
-//       // user is manager of school
-//       studentModel.schoolId = widget.user?.schoolID;
-//       print(
-//           "School ID into Student in AddStudent Page : ${studentModel.schoolId}");
-// =======
-  // StudentModel studentModel = StudentModel();
 
   void _submitForm() async {
     int? SchoolID = widget.user!.schoolID;
     print("asasasasasasas$SchoolID");
     if (_formKey.currentState!.validate()) {
-// >>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
       studentModel.firstName = firstNameController.text;
       studentModel.middleName = middleNameController.text;
       studentModel.grandfatherName = grandfatherNameController.text;
       studentModel.lastName = lastNameController.text;
 
-// <<<<<<< HEAD
       // بيانات ولي الامر
       fatherModel.schoolID = widget.user!.schoolID;
       fatherModel.first_name = middleNameController.text;
@@ -86,9 +76,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       print("Student ID in AddStudent Page : ${studentModel.userID}");
       await studentController.addStudent(studentModel); // then add student
 
-// =======
       studentController.addStudentToFirebase(studentModel, SchoolID!);
-// >>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('تمت إضافة الطالب بنجاح'),
@@ -140,16 +128,14 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                       child: ElevatedButton(
                         onPressed: () async {
                           /// export excel file
-                          // _pickAndProcessExcel();
-                          Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                              builder: (context) => HandlingExcelFile(
-                                schoolID: widget.user?.schoolID,
-                              ),
-                            ),
-                          );
-                        },
+                          await ExcelTesting(schoolID: widget.user?.schoolID).readExcelFile(context).then((_){
+                            Navigator.pop(context);
+                          });
+                           // إعادة بناء الواجهة بعد جلب البيانات
+
+
+                        }
+                      ,
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green),
                         child: Text(
