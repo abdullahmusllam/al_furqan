@@ -99,4 +99,17 @@ class SqlDb {
     );
     return result.isNotEmpty;
   }
+
+  Future<bool> checkIfitemExistsForExcel(
+      String table, Map<String, dynamic> conditions) async {
+    final db = await database;
+    String whereClause = conditions.keys.map((key) => "$key = ?").join(" AND ");
+    List<dynamic> whereArgs = conditions.values.toList();
+    final result = await db.query(
+      table,
+      where: whereClause,
+      whereArgs: whereArgs,
+    );
+    return result.isNotEmpty;
+  }
 }

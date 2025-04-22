@@ -1,4 +1,6 @@
 import 'package:al_furqan/controllers/StudentController.dart';
+import 'package:al_furqan/controllers/fathers_controller.dart';
+import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
@@ -7,7 +9,6 @@ import 'package:al_furqan/views/SchoolDirector/AddStuden.dart';
 import 'package:al_furqan/views/SchoolDirector/updateStudent.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-
 
 class StudentsListPage extends StatefulWidget {
   final UserModel? user;
@@ -18,14 +19,13 @@ class StudentsListPage extends StatefulWidget {
 }
 
 class _StudentsListPageState extends State<StudentsListPage> {
-  final sqlDb= SqlDb();
+  final sqlDb = SqlDb();
   List<StudentModel> students = [];
   @override
   void initState() {
     super.initState();
     _loadStudent(); // استدعاء دالة جلب الطلاب عند تهيئة الصفحة
   }
-
 
   Future<void> _loadStudent() async {
     int schoolID = widget.user!.schoolID!;
@@ -105,7 +105,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
                           contentPadding: EdgeInsets.all(16),
                           leading: CircleAvatar(
                             backgroundColor: Colors.teal,
-                            child: Icon(Icons.person, color: Colors.white),
+                            child: Text("$index"),
                           ),
                           title: Text(
                             student.firstName ?? '',
@@ -117,8 +117,10 @@ class _StudentsListPageState extends State<StudentsListPage> {
                             style: TextStyle(
                                 fontSize: 16, color: Colors.grey[600]),
                           ),
-                          trailing:
-                              Icon(Icons.arrow_forward_ios, color: Colors.teal),
+                          trailing: IconButton(
+                              onPressed: () async {},
+                              icon: Icon(Icons.delete),
+                              color: Colors.redAccent),
                           onTap: () {
                             Navigator.push(
                               context,
