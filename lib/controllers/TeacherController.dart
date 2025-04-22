@@ -34,7 +34,7 @@ class TeacherController {
           "Teachers fetched for schoolID $schoolID: ${teachers.length} teachers");
       teachers.forEach((e) {
         print(
-            "Teacher: ${e.user_id}, RoleID: ${e.roleID}, Name: ${e.first_name}, schoolID: ${e.schoolID}");
+            "Teacher: ${e.user_id}, RoleID: ${e.roleID}, Name: ${e.first_name}, schoolID: ${e.schoolID}, ElhalagatID: ${e.elhalagatID}");
       });
     } catch (e) {
       print("Error fetching teachers for schoolID $schoolID: $e");
@@ -58,6 +58,7 @@ class TeacherController {
         password: int.tryParse(data['password'].toString()) ?? 0,
         roleID: data['roleID'] as int?,
         schoolID: data['schoolID'] as int?,
+        elhalagatID: data['ElhalagatID'] as int?,
         date: data['date']?.toString(),
         isActivate: data['isActivate'] as int?,
       );

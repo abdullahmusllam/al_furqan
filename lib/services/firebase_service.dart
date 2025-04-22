@@ -15,23 +15,27 @@ class FirebaseHelper {
       int id, StudentModel StudentData, int schoolID) async {
     final StudentRef = await _firestore.collection('Students');
 
-    if (StudentData != Null) {
-      await StudentRef.doc(id.toString()).set({
-        'StudentID': id,
-        'ElhalagatID': StudentData.elhalaqaID,
-        'SchoolID': schoolID,
-        'FirstName': StudentData.firstName,
-        'MiddleName': StudentData.middleName,
-        'grandfatherName': StudentData.grandfatherName,
-        'LastName': StudentData.lastName,
-        'AttendanceDays': StudentData.attendanceDays,
-        'AbsenceDays': StudentData.absenceDays,
-        'Excuse': StudentData.excuse,
-        'ReasonAbsence': StudentData.reasonAbsence
-      });
-      print('تمت إضافة/تحديث العنص بالرقم $id بنجاح ');
+    if (StudentData != null) {
+      try {
+        await StudentRef.doc(id.toString()).set({
+          'StudentID': id,
+          'ElhalagatID': StudentData.elhalaqaID,
+          'SchoolID': schoolID,
+          'FirstName': StudentData.firstName,
+          'MiddleName': StudentData.middleName,
+          'grandfatherName': StudentData.grandfatherName,
+          'LastName': StudentData.lastName,
+          'AttendanceDays': StudentData.attendanceDays,
+          'AbsenceDays': StudentData.absenceDays,
+          'Excuse': StudentData.excuse,
+          'ReasonAbsence': StudentData.reasonAbsence
+        });
+        print('تمت إضافة/تحديث الطالب بالرقم $id بنجاح ');
+      } catch (e) {
+        print('خطأ أثناء إضافة الطالب إلى Firebase: $e');
+      }
     } else {
-      print('studentData فارغ ');
+      print('تحذير: studentData فارغ');
     }
   }
 
@@ -224,11 +228,15 @@ Future<List<Map<String, dynamic>>> getElhalagaData(int schoolID) async {
     try {
       final docRef = _firestore.collection('Users');
       final snapshot = await docRef.get();
-      return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+      return snapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
     } catch (e) {
-    print('حدث خطأ: $e');
-    return [];
+      print('حدث خطأ: $e');
+      return [];
+    }
   }
+
 }
 
 // services/password_service.dart
