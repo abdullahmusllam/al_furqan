@@ -2,7 +2,6 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
-import 'package:al_furqan/views/SchoolDirector/handling_excel_file.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,7 +12,6 @@ import 'package:flutter_excel/excel.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../controllers/excel_testing.dart';
-
 
 class AddStudentScreen extends StatefulWidget {
   final UserModel? user;
@@ -40,15 +38,17 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   final fatherModel = UserModel();
   final _connectivity = Connectivity().checkConnectivity();
 
-
   void _submitForm() async {
     int? SchoolID = widget.user!.schoolID;
-    print("asasasasasasas$SchoolID");
+    print("معرف المدرسة للطالب الجديد: $SchoolID");
+
     if (_formKey.currentState!.validate()) {
+      // بيانات الطالب
       studentModel.firstName = firstNameController.text;
       studentModel.middleName = middleNameController.text;
       studentModel.grandfatherName = grandfatherNameController.text;
       studentModel.lastName = lastNameController.text;
+      studentModel.schoolId = SchoolID; // تأكد من تعيين معرف المدرسة للطالب
 
       // بيانات ولي الامر
       fatherModel.schoolID = widget.user!.schoolID;
@@ -63,28 +63,49 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       fatherModel.password = 12345678; //defualt Just for fathers
       fatherModel.roleID = 3; // 3 means fathers in display later
       fatherModel.schoolID = widget.user!.schoolID;
-      print(
-          "School ID into Father in AddStudent Page : : ${fatherModel.schoolID}");
+      print("معرف المدرسة لولي الأمر: ${fatherModel.schoolID}");
       fatherModel.isActivate = 0; // not actinates
 
-      // firebasehelper.addStudent(studentModel);
-      fatherModel.user_id = await fathersController
-          .addFather(fatherModel); // first add father to init userID
-      print("Father ID in AddStudent Page : ${fatherModel.user_id}");
-      studentModel.userID =
-          fatherModel.user_id; // assign userID to studentModel
-      print("Student ID in AddStudent Page : ${studentModel.userID}");
-      await studentController.addStudent(studentModel); // then add student
+      try {
+        // أولاً: إضافة ولي الأمر
+        fatherModel.user_id = await fathersController.addFather(fatherModel);
+        print("تم إضافة ولي الأمر بمعرف: ${fatherModel.user_id}");
 
-      studentController.addStudentToFirebase(studentModel, SchoolID!);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('تمت إضافة الطالب بنجاح'),
-          backgroundColor: Colors.green,
-        ),
-        //  setState(() {});
-      );
-      Navigator.pop(context);
+        // ثانيًا: ربط الطالب بولي الأمر
+        studentModel.userID = fatherModel.user_id;
+
+        // ثالثًا: إضافة الطالب إلى قاعدة البيانات المحلية
+        int studentID = await studentController.addStudent(studentModel);
+        print("تم إضافة الطالب محليًا بمعرف: $studentID");
+
+        // رابعًا: تحديث معرف الطالب في النموذج
+        studentModel.studentID = studentID;
+
+        // خامسًا: إضافة الطالب إلى Firebase
+        if (SchoolID != null) {
+          await studentController.addStudentToFirebase(studentModel, SchoolID);
+          print("تم إضافة الطالب إلى Firebase");
+        } else {
+          print("تحذير: معرف المدرسة غير متوفر، لم يتم الإضافة إلى Firebase");
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('تمت إضافة الطالب بنجاح'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.pop(context);
+      } catch (e) {
+        print("حدث خطأ أثناء إضافة الطالب: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('فشل في إضافة الطالب: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -128,14 +149,12 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                       child: ElevatedButton(
                         onPressed: () async {
                           /// export excel file
-                          await ExcelTesting(schoolID: widget.user?.schoolID).readExcelFile(context).then((_){
+                          await ExcelTesting(schoolID: widget.user?.schoolID)
+                              .readExcelFile(context)
+                              .then((_) {
                             Navigator.pop(context);
                           });
-                           // إعادة بناء الواجهة بعد جلب البيانات
-
-
-                        }
-                      ,
+                        },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green),
                         child: Text(
