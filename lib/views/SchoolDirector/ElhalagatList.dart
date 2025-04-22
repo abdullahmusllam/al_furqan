@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/models/halaga_model.dart';

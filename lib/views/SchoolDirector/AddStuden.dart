@@ -1,16 +1,11 @@
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
-import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_excel/excel.dart';
 import 'package:intl/intl.dart';
-import 'package:permission_handler/permission_handler.dart';
 import '../../controllers/excel_testing.dart';
 
 class AddStudentScreen extends StatefulWidget {
@@ -82,13 +77,44 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         studentModel.studentID = studentID;
 
         // خامسًا: إضافة الطالب إلى Firebase
-        if (SchoolID != null) {
-          await studentController.addStudentToFirebase(studentModel, SchoolID);
-          print("تم إضافة الطالب إلى Firebase");
+        // التحقق من وجود اتصال بالإنترنت
+        var connectivityResult = await Connectivity().checkConnectivity();
+        print("Connection Status : $connectivityResult");
+
+        if (connectivityResult == ConnectivityResult.none) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'تم إضافة الطالب محلياً، لكن لا يمكن مزامنته مع Firebase بسبب عدم وجود اتصال بالإنترنت'),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 5),
+            ),
+          );
+          // نتابع مع إظهار رسالة النجاح دون توقف عند هذه النقطة
         } else {
-          print("تحذير: معرف المدرسة غير متوفر، لم يتم الإضافة إلى Firebase");
+          // لدينا اتصال بالإنترنت، نحاول إضافة الطالب إلى Firebase
+          if (SchoolID != null) {
+            try {
+              await studentController.addStudentToFirebase(
+                  studentModel, SchoolID);
+              print("تم إضافة الطالب إلى Firebase");
+            } catch (firebaseError) {
+              print("خطأ في إضافة الطالب إلى Firebase: $firebaseError");
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                      'تم إضافة الطالب محلياً، لكن حدث خطأ أثناء المزامنة مع Firebase'),
+                  backgroundColor: Colors.orange,
+                  duration: Duration(seconds: 3),
+                ),
+              );
+            }
+          } else {
+            print("تحذير: معرف المدرسة غير متوفر، لم يتم الإضافة إلى Firebase");
+          }
         }
 
+        // إظهار رسالة النجاح النهائية
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('تمت إضافة الطالب بنجاح'),

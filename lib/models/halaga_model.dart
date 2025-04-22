@@ -65,4 +65,35 @@ class HalagaModel {
     this.executedIslamicContent,
     this.islamicExecutionReason,
   });
+
+  factory HalagaModel.fromJson(Map<String, dynamic> json) {
+    return HalagaModel(
+      halagaID: json['halagaID'],
+      SchoolID: json['SchoolID'],
+      Name: json['Name'],
+      NumberStudent: json['NumberStudent'],
+      AttendanceRate: json['AttendanceRate'],
+      TeacherName: json['TeacherName'],
+      conservationPlanStart: json['conservationPlanStart'],
+      conservationPlanEnd: json['conservationPlanEnd'],
+      conservationStartSurah: json['conservationStartSurah'],
+      conservationEndSurah: json['conservationEndSurah'],
+      conservationStartVerse: json['conservationStartVerse'],
+      conservationEndVerse: json['conservationEndVerse'],
+      recitationPlanStart: json['recitationPlanStart'],
+      recitationPlanEnd: json['recitationPlanEnd'],
+      recitationStartSurah: json['recitationStartSurah'],
+      recitationEndSurah: json['recitationEndSurah'],
+      recitationStartVerse: json['recitationStartVerse'],
+      recitationEndVerse: json['recitationEndVerse'],
+      executedStartSurah: json['executedStartSurah'],
+      executedEndSurah: json['executedEndSurah'],
+      executedStartVerse: json['executedStartVerse'],
+      executedEndVerse: json['executedEndVerse'],
+      islamicStudiesSubject: json['islamicStudiesSubject'],
+      islamicStudiesContent: json['islamicStudiesContent'],
+      executedIslamicContent: json['executedIslamicContent'],
+      islamicExecutionReason: json['islamicExecutionReason'],
+    );
+  }
 }

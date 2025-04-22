@@ -12,37 +12,13 @@ class StudentController {
         .readData("SELECT * FROM Students WHERE ElhalagatID = $halagaID");
 
     students = studentData.map((student) {
-      // تأكد من أن elhalaqaID هو int أو null
-      int? elhalaqaID;
-      if (student['ElhalagatID'] != null) {
-        try {
-          // محاولة تحويل إلى int إذا كان نصاً
-          if (student['ElhalagatID'] is String) {
-            // التعامل مع سلسلة 'null' الخاصة
-            if (student['ElhalagatID'] == 'null') {
-              elhalaqaID = null;
-              print("وجدت قيمة 'null' كنص: تم تعيين elhalaqaID إلى null");
-            } else {
-              elhalaqaID = int.tryParse(student['ElhalagatID']);
-              print(
-                  "تم تحويل معرف الحلقة من نص '${student['ElhalagatID']}' إلى رقم $elhalaqaID");
-            }
-          } else {
-            elhalaqaID = student['ElhalagatID'] as int?;
-          }
-        } catch (e) {
-          print("خطأ في تحويل معرف الحلقة: ${student['ElhalagatID']} - $e");
-          elhalaqaID = null;
-        }
-      }
-
       return StudentModel(
         studentID: student['StudentID'],
         firstName: student['FirstName'],
         middleName: student['MiddleName'],
         grandfatherName: student['grandfatherName'],
         lastName: student['LastName'],
-        elhalaqaID: elhalaqaID,
+        elhalaqaID: student['ElhalagatID'],
       );
     }).toList();
     print("Fetched students for halaga $halagaID: ${students.length}");
@@ -50,72 +26,60 @@ class StudentController {
   }
 
   Future<List<StudentModel>> getSchoolStudents(int schoolID) async {
-    try {
-      // جلب الطلاب المرتبطين بالمدارس
-      List<Map<String, dynamic>> studentData = await _sqldb
-          .readData("SELECT * FROM Students WHERE SchoolID = $schoolID");
+    // try {
+    // جلب الطلاب المرتبطين بالمدارس
+    List<Map<String, dynamic>> studentData = await _sqldb
+        .readData("SELECT * FROM Students WHERE SchoolID = $schoolID");
 
-      print("الطلاب الذين تم جلبهم من القاعدة المحلية: $studentData");
+    print("الطلاب الذين تم جلبهم من القاعدة المحلية: $studentData");
 
-      if (studentData.isEmpty) {
-        print("لا توجد بيانات للطلاب مع SchoolID: $schoolID");
-        return []; // إذا كانت البيانات فارغة، نرجع قائمة فارغة.
-      }
-
-      // تحويل البيانات المسترجعة إلى قائمة من StudentModel
-      students = studentData.map((student) {
-        // تأكد من أن elhalaqaID هو int أو null
-        int? elhalaqaID;
-        if (student['ElhalagatID'] != null) {
-          try {
-            // محاولة تحويل إلى int إذا كان نصاً
-            if (student['ElhalagatID'] is String) {
-              // التعامل مع سلسلة 'null' الخاصة
-              if (student['ElhalagatID'] == 'null') {
-                elhalaqaID = null;
-                print("وجدت قيمة 'null' كنص: تم تعيين elhalaqaID إلى null");
-              } else {
-                elhalaqaID = int.tryParse(student['ElhalagatID']);
-                print(
-                    "تم تحويل معرف الحلقة من نص '${student['ElhalagatID']}' إلى رقم $elhalaqaID");
-              }
-            } else {
-              elhalaqaID = student['ElhalagatID'] as int?;
-            }
-          } catch (e) {
-            print("خطأ في تحويل معرف الحلقة: ${student['ElhalagatID']} - $e");
-            elhalaqaID = null;
-          }
-        }
-
-        return StudentModel(
-          studentID: student['StudentID'],
-          schoolId: student['SchoolID'],
-          firstName: student['FirstName'],
-          middleName: student['MiddleName'],
-          grandfatherName: student['grandfatherName'],
-          lastName: student['LastName'],
-          elhalaqaID: elhalaqaID,
-          attendanceDays: student['AttendanceDays'],
-          absenceDays: student['AbsenceDays'],
-          excuse: student['Excuse'],
-          reasonAbsence: student['ReasonAbsence'],
-        );
-      }).toList();
-
-      print("عدد الطلاب الذين تم جلبهم: ${students.length}");
-
-      // طباعة معلومات الحلقات للطلاب للتصحيح
-      for (var student in students) {
-        print(
-            "الطالب: ${student.firstName} ${student.lastName}, معرف الحلقة: ${student.elhalaqaID}, نوع معرف الحلقة: ${student.elhalaqaID?.runtimeType}");
-      }
-
-      return students;
-    } catch (e) {
-      print("حدث خطأ أثناء جلب الطلاب: $e");
-      return [];
+    if (studentData.isEmpty) {
+      print("لا توجد بيانات للطلاب مع SchoolID: $schoolID");
+      return []; // إذا كانت البيانات فارغة، نرجع قائمة فارغة.
     }
+
+    // تحويل البيانات المسترجعة إلى قائمة من StudentModel
+    students = studentData.map((student) {
+      return StudentModel(
+        studentID: student['StudentID'] is String
+            ? int.tryParse(student['StudentID'])
+            : student['StudentID'] as int?,
+        schoolId: student['SchoolID'] is String
+            ? int.tryParse(student['SchoolID'])
+            : student['SchoolID'] as int?,
+        firstName: student['FirstName'] as String?,
+        middleName: student['MiddleName'] as String?,
+        grandfatherName: student['grandfatherName'] as String?,
+        lastName: student['LastName'] as String?,
+        elhalaqaID: student['ElhalagatID'] != null
+            ? (student['ElhalagatID'] is String
+                ? int.tryParse(student['ElhalagatID'])
+                : student['ElhalagatID'] as int?)
+            : null,
+        attendanceDays: student['AttendanceDays'] is String
+            ? int.tryParse(student['AttendanceDays'])
+            : student['AttendanceDays'] as int?,
+        absenceDays: student['AbsenceDays'] is String
+            ? int.tryParse(student['AbsenceDays'])
+            : student['AbsenceDays'] as int?,
+        excuse: student['Excuse'] as String?,
+        reasonAbsence: student['ReasonAbsence'] as String?,
+      );
+    }).toList();
+
+    print("عدد الطلاب الذين تم جلبهم: ${students.length}");
+
+    // طباعة معلومات الحلقات للطلاب للتصحيح
+    for (var student in students) {
+      print(
+          "الطالب: ${student.firstName} ${student.lastName}, معرف الحلقة: ${student.elhalaqaID}, نوع معرف الحلقة: ${student.elhalaqaID?.runtimeType}");
+    }
+
+    return students;
+    // } catch (e) {
+    // print("حدث خطأ أثناء جلب الطلاب: $e");
+    // return [];
+    // }
   }
 
   addStudentToFirebase(StudentModel student, int schoolID) async {
@@ -123,33 +87,13 @@ class StudentController {
 
     if (student.studentID == null) {
       print("تحذير: معرف الطالب غير موجود (studentID = null)");
-    }
-
-    // معالجة معرف الحلقة
-    String elhalaqaIDStr;
-    if (student.elhalaqaID == null) {
-      elhalaqaIDStr = "NULL"; // استخدام NULL في SQL بدلاً من قيمة نصية
-    } else {
-      elhalaqaIDStr = "${student.elhalaqaID}";
+      return; // لا يمكن الإضافة إلى Firebase بدون معرف
     }
 
     int? schoolIDF = schoolID;
-    int add = await _sqldb.insertData(
-        "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) "
-        "VALUES ($elhalaqaIDStr, ${schoolID}, "
-        "'${student.firstName}', '${student.middleName}', '${student.grandfatherName}', "
-        "'${student.lastName}', ${student.attendanceDays ?? 'NULL'}, ${student.absenceDays ?? 'NULL'}, "
-        "'${student.excuse ?? ''}', '${student.reasonAbsence ?? ''}')");
 
-    print("تم إضافة الطالب محلياً بمعرف: $add");
-
-    // تحديث معرف الطالب إذا لم يكن موجودًا
-    if (student.studentID == null) {
-      student.studentID = add;
-    }
-
-    // إرسال البيانات إلى Firebase
-    await firebasehelper.addStudent(add, student, schoolIDF);
+    // إرسال البيانات إلى Firebase فقط بدون إضافة محلية مرة أخرى
+    await firebasehelper.addStudent(student.studentID!, student, schoolIDF);
     print("تم إرسال بيانات الطالب إلى Firebase");
   }
 
@@ -198,18 +142,10 @@ class StudentController {
     try {
       print("Student in update : ${student.grandfatherName}");
 
-      // معالجة معرف الحلقة
-      String elhalaqaIDStr;
-      if (student.elhalaqaID == null) {
-        elhalaqaIDStr = "NULL"; // استخدام NULL في SQL بدلاً من 'NULL'
-      } else {
-        elhalaqaIDStr = "${student.elhalaqaID}";
-      }
-
       int update = await _sqldb.updateData(
-          "UPDATE Students SET ElhalagatID = $elhalaqaIDStr, FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}' WHERE StudentID = $id");
+          "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}' WHERE StudentID = $id");
       print("Update response: $update");
-      print("USer ID : ${student.userID}");
+      print("User ID : ${student.userID}");
       await firebasehelper.updateStudentData(student, id);
 
       if (update == 0) {
@@ -222,17 +158,9 @@ class StudentController {
   }
 
   Future<void> addStudentToLocal(StudentModel student) async {
-    // معالجة معرف الحلقة
-    String elhalaqaIDStr;
-    if (student.elhalaqaID == null) {
-      elhalaqaIDStr = "NULL"; // استخدام NULL في SQL بدلاً من قيمة نصية
-    } else {
-      elhalaqaIDStr = "${student.elhalaqaID}";
-    }
-
     int add = await _sqldb.insertData(
         "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) "
-        "VALUES ($elhalaqaIDStr, ${student.schoolId}, '${student.firstName}', '${student.middleName}', "
+        "VALUES ('${student.elhalaqaID}', ${student.schoolId}, '${student.firstName}', '${student.middleName}', "
         "'${student.grandfatherName}', '${student.lastName}', ${student.attendanceDays ?? 'NULL'}, "
         "${student.absenceDays ?? 'NULL'}, '${student.excuse ?? ''}', '${student.reasonAbsence ?? ''}')");
 
@@ -294,17 +222,9 @@ class StudentController {
   addStudentToFirebase2(StudentModel student, int schoolID) async {
     print("جاري إضافة الطالب إلى Firebase - معرف المدرسة: ${schoolID}");
 
-    // معالجة معرف الحلقة
-    String elhalaqaIDStr;
-    if (student.elhalaqaID == null) {
-      elhalaqaIDStr = "NULL"; // استخدام NULL في SQL بدلاً من قيمة نصية
-    } else {
-      elhalaqaIDStr = "${student.elhalaqaID}";
-    }
-
     int idStudent = await _sqldb.insertData(
         "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) "
-        "VALUES ($elhalaqaIDStr, ${schoolID}, '${student.firstName}', '${student.middleName}', "
+        "VALUES ('${student.elhalaqaID}', ${schoolID}, '${student.firstName}', '${student.middleName}', "
         "'${student.grandfatherName}', '${student.lastName}', ${student.attendanceDays ?? 'NULL'}, "
         "${student.absenceDays ?? 'NULL'}, '${student.excuse ?? ''}', '${student.reasonAbsence ?? ''}')");
 

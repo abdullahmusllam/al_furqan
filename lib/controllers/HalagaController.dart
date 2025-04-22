@@ -409,6 +409,12 @@ class HalagaController {
       rethrow;
     }
   }
+
+  Future<List<HalagaModel>> getHalagaByHalagaID(int halagaID) async {
+    List<Map<String, dynamic>> halagaData = await _sqlDb.readData(
+        "SELECT * FROM Elhalagat WHERE halagaID = $halagaID");
+    return halagaData.map((halaga) => HalagaModel.fromJson(halaga)).toList();
+  }
 }
 
 HalagaController halagaController = HalagaController();
