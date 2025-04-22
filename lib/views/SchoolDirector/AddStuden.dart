@@ -2,7 +2,7 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
-import 'package:al_furqan/views/SchoolDirector/handling_excel_file.dart';
+// import 'package:al_furqan/views/SchoolDirector/handling_excel_file.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
