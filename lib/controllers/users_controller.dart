@@ -1,5 +1,6 @@
 import 'package:al_furqan/controllers/some_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
+import 'package:al_furqan/models/password_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -8,6 +9,9 @@ class UserController {
   final List<UserModel> _users = [];
   final List<UserModel> _requests = [];
   final SqlDb _sqlDb = SqlDb();
+  final FirebaseHelper _service = FirebaseHelper();
+  final PasswordResetModel _model = PasswordResetModel();
+
 
   List<UserModel> get users => _users;
   List<UserModel> get requests => _requests;
@@ -178,6 +182,37 @@ class UserController {
       }
     }
   }
+  // إرسال رمز التحقق
+  Future<void> sendVerificationCode(int phoneNumber) async {
+    _model.phoneNumber = phoneNumber;
+    _model.generatedCode = await _service.sendWhatsAppVerification(phoneNumber);
+    _model.codeSent = true;
+  }
+
+  // تغيير كلمة المرور
+  Future<void> resetPassword() async {
+    if (!_model.isValidCode) {
+      throw 'رمز التحقق غير صحيح';
+    }
+
+    if (!_model.isValidNewPassword) {
+      throw 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+    }
+
+    await _service.updatePassword(
+      _model.phoneNumber!,
+      _model.newPassword!,
+    );
+  }
+
+  // Getters للوصول إلى بيانات النموذج
+  bool get codeSent => _model.codeSent;
+    int? get phoneNumber => _model.phoneNumber;
+  
+  // Setters لتحديث بيانات النموذج
+  set verificationCode(String code) => _model.verificationCode = code;
+  set newPassword(String password) => _model.newPassword = password;
 }
+
 
 UserController userController = UserController();

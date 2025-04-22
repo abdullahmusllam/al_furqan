@@ -51,7 +51,7 @@ class HalagaController {
 
   Future<List<UserModel>> getTeachers(int schoolID) async {
     List<Map> data = await _sqlDb.readData(
-        "SELECT userID, first_name, last_name, roleID, schoolID FROM Users WHERE schoolID = $schoolID AND roleID = 2");
+        "SELECT user_id, first_name, last_name, roleID, schoolID FROM Users WHERE schoolID = $schoolID AND roleID = 2");
 
     List<UserModel> teachers = [];
 

@@ -1,5 +1,6 @@
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
+import 'package:al_furqan/views/login/forgot_password.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../models/users_model.dart';
@@ -232,6 +233,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(fontSize: 18, color: Colors.white)),
                   ),
                   SizedBox(height: 10),
+                  // في شاشة LoginScreen ضمن الـ Column في الـ build
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ForgotPasswordScreen()),
+                      );
+                    },
+                    child: Text('نسيت كلمة المرور؟'),
+                  ),
                   Center(
                     child: GestureDetector(
                       onTap: () {
