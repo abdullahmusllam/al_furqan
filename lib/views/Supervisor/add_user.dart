@@ -403,7 +403,7 @@ class _AddUserState extends State<AddUser> {
         break;
     }
     _userModel.roleID = roleID;
-    userController.addUser(_userModel);
+    userController.addUser(_userModel,1);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("تمت إضافة مستخدم بنجاح"),

@@ -11,6 +11,7 @@ import 'package:al_furqan/views/SchoolDirector/AddStuden.dart';
 import 'package:al_furqan/views/SchoolDirector/updateStudent.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class StudentsListPage extends StatefulWidget {
   final UserModel? user;
@@ -74,47 +75,44 @@ class _StudentsListPageState extends State<StudentsListPage> {
     if (schoolID != null) {
       // Load halaqat names first
       // print("جاري تحميل أسماء الحلقات...");
-      // await _loadHalaqaNames(schoolID);
+      await _loadHalaqaNames(schoolID);
+      bool isConnected = await InternetConnectionChecker.createInstance().hasConnection;
+      print("حالة الاتصال: $isConnected");
 
-      var connectivityResult = await Connectivity().checkConnectivity();
-      print("حالة الاتصال: $connectivityResult");
+      if (isConnected) {
+          // جلب بيانات الطلاب من Firebase
+          print("جاري جلب بيانات الطلاب من Firebase...");
+          List<Map<String, dynamic>> studentsList =
+              await firebasehelper.getStudentData(schoolID);
+          print("تم جلب ${studentsList.length} طالب من Firebase");
+          print("بيانات الطلاب من Firebase: $studentsList");
 
-      if (connectivityResult != ConnectivityResult.none) {
-        //   // جلب بيانات الطلاب من Firebase
-        //   print("جاري جلب بيانات الطلاب من Firebase...");
-        //   List<Map<String, dynamic>> studentsList =
-        //       await firebasehelper.getStudentData(schoolID);
-        //   print("تم جلب ${studentsList.length} طالب من Firebase");
-        //   print("بيانات الطلاب من Firebase: $studentsList");
+          for (var studentData in studentsList) {
+            // تحويل البيانات إلى StudentModel
+            print("جاري معالجة بيانات الطالب: $studentData");
+            StudentModel student = StudentModel.fromJson(studentData);
+            print(
+                "تم تحويل البيانات إلى نموذج الطالب: ${student.firstName}, ID: ${student.studentID}, حلقة: ${student.elhalaqaID}");
+            // التحقق إذا كان الطالب موجودًا في قاعدة البيانات المحلية
+            if (student.studentID == null) {
+              print("تخطي الطالب لأن studentID هو null");
+              continue;
+            }
 
-        //   for (var studentData in studentsList) {
-        //     // تحويل البيانات إلى StudentModel
-        //     print("جاري معالجة بيانات الطالب: $studentData");
-        //     StudentModel student = StudentModel.fromJson(studentData);
-        //     print(
-        //         "تم تحويل البيانات إلى نموذج الطالب: ${student.firstName}, ID: ${student.studentID}, حلقة: ${student.elhalaqaID}");
+            bool exists = await sqlDb.checkIfitemExists(
+                "Students", student.studentID!, 'StudentID');
+            print("هل الطالب موجود في قاعدة البيانات المحلية؟ $exists");
 
-        //     // التحقق إذا كان الطالب موجودًا في قاعدة البيانات المحلية
-        //     if (student.studentID == null) {
-        //       print("تخطي الطالب لأن studentID هو null");
-        //       continue;
-        //     }
-
-        //     bool exists = await sqlDb.checkIfitemExists(
-        //         "Students", student.studentID!, 'StudentID');
-        //     print("هل الطالب موجود في قاعدة البيانات المحلية؟ $exists");
-
-        //     if (exists) {
-        //       // إذا كان موجودًا، يتم التحديث
-        //       await studentController.updateStudent(student, student.studentID!);
-        //       print("تم تحديث بيانات الطالب ${student.firstName}");
-        //     } else {
-        //       // إذا لم يكن موجودًا، يتم إضافته
-        //       await studentController.addStudentToLocal(student);
-        //       print(" : تم إضافة بيانات الطالب ${student.firstName}");
-        //     }
-        //   }
-
+            if (exists) {
+              // إذا كان موجودًا، يتم التحديث
+              await studentController.updateStudent(student, student.studentID!, 0);
+              print("تم تحديث بيانات الطالب ${student.firstName}");
+            } else {
+              // إذا لم يكن موجودًا، يتم إضافته
+              await studentController.addStudentToLocal(student);
+              print(" : تم إضافة بيانات الطالب ${student.firstName}");
+            }
+          }
         // تحميل البيانات من القاعدة المحلية
         print("جاري تحميل البيانات من قاعدة البيانات المحلية...");
         List<StudentModel>? loadedStudent =
@@ -127,6 +125,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
           isLoading = false;
           print("تم تحديث واجهة المستخدم بـ ${students.length} طالب");
         });
+
       } else {
         // إذا لم يكن هناك اتصال بالإنترنت، يتم تحميل البيانات من القاعدة المحلية فقط
         print(

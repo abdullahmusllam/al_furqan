@@ -138,8 +138,9 @@ class StudentController {
     }
   }
 
-  Future<void> updateStudent(StudentModel student, int id) async {
-    try {
+  Future<void> updateStudent(StudentModel student, int id, int type) async {
+     try {
+    if (type == 1) {
       print("Student in update : ${student.grandfatherName}");
 
       int update = await _sqldb.updateData(
@@ -151,16 +152,22 @@ class StudentController {
       if (update == 0) {
         throw Exception("Failed to update student $id");
       }
-    } catch (e) {
-      print("Error updating student: $e");
-      rethrow;
+    } else {
+      int update = await _sqldb.updateData(
+          "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}' WHERE StudentID = $id");
+      print("Update response: $update");
+      print("User ID : ${student.userID}");
     }
+     } catch (e) {
+        print("Error updating student: $e");
+        rethrow;
+      }
   }
 
   Future<void> addStudentToLocal(StudentModel student) async {
     int add = await _sqldb.insertData(
-        "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) "
-        "VALUES ('${student.elhalaqaID}', ${student.schoolId}, '${student.firstName}', '${student.middleName}', "
+        "INSERT INTO Students (StudentID, ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) "
+        "VALUES ('${student.studentID}', '${student.elhalaqaID}', ${student.schoolId}, '${student.firstName}', '${student.middleName}', "
         "'${student.grandfatherName}', '${student.lastName}', ${student.attendanceDays ?? 'NULL'}, "
         "${student.absenceDays ?? 'NULL'}, '${student.excuse ?? ''}', '${student.reasonAbsence ?? ''}')");
 
@@ -219,18 +226,18 @@ class StudentController {
     }
   }
 
-  addStudentToFirebase2(StudentModel student, int schoolID) async {
-    print("جاري إضافة الطالب إلى Firebase - معرف المدرسة: ${schoolID}");
+  // addStudentToFirebase2(StudentModel student, int schoolID) async {
+  //   print("جاري إضافة الطالب إلى Firebase - معرف المدرسة: ${schoolID}");
 
-    int idStudent = await _sqldb.insertData(
-        "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) "
-        "VALUES ('${student.elhalaqaID}', ${schoolID}, '${student.firstName}', '${student.middleName}', "
-        "'${student.grandfatherName}', '${student.lastName}', ${student.attendanceDays ?? 'NULL'}, "
-        "${student.absenceDays ?? 'NULL'}, '${student.excuse ?? ''}', '${student.reasonAbsence ?? ''}')");
+  //   int idStudent = await _sqldb.insertData(
+  //       "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) "
+  //       "VALUES ('${student.elhalaqaID}', ${schoolID}, '${student.firstName}', '${student.middleName}', "
+  //       "'${student.grandfatherName}', '${student.lastName}', ${student.attendanceDays ?? 'NULL'}, "
+  //       "${student.absenceDays ?? 'NULL'}, '${student.excuse ?? ''}', '${student.reasonAbsence ?? ''}')");
 
-    await firebasehelper.addStudent(idStudent, student, schoolID);
-    print("تم إرسال بيانات الطالب إلى Firebase");
-  }
+  //   await firebasehelper.addStudent(idStudent, student, schoolID);
+  //   print("تم إرسال بيانات الطالب إلى Firebase");
+  // }
 
   Future<List<StudentModel>> getStudentsWithoutHalaga(int schoolID) async {
     try {
