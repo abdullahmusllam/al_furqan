@@ -16,6 +16,7 @@ class TeacherManagement extends StatefulWidget {
 class _TeacherManagementState extends State<TeacherManagement>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -31,14 +32,36 @@ class _TeacherManagementState extends State<TeacherManagement>
   }
 
   void _refreshData() async {
-    await teacherController.getTeachers();
-    setState(() {});
+    setState(() {
+      _isLoading = true;
+    });
+
+    print("TeacherManagement refreshing data...");
+    try {
+      await teacherController.getTeachers();
+      print(
+          "TeacherManagement: Teachers fetched - count: ${teacherController.teachers.length}");
+    } catch (e) {
+      print("TeacherManagement: Error fetching teachers - $e");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+      print("TeacherManagement: Loading state set to false");
+    }
   }
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: const Text('إدارة المعلمين'),
-      backgroundColor: Colors.green.withOpacity(0.5),
+      title: const Text(
+        'إدارة المعلمين',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      backgroundColor: const Color.fromARGB(255, 1, 117, 70),
+      foregroundColor: Colors.white,
+      elevation: 0,
       actions: [
         IconButton(
           icon: const Icon(Icons.refresh),
@@ -48,16 +71,34 @@ class _TeacherManagementState extends State<TeacherManagement>
       ],
       bottom: TabBar(
         controller: _tabController,
+        indicatorColor: Colors.white,
+        indicatorWeight: 3,
+        labelStyle: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.normal,
+          fontSize: 14,
+        ),
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.white70,
         tabs: const [
-          Tab(text: 'المعلمين'),
-          Tab(text: 'الطلبات'),
+          Tab(
+            text: 'المعلمين',
+            icon: Icon(Icons.people),
+          ),
+          Tab(
+            text: 'الطلبات',
+            icon: Icon(Icons.assignment),
+          ),
         ],
       ),
     );
   }
 
-  FloatingActionButton _buildFloatingActionButton() {
-    return FloatingActionButton(
+  Widget _buildFloatingActionButton() {
+    return FloatingActionButton.extended(
       onPressed: () {
         // Navigator.of(context)
         //     .push(MaterialPageRoute(builder: (context) => const AddTeacher()))
@@ -66,7 +107,11 @@ class _TeacherManagementState extends State<TeacherManagement>
         // });
       },
       tooltip: 'إضافة معلم جديد',
-      child: const Icon(Icons.add),
+      icon: const Icon(Icons.add),
+      label: const Text('إضافة معلم'),
+      backgroundColor: const Color.fromARGB(255, 1, 117, 70),
+      foregroundColor: Colors.white,
+      elevation: 4,
     );
   }
 
@@ -74,14 +119,33 @@ class _TeacherManagementState extends State<TeacherManagement>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: TabBarView(
-        controller: _tabController,
-        children: const [
-          TeacherList(),
-          TeacherRequest(),
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      body: _isLoading
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    color: Color.fromARGB(255, 1, 117, 70),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'جاري تحميل البيانات...',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : TabBarView(
+              controller: _tabController,
+              children: const [
+                TeacherList(),
+                TeacherRequest(),
+              ],
+            ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: _buildFloatingActionButton(),
     );
   }

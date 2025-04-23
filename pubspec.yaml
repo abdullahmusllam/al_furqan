@@ -43,7 +43,9 @@ dependencies:
   path:
   intl:
   shared_preferences:
-    # اضفت ذي المكتبة علشان نتحقق من اتصال الشبكة وهل المستخدم متصل بالنت ولا لا
+    # مكتبة للتحقق من اتصال الإنترنت الفعلي وليس فقط اتصال الشبكة
+  internet_connection_checker: ^1.0.0
+  # اضفت ذي المكتبة علشان نتحقق من اتصال الشبكة وهل المستخدم متصل بالنت ولا لا
   connectivity_plus:
   file_picker:
   flutter_excel:

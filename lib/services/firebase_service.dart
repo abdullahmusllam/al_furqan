@@ -237,11 +237,9 @@ Future<List<Map<String, dynamic>>> getElhalagaData(int schoolID) async {
     }
   }
 
-}
-
 // services/password_service.dart
   // إرسال رمز التحقق عبر واتساب
- Future<String> sendWhatsAppVerification(int idNumber) async {
+  Future<String> sendWhatsAppVerification(int idNumber) async {
   try {
     // 1. البحث عن المستخدم في Firestore
     final query = await _firestore
@@ -309,7 +307,6 @@ Future<List<Map<String, dynamic>>> getElhalagaData(int schoolID) async {
     }
   }
   // =========================== End User =================================
-
-}
+} // End of FirebaseHelper class
 
 FirebaseHelper firebasehelper = FirebaseHelper();
