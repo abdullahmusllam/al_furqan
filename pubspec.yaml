@@ -50,6 +50,7 @@ dependencies:
   permission_handler:
   path_provider: ^2.1.5
   url_launcher:
+  internet_connection_checker:
 
 
 dev_dependencies:

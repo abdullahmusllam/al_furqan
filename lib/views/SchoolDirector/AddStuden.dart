@@ -7,6 +7,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:flutter/services.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/excel_testing.dart';
 
@@ -80,10 +81,10 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
         // خامسًا: إضافة الطالب إلى Firebase
         // التحقق من وجود اتصال بالإنترنت
-        var connectivityResult = await Connectivity().checkConnectivity();
-        print("Connection Status : $connectivityResult");
+        var connect = await InternetConnectionChecker.createInstance().hasConnection;
+        print("Connection Status : $connect");
 
-        if (connectivityResult == ConnectivityResult.none) {
+        if (connect == false) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(

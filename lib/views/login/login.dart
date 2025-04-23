@@ -1,4 +1,6 @@
+import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
+import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
 import 'package:al_furqan/views/login/forgot_password.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,6 +29,19 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     _checkLoginStatus();
+    loadUsersFromFirebase();
+  }
+
+  loadUsersFromFirebase() async {
+    List<UserModel> users = await firebasehelper.getUsers();
+      for(var user in users){
+        bool exists = await  sqlDb.checkIfitemExists("Users", user.user_id!, "user_id");
+        if(exists){
+          await userController.updateUser(user, 1);
+        }else{
+          await userController.addUser(user, 0);
+        }
+      }
   }
 
   /// حفظ بيانات تسجيل الدخول في SharedPreferences

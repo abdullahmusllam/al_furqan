@@ -71,7 +71,8 @@ class UserController {
   }
 
   // Method to add a new user
-  Future<void> addUser(UserModel userModel) async {
+  Future<void> addUser(UserModel userModel, int type) async {
+    if(type == 1){
     userModel.user_id = await someController.newId("USERS", "user_id");
     int response = await _sqlDb.insertData('''
     INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
@@ -79,7 +80,16 @@ class UserController {
     ''');
     print("response = $response, isActivate = ${userModel.isActivate}");
     await firebasehelper.addUser(response, userModel);
+    
+  } else {
+    userModel.user_id = await someController.newId("USERS", "user_id");
+    int response = await _sqlDb.insertData('''
+    INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
+    VALUES (${userModel.user_id}, '${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.password}', '${userModel.email}', '${userModel.phone_number}', '${userModel.telephone_number}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', '${userModel.isActivate}');
+    ''');
+    print("response = $response, isActivate = ${userModel.isActivate}");
   }
+   }
 
   // Method to delete a user
   Future<void> deleteUser(int userId) async {
@@ -151,35 +161,6 @@ class UserController {
     WHERE user_id = ${userModel.user_id}
     ''');
       print("response = $response");
-    }
-
-    // Method to add a new request
-    
-
-    // Helper method to map response to UserModel
-
-    Future<void> addToLocalOfFirebase() async {
-      var connectivityResult = await Connectivity().checkConnectivity();
-
-      if (connectivityResult != ConnectivityResult.none) {
-        List<Map<String, dynamic>> responseFirebase =
-            await firebasehelper.getUsers();
-        print("responseFirebase = $responseFirebase");
-
-        for (var user in responseFirebase) {
-          UserModel userModel = UserModel.fromJson(user);
-          bool exists = await _sqlDb.checkIfitemExists(
-              "Users", userModel.user_id!, "user_id");
-          if (exists) {
-            await updateUser(userModel, 1);
-          } else {
-            await addUser(userModel);
-          }
-        }
-      } else {
-        print("لا يوجد اتصال بالانترنت");
-        await getDataUsers();
-      }
     }
   }
   // إرسال رمز التحقق
