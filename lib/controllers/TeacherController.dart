@@ -1,5 +1,6 @@
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/controllers/users_controller.dart';
 
 class TeacherController {
   final SqlDb _sqlDb = SqlDb();
@@ -83,6 +84,25 @@ class TeacherController {
         isActivate: data['isActivate'] as int?,
       );
     }).toList();
+  }
+
+  // Method to add a new teacher
+  Future<void> addTeacher(UserModel teacherModel) async {
+    // Ensure the role is set to teacher (roleID = 2)
+    teacherModel.roleID = 2;
+
+    // Use the userController to add the user with teacher role
+    await userController.addUser(teacherModel);
+
+    // Refresh the teachers list after adding
+    if (teacherModel.schoolID != null) {
+      await getTeachersBySchoolID(teacherModel.schoolID!);
+    } else {
+      await getTeachers();
+    }
+
+    print(
+        "Teacher added successfully: ${teacherModel.first_name} ${teacherModel.last_name}");
   }
 }
 

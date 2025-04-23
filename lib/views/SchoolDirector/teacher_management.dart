@@ -1,4 +1,5 @@
 import 'package:al_furqan/controllers/TeacherController.dart';
+import 'package:al_furqan/views/SchoolDirector/add_teacher.dart';
 import 'package:al_furqan/views/SchoolDirector/teacher_list.dart';
 import 'package:al_furqan/views/SchoolDirector/teacher_request.dart';
 // import 'package:al_furqan/views/Supervisor/add_teacher.dart';
@@ -17,6 +18,8 @@ class _TeacherManagementState extends State<TeacherManagement>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _isLoading = false;
+  bool _isVisible = true;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -28,6 +31,7 @@ class _TeacherManagementState extends State<TeacherManagement>
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -98,20 +102,36 @@ class _TeacherManagementState extends State<TeacherManagement>
   }
 
   Widget _buildFloatingActionButton() {
-    return FloatingActionButton.extended(
-      onPressed: () {
-        // Navigator.of(context)
-        //     .push(MaterialPageRoute(builder: (context) => const AddTeacher()))
-        //     .then((_) {
-        //   _refreshData();
-        // });
-      },
-      tooltip: 'إضافة معلم جديد',
-      icon: const Icon(Icons.add),
-      label: const Text('إضافة معلم'),
-      backgroundColor: const Color.fromARGB(255, 1, 117, 70),
-      foregroundColor: Colors.white,
-      elevation: 4,
+    return AnimatedOpacity(
+      opacity: _isVisible ? 1.0 : 0.0,
+      duration: const Duration(milliseconds: 200),
+      child: FloatingActionButton.extended(
+        onPressed: _isVisible
+            ? () {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => AddTeacher()))
+                    .then((result) {
+                  if (result == true) {
+                    // Show a success message if the add operation was successful
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("تم إضافة المعلم بنجاح وتحديث القائمة"),
+                        backgroundColor: Color.fromARGB(255, 1, 117, 70),
+                      ),
+                    );
+                  }
+                  // Refresh data regardless of result
+                  _refreshData();
+                });
+              }
+            : null,
+        tooltip: 'إضافة معلم جديد',
+        icon: const Icon(Icons.add),
+        label: const Text('إضافة معلم'),
+        backgroundColor: const Color.fromARGB(255, 1, 117, 70),
+        foregroundColor: Colors.white,
+        elevation: 4,
+      ),
     );
   }
 
@@ -138,12 +158,39 @@ class _TeacherManagementState extends State<TeacherManagement>
                 ],
               ),
             )
-          : TabBarView(
-              controller: _tabController,
-              children: const [
-                TeacherList(),
-                TeacherRequest(),
-              ],
+          : NotificationListener<ScrollNotification>(
+              onNotification: (ScrollNotification scrollInfo) {
+                if (scrollInfo is ScrollUpdateNotification) {
+                  // If scroll direction is downward, hide FAB
+                  if (scrollInfo.dragDetails != null &&
+                      scrollInfo.dragDetails!.primaryDelta != null &&
+                      scrollInfo.dragDetails!.primaryDelta! < 0) {
+                    if (_isVisible) {
+                      setState(() {
+                        _isVisible = false;
+                      });
+                    }
+                  }
+                  // If scroll direction is upward, show FAB
+                  else if (scrollInfo.dragDetails != null &&
+                      scrollInfo.dragDetails!.primaryDelta != null &&
+                      scrollInfo.dragDetails!.primaryDelta! > 0) {
+                    if (!_isVisible) {
+                      setState(() {
+                        _isVisible = true;
+                      });
+                    }
+                  }
+                }
+                return false;
+              },
+              child: TabBarView(
+                controller: _tabController,
+                children: const [
+                  TeacherList(),
+                  TeacherRequest(),
+                ],
+              ),
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: _buildFloatingActionButton(),

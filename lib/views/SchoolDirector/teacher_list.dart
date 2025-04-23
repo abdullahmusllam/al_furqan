@@ -1,7 +1,10 @@
 import 'package:al_furqan/controllers/TeacherController.dart';
+import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
+import 'package:al_furqan/views/SchoolDirector/edit_teacher.dart';
+import 'package:al_furqan/views/SchoolDirector/teacher_request.dart';
 
 class TeacherList extends StatefulWidget {
   const TeacherList({super.key});
@@ -16,6 +19,8 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
   bool _isSearching = false;
   bool _isRefreshing = false; // Local loading state for refresh operations
   bool _hasInitialized = false;
+  bool _forceShowContent = false; // إضافة متغير جديد للتحكم في عرض المحتوى
+  int _pendingActivationsCount = 0; // عدد طلبات التفعيل المعلقة
 
   @override
   void initState() {
@@ -38,9 +43,30 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
       _updateFilteredTeachers();
     }
 
+    // التحقق من وجود طلبات تفعيل معلقة
+    await _checkPendingActivations();
+
     _hasInitialized = true;
+    _forceShowContent = true; // إضافة تعيين قيمة true للمتغير الجديد
     setState(() {});
     print("TeacherList: _initializeTeachers completed");
+  }
+
+  // التحقق من وجود طلبات تفعيل معلقة
+  Future<void> _checkPendingActivations() async {
+    if (schoolID != null) {
+      try {
+        // استخدام الدالة الثابتة من TeacherRequest للتحقق من طلبات التفعيل
+        _pendingActivationsCount =
+            await TeacherRequest.checkPendingActivationsCount(schoolID!);
+        print(
+            "TeacherList: Found $_pendingActivationsCount pending activations");
+      } catch (e) {
+        print("TeacherList: Error checking pending activations - $e");
+        _pendingActivationsCount = 0;
+      }
+      setState(() {});
+    }
   }
 
   // Direct fetch method that doesn't rely on the mixin
@@ -70,10 +96,15 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
   }
 
   void _updateFilteredTeachers() {
+    // تصفية المعلمين أولاً بناءً على isActivate = 1
+    List<UserModel> activatedTeachers = teacherController.teachers
+        .where((teacher) => teacher.isActivate == 1)
+        .toList();
+
     if (_searchQuery.isEmpty) {
-      _filteredTeachers = List.from(teacherController.teachers);
+      _filteredTeachers = List.from(activatedTeachers);
     } else {
-      _filteredTeachers = teacherController.teachers.where((teacher) {
+      _filteredTeachers = activatedTeachers.where((teacher) {
         final fullName =
             '${teacher.first_name ?? ''} ${teacher.middle_name ?? ''} ${teacher.last_name ?? ''}'
                 .toLowerCase();
@@ -97,6 +128,9 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
         print(
             "Teachers refreshed - count: ${teacherController.teachers.length}");
         _updateFilteredTeachers();
+
+        // تحديث عدد طلبات التفعيل المعلقة
+        await _checkPendingActivations();
       } catch (e) {
         print("Error refreshing teachers: $e");
       } finally {
@@ -113,7 +147,7 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
   Widget build(BuildContext context) {
     // Debug prints
     print(
-        "TeacherList build - isLoading: $isLoading, _isRefreshing: $_isRefreshing");
+        "TeacherList build - isLoading: $isLoading, _isRefreshing: $_isRefreshing, _forceShowContent: $_forceShowContent, hasInitialized: $_hasInitialized");
     print(
         "TeacherList build - _filteredTeachers count: ${_filteredTeachers.length}");
 
@@ -126,6 +160,13 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
       Future.microtask(() => _directFetchTeachers());
     }
 
+    // تعيين _forceShowContent كـ true بعد الانتهاء من التحميل الأولي
+    if (_hasInitialized && !_forceShowContent) {
+      _forceShowContent = true;
+      // استخدام Future.microtask لتأخير setState حتى ينتهي build الحالي
+      Future.microtask(() => setState(() {}));
+    }
+
     return Scaffold(
       body: Column(
         children: [
@@ -133,17 +174,31 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
             padding: const EdgeInsets.all(16.0),
             child: _buildSearchBar(),
           ),
-          if (!isLoading && !_isRefreshing)
+          if (_forceShowContent ||
+              (!isLoading && !_isRefreshing)) // تعديل الشرط هنا
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
                 children: [
-                  Text(
-                    'عدد المعلمين: ${_filteredTeachers.length}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'عدد المعلمين المفعلين: ${_filteredTeachers.length}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const Text(
+                        '(يتم عرض المعلمين المفعلين فقط)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.green,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
                   ),
                   const Spacer(),
                   IconButton(
@@ -156,7 +211,7 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
               ),
             ),
           Expanded(
-            child: isLoading || _isRefreshing
+            child: (_isRefreshing && !_forceShowContent) // تعديل الشرط هنا
                 ? const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -188,8 +243,8 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
                             const SizedBox(height: 16),
                             Text(
                               _searchQuery.isNotEmpty
-                                  ? 'لا يوجد معلمين بهذا الاسم'
-                                  : 'لا يوجد معلمين في هذه المدرسة',
+                                  ? 'لا يوجد معلمين مفعلين بهذا الاسم'
+                                  : 'لا يوجد معلمين مفعلين في هذه المدرسة',
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -310,13 +365,16 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
           children: [
             Row(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 30,
                   backgroundColor: Color.fromARGB(255, 1, 117, 70),
-                  child: Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 36,
+                  child: Text(
+                    "${teacher.first_name?.substring(0, 1) ?? ''}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -342,6 +400,27 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
                             ),
                           ),
                         ),
+                      // إضافة مؤشر حالة التفعيل
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade100,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.green.shade300),
+                          ),
+                          child: const Text(
+                            'حساب مفعل',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -350,31 +429,62 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
             const Divider(height: 24),
             _buildContactInfo(teacher),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            Wrap(
+              spacing: 8, // المسافة بين الأزرار أفقياً
+              runSpacing: 8, // المسافة بين الصفوف
+              alignment: WrapAlignment.end,
               children: [
                 OutlinedButton.icon(
                   onPressed: () {
                     // View teacher details
                   },
-                  icon: const Icon(Icons.visibility),
-                  label: const Text('عرض التفاصيل'),
+                  icon: const Icon(Icons.visibility, size: 18),
+                  label: const Text('عرض'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color.fromARGB(255, 1, 117, 70),
                     side: const BorderSide(
                         color: Color.fromARGB(255, 1, 117, 70)),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    visualDensity: VisualDensity.compact,
                   ),
                 ),
-                const SizedBox(width: 8),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    _showDeleteConfirmationDialog(teacher);
+                  },
+                  icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                  label: const Text('حذف'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: const BorderSide(color: Colors.red),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
                 ElevatedButton.icon(
                   onPressed: () {
-                    // Edit teacher
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditTeacher(teacher: teacher),
+                      ),
+                    ).then((value) {
+                      if (value == true) {
+                        // Refresh the teacher list if edit was successful
+                        _refreshTeachers();
+                      }
+                    });
                   },
-                  icon: const Icon(Icons.edit),
+                  icon: const Icon(Icons.edit, size: 18, color: Colors.white),
                   label: const Text('تعديل'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 1, 117, 70),
                     foregroundColor: Colors.white,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    visualDensity: VisualDensity.compact,
                   ),
                 ),
               ],
@@ -408,5 +518,117 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
           ),
       ],
     );
+  }
+
+  void _showDeleteConfirmationDialog(UserModel teacher) {
+    final fullName =
+        '${teacher.first_name ?? ''} ${teacher.middle_name ?? ''} ${teacher.last_name ?? ''}'
+            .trim();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('تأكيد الحذف'),
+          content: Text('هل أنت متأكد من حذف المعلم "$fullName"؟'),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          icon: const Icon(
+            Icons.warning,
+            color: Colors.red,
+            size: 50,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // إغلاق مربع الحوار
+              },
+              child: const Text(
+                'إلغاء',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 1, 117, 70),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // إغلاق مربع الحوار
+                await _deleteTeacher(teacher);
+              },
+              child: const Text(
+                'حذف',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteTeacher(UserModel teacher) async {
+    try {
+      // عرض مؤشر التحميل
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  color: Color.fromARGB(255, 1, 117, 70),
+                ),
+                SizedBox(height: 16),
+                Text('جاري حذف المعلم...'),
+              ],
+            ),
+          );
+        },
+      );
+
+      // حذف المعلم باستخدام الـ controller
+      if (teacher.user_id != null) {
+        await userController.deleteUser(teacher.user_id!);
+
+        // تحديث القائمة بعد الحذف
+        await _refreshTeachers();
+
+        // إغلاق مؤشر التحميل
+        if (!mounted) return;
+        Navigator.of(context).pop();
+
+        // عرض رسالة نجاح
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تم حذف المعلم بنجاح'),
+            backgroundColor: Color.fromARGB(255, 1, 117, 70),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // إغلاق مؤشر التحميل في حالة حدوث خطأ
+      if (!mounted) return;
+      Navigator.of(context).pop();
+
+      // عرض رسالة الخطأ
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('حدث خطأ أثناء حذف المعلم: $e'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 }

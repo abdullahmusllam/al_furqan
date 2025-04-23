@@ -3,8 +3,8 @@ import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
-import 'package:al_furqan/views/SchoolDirector/AddTeacher.dart';
 import 'package:al_furqan/views/SchoolDirector/DrawerSchoolDirector.dart';
+import 'package:al_furqan/views/SchoolDirector/add_teacher.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -121,13 +121,6 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                     ],
                   ),
                 ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => AddTeacherScreen()));
-        },
-        child: Icon(Icons.add),
-      ),
     );
   }
 
