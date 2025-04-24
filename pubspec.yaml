@@ -54,6 +54,8 @@ dependencies:
   url_launcher:
   pdf: ^3.10.8
   printing: ^5.12.0
+  internet_connection_checker:
+
 
 dev_dependencies:
   flutter_test:

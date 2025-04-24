@@ -71,7 +71,8 @@ class UserController {
   }
 
   // Method to add a new user
-  Future<void> addUser(UserModel userModel) async {
+  Future<void> addUser(UserModel userModel, int type) async {
+    if(type == 1){
     userModel.user_id = await someController.newId("USERS", "user_id");
     int response = await _sqlDb.insertData('''
     INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
@@ -82,11 +83,21 @@ class UserController {
     // Check for internet connectivity before using Firebase
     bool hasInternet = await InternetConnectionChecker().hasConnection;
     if (hasInternet) {
-      await firebasehelper.addUser(response, userModel);
+      await firebasehelper.addUser(userModel.user_id, userModel);
     } else {
       print("No internet connection - Firebase sync skipped");
     }
+
+    
+  } else {
+    userModel.user_id = await someController.newId("USERS", "user_id");
+    int response = await _sqlDb.insertData('''
+    INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
+    VALUES (${userModel.user_id}, '${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.password}', '${userModel.email}', '${userModel.phone_number}', '${userModel.telephone_number}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', '${userModel.isActivate}');
+    ''');
+    print("response = $response, isActivate = ${userModel.isActivate}");
   }
+   }
 
   // Method to delete a user
   Future<void> deleteUser(int userId) async {
@@ -163,6 +174,7 @@ class UserController {
     ''');
       print("response = $response");
     }
+<<<<<<< AOSB
 
     // Method to add a new request
 
@@ -191,6 +203,8 @@ class UserController {
         await getDataUsers();
       }
     }
+=======
+>>>>>>> main
   }
 
   // إرسال رمز التحقق

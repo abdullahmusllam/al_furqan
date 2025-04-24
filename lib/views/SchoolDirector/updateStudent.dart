@@ -85,9 +85,9 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
       father.email = gmailOfFatherStudent.text;
       father.date = dateFatherStudent.text;
 
-      studentController.updateStudent(widget.student,
-          widget.student.studentID!); // استخدام الدالة لتحديث بيانات الطالب
-      userController.updateUser(father,1).then((_) async {
+      await studentController.updateStudent(widget.student,
+          widget.student.studentID!, 1); // استخدام الدالة لتحديث بيانات الطالب
+      await userController.updateUser(father,1).then((_) async {
         // تحميل البيانات من القاعدة المحلية
 
         // إذا لم يكن هناك اتصال بالإنترنت، يتم تحميل البيانات من القاعدة المحلية فقط

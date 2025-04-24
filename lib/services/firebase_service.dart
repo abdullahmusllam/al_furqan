@@ -224,17 +224,16 @@ Future<List<Map<String, dynamic>>> getElhalagaData(int schoolID) async {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getUsers() async {
-    try {
-      final docRef = _firestore.collection('Users');
-      final snapshot = await docRef.get();
-      return snapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList();
-    } catch (e) {
-      print('حدث خطأ: $e');
-      return [];
-    }
+  Future<List<UserModel>> getUsers() async {
+  try {
+    final docRef = _firestore.collection('Users');
+    final snapshot = await docRef.get();
+    return snapshot.docs
+        .map((doc) => UserModel.fromMap(doc.data()))
+        .toList();
+  } catch (e) {
+    print('حدث خطأ: $e');
+    return [];
   }
 
 // services/password_service.dart
