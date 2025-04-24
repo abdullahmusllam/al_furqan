@@ -235,22 +235,22 @@ class StudentController {
   // addStudentToFirebase2(StudentModel student, int schoolID) async {
   //   print("جاري إضافة الطالب إلى Firebase - معرف المدرسة: ${schoolID}");
 
-    // التحقق أولاً من وجود اتصال بالإنترنت
-    bool hasConnection = await InternetConnectionChecker().hasConnection;
-    if (!hasConnection) {
-      print("لا يوجد اتصال بالإنترنت، لا يمكن إضافة الطالب إلى Firebase");
-      return;
-    }
+  //   // التحقق أولاً من وجود اتصال بالإنترنت
+  //   bool hasConnection = await InternetConnectionChecker().hasConnection;
+  //   if (!hasConnection) {
+  //     print("لا يوجد اتصال بالإنترنت، لا يمكن إضافة الطالب إلى Firebase");
+  //     return;
+  //   }
 
-    int idStudent = await _sqldb.insertData(
-        "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) "
-        "VALUES ('${student.elhalaqaID}', ${schoolID}, '${student.firstName}', '${student.middleName}', "
-        "'${student.grandfatherName}', '${student.lastName}', ${student.attendanceDays ?? 'NULL'}, "
-        "${student.absenceDays ?? 'NULL'}, '${student.excuse ?? ''}', '${student.reasonAbsence ?? ''}')");
+  //   int idStudent = await _sqldb.insertData(
+  //       "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) "
+  //       "VALUES ('${student.elhalaqaID}', ${schoolID}, '${student.firstName}', '${student.middleName}', "
+  //       "'${student.grandfatherName}', '${student.lastName}', ${student.attendanceDays ?? 'NULL'}, "
+  //       "${student.absenceDays ?? 'NULL'}, '${student.excuse ?? ''}', '${student.reasonAbsence ?? ''}')");
 
-  //   await firebasehelper.addStudent(idStudent, student, schoolID);
-  //   print("تم إرسال بيانات الطالب إلى Firebase");
-  // }
+  // //   await firebasehelper.addStudent(idStudent, student, schoolID);
+  // //   print("تم إرسال بيانات الطالب إلى Firebase");
+  // // }
 
   Future<List<StudentModel>> getStudentsWithoutHalaga(int schoolID) async {
     try {
