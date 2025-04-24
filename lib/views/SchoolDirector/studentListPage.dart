@@ -322,7 +322,6 @@ class _StudentsListPageState extends State<StudentsListPage> {
                                               },
                                             ) ??
                                             false;
-
                                         if (confirm) {
                                           try {
                                             await studentController
