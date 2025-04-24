@@ -83,7 +83,7 @@ class UserController {
     // Check for internet connectivity before using Firebase
     bool hasInternet = await InternetConnectionChecker().hasConnection;
     if (hasInternet) {
-      await firebasehelper.addUser(userModel.user_id, userModel);
+      await firebasehelper.addUser(userModel.user_id!, userModel);
     } else {
       print("No internet connection - Firebase sync skipped");
     }
@@ -174,7 +174,6 @@ class UserController {
     ''');
       print("response = $response");
     }
-<<<<<<< AOSB
 
     // Method to add a new request
 
@@ -184,18 +183,18 @@ class UserController {
       var connectivityResult = await Connectivity().checkConnectivity();
 
       if (connectivityResult != ConnectivityResult.none) {
-        List<Map<String, dynamic>> responseFirebase =
+        List<UserModel> responseFirebase =
             await firebasehelper.getUsers();
         print("responseFirebase = $responseFirebase");
 
         for (var user in responseFirebase) {
-          UserModel userModel = UserModel.fromJson(user);
+          UserModel userModel = UserModel.fromJson(user.toMap());
           bool exists = await _sqlDb.checkIfitemExists(
               "Users", userModel.user_id!, "user_id");
           if (exists) {
             await updateUser(userModel, 1);
           } else {
-            await addUser(userModel);
+            await addUser(userModel,0);
           }
         }
       } else {
@@ -203,8 +202,6 @@ class UserController {
         await getDataUsers();
       }
     }
-=======
->>>>>>> main
   }
 
   // إرسال رمز التحقق

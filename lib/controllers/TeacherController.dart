@@ -92,7 +92,7 @@ class TeacherController {
     teacherModel.roleID = 2;
 
     // Use the userController to add the user with teacher role
-    await userController.addUser(teacherModel);
+    await userController.addUser(teacherModel,1);
 
     // Refresh the teachers list after adding
     if (teacherModel.schoolID != null) {
