@@ -3,7 +3,6 @@ import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/password_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class UserController {
@@ -72,32 +71,30 @@ class UserController {
 
   // Method to add a new user
   Future<void> addUser(UserModel userModel, int type) async {
-    if(type == 1){
-    userModel.user_id = await someController.newId("USERS", "user_id");
-    int response = await _sqlDb.insertData('''
+    if (type == 1) {
+      userModel.user_id = await someController.newId("USERS", "user_id");
+      int response = await _sqlDb.insertData('''
     INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
     VALUES (${userModel.user_id}, '${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.password}', '${userModel.email}', '${userModel.phone_number}', '${userModel.telephone_number}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', '${userModel.isActivate}');
     ''');
-    print("response = $response, isActivate = ${userModel.isActivate}");
+      print("response = $response, isActivate = ${userModel.isActivate}");
 
-    // Check for internet connectivity before using Firebase
-    bool hasInternet = await InternetConnectionChecker().hasConnection;
-    if (hasInternet) {
-      await firebasehelper.addUser(userModel.user_id!, userModel);
+      // Check for internet connectivity before using Firebase
+      bool hasInternet = await InternetConnectionChecker().hasConnection;
+      if (hasInternet) {
+        await firebasehelper.addUser(userModel.user_id!, userModel);
+      } else {
+        print("No internet connection - Firebase sync skipped");
+      }
     } else {
-      print("No internet connection - Firebase sync skipped");
-    }
-
-    
-  } else {
-    userModel.user_id = await someController.newId("USERS", "user_id");
-    int response = await _sqlDb.insertData('''
+      userModel.user_id = await someController.newId("USERS", "user_id");
+      int response = await _sqlDb.insertData('''
     INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
     VALUES (${userModel.user_id}, '${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.password}', '${userModel.email}', '${userModel.phone_number}', '${userModel.telephone_number}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', '${userModel.isActivate}');
     ''');
-    print("response = $response, isActivate = ${userModel.isActivate}");
+      print("response = $response, isActivate = ${userModel.isActivate}");
+    }
   }
-   }
 
   // Method to delete a user
   Future<void> deleteUser(int userId) async {
@@ -180,11 +177,10 @@ class UserController {
     // Helper method to map response to UserModel
 
     Future<void> addToLocalOfFirebase() async {
-      var connectivityResult = await Connectivity().checkConnectivity();
+      bool hasConnection = await InternetConnectionChecker().hasConnection;
 
-      if (connectivityResult != ConnectivityResult.none) {
-        List<UserModel> responseFirebase =
-            await firebasehelper.getUsers();
+      if (hasConnection) {
+        List<UserModel> responseFirebase = await firebasehelper.getUsers();
         print("responseFirebase = $responseFirebase");
 
         for (var user in responseFirebase) {
@@ -194,7 +190,7 @@ class UserController {
           if (exists) {
             await updateUser(userModel, 1);
           } else {
-            await addUser(userModel,0);
+            await addUser(userModel, 0);
           }
         }
       } else {
