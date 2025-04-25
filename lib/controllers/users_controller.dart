@@ -110,13 +110,10 @@ class UserController {
     ''');
       print("response = $response, isActivate = ${userModel.isActivate}");
 
-      // Check for internet connectivity before using Firebase
-      bool hasInternet = await InternetConnectionChecker().hasConnection;
-      if (hasInternet) {
-        await firebasehelper.addUser(userModel.user_id!, userModel);
-      } else {
-        print("No internet connection - Firebase sync skipped");
-      }
+    // Check for internet connectivity before using Firebase
+    bool hasInternet = await InternetConnectionChecker.createInstance().hasConnection;
+    if (hasInternet) {
+      await firebasehelper.addUser(userModel.user_id!, userModel);
     } else {
       userModel.user_id = await someController.newId("USERS", "user_id");
       int response = await _sqlDb.insertData('''
@@ -175,7 +172,7 @@ class UserController {
     ''');
       print("response = $response");
 
-      if (await InternetConnectionChecker().hasConnection) {
+      if (await InternetConnectionChecker.createInstance().hasConnection) {
         await firebasehelper.updateUser(userModel.user_id!, userModel);
       } else {
         print("لا يوجد اتصال بالانترنت");
@@ -208,10 +205,11 @@ class UserController {
     // Helper method to map response to UserModel
 
     Future<void> addToLocalOfFirebase() async {
-      bool hasConnection = await InternetConnectionChecker().hasConnection;
+      var connection = await InternetConnectionChecker.createInstance().hasConnection;
 
-      if (hasConnection) {
-        List<UserModel> responseFirebase = await firebasehelper.getUsers();
+      if (connection) {
+        List<UserModel> responseFirebase =
+            await firebasehelper.getUsers();
         print("responseFirebase = $responseFirebase");
 
         for (var user in responseFirebase) {

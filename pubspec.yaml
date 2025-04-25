@@ -43,15 +43,15 @@ dependencies:
   intl:
   shared_preferences:
     # مكتبة للتحقق من اتصال الإنترنت الفعلي وليس فقط اتصال الشبكة
-  internet_connection_checker:
+  internet_connection_checker: 
   # اضفت ذي المكتبة علشان نتحقق من اتصال الشبكة وهل المستخدم متصل بالنت ولا لا
   file_picker:
   flutter_excel:
   permission_handler:
-  path_provider: ^2.1.5
+  path_provider:
   url_launcher:
-  pdf: ^3.10.8
-  printing: ^5.12.0
+  pdf: 
+  printing: 
 
 
 dev_dependencies:
@@ -64,6 +64,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
 
 
 # For information on the generic Dart part of this file, see the
@@ -109,3 +110,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/pictures/al_furqan_icon.png"  # Updated to the actual icon file
+  adaptive_icon_background: "#FFFFFF"  # You can change this color
+  adaptive_icon_foreground: "assets/pictures/al_furqan_icon.png"  # Updated to the actual icon file

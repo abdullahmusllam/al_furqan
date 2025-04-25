@@ -228,49 +228,51 @@ class FirebaseHelper {
   }
 
 // services/password_service.dart
-  // إرسال رمز التحقق عبر واتساب
-  Future<String> sendWhatsAppVerification(int idNumber) async {
-    try {
-      // 1. البحث عن المستخدم في Firestore
-      final query = await _firestore
-          .collection('Users')
-          .where('phone_number', isEqualTo: idNumber)
-          .limit(1)
-          .get();
+    // إرسال رمز التحقق عبر واتساب
+    Future<String> sendWhatsAppVerification(int idNumber) async {
+      try {
+        // 1. البحث عن المستخدم في Firestore
+        final query = await _firestore
+            .collection('Users')
+            .where('phone_number', isEqualTo: idNumber)
+            .limit(1)
+            .get();
 
-      print(query.docs.first.data());
+        print(query.docs.first.data());
 
-      if (query.docs.isEmpty) {
-        throw 'رقم الهاتف غير مسجل';
-      }
+        if (query.docs.isEmpty) {
+          throw 'رقم الهاتف غير مسجل';
+        }
 
-      final userData = query.docs.first.data();
-      final userPhone = userData['phone_number'];
+        final userData = query.docs.first.data();
+        final userPhone = userData['phone_number'];
 
-      if (userPhone == null || userPhone.isEmpty) {
-        throw 'لا يوجد رقم هاتف مسجل لهذا الحساب';
-      }
+        if (userPhone == null || userPhone.toString().isEmpty) {
+          throw 'لا يوجد رقم هاتف مسجل لهذا الحساب';
+        }
 
-      // 2. توليد رمز تحقق عشوائي (6 أرقام)
-      final verificationCode = (100000 + Random().nextInt(900000)).toString();
+        // 2. توليد رمز تحقق عشوائي (6 أرقام)
+        final verificationCode = (100000 + Random().nextInt(900000)).toString();
 
-      // 3. تنظيف رقم الهاتف
-      final cleanUserPhone = userPhone.replaceAll(RegExp(r'[^0-9]'), '');
+        // 3. تنظيف رقم الهاتف
+        final cleanUserPhone = userPhone.toString().replaceAll(RegExp(r'[^0-9]'), '');
 
-      // 4. إعداد رابط واتساب مع رقم المرسل الثابت
-      final senderPhone = '784067822'; // الرقم الثابت للمرسل
-      final message = 'رمز التحقق لتغيير كلمة المرور هو: $verificationCode';
+        // 4. إعداد رابط واتساب مع رقم المرسل الثابت
+        final message = 'رمز التحقق لتغيير كلمة المرور هو: $verificationCode';
 
-      final whatsappUrl =
-          "https://wa.me/$cleanUserPhone?text=${Uri.encodeComponent(message)}"
-          "&from=967$senderPhone"; // إضافة رقم المرسل
-
-      // 5. إرسال الرسالة
-      if (await canLaunch(whatsappUrl)) {
-        await launch(whatsappUrl);
-        return verificationCode;
-      } else {
-        throw 'لا يمكن فتح واتساب';
+        final whatsappUrl =
+            "https://wa.me/$cleanUserPhone?text=${Uri.encodeComponent(message)}"; // إضافة رقم المرسل
+        // 5. إرسال الرسالة
+        if (await canLaunch(whatsappUrl)) {
+          await launch(whatsappUrl);
+          return verificationCode;
+        } else {
+          throw 'لا يمكن فتح واتساب';
+        }
+      } catch (e) {
+        // throw 'فشل إرسال الرمز: ${e.toString()}';
+        print(e.toString());
+        return null!;
       }
     } catch (e) {
       throw 'فشل إرسال الرمز: ${e.toString()}';

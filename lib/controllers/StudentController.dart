@@ -85,9 +85,8 @@ class StudentController {
 
   addStudentToFirebase(StudentModel student, int schoolID) async {
     print("جاري إضافة الطالب إلى Firebase - معرف المدرسة: ${schoolID}");
-
     // التحقق أولاً من وجود اتصال بالإنترنت
-    bool hasConnection = await InternetConnectionChecker().hasConnection;
+    bool hasConnection = await InternetConnectionChecker.createInstance().hasConnection;
     if (!hasConnection) {
       print("لا يوجد اتصال بالإنترنت، لا يمكن إضافة الطالب إلى Firebase");
       return;
