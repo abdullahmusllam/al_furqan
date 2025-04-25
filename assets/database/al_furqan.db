@@ -8,7 +8,7 @@ CREATE TABLE "Users" (
     "middle_name" TEXT NOT NULL,
     "grandfather_name" TEXT NOT NULL,
     "last_name" TEXT NOT NULL,
-    "password" INTEGER NOT NULL,
+    "password" TEXT NOT NULL,
 	"email" TEXT,
     "phone_number" INTEGER,
     "telephone_number" INTEGER,
