@@ -35,7 +35,6 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   fl_chart:
-  image_picker:
   firebase_core:
   cloud_firestore:
   firebase_auth:
@@ -44,9 +43,8 @@ dependencies:
   intl:
   shared_preferences:
     # مكتبة للتحقق من اتصال الإنترنت الفعلي وليس فقط اتصال الشبكة
-  internet_connection_checker: ^1.0.0
+  internet_connection_checker:
   # اضفت ذي المكتبة علشان نتحقق من اتصال الشبكة وهل المستخدم متصل بالنت ولا لا
-  connectivity_plus:
   file_picker:
   flutter_excel:
   permission_handler:
@@ -54,7 +52,6 @@ dependencies:
   url_launcher:
   pdf: ^3.10.8
   printing: ^5.12.0
-  internet_connection_checker:
 
 
 dev_dependencies:
