@@ -3,7 +3,6 @@ import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/password_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class UserController {
@@ -81,7 +80,7 @@ class UserController {
     print("response = $response, isActivate = ${userModel.isActivate}");
 
     // Check for internet connectivity before using Firebase
-    bool hasInternet = await InternetConnectionChecker().hasConnection;
+    bool hasInternet = await InternetConnectionChecker.createInstance().hasConnection;
     if (hasInternet) {
       await firebasehelper.addUser(userModel.user_id!, userModel);
     } else {
@@ -147,7 +146,7 @@ class UserController {
     ''');
       print("response = $response");
 
-      if (await InternetConnectionChecker().hasConnection) {
+      if (await InternetConnectionChecker.createInstance().hasConnection) {
         await firebasehelper.updateUser(userModel.user_id!, userModel);
       } else {
         print("لا يوجد اتصال بالانترنت");
@@ -180,9 +179,9 @@ class UserController {
     // Helper method to map response to UserModel
 
     Future<void> addToLocalOfFirebase() async {
-      var connectivityResult = await Connectivity().checkConnectivity();
+      var connection = await InternetConnectionChecker.createInstance().hasConnection;
 
-      if (connectivityResult != ConnectivityResult.none) {
+      if (connection) {
         List<UserModel> responseFirebase =
             await firebasehelper.getUsers();
         print("responseFirebase = $responseFirebase");

@@ -97,7 +97,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
       // خامسًا: إضافة الطالب إلى Firebase
       // التحقق من وجود اتصال بالإنترنت باستخدام المكتبة الجديدة
-      bool hasConnection = await InternetConnectionChecker().hasConnection;
+      bool hasConnection = await InternetConnectionChecker.createInstance().hasConnection;
       print("حالة الاتصال بالإنترنت: $hasConnection");
 
       if (!hasConnection) {

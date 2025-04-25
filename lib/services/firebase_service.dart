@@ -247,7 +247,7 @@ class FirebaseHelper {
         final userData = query.docs.first.data();
         final userPhone = userData['phone_number'];
 
-        if (userPhone == null || userPhone.isEmpty) {
+        if (userPhone == null || userPhone.toString().isEmpty) {
           throw 'لا يوجد رقم هاتف مسجل لهذا الحساب';
         }
 
@@ -255,16 +255,13 @@ class FirebaseHelper {
         final verificationCode = (100000 + Random().nextInt(900000)).toString();
 
         // 3. تنظيف رقم الهاتف
-        final cleanUserPhone = userPhone.replaceAll(RegExp(r'[^0-9]'), '');
+        final cleanUserPhone = userPhone.toString().replaceAll(RegExp(r'[^0-9]'), '');
 
         // 4. إعداد رابط واتساب مع رقم المرسل الثابت
-        final senderPhone = '784067822'; // الرقم الثابت للمرسل
         final message = 'رمز التحقق لتغيير كلمة المرور هو: $verificationCode';
 
         final whatsappUrl =
-            "https://wa.me/$cleanUserPhone?text=${Uri.encodeComponent(message)}"
-            "&from=967$senderPhone"; // إضافة رقم المرسل
-
+            "https://wa.me/$cleanUserPhone?text=${Uri.encodeComponent(message)}"; // إضافة رقم المرسل
         // 5. إرسال الرسالة
         if (await canLaunch(whatsappUrl)) {
           await launch(whatsappUrl);
@@ -273,7 +270,9 @@ class FirebaseHelper {
           throw 'لا يمكن فتح واتساب';
         }
       } catch (e) {
-        throw 'فشل إرسال الرمز: ${e.toString()}';
+        // throw 'فشل إرسال الرمز: ${e.toString()}';
+        print(e.toString());
+        return null!;
       }
     }
 
