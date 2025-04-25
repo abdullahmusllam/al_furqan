@@ -25,7 +25,7 @@ class UserController {
         phone_number: int.tryParse(data['phone_number'].toString()),
         telephone_number: int.tryParse(data['telephone_number'].toString()),
         email: data['email'],
-        password: data['password'] as int?, // Ensure password is a string
+        password: data['password'], // Ensure password is a string
         roleID: data['roleID'] as int?,
         schoolID: data['schoolID'] as int?,
         date: data['date'],
@@ -58,6 +58,37 @@ class UserController {
     _users.clear();
     _users.addAll(_mapResponseToUserModel(response));
     print("Users List (Local): ${_users.isEmpty}");
+
+    // Check for internet connectivity before using Firebase
+    bool hasInternet = await InternetConnectionChecker().hasConnection;
+    if (hasInternet) {
+      // Get data from Firebase and update local database
+      print("hasInternet = $hasInternet");
+      List<UserModel> firebaseUsers = await firebasehelper.getUsers();
+      for (var user in firebaseUsers) {
+        // Update or insert Firebase data into local database
+        await _sqlDb.updateData('''
+          INSERT OR REPLACE INTO USERS (
+            user_id, first_name, middle_name, grandfather_name, last_name,
+            phone_number, telephone_number, email, password, roleID,
+            schoolID, date, isActivate
+          )
+          VALUES (
+            ${user.user_id}, '${user.first_name}', '${user.middle_name}',
+            '${user.grandfather_name}', '${user.last_name}', '${user.phone_number}',
+            '${user.telephone_number}', '${user.email}', '${user.password}',
+            ${user.roleID}, ${user.schoolID}, '${user.date}', ${user.isActivate}
+          )
+        ''');
+      }
+      // Refresh local data after sync
+      List<Map> updatedResponse =
+          await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 1");
+      _users.clear();
+      _users.addAll(_mapResponseToUserModel(updatedResponse));
+    } else {
+      print("No internet connection - Firebase sync skipped");
+    }
   }
 
   Future<void> getDataRequests() async {

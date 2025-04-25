@@ -74,7 +74,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     fatherModel.phone_number = int.tryParse(phoneFatherStudent.text);
     fatherModel.date = _dateFatherStudent.text;
     fatherModel.telephone_number = int.tryParse(telephoneFatherStudent.text);
-    fatherModel.password = 12345678; //defualt Just for fathers
+    fatherModel.password = '12345678'; //defualt Just for fathers
     fatherModel.roleID = 3; // 3 means fathers in display later
     fatherModel.schoolID = widget.user!.schoolID;
     print("معرف المدرسة لولي الأمر: ${fatherModel.schoolID}");

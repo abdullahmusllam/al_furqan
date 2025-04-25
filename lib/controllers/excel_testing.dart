@@ -151,7 +151,7 @@ class ExcelTesting {
             email: validation['validated']['email'],
             phone_number: validation['validated']['phone'],
             telephone_number: validation['validated']['telephone'],
-            password: 12345678,
+            password: '12345678',
             roleID: 3,
             isActivate: 0,
           );

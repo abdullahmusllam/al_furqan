@@ -386,7 +386,7 @@ class _AddUserState extends State<AddUser> {
     _userModel.phone_number = phone;
     _userModel.telephone_number = telephone;
     _userModel.email = _email.text;
-    _userModel.password = password;
+    _userModel.password = password.toString();
     _userModel.date = _date.text;
     _userModel.isActivate = activate;
     _userModel.schoolID = _selectedSchoolId;
