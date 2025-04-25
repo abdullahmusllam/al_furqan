@@ -25,7 +25,7 @@ class UserController {
         phone_number: int.tryParse(data['phone_number'].toString()),
         telephone_number: int.tryParse(data['telephone_number'].toString()),
         email: data['email'],
-        password: data['password'] as int?, // Ensure password is a string
+        password: data['password'], // Ensure password is a string
         roleID: data['roleID'] as int?,
         schoolID: data['schoolID'] as int?,
         date: data['date'],
@@ -58,6 +58,37 @@ class UserController {
     _users.clear();
     _users.addAll(_mapResponseToUserModel(response));
     print("Users List (Local): ${_users.isEmpty}");
+
+    // Check for internet connectivity before using Firebase
+    bool hasInternet = await InternetConnectionChecker().hasConnection;
+    if (hasInternet) {
+      // Get data from Firebase and update local database
+      print("hasInternet = $hasInternet");
+      List<UserModel> firebaseUsers = await firebasehelper.getUsers();
+      for (var user in firebaseUsers) {
+        // Update or insert Firebase data into local database
+        await _sqlDb.updateData('''
+          INSERT OR REPLACE INTO USERS (
+            user_id, first_name, middle_name, grandfather_name, last_name,
+            phone_number, telephone_number, email, password, roleID,
+            schoolID, date, isActivate
+          )
+          VALUES (
+            ${user.user_id}, '${user.first_name}', '${user.middle_name}',
+            '${user.grandfather_name}', '${user.last_name}', '${user.phone_number}',
+            '${user.telephone_number}', '${user.email}', '${user.password}',
+            ${user.roleID}, ${user.schoolID}, '${user.date}', ${user.isActivate}
+          )
+        ''');
+      }
+      // Refresh local data after sync
+      List<Map> updatedResponse =
+          await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 1");
+      _users.clear();
+      _users.addAll(_mapResponseToUserModel(updatedResponse));
+    } else {
+      print("No internet connection - Firebase sync skipped");
+    }
   }
 
   Future<void> getDataRequests() async {
@@ -71,32 +102,27 @@ class UserController {
 
   // Method to add a new user
   Future<void> addUser(UserModel userModel, int type) async {
-    if(type == 1){
-    userModel.user_id = await someController.newId("USERS", "user_id");
-    int response = await _sqlDb.insertData('''
+    if (type == 1) {
+      userModel.user_id = await someController.newId("USERS", "user_id");
+      int response = await _sqlDb.insertData('''
     INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
     VALUES (${userModel.user_id}, '${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.password}', '${userModel.email}', '${userModel.phone_number}', '${userModel.telephone_number}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', '${userModel.isActivate}');
     ''');
-    print("response = $response, isActivate = ${userModel.isActivate}");
+      print("response = $response, isActivate = ${userModel.isActivate}");
 
     // Check for internet connectivity before using Firebase
     bool hasInternet = await InternetConnectionChecker.createInstance().hasConnection;
     if (hasInternet) {
       await firebasehelper.addUser(userModel.user_id!, userModel);
     } else {
-      print("No internet connection - Firebase sync skipped");
-    }
-
-    
-  } else {
-    userModel.user_id = await someController.newId("USERS", "user_id");
-    int response = await _sqlDb.insertData('''
+      userModel.user_id = await someController.newId("USERS", "user_id");
+      int response = await _sqlDb.insertData('''
     INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
     VALUES (${userModel.user_id}, '${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.password}', '${userModel.email}', '${userModel.phone_number}', '${userModel.telephone_number}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', '${userModel.isActivate}');
     ''');
-    print("response = $response, isActivate = ${userModel.isActivate}");
+      print("response = $response, isActivate = ${userModel.isActivate}");
+    }
   }
-   }
 
   // Method to delete a user
   Future<void> deleteUser(int userId) async {
@@ -193,7 +219,7 @@ class UserController {
           if (exists) {
             await updateUser(userModel, 1);
           } else {
-            await addUser(userModel,0);
+            await addUser(userModel, 0);
           }
         }
       } else {

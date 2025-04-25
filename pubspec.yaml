@@ -35,7 +35,6 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   fl_chart:
-  image_picker:
   firebase_core:
   cloud_firestore:
   firebase_auth:
@@ -98,7 +97,7 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: RB_Regular
+    - family: RB
       fonts:
         - asset: assets/fonts/RB_Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf

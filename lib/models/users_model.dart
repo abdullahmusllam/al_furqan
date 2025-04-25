@@ -11,7 +11,7 @@ class UserModel {
   int? phone_number;
   int? telephone_number;
   String? email;
-  int? password;
+  String? password;
   int? roleID;
   int? schoolID;
   String? date; // إضافة حقل تاريخ الميلاد
@@ -69,7 +69,7 @@ class UserModel {
       phone_number: map['phone_number'] as int?,
       telephone_number: map['telephone_number'] as int?,
       email: map['email'] as String?,
-      password: map['password'] as int?,
+      password: map['password'],
       roleID: map['roleID'] as int?,
       schoolID: map['schoolID'] as int?,
       date: map['date'] as String?,
@@ -88,7 +88,7 @@ class UserModel {
       phone_number: json['phone_number'] as int?,
       telephone_number: json['telephone_number'] as int?,
       email: json['email'] as String?,
-      password: json['password'] as int?,
+      password: json['password'],
       roleID: json['roleID'] as int?,
       schoolID: json['schoolID'] as int?,
       date: json['date'] as String?,

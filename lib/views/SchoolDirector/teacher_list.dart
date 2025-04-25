@@ -437,6 +437,43 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
                 OutlinedButton.icon(
                   onPressed: () {
                     // View teacher details
+                    // Show a dialog with teacher details
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('تفاصيل المعلم'),
+                          content: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                    'الاسم: ${teacher.first_name} ${teacher.middle_name} ${teacher.last_name}'),
+                                const SizedBox(height: 8),
+                                Text(
+                                    'البريد الإلكتروني: ${teacher.email ?? 'غير متوفر'}'),
+                                const SizedBox(height: 8),
+                                Text(
+                                    'رقم الهاتف: ${teacher.phone_number ?? 'غير متوفر'}'),
+                                const SizedBox(height: 8),
+                                Text(
+                                    'رقم الهاتف الثابت: ${teacher.telephone_number ?? 'غير متوفر'}'),
+                                const SizedBox(height: 8),
+                                Text(
+                                    'تاريخ الميلاد: ${teacher.date ?? 'غير متوفر'}'),
+                              ],
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('إغلاق'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   },
                   icon: const Icon(Icons.visibility, size: 18),
                   label: const Text('عرض'),
