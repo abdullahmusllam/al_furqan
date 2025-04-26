@@ -25,7 +25,7 @@ class UserController {
         phone_number: int.tryParse(data['phone_number'].toString()),
         telephone_number: int.tryParse(data['telephone_number'].toString()),
         email: data['email'],
-        password: data['password'] as int?, // Ensure password is a string
+        password: data['password'] as String?, // Ensure password is a string
         roleID: data['roleID'] as int?,
         schoolID: data['schoolID'] as int?,
         date: data['date'],

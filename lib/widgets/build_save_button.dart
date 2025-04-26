@@ -69,7 +69,7 @@ Future<bool> _handleFormSubmission({
   try {
     int phoneNumber = int.parse(phone.text);
     int telephoneNumber = int.parse(telephone.text);
-    int passwordNumber = int.parse(password.text);
+    String passwordNumber = (password.text);
     int? roleId = _getRoleId(selectedRole);
     int activate = isActivate ? 1 : 0;
 
