@@ -76,8 +76,8 @@ class TeacherController {
         telephone_number:
             int.tryParse(data['telephone_number'].toString()) ?? 0,
         email: data['email']?.toString(),
-        password: data['password']?.toString(),
-        roleID: data['roleID'] as int?,
+        password: (data['password']) ?? 0,
+       roleID: data['roleID'] as int?,
         schoolID: data['schoolID'] as int?,
         elhalagatID: data['ElhalagatID'] as int?,
         date: data['date']?.toString(),

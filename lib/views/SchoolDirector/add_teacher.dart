@@ -380,7 +380,7 @@ class _AddTeacherState extends State<AddTeacher> with UserDataMixin {
 
       int phone = int.parse(_phone.text);
       int telephone = int.parse(_telephone.text);
-      int password = int.parse(_password.text);
+      String password = (_password.text);
       int activate = _isActivate ? 1 : 0;
 
       _userModel.first_name = _firstname.text;

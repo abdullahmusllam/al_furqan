@@ -375,7 +375,7 @@ class _AddUserState extends State<AddUser> {
   void _submitForm() {
     int phone = int.parse(_phone.text);
     int telephone = int.parse(_telephone.text);
-    int password = int.parse(_password.text);
+    String password = (_password.text);
     int? roleID;
     int activate = _isActivate ? 1 : 0;
 
