@@ -413,7 +413,7 @@ class _EditTeacherState extends State<EditTeacher> with UserDataMixin {
         phone_number: phone,
         telephone_number: telephone,
         email: _email.text,
-        password: password,
+        password: password.toString(),
         date: _date.text,
         isActivate: activate,
         roleID: 2, // Teacher role ID is 2

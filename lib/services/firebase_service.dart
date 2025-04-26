@@ -274,30 +274,33 @@ class FirebaseHelper {
         print(e.toString());
         return null!;
       }
+    } catch (e) {
+      throw 'فشل إرسال الرمز: ${e.toString()}';
     }
+  }
 
-    // تحديث كلمة المرور في Firestore
-    Future<void> updatePassword(int idNumber, String newPassword) async {
-      try {
-        final query = await _firestore
-            .collection('Users')
-            .where('phone_number', isEqualTo: idNumber)
-            .limit(1)
-            .get();
+  // تحديث كلمة المرور في Firestore
+  Future<void> updatePassword(int idNumber, String newPassword) async {
+    try {
+      final query = await _firestore
+          .collection('Users')
+          .where('phone_number', isEqualTo: idNumber)
+          .limit(1)
+          .get();
 
-        if (query.docs.isEmpty) {
-          throw 'رقم الهاتف غير مسجل';
-        }
-
-        await query.docs.first.reference.update({
-          'password': newPassword, // يجب تشفير كلمة المرور في التطبيق الحقيقي
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      } catch (e) {
-        throw 'فشل تحديث كلمة المرور: ${e.toString()}';
+      if (query.docs.isEmpty) {
+        throw 'رقم الهاتف غير مسجل';
       }
+
+      await query.docs.first.reference.update({
+        'password': newPassword, // يجب تشفير كلمة المرور في التطبيق الحقيقي
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw 'فشل تحديث كلمة المرور: ${e.toString()}';
     }
-   // =========================== End User =================================
+  }
+  // =========================== End User =================================
 } // End of FirebaseHelper class
 
 FirebaseHelper firebasehelper = FirebaseHelper();

@@ -80,7 +80,7 @@ Future<bool> _handleFormSubmission({
     user.phone_number = phoneNumber;
     user.telephone_number = telephoneNumber;
     user.email = email.text;
-    user.password = passwordNumber;
+    user.password = passwordNumber.toString();
     user.date = date.text;
     user.isActivate = activate;
     user.roleID = roleId;

@@ -40,6 +40,9 @@ class SqlDb {
     try {
       await db.execute("ALTER TABLE Students ADD COLUMN userID INTEGER NULL");
       print("Column added successfully!");
+
+      await db.execute("ALTER TABLE Users ADD COLUMN password TEXT NULL");
+      print("Column added successfully!");
     } catch (e) {
       print("Error upgrading database: $e");
     }
@@ -113,6 +116,5 @@ class SqlDb {
     return result.isNotEmpty;
   }
 }
-
 
 SqlDb sqlDb = SqlDb();
