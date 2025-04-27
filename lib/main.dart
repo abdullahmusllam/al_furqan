@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      home: UserManagementPage(),
+      home: LoginScreen(),
     );
   }
 }

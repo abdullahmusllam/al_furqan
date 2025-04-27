@@ -75,7 +75,7 @@ class _AddSchoolState extends State<AddSchool> {
                         await schoolController.addSchool(SchoolModel(
                           school_name: _schoolNameController.text,
                           school_location: _schoolLocationController.text,
-                        ));
+                        ),1);
                         await _loadSchools();
                         _schoolNameController.clear();
                         _schoolLocationController.clear();
