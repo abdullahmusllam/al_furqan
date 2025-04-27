@@ -1,10 +1,13 @@
+import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
+import 'package:al_furqan/models/schools_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
 import 'package:al_furqan/views/login/forgot_password.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import '../../models/users_model.dart';
 import '../SchoolDirector/SchoolDirectorHome.dart';
 import '../Teacher/mainTeacher.dart';
@@ -31,6 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     _checkLoginStatus();
     loadUsersFromFirebase();
+    loadSchoolsFromFirebase();
   }
 
   loadUsersFromFirebase() async {
@@ -43,6 +47,17 @@ class _LoginScreenState extends State<LoginScreen> {
           await userController.addUser(user, 0);
         }
       }
+  }
+  loadSchoolsFromFirebase() async {
+    List<SchoolModel> schools = await firebasehelper.getSchool();
+    for(var school in schools){
+      bool exists = await  sqlDb.checkIfitemExists("Schools", school.schoolID!, "schoolID");
+      if(exists){
+        await schoolController.updateSchool(school, 0);
+      }else{
+        await schoolController.addSchool(school, 0);
+      }
+    }
   }
 
   /// حفظ بيانات تسجيل الدخول في SharedPreferences
@@ -137,8 +152,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
     /// التحقق من أن المستخدم موجود
     if (user == null || user.user_id == null) {
+      Future<bool> conn = InternetConnectionChecker.createInstance().hasConnection;
+      if(await conn){
       _showErrorDialog(context, "خطأ", "بيانات تسجيل الدخول غير صحيحة.");
       return;
+    } else {
+        _showErrorDialog(context, "خطأ", "لا يوجد اتصال بالانترنت");
+        return;
+      }
     }
 
     /// التحقق من أن الحساب مفعل
@@ -212,9 +233,7 @@ Widget build(BuildContext context) {
         ),
       ),
       child: SafeArea(
-        child: _isLoading
-            ? Center(child: CircularProgressIndicator(color: Colors.green))
-            : SingleChildScrollView(
+        child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(

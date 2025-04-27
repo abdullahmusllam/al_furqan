@@ -1,5 +1,7 @@
 // This file contains Firebase service code, remove it entirely if not needed.
 import 'dart:math';
+import 'package:al_furqan/models/halaga_model.dart';
+import 'package:al_furqan/models/schools_model.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class FirebaseHelper {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  //  UserColl = _firestore.collection('Users');
 
   // ======================= Start Student ==============
   Future<void> addStudent(
@@ -82,6 +85,57 @@ class FirebaseHelper {
   }
 // ===================== End Student ===========================
 
+// =========================== Start School =============================
+
+Future<List<SchoolModel>> getSchool() async {
+  try {
+    QuerySnapshot querySnapshot = await _firestore.collection('School').get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      print('تم العثور على المدارس');
+      return querySnapshot.docs
+          .map((doc) => SchoolModel.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+    } else {
+      print('لا توجد مدارس');
+      return [];
+    }
+  } catch (e) {
+    print('خطأ أثناء جلب بيانات المدارس: $e');
+    return [];
+  }
+}
+
+addSchool(SchoolModel school, int id) async {
+  final docRef = _firestore.collection('School');
+  if (school != null) {
+    await docRef.doc(id.toString()).set({
+      'SchoolID': id,
+      'school_name': school.school_name,
+      'school_location': school.school_location,
+    });
+    print('تم إضافة المدرسة $id بنجاح');
+  } else {
+    print('خطأ في إضافة المدرسة');
+  }
+}
+updateSchool(SchoolModel school, int id) async {
+  final docRef = _firestore.collection('School').doc(id.toString());
+  if (school != null) {
+    await docRef.update({
+      'school_name': school.school_name,
+      'school_location': school.school_location,
+    });
+    print('تم تعديل المدرسة $id بنجاح');
+  } else {
+    print('خطأ في تعديل المدرسة');
+  }
+}
+
+
+
+// ========================== End School ================================
+
 // =========================== Start Elhalaga ===========================
 
 //get data from elhalaga collection on schoolID
@@ -106,6 +160,15 @@ class FirebaseHelper {
       return [];
     }
   }
+
+  // addHalga(HalagaModel Halaga) async {
+  //   try{
+  //     final docRef = _firestore.collection('Elhalaga');
+  //     if(Halaga != null){
+
+  //     }
+  //   } catch (e){} 
+  // }
 
 // =========================== End Elhalaga ==============================
 
