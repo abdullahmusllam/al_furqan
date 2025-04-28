@@ -39,6 +39,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
       setState(() {
         if (loadedHalaqat!.isNotEmpty) {
           halaqat = loadedHalaqat;
+          
           print('تم تحميل ${halaqat.length} حلقة');
         } else {
           // عرض رسالة توضيحية عندما تكون القائمة فارغة أو null

@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/excel_testing.dart';
+import '../../controllers/users_controller.dart';
 
 class AddStudentScreen extends StatefulWidget {
   final UserModel? user;
@@ -124,6 +125,11 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
             await studentController.addStudentToFirebase(
                 studentModel, SchoolID);
             print("تم إضافة الطالب إلى Firebase");
+            // أيضاً: إضافة ولي الأمر إلى Firebase
+            await userController.addFatherToFirebase(fatherModel, SchoolID);
+            print("تم إضافة ولي الأمر إلى Firebase");
+            
+
           } catch (firebaseError) {
             print("خطأ في إضافة الطالب إلى Firebase: $firebaseError");
             if (mounted) {

@@ -110,44 +110,44 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
     return selectedStudents.values.where((isSelected) => isSelected).length;
   }
 
-  // اختيار تاريخ
-  Future<void> _selectDate(BuildContext context,
-      {required bool isStart, required bool isConservation}) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2023),
-      lastDate: DateTime(2030),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Theme.of(context).primaryColor,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
+  // // اختيار تاريخ
+  // Future<void> _selectDate(BuildContext context,
+  //     {required bool isStart, required bool isConservation}) async {
+  //   final DateTime? picked = await showDatePicker(
+  //     context: context,
+  //     initialDate: DateTime.now(),
+  //     firstDate: DateTime(2023),
+  //     lastDate: DateTime(2030),
+  //     builder: (context, child) {
+  //       return Theme(
+  //         data: Theme.of(context).copyWith(
+  //           colorScheme: ColorScheme.light(
+  //             primary: Theme.of(context).primaryColor,
+  //           ),
+  //         ),
+  //         child: child!,
+  //       );
+  //     },
+  //   );
 
-    if (picked != null) {
-      setState(() {
-        if (isConservation) {
-          if (isStart) {
-            conservationStartDate = picked;
-          } else {
-            conservationEndDate = picked;
-          }
-        } else {
-          if (isStart) {
-            recitationStartDate = picked;
-          } else {
-            recitationEndDate = picked;
-          }
-        }
-      });
-    }
-  }
+  //   if (picked != null) {
+  //     setState(() {
+  //       if (isConservation) {
+  //         if (isStart) {
+  //           conservationStartDate = picked;
+  //         } else {
+  //           conservationEndDate = picked;
+  //         }
+  //       } else {
+  //         if (isStart) {
+  //           recitationStartDate = picked;
+  //         } else {
+  //           recitationEndDate = picked;
+  //         }
+  //       }
+  //     });
+  //   }
+  // }
 
   // تنسيق التاريخ
   String _formatDate(DateTime? date) {
@@ -440,6 +440,10 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                             }
 
                             try {
+                              // تعيين عدد الطلاب في نموذج الحلقة
+                              int studentCount = selectedStudentCount;
+                              _halaqaModel.NumberStudent = studentCount;
+                              
                               // إضافة الحلقة
                               await halagaController.addHalaga(_halaqaModel);
 
@@ -465,6 +469,8 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                   });
                                   return;
                                 }
+                                // تأكيد تعيين عدد الطلاب قبل تحديث الحلقة
+                                _halaqaModel.NumberStudent = studentCount;
                                 await halagaController.updateHalaga(
                                     _halaqaModel, selectedTeacher!.user_id);
                               }
