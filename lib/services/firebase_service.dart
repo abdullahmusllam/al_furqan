@@ -87,52 +87,52 @@ class FirebaseHelper {
 
 // =========================== Start School =============================
 
-Future<List<SchoolModel>> getSchool() async {
-  try {
-    QuerySnapshot querySnapshot = await _firestore.collection('School').get();
+  Future<List<SchoolModel>> getSchool() async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore.collection('School').get();
 
-    if (querySnapshot.docs.isNotEmpty) {
-      print('تم العثور على المدارس');
-      return querySnapshot.docs
-          .map((doc) => SchoolModel.fromJson(doc.data() as Map<String, dynamic>))
-          .toList();
-    } else {
-      print('لا توجد مدارس');
+      if (querySnapshot.docs.isNotEmpty) {
+        print('تم العثور على المدارس');
+        return querySnapshot.docs
+            .map((doc) =>
+                SchoolModel.fromJson(doc.data() as Map<String, dynamic>))
+            .toList();
+      } else {
+        print('لا توجد مدارس');
+        return [];
+      }
+    } catch (e) {
+      print('خطأ أثناء جلب بيانات المدارس: $e');
       return [];
     }
-  } catch (e) {
-    print('خطأ أثناء جلب بيانات المدارس: $e');
-    return [];
   }
-}
 
-addSchool(SchoolModel school, int id) async {
-  final docRef = _firestore.collection('School');
-  if (school != null) {
-    await docRef.doc(id.toString()).set({
-      'SchoolID': id,
-      'school_name': school.school_name,
-      'school_location': school.school_location,
-    });
-    print('تم إضافة المدرسة $id بنجاح');
-  } else {
-    print('خطأ في إضافة المدرسة');
+  addSchool(SchoolModel school, int id) async {
+    final docRef = _firestore.collection('School');
+    if (school != null) {
+      await docRef.doc(id.toString()).set({
+        'SchoolID': id,
+        'school_name': school.school_name,
+        'school_location': school.school_location,
+      });
+      print('تم إضافة المدرسة $id بنجاح');
+    } else {
+      print('خطأ في إضافة المدرسة');
+    }
   }
-}
-updateSchool(SchoolModel school, int id) async {
-  final docRef = _firestore.collection('School').doc(id.toString());
-  if (school != null) {
-    await docRef.update({
-      'school_name': school.school_name,
-      'school_location': school.school_location,
-    });
-    print('تم تعديل المدرسة $id بنجاح');
-  } else {
-    print('خطأ في تعديل المدرسة');
+
+  updateSchool(SchoolModel school, int id) async {
+    final docRef = _firestore.collection('School').doc(id.toString());
+    if (school != null) {
+      await docRef.update({
+        'school_name': school.school_name,
+        'school_location': school.school_location,
+      });
+      print('تم تعديل المدرسة $id بنجاح');
+    } else {
+      print('خطأ في تعديل المدرسة');
+    }
   }
-}
-
-
 
 // ========================== End School ================================
 
@@ -167,7 +167,7 @@ updateSchool(SchoolModel school, int id) async {
   //     if(Halaga != null){
 
   //     }
-  //   } catch (e){} 
+  //   } catch (e){}
   // }
 
 // =========================== End Elhalaga ==============================
@@ -258,7 +258,7 @@ updateSchool(SchoolModel school, int id) async {
   addRequest(int id, UserModel user) async {
     try {
       final docRef = _firestore.collection('Users').doc(id.toString());
-      await docRef.set({
+      docRef.set({
         'user_id': id,
         'first_name': user.first_name,
         'middle_name': user.middle_name,
@@ -291,76 +291,77 @@ updateSchool(SchoolModel school, int id) async {
   }
 
 // services/password_service.dart
-    // إرسال رمز التحقق عبر واتساب
-    Future<String> sendWhatsAppVerification(int idNumber) async {
-      try {
-        // 1. البحث عن المستخدم في Firestore
-        final query = await _firestore
-            .collection('Users')
-            .where('phone_number', isEqualTo: idNumber)
-            .limit(1)
-            .get();
+  // إرسال رمز التحقق عبر واتساب
+  Future<String> sendWhatsAppVerification(int idNumber) async {
+    try {
+      // 1. البحث عن المستخدم في Firestore
+      final query = await _firestore
+          .collection('Users')
+          .where('phone_number', isEqualTo: idNumber)
+          .limit(1)
+          .get();
 
-        print(query.docs.first.data());
+      print(query.docs.first.data());
 
-        if (query.docs.isEmpty) {
-          throw 'رقم الهاتف غير مسجل';
-        }
-
-        final userData = query.docs.first.data();
-        final userPhone = userData['phone_number'];
-
-        if (userPhone == null || userPhone.toString().isEmpty) {
-          throw 'لا يوجد رقم هاتف مسجل لهذا الحساب';
-        }
-
-        // 2. توليد رمز تحقق عشوائي (6 أرقام)
-        final verificationCode = (100000 + Random().nextInt(900000)).toString();
-
-        // 3. تنظيف رقم الهاتف
-        final cleanUserPhone = userPhone.toString().replaceAll(RegExp(r'[^0-9]'), '');
-
-        // 4. إعداد رابط واتساب مع رقم المرسل الثابت
-        final message = 'رمز التحقق لتغيير كلمة المرور هو: $verificationCode';
-
-        final whatsappUrl =
-            "https://wa.me/$cleanUserPhone?text=${Uri.encodeComponent(message)}"; // إضافة رقم المرسل
-        // 5. إرسال الرسالة
-        if (await canLaunch(whatsappUrl)) {
-          await launch(whatsappUrl);
-          return verificationCode;
-        } else {
-          throw 'لا يمكن فتح واتساب';
-        }
-      } catch (e) {
-        // throw 'فشل إرسال الرمز: ${e.toString()}';
-        print(e.toString());
-        return null!;
+      if (query.docs.isEmpty) {
+        throw 'رقم الهاتف غير مسجل';
       }
-    }
 
-    // تحديث كلمة المرور في Firestore
-    Future<void> updatePassword(int idNumber, String newPassword) async {
-      try {
-        final query = await _firestore
-            .collection('Users')
-            .where('phone_number', isEqualTo: idNumber)
-            .limit(1)
-            .get();
+      final userData = query.docs.first.data();
+      final userPhone = userData['phone_number'];
 
-        if (query.docs.isEmpty) {
-          throw 'رقم الهاتف غير مسجل';
-        }
-
-        await query.docs.first.reference.update({
-          'password': newPassword, // يجب تشفير كلمة المرور في التطبيق الحقيقي
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      } catch (e) {
-        throw 'فشل تحديث كلمة المرور: ${e.toString()}';
+      if (userPhone == null || userPhone.toString().isEmpty) {
+        throw 'لا يوجد رقم هاتف مسجل لهذا الحساب';
       }
+
+      // 2. توليد رمز تحقق عشوائي (6 أرقام)
+      final verificationCode = (100000 + Random().nextInt(900000)).toString();
+
+      // 3. تنظيف رقم الهاتف
+      final cleanUserPhone =
+          userPhone.toString().replaceAll(RegExp(r'[^0-9]'), '');
+
+      // 4. إعداد رابط واتساب مع رقم المرسل الثابت
+      final message = 'رمز التحقق لتغيير كلمة المرور هو: $verificationCode';
+
+      final whatsappUrl =
+          "https://wa.me/$cleanUserPhone?text=${Uri.encodeComponent(message)}"; // إضافة رقم المرسل
+      // 5. إرسال الرسالة
+      if (await canLaunch(whatsappUrl)) {
+        await launch(whatsappUrl);
+        return verificationCode;
+      } else {
+        throw 'لا يمكن فتح واتساب';
+      }
+    } catch (e) {
+      // throw 'فشل إرسال الرمز: ${e.toString()}';
+      print(e.toString());
+      return null!;
     }
-   // =========================== End User =================================
+  }
+
+  // تحديث كلمة المرور في Firestore
+  Future<void> updatePassword(int idNumber, String newPassword) async {
+    try {
+      final query = await _firestore
+          .collection('Users')
+          .where('phone_number', isEqualTo: idNumber)
+          .limit(1)
+          .get();
+
+      if (query.docs.isEmpty) {
+        throw 'رقم الهاتف غير مسجل';
+      }
+
+      await query.docs.first.reference.update({
+        'password': newPassword, // يجب تشفير كلمة المرور في التطبيق الحقيقي
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw 'فشل تحديث كلمة المرور: ${e.toString()}';
+    }
+  }
+  // =========================== End User =================================
 } // End of FirebaseHelper class
 
 FirebaseHelper firebasehelper = FirebaseHelper();

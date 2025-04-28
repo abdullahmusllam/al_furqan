@@ -233,6 +233,30 @@ class UserController {
   // Setters لتحديث بيانات النموذج
   set verificationCode(String code) => _model.verificationCode = code;
   set newPassword(String password) => _model.newPassword = password;
+
+  // إضافة بيانات الأب إلى Firebase
+  Future<void> addFatherToFirebase(UserModel fatherData, int schoolID) async {
+    print("جاري إضافة ولي الأمر إلى Firebase - معرف المدرسة: $schoolID");
+    // التحقق أولاً من وجود اتصال بالإنترنت
+    bool hasConnection = await InternetConnectionChecker.createInstance().hasConnection;
+    if (!hasConnection) {
+      print("لا يوجد اتصال بالإنترنت، لا يمكن إضافة ولي الأمر إلى Firebase");
+      return;
+    }
+
+    if (fatherData.user_id == null) {
+      print("تحذير: معرف ولي الأمر غير موجود (user_id = null)");
+      return; // لا يمكن الإضافة إلى Firebase بدون معرف
+    }
+
+    try {
+      // إرسال البيانات إلى Firebase
+      await firebasehelper.addRequest(fatherData.user_id!, fatherData);
+      print("تم إرسال بيانات ولي الأمر إلى Firebase بنجاح");
+    } catch (e) {
+      print("حدث خطأ أثناء إضافة ولي الأمر إلى Firebase: $e");
+    }
+  }
 }
 
 UserController userController = UserController();

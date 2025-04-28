@@ -82,7 +82,7 @@ class HalagaController {
 
       // إضافة الحلقة
       int response = await _sqlDb.insertData(
-          "INSERT INTO Elhalagat (halagaID, SchoolID, Name, NumberStudent) VALUES (${halagaData.halagaID}, ${halagaData.SchoolID}, '${halagaData.Name}', 0)");
+          "INSERT INTO Elhalagat (halagaID, SchoolID, Name, NumberStudent) VALUES (${halagaData.halagaID}, ${halagaData.SchoolID}, '${halagaData.Name}', ${halagaData.NumberStudent})");
       print("تمت إضافة الحلقة، الاستجابة: $response");
       if (response == 0) {
         throw Exception("فشل في إضافة الحلقة");
@@ -133,9 +133,12 @@ class HalagaController {
         throw Exception("معرف الحلقة غير متوفر");
       }
 
+      // التحقق من قيمة NumberStudent وتعيين قيمة افتراضية إذا كانت null
+      int numberStudent = halaga.NumberStudent ?? 0;
+
       // تحديث بيانات الحلقة
       int response = await _sqlDb.updateData(
-          "UPDATE Elhalagat SET Name = '${halaga.Name}', NumberStudent = ${halaga.NumberStudent} WHERE halagaID = ${halaga.halagaID}");
+          "UPDATE Elhalagat SET Name = '${halaga.Name}', NumberStudent = $numberStudent WHERE halagaID = ${halaga.halagaID}");
       print("تم تحديث الحلقة ${halaga.halagaID}، الاستجابة: $response");
       if (response == 0) {
         throw Exception("فشل في تحديث الحلقة ${halaga.halagaID}");
@@ -411,8 +414,8 @@ class HalagaController {
   }
 
   Future<List<HalagaModel>> getHalagaByHalagaID(int halagaID) async {
-    List<Map<String, dynamic>> halagaData = await _sqlDb.readData(
-        "SELECT * FROM Elhalagat WHERE halagaID = $halagaID");
+    List<Map<String, dynamic>> halagaData = await _sqlDb
+        .readData("SELECT * FROM Elhalagat WHERE halagaID = $halagaID");
     return halagaData.map((halaga) => HalagaModel.fromJson(halaga)).toList();
   }
 }
