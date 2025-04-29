@@ -47,6 +47,8 @@ mixin UserDataMixin<T extends StatefulWidget> on State<T> {
     if (user != null && user!.schoolID != null) {
       schoolID = user!.schoolID!;
       print("UserDataMixin: schoolID set to: $schoolID");
+      print("UserDataMixin: elhalagat set to: ${user!.elhalagatID}");
+
       await _refreshData(); // ← await هنا مهمة
     } else {
       print(
@@ -72,6 +74,18 @@ mixin UserDataMixin<T extends StatefulWidget> on State<T> {
       await teacherController.getTeachersBySchoolID(user!.schoolID!);
       print(
           "UserDataMixin: Teacher count after refresh: ${teacherController.teachers.length}");
+          
+      // تحديث بيانات المستخدم الحالي من قائمة المعلمين المحدثة
+      if (user!.roleID == 2) { // إذا كان المستخدم معلم
+        for (var teacher in teacherController.teachers) {
+          if (teacher.user_id == user!.user_id) {
+            // تحديث بيانات المستخدم بالبيانات المحدثة من قاعدة البيانات
+            user = teacher;
+            print("UserDataMixin: Updated user data from teachers list. ElhalagatID: ${user!.elhalagatID}");
+            break;
+          }
+        }
+      }
 
       print("UserDataMixin: Fetching students for schoolID: ${user!.schoolID}");
       await studentController.getSchoolStudents(user!.schoolID!);

@@ -1,5 +1,6 @@
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/StudentController.dart';
+import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
@@ -473,6 +474,11 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                 _halaqaModel.NumberStudent = studentCount;
                                 await halagaController.updateHalaga(
                                     _halaqaModel, selectedTeacher!.user_id);
+                                    
+                                // تحديث elhalagatID للمعلم
+                                selectedTeacher!.elhalagatID = _halaqaModel.halagaID;
+                                await userController.updateUser(selectedTeacher!, 1);
+                                print("تم تحديث المعلم ${selectedTeacher!.first_name} ${selectedTeacher!.last_name} بحلقة رقم ${_halaqaModel.halagaID}");
                               }
 
                               ScaffoldMessenger.of(context).showSnackBar(
