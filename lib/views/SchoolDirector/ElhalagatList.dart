@@ -2,7 +2,7 @@ import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddHalaga.dart';
-import 'package:al_furqan/views/SchoolDirector/HalqaReportScreen.dart';
+import 'package:al_furqan/views/Teacher/HalqaReportScreen.dart';
 import 'package:al_furqan/views/SchoolDirector/halagaDetails.dart';
 import 'package:flutter/material.dart';
 
