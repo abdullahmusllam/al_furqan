@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:intl/intl.dart';
 
-import '../../controllers/TeacherController.dart';
+import '../../../controllers/TeacherController.dart';
 
 class AddHalaqaScreen extends StatefulWidget {
   @override

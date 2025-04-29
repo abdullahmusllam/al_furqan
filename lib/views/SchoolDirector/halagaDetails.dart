@@ -2,11 +2,11 @@ import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/views/SchoolDirector/EditHalaga.dart';
-import 'package:al_furqan/views/SchoolDirector/HalqaReportScreen.dart';
+import 'package:al_furqan/views/Teacher/HalqaReportScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/views/SchoolDirector/add_students_to_halqa_screen.dart';
-import 'package:al_furqan/views/SchoolDirector/HalagaPlansScreen.dart';
+import 'package:al_furqan/views/Teacher/HalagaPlansScreen.dart';
 
 class HalqaDetailsPage extends StatefulWidget {
   final HalagaModel halqa;
