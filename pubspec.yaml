@@ -40,7 +40,7 @@ dependencies:
   firebase_auth:
   sqflite:
   path:
-  intl:
+  intl: ^0.20.2
   shared_preferences:
     # مكتبة للتحقق من اتصال الإنترنت الفعلي وليس فقط اتصال الشبكة
   internet_connection_checker: 
