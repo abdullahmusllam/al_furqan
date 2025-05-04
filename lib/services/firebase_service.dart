@@ -22,6 +22,7 @@ class FirebaseHelper {
           'StudentID': id,
           'ElhalagatID': StudentData.elhalaqaID,
           'SchoolID': schoolID,
+          'userID': StudentData.userID,
           'FirstName': StudentData.firstName,
           'MiddleName': StudentData.middleName,
           'grandfatherName': StudentData.grandfatherName,

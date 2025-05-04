@@ -41,6 +41,7 @@ class UserModel {
       'user_id': user_id,
       'ActivityID': activityID,
       'ElhalagatID': elhalagatID,
+      
       'first_name': first_name,
       'middle_name': middle_name,
       'grandfather_name': grandfather_name,
