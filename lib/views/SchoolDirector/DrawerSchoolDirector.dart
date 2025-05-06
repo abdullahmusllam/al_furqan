@@ -4,6 +4,7 @@ import 'package:al_furqan/views/SchoolDirector/ElhalagatList.dart';
 import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
 import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
 import 'package:al_furqan/views/SchoolDirector/teacher_management.dart';
+import 'package:al_furqan/views/shared/message_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -175,6 +176,9 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                       );
                     },
                   ),
+                  _buildMenuItem(icon: Icons.message, title: "الرسائل", onTap: () {
+                    Navigator.of(context).push(CupertinoPageRoute(builder: (context) => ChatScreen(user: widget.user!)));
+                  }),
 
                   // Student Management Section
                   _buildSectionTitle('إدارة الطلاب والحلقات'),

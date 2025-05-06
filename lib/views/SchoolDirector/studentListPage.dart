@@ -48,9 +48,11 @@ class _StudentsListPageState extends State<StudentsListPage> {
         }
       }
 
-      setState(() {
-        halaqaNames = names;
-      });
+      if (mounted) {
+        setState(() {
+          halaqaNames = names;
+        });
+      }
 
       print("تم تحميل ${halaqaNames.length} حلقة في القاموس");
     } catch (e) {
@@ -63,9 +65,11 @@ class _StudentsListPageState extends State<StudentsListPage> {
   }
 
   Future<void> _loadStudent() async {
-    setState(() {
-      isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = true;
+      });
+    }
 
     print("=== بداية تحميل بيانات الطلاب ===");
     int schoolID = widget.user!.schoolID!;
@@ -119,11 +123,13 @@ class _StudentsListPageState extends State<StudentsListPage> {
         print(
             "تم تحميل ${loadedStudent?.length ?? 0} طالب من قاعدة البيانات المحلية");
 
-        setState(() {
-          students = loadedStudent ?? [];
-          isLoading = false;
-          print("تم تحديث واجهة المستخدم بـ ${students.length} طالب");
-        });
+        if (mounted) {
+          setState(() {
+            students = loadedStudent ?? [];
+            isLoading = false;
+            print("تم تحديث واجهة المستخدم بـ ${students.length} طالب");
+          });
+        }
 
       } else {
         // إذا لم يكن هناك اتصال بالإنترنت، يتم تحميل البيانات من القاعدة المحلية فقط
@@ -134,17 +140,21 @@ class _StudentsListPageState extends State<StudentsListPage> {
         print(
             "تم تحميل ${loadedStudent?.length ?? 0} طالب من قاعدة البيانات المحلية");
 
-        setState(() {
-          students = loadedStudent ?? [];
-          isLoading = false;
-          print("تم تحديث واجهة المستخدم بـ ${students.length} طالب");
-        });
+        if (mounted) {
+          setState(() {
+            students = loadedStudent ?? [];
+            isLoading = false;
+            print("تم تحديث واجهة المستخدم بـ ${students.length} طالب");
+          });
+        }
       }
     } else {
       print("معرف المدرسة غير متوفر!");
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
     print("=== انتهاء تحميل بيانات الطلاب ===");
   }
