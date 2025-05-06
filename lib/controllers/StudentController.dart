@@ -99,7 +99,7 @@ class StudentController {
     }
 
     // إرسال البيانات إلى Firebase فقط بدون إضافة محلية مرة أخرى
-    await firebasehelper.addStudent(student.studentID!, student, schoolID);
+    await firebasehelper.addStudent(student, schoolID);
     print("تم إرسال بيانات الطالب إلى Firebase");
   }
 
@@ -153,7 +153,7 @@ class StudentController {
             "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}' WHERE StudentID = $id");
         print("Update response: $update");
         print("User ID : ${student.userID}");
-        await firebasehelper.updateStudentData(student, id);
+        await firebasehelper.updateStudentData(student);
 
         if (update == 0) {
           throw Exception("Failed to update student $id");

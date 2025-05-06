@@ -43,6 +43,7 @@ CREATE TABLE "Activities" (
     "ActivityID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "ActivityTypeID" INTEGER NOT NULL,
     "Name" TEXT NOT NULL,
+    "isSync" BOOLEAN,
     CONSTRAINT "ActivityTypeIDfk" FOREIGN KEY("ActivityTypeID") REFERENCES "ActivityTypes"("ActivityTypeID")
 );
 
@@ -53,6 +54,7 @@ CREATE TABLE "Elhalagat" (
     "Name" TEXT NOT NULL,
     "NumberStudent" INTEGER NOT NULL,
     "AttendanceRate" REAL NULL,
+    "isSync" BOOLEAN,
     CONSTRAINT "schoolIDfk" FOREIGN KEY("SchoolID") REFERENCES "School"("SchoolID")
 );
 
@@ -64,6 +66,7 @@ CREATE TABLE "IslamicStudies" (
     "PlannedContent" TEXT,
     "ExecutedContent" TEXT,
     "ExecutedRate" REAL,
+    "isSync" BOOLEAN
     CONSTRAINT "elhalagatidfk" FOREIGN KEY("ElhalagatID") REFERENCES "Elhalagat"("halagaID")
 );
 
@@ -81,6 +84,7 @@ CREATE TABLE "Students" (
     "AbsenceDays" INTEGER,
     "Excuse" TEXT,
     "ReasonAbsence" TEXT,
+    "isSync" BOOLEAN,
     CONSTRAINT "elhalagatIDfk" FOREIGN KEY("ElhalagatID") REFERENCES "Elhalagat"("halagaID"),
     CONSTRAINT "school_id_fk" FOREIGN KEY("SchoolID") REFERENCES "Schools"("SchoolID")
 );

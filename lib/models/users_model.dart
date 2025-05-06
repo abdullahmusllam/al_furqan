@@ -16,6 +16,7 @@ class UserModel {
   int? schoolID;
   String? date; // إضافة حقل تاريخ الميلاد
   int? isActivate; // إضافة حقل تفعيل المستخدم
+  int? isSync;
 
   UserModel({
     this.user_id,
@@ -33,6 +34,7 @@ class UserModel {
     this.schoolID,
     this.date,
     this.isActivate = 0,
+    this.isSync,
   });
 
   // تحويل الكائن إلى Map
@@ -53,6 +55,7 @@ class UserModel {
       'schoolID': schoolID,
       'date': date,
       'isActivate': isActivate,
+      'isSync': isSync
     };
   }
 
@@ -74,6 +77,7 @@ class UserModel {
       schoolID: map['schoolID'] as int?,
       date: map['date'] as String?,
       isActivate: map['isActivate'] as int?,
+      isSync: map['isSync']
     );
   }
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -93,6 +97,7 @@ class UserModel {
       schoolID: json['schoolID'] as int?,
       date: json['date'] as String?,
       isActivate: json['isActivate'] as int?,
+      isSync: json['isSync'] 
     );
   }
 }

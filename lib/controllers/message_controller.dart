@@ -4,8 +4,9 @@ import '../models/messages_model.dart';
 
 class MessageController {
   // Save message to SQLite
-  Future<int> saveMessage(Message message) async {
+  Future<int> saveMessage(Message message, int id) async {
     final db = await sqlDb.database;
+    message.id = id;
     return await db.insert('messages', message.toMap());
   }
 

@@ -13,26 +13,14 @@ class FirebaseHelper {
 
   // ======================= Start Student ==============
   Future<void> addStudent(
-      int id, StudentModel StudentData, int schoolID) async {
+       StudentModel StudentData, int schoolID) async {
     final StudentRef = await _firestore.collection('Students');
-
+    
+    StudentData.schoolId = schoolID;
     if (StudentData != null) {
       try {
-        await StudentRef.doc(id.toString()).set({
-          'StudentID': id,
-          'ElhalagatID': StudentData.elhalaqaID,
-          'SchoolID': schoolID,
-          'userID': StudentData.userID,
-          'FirstName': StudentData.firstName,
-          'MiddleName': StudentData.middleName,
-          'grandfatherName': StudentData.grandfatherName,
-          'LastName': StudentData.lastName,
-          'AttendanceDays': StudentData.attendanceDays,
-          'AbsenceDays': StudentData.absenceDays,
-          'Excuse': StudentData.excuse,
-          'ReasonAbsence': StudentData.reasonAbsence
-        });
-        print('تمت إضافة/تحديث الطالب بالرقم $id بنجاح ');
+        await StudentRef.doc(StudentData.studentID.toString()).set(StudentData.toMap());
+        print('تمت إضافة/تحديث الطالب بالرقم ${StudentData.studentID} بنجاح ');
       } catch (e) {
         print('خطأ أثناء إضافة الطالب إلى Firebase: $e');
       }
@@ -63,22 +51,9 @@ class FirebaseHelper {
     }
   }
 
-  updateStudentData(StudentModel Student, int id) async {
-    final docRef = _firestore.collection('Students').doc(id.toString());
-
-    await docRef.update({
-      'StudentID': id,
-      'ElhalagatID': Student.elhalaqaID,
-      'SchoolID': Student.schoolId,
-      'FirstName': Student.firstName,
-      'MiddleName': Student.middleName,
-      'grandfatherName': Student.grandfatherName,
-      'LastName': Student.lastName,
-      'AttendanceDays': Student.attendanceDays,
-      'AbsenceDays': Student.absenceDays,
-      'Excuse': Student.excuse,
-      'ReasonAbsence': Student.reasonAbsence
-    }).then((_) {
+  updateStudentData(StudentModel Student) async {
+    final docRef = _firestore.collection('Students').doc(Student.studentID.toString());
+    await docRef.update(Student.toMap()).then((_) {
       print('تم التعديل بنجاح');
     }).catchError((error) {
       print('حدث خطأ: $error');
@@ -108,28 +83,28 @@ class FirebaseHelper {
     }
   }
 
-  addSchool(SchoolModel school, int id) async {
+  addSchool(SchoolModel school) async {
     final docRef = _firestore.collection('School');
     if (school != null) {
-      await docRef.doc(id.toString()).set({
-        'SchoolID': id,
+      await docRef.doc(school.user_id.toString()).set({
+        'SchoolID': school.schoolID,
         'school_name': school.school_name,
         'school_location': school.school_location,
       });
-      print('تم إضافة المدرسة $id بنجاح');
+      print('تم إضافة المدرسة ${school.schoolID} بنجاح');
     } else {
       print('خطأ في إضافة المدرسة');
     }
   }
 
-  updateSchool(SchoolModel school, int id) async {
-    final docRef = _firestore.collection('School').doc(id.toString());
+  updateSchool(SchoolModel school) async {
+    final docRef = _firestore.collection('School').doc(school.schoolID.toString());
     if (school != null) {
       await docRef.update({
         'school_name': school.school_name,
         'school_location': school.school_location,
       });
-      print('تم تعديل المدرسة $id بنجاح');
+      print('تم تعديل المدرسة ${school.schoolID} بنجاح');
     } else {
       print('خطأ في تعديل المدرسة');
     }
@@ -175,20 +150,20 @@ class FirebaseHelper {
 
 // =========================== Start User ===============================
 
-  addUser(int id, UserModel user) async {
+  addUser(UserModel user) async {
     final docRef = _firestore.collection('Users');
-    user.user_id = id;
+    // user.user_id = id;
     if (user != null) {
-      await docRef.doc(id.toString()).set(user.toMap());
-      print("تمت اضافة المستخدم $id بنجاح");
+      await docRef.doc(user.user_id.toString()).set(user.toMap());
+      print("تمت اضافة المستخدم ${user.user_id} بنجاح");
     } else {
       print("خطا في الرفع");
     }
   }
 
-  updateUser(int id, UserModel user) async {
-    final docRef = _firestore.collection('Users').doc(id.toString());
-    user.user_id = id;
+  updateUser(UserModel user) async {
+    final docRef = _firestore.collection('Users').doc(user.user_id.toString());
+    // user.user_id = id;
     await docRef.update(user.toMap()).then((_) {
       print('تم التعديل بنجاح');
     }).catchError((error) {

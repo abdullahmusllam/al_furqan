@@ -61,7 +61,7 @@ class SchoolController {
         VALUES (${schoolModel.schoolID}, '${schoolModel.school_name}', '${schoolModel.school_location}')
       ''');
       if(await InternetConnectionChecker.createInstance().hasConnection){
-        await firebasehelper.addSchool(schoolModel, schoolModel.schoolID!);
+        await firebasehelper.addSchool(schoolModel);
       }else{
         print("لا يوجد اتصال بالانترنت");
       }
@@ -88,7 +88,7 @@ class SchoolController {
         UPDATE Schools SET school_name = '${schoolModel.school_name}', school_location = '${schoolModel.school_location}' WHERE SchoolID = ${schoolModel.schoolID}
       ''');
       if(await InternetConnectionChecker.createInstance().hasConnection){
-        await firebasehelper.updateSchool(schoolModel, schoolModel.schoolID!);
+        await firebasehelper.updateSchool(schoolModel);
       }else{
         print("لا يوجد اتصال بالانترنت");
       }
