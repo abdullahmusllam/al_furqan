@@ -145,3 +145,13 @@ CREATE TABLE "Recommendations" (
     "Recommendation" TEXT NOT NULL,
     CONSTRAINT "elhalagatid2fk" FOREIGN KEY("ElhalagatID") REFERENCES "Elhalagat"("halagaID")
 );
+
+CREATE TABLE "messages" (
+      "id" INTEGER PRIMARY KEY,
+      "senderId" INTEGER NOT NULL,
+      "receiverId" INTEGER NOT NULL,
+      "content" TEXT NOT NULL,
+      "timestamp" TEXT NOT NULL,
+      "sync" INTEGER NOT NULL,
+      "senderType" TEXT NOT NULL
+      );

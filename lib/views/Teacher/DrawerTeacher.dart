@@ -3,6 +3,7 @@
 import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
 import 'package:al_furqan/views/Teacher/HalagaPlansScreen.dart';
 import 'package:al_furqan/views/Teacher/student_plans_list_screen.dart';
+import 'package:al_furqan/views/shared/message_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
 import 'package:al_furqan/helper/user_helper.dart';
@@ -410,6 +411,18 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                     title: 'العلوم الشرعية',
                     onTap: () {
                       // الانتقال إلى شاشة التقييمات
+                    },
+                  ),
+                   _buildMenuItem(
+                    context,
+                    icon: Icons.message,
+                    title: 'الرسائل',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatScreen(user: user!,),
+                        ),);
                     },
                   ),
                   _buildDivider(),
