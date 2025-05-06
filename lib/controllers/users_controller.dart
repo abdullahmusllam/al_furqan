@@ -11,6 +11,7 @@ class UserController {
   final SqlDb _sqlDb = SqlDb();
   final FirebaseHelper _service = FirebaseHelper();
   final PasswordResetModel _model = PasswordResetModel();
+  final db = sqlDb.database;
 
   List<UserModel> get users => _users;
   List<UserModel> get requests => _requests;
@@ -83,7 +84,7 @@ class UserController {
       bool hasInternet =
           await InternetConnectionChecker.createInstance().hasConnection;
       if (hasInternet) {
-        await firebasehelper.addUser(userModel.user_id!, userModel);
+        await firebasehelper.addUser(userModel);
       } else {
         print("No internet connection - Firebase sync skipped");
       }
@@ -146,7 +147,7 @@ class UserController {
       print("response = $response, elhalagatID = ${userModel.elhalagatID}");
 
       if (await InternetConnectionChecker.createInstance().hasConnection) {
-        await firebasehelper.updateUser(userModel.user_id!, userModel);
+        await firebasehelper.updateUser(userModel);
       } else {
         print("لا يوجد اتصال بالانترنت");
       }
