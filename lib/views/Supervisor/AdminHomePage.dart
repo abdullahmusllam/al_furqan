@@ -3,6 +3,7 @@ import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/services/sync.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:al_furqan/widgets/chart_card.dart';
 import 'package:al_furqan/widgets/drawer_list.dart';
@@ -29,7 +30,40 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
   @override
   void initState() {
     super.initState();
+    syncData();
     _refreshData();
+  }
+
+  Future<void> syncData() async {
+    await sync.syncUsers;
+  }
+
+  void _showLoadingDialog() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: Color(0xFFFFFFFF), // الأبيض
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            content: Row(
+              children: [
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2196F3)), // الأزرق
+                ),
+                SizedBox(width: 20),
+                Expanded(
+                  child: Text(
+                    'الرجاء الانتظار حتى رفع البيانات',
+                    style: TextStyle(color: Color(0xFF212121)), // أسود
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).then((value) {
+      Navigator.pop(context);
+    });
   }
 
   Future<void> _refreshData() async {
