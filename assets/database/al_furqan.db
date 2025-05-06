@@ -16,6 +16,7 @@ CREATE TABLE "Users" (
 	"schoolID" INTEGER NULL,
 	"date" DATE,
 	"isActivate" INTEGER,
+    "isSync" BOOLEAN,
     CONSTRAINT "schoolID_fk" FOREIGN KEY("schoolID") REFERENCES "Schools"("SchoolID"),
     CONSTRAINT "roleID_fk" FOREIGN KEY("roleID") REFERENCES "Roles"("RoleID"),
     CONSTRAINT "activityID_fk" FOREIGN KEY("ActivityID") REFERENCES "Activities"("ActivityID"),
@@ -27,6 +28,7 @@ CREATE TABLE "Schools" (
     "SchoolID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "school_name" TEXT NOT NULL,
     "school_location" TEXT NOT NULL
+    "isSync" BOOLEAN,
 );
 
 -- إنشاء جدول الأدوار

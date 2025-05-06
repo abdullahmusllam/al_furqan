@@ -469,6 +469,12 @@ class SqlDb {
       orderBy: 'PlanMonth DESC'
     );
   }
+
+  readDataID(String tablename, String column, int value) async{
+    Database? mydb = await database;
+    List<Map> response = await mydb.query(tablename, where: '$column = ?', whereArgs: [value]);
+    return response;
+  }
 }
 
 SqlDb sqlDb = SqlDb();

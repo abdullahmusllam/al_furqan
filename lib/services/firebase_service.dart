@@ -177,24 +177,9 @@ class FirebaseHelper {
 
   addUser(int id, UserModel user) async {
     final docRef = _firestore.collection('Users');
+    user.user_id = id;
     if (user != null) {
-      await docRef.doc(id.toString()).set({
-        'user_id': id,
-        'ActivityID': user.activityID,
-        'ElhalagatID': user.elhalagatID,
-        'first_name': user.first_name,
-        'middle_name': user.middle_name,
-        'grandfather_name': user.grandfather_name,
-        'last_name': user.last_name,
-        'password': user.password,
-        'email': user.email,
-        'phone_number': user.phone_number,
-        'telephone_number': user.telephone_number,
-        'roleID': user.roleID,
-        'schoolID': user.schoolID,
-        'date': user.date,
-        'isActivate': user.isActivate
-      });
+      await docRef.doc(id.toString()).set(user.toMap());
       print("تمت اضافة المستخدم $id بنجاح");
     } else {
       print("خطا في الرفع");
@@ -203,23 +188,8 @@ class FirebaseHelper {
 
   updateUser(int id, UserModel user) async {
     final docRef = _firestore.collection('Users').doc(id.toString());
-    await docRef.update({
-      'user_id': id,
-      'ActivityID': user.activityID,
-      'ElhalagatID': user.elhalagatID,
-      'first_name': user.first_name,
-      'middle_name': user.middle_name,
-      'grandfather_name': user.grandfather_name,
-      'last_name': user.last_name,
-      'password': user.password,
-      'email': user.email,
-      'phone_number': user.phone_number,
-      'telephone_number': user.telephone_number,
-      'roleID': user.roleID,
-      'schoolID': user.schoolID,
-      'date': user.date,
-      'isActivate': user.isActivate
-    }).then((_) {
+    user.user_id = id;
+    await docRef.update(user.toMap()).then((_) {
       print('تم التعديل بنجاح');
     }).catchError((error) {
       print('حدث خطأ: $error');
@@ -363,6 +333,22 @@ class FirebaseHelper {
     }
   }
   // =========================== End User =================================
+
+
+  Future<bool> checkDocumentExists(String collection, int id) async {
+    try {
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection(collection)
+          .doc(id.toString())
+          .get();
+      print("Find document");
+      return documentSnapshot.exists;
+
+    } catch (e) {
+      print('Not found document');
+      return false;
+    }
+  }
 } // End of FirebaseHelper class
 
 FirebaseHelper firebasehelper = FirebaseHelper();

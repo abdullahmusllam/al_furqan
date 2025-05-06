@@ -2,16 +2,16 @@ import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/schools_model.dart';
+import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
+import 'package:al_furqan/views/SchoolDirector/SchoolDirectorHome.dart';
+import 'package:al_furqan/views/Teacher/mainTeacher.dart';
 import 'package:al_furqan/views/login/forgot_password.dart';
+import 'package:al_furqan/views/login/signup_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import '../../models/users_model.dart';
-import '../SchoolDirector/SchoolDirectorHome.dart';
-import '../Teacher/mainTeacher.dart';
-import 'signup_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 int id = 0;
@@ -26,36 +26,57 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final SqlDb sqlDb = SqlDb();
   bool _isLoading = false;
   bool _obscurePassword = true;
 
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
-    loadUsersFromFirebase();
-    loadSchoolsFromFirebase();
+    _loadDataFromFirebase();
   }
 
-  loadUsersFromFirebase() async {
+  /// تحميل المستخدمين من Firebase
+  Future<void> loadUsersFromFirebase() async {
     List<UserModel> users = await firebasehelper.getUsers();
-      for(var user in users){
-        bool exists = await  sqlDb.checkIfitemExists("Users", user.user_id!, "user_id");
-        if(exists){
-          await userController.updateUser(user, 1);
-        }else{
-          await userController.addUser(user, 0);
-        }
+    for (var user in users) {
+      bool exists =
+          await sqlDb.checkIfitemExists("Users", user.user_id!, "user_id");
+      if (exists) {
+        await userController.updateUser(user, 1);
+      } else {
+        await userController.addUser(user, 0);
       }
+    }
   }
-  loadSchoolsFromFirebase() async {
+
+  /// تحميل المدارس من Firebase
+  Future<void> loadSchoolsFromFirebase() async {
     List<SchoolModel> schools = await firebasehelper.getSchool();
-    for(var school in schools){
-      bool exists = await  sqlDb.checkIfitemExists("Schools", school.schoolID!, "schoolID");
-      if(exists){
+    for (var school in schools) {
+      bool exists =
+          await sqlDb.checkIfitemExists("Schools", school.schoolID!, "schoolID");
+      if (exists) {
         await schoolController.updateSchool(school, 0);
-      }else{
+      } else {
         await schoolController.addSchool(school, 0);
+      }
+    }
+  }
+
+  /// تحميل البيانات من Firebase
+  Future<void> _loadDataFromFirebase() async {
+    if (mounted) {
+      setState(() => _isLoading = true);
+    }
+    try {
+      await loadUsersFromFirebase();
+      await loadSchoolsFromFirebase();
+    } catch (e) {
+      print("Error loading data from Firebase: $e");
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -70,93 +91,36 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setBool('isLoggedIn', true);
   }
 
-  /// تسجيل خروج المستخدم وحذف جميع البيانات المحفوظة
-  Future<void> logoutUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // حذف جميع البيانات المحفوظة
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => LoginScreen()));
-  }
-
-  /// التحقق مما إذا كان المستخدم مسجل الدخول
-  Future<bool> isUserLoggedIn() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isLoggedIn') ?? false;
-  }
-
-  /// الحصول على رقم الهاتف المحفوظ في SharedPreferences
-  Future<String?> getUserphone() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('phoneUser');
-  }
-
-  /// الحصول على رقم الدور المحفوظ في SharedPreferences
-  Future<int?> getUserRoleId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('roleID');
-  }
-
-  /// الحصول على رقم التفعيل المحفوظ في SharedPreferences
-  Future<int?> getIsActivate() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('isActivate');
-  }
-
-  /// التحقق من حالة تسجيل الدخول واستدعاء _loginPref إذا كان المستخدم مسجل الدخول
-  void _checkLoginStatus() async {
-    print(
-        "----------------------Here check Login Status--------------------------");
-    bool isLogin = await isUserLoggedIn();
-    print("-------------: $isLogin");
-    if (isLogin) {
-      print(
-          "----------------------Here if check Login Status--------------------------");
-      _loginPref();
-      // logoutUser();
-    }
-  }
-
-  /// تسجيل الدخول باستخدام البيانات المحفوظة في SharedPreferences
-  void _loginPref() async {
-    setState(() => _isLoading = true);
-    try {
-      int? roleId = await getUserRoleId();
-      int? isActivate = await getIsActivate();
-      setState(() => _isLoading = false);
-      if (roleId != null) {
-        await chooseScreen(context);
-      } else {
-        _showErrorDialog(context, "خطأ", "حسابك غير مفعل أو بيانات غير صحيحة.");
-      }
-    } catch (e) {
-      setState(() => _isLoading = false);
-      _showErrorDialog(context, "خطأ", "حدث خطأ: $e");
-    }
-  }
-
   /// تسجيل الدخول باستخدام رقم الهاتف وكلمة المرور
   void _login(BuildContext context) async {
     String phone = phoneController.text.trim();
     String password = passwordController.text.trim();
-    setState(() => _isLoading = true);
+    if (mounted) {
+      setState(() => _isLoading = true);
+    }
 
     /// التحقق من أن الحقول غير فارغة
     if (phone.isEmpty || password.isEmpty) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
       _showErrorDialog(context, "خطأ", "الرجاء إدخال رقم الجوال وكلمة المرور.");
       return;
     }
 
     /// التحقق من صحة بيانات تسجيل الدخول
-    final user = await SqlDb().getUser(phone, password);
-    setState(() => _isLoading = false);
+    final user = await sqlDb.getUser(phone, password);
 
     /// التحقق من أن المستخدم موجود
     if (user == null || user.user_id == null) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
       Future<bool> conn = InternetConnectionChecker.createInstance().hasConnection;
-      if(await conn){
-      _showErrorDialog(context, "خطأ", "بيانات تسجيل الدخول غير صحيحة.");
-      return;
-    } else {
+      if (await conn) {
+        _showErrorDialog(context, "خطأ", "بيانات تسجيل الدخول غير صحيحة.");
+        return;
+      } else {
         _showErrorDialog(context, "خطأ", "لا يوجد اتصال بالانترنت");
         return;
       }
@@ -170,6 +134,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> chiceRole(
       UserModel user, BuildContext context, String phone) async {
     if (user.roleID == null || user.isActivate == 0) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
       _showErrorDialog(context, "خطأ", "حسابك غير مفعل، تواصل مع الإدارة.");
       return;
     }
@@ -180,10 +147,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
   /// اختيار الشاشة المناسبة للمستخدم بناءً على دوره
   Future<void> chooseScreen(BuildContext context) async {
-    int? roleId = await getUserRoleId();
+    final prefs = await SharedPreferences.getInstance();
+    int? roleId = prefs.getInt('roleID');
     if (roleId == null) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
       _showErrorDialog(context, "خطأ", "فشل في تحديد دور المستخدم.");
       return;
+    }
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
     switch (roleId) {
       case 0:
@@ -220,208 +194,208 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
- @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    resizeToAvoidBottomInset: true,
-    body: Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Colors.green.shade100, Colors.white],
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.green.shade100, Colors.white],
+          ),
         ),
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: MediaQuery.of(context).size.height -
-                        MediaQuery.of(context).padding.top -
-                        MediaQuery.of(context).padding.bottom,
-                  ),
-                  child: IntrinsicHeight(
-                    child: Column(
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height -
+                    MediaQuery.of(context).padding.top -
+                    MediaQuery.of(context).padding.bottom,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Spacer(flex: 1),
+                    Center(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.asset(
+                          'assets/pictures/al_furqan_icon.png',
+                          height: 180,
+                          width: MediaQuery.of(context).size.width * 0.7,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            "مرحباً بك",
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green.shade800,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            "سجل الدخول للوصول إلى حسابك",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey.shade700,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    _buildTextField(
+                      phoneController,
+                      Icons.phone_android,
+                      "رقم الهاتف",
+                      keyboardType: TextInputType.phone,
+                    ),
+                    SizedBox(height: 15),
+                    TextField(
+                      controller: passwordController,
+                      obscureText: _obscurePassword,
+                      decoration: InputDecoration(
+                        prefixIcon:
+                            Icon(Icons.lock_rounded, color: Colors.green),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.green,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                        hintText: "كلمة المرور",
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide:
+                              BorderSide(color: Colors.green.shade200, width: 1),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide:
+                              BorderSide(color: Colors.green, width: 2),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ForgotPasswordScreen(),
+                            ),
+                          );
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.green.shade700,
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size(50, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          'نسيت كلمة المرور؟',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _isLoading ? null : () => _login(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        minimumSize: Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        elevation: 5,
+                        shadowColor: Colors.green.withOpacity(0.5),
+                      ),
+                      child: _isLoading
+                          ? CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                              "تسجيل الدخول",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                    SizedBox(height: 15),
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Spacer(flex: 1),
-                        Center(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image.asset(
-                              'assets/pictures/al_furqan_icon.png',
-                              height: 180,
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              fit: BoxFit.contain,
-                            ),
+                        Text(
+                          "ليس لديك حساب؟",
+                          style: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontSize: 14,
                           ),
                         ),
-                        SizedBox(height: 20),
-                        Center(
-                          child: Column(
-                            children: [
-                              Text(
-                                "مرحباً بك",
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green.shade800,
-                                ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SignupScreen(),
                               ),
-                              SizedBox(height: 8),
-                              Text(
-                                "سجل الدخول للوصول إلى حسابك",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey.shade700,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 30),
-                        _buildTextField(
-                          phoneController,
-                          Icons.phone_android,
-                          "رقم الهاتف",
-                          keyboardType: TextInputType.phone,
-                        ),
-                        SizedBox(height: 15),
-                        TextField(
-                          controller: passwordController,
-                          obscureText: _obscurePassword,
-                          decoration: InputDecoration(
-                            prefixIcon:
-                                Icon(Icons.lock_rounded, color: Colors.green),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                                color: Colors.green,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
-                            ),
-                            hintText: "كلمة المرور",
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: BorderSide(
-                                  color: Colors.green.shade200, width: 1),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide:
-                                  BorderSide(color: Colors.green, width: 2),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ForgotPasswordScreen(),
-                                ),
-                              );
-                            },
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.green.shade700,
-                              padding: EdgeInsets.zero,
-                              minimumSize: Size(50, 30),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            child: Text(
-                              'نسيت كلمة المرور؟',
-                              style: TextStyle(fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () => _login(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            foregroundColor: Colors.white,
-                            minimumSize: Size(double.infinity, 50),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            elevation: 5,
-                            shadowColor: Colors.green.withOpacity(0.5),
+                            );
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.green.shade700,
+                            padding: EdgeInsets.symmetric(horizontal: 5),
+                            minimumSize: Size(50, 30),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
                           child: Text(
-                            "تسجيل الدخول",
+                            "إنشاء حساب",
                             style: TextStyle(
-                              fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              fontSize: 14,
                             ),
                           ),
                         ),
-                        SizedBox(height: 15),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "ليس لديك حساب؟",
-                              style: TextStyle(
-                                color: Colors.grey.shade700,
-                                fontSize: 14,
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => SignupScreen(),
-                                  ),
-                                );
-                              },
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.green.shade700,
-                                padding: EdgeInsets.symmetric(horizontal: 5),
-                                minimumSize: Size(50, 30),
-                                tapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Text(
-                                "إنشاء حساب",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Spacer(flex: 1),
                       ],
                     ),
-                  ),
+                    const Spacer(flex: 1),
+                  ],
                 ),
               ),
+            ),
+          ),
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   /// بناء حقل نصي مع أيقونة
   Widget _buildTextField(
