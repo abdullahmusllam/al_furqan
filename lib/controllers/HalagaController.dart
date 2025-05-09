@@ -96,13 +96,7 @@ class HalagaController {
         halagaData.isSync = 0;
         await db.insert('Elhalagat', halagaData.toMap());
       }
-      // int response = await _sqlDb.insertData(
-      //     "INSERT INTO Elhalagat (halagaID, SchoolID, Name, NumberStudent) VALUES (${halagaData.halagaID}, ${halagaData.SchoolID}, '${halagaData.Name}', ${halagaData.NumberStudent})");
-      // print("تمت إضافة الحلقة، الاستجابة: $response");
-      // if (response == 0) {
-      //   throw Exception("فشل في إضافة الحلقة");
-      // }
-
+      
       // إضافة خطة الحفظ إذا كانت متوفرة
       if (halagaData.conservationPlanStart != null &&
           halagaData.conservationPlanEnd != null) {
