@@ -1,44 +1,35 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// نموذج لخطة الحفظ
-/// 
-/// يستخدم لتمثيل خطط الحفظ المخزنة في جدول ConservationPlans
-/// ويدعم التحويل من/إلى SQLite وFirestore
 class ConservationPlanModel {
-  /// معرف خطة الحفظ الفريد
   final int? conservationPlanId;
-  
-  /// معرف الحلقة المرتبطة بالخطة
   final int? elhalagatId;
-  
-  /// آية البداية المخططة للحفظ (نص مثل "1:1" للسورة 1 الآية 1)
-  final String? plannedStart;
-  
-  /// آية النهاية المخططة للحفظ (نص مثل "1:7" للسورة 1 الآية 7)
-  final String? plannedEnd;
-  
-  /// آية البداية المنفذة للحفظ
-  final String? executedStart;
-  
-  /// آية النهاية المنفذة للحفظ
-  final String? executedEnd;
-  
-  /// نسبة تنفيذ الخطة (بين 0.0 و 1.0)
+  final String? plannedStartSurah;
+  final int? plannedStartAya;
+  final String? plannedEndSurah;
+  final int? plannedEndAya;
+  final String? executedStartSurah;
+  final int? executedStartAya;
+  final String? executedEndSurah;
+  final int? executedEndAya;
   final double? executedRate;
-  
-  /// الشهر المرتبط بالخطة بتنسيق "YYYY-MM"
   final String? planMonth;
+  final int? isSync;
 
   /// إنشاء نموذج خطة حفظ جديد
   const ConservationPlanModel({
     this.conservationPlanId,
     required this.elhalagatId,
-    required this.plannedStart,
-    required this.plannedEnd,
-    this.executedStart,
-    this.executedEnd,
+    required this.plannedStartSurah,
+    required this.plannedStartAya,
+    required this.plannedEndSurah,
+    required this.plannedEndAya,
+    this.executedStartSurah,
+    this.executedStartAya,
+    this.executedEndSurah,
+    this.executedEndAya,
     this.executedRate,
     this.planMonth,
+    this.isSync,
   });
 
   /// تحويل النموذج إلى Map للحفظ في قاعدة بيانات SQLite
@@ -46,12 +37,17 @@ class ConservationPlanModel {
     return {
       'ConservationPlanID': conservationPlanId,
       'ElhalagatID': elhalagatId,
-      'StartAya': plannedStart,
-      'EndAya': plannedEnd,
-      'ExecutedStart': executedStart,
-      'ExecutedEnd': executedEnd,
+      'PlannedStartSurah': plannedStartSurah,
+      'PlannedStartAya': plannedStartAya,
+      'PlannedEndSurah': plannedEndSurah,
+      'PlannedEndAya': plannedEndAya,
+      'ExecuteStartSurah': executedStartSurah,
+      'ExecuteStartAya': executedStartAya,
+      'ExecuteEndSurah': executedEndSurah,
+      'ExecuteEndAya': executedEndAya,
       'ExecutedRate': executedRate,
       'PlanMonth': planMonth,
+      'isSync': isSync,
     };
   }
 
@@ -60,12 +56,19 @@ class ConservationPlanModel {
     return ConservationPlanModel(
       conservationPlanId: map['ConservationPlanID'],
       elhalagatId: map['ElhalagatID'],
-      plannedStart: map['StartAya'],
-      plannedEnd: map['EndAya'],
-      executedStart: map['ExecutedStart'],
-      executedEnd: map['ExecutedEnd'],
-      executedRate: map['ExecutedRate'] != null ? (map['ExecutedRate'] as num).toDouble() : null,
+      plannedStartSurah: map['PlannedStartSurah'],
+      plannedStartAya: map['PlannedStartAya'],
+      plannedEndSurah: map['PlannedEndSurah'],
+      plannedEndAya: map['PlannedEndAya'],
+      executedStartSurah: map['ExecutedStartSurah'],
+      executedStartAya: map['ExecutedStartAya'],
+      executedEndSurah: map['ExecutedEndSurah'],
+      executedEndAya: map['ExecutedEndAya'],
+      executedRate: map['ExecutedRate'] != null
+          ? (map['ExecutedRate'] as num).toDouble()
+          : 0.0,
       planMonth: map['PlanMonth'],
+      isSync: map['isSync'],
     );
   }
 
@@ -74,57 +77,35 @@ class ConservationPlanModel {
     return {
       'conservationPlanId': conservationPlanId,
       'elhalagatId': elhalagatId,
-      'plannedStart': plannedStart,
-      'plannedEnd': plannedEnd,
-      'executedStart': executedStart,
-      'executedEnd': executedEnd,
+      'PlannedStartSurah': plannedStartSurah,
+      'PlannedStartAya': plannedStartAya,
+      'PlannedEndSurah': plannedEndSurah,
+      'PlannedEndAya': plannedEndAya,
+      'ExecuteStartSurah': executedStartSurah,
+      'ExecuteStartAya': executedStartAya,
+      'ExecuteEndSurah': executedEndSurah,
+      'ExecuteEndAya': executedEndAya,
       'executedRate': executedRate,
       'planMonth': planMonth,
       'lastUpdated': FieldValue.serverTimestamp(),
+      'isSync': isSync,
     };
   }
 
   /// إنشاء نموذج من DocumentSnapshot من Firestore
-  factory ConservationPlanModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data()!;
-    
-    return ConservationPlanModel(
-      conservationPlanId: data['conservationPlanId'],
-      elhalagatId: data['elhalagatId'],
-      plannedStart: data['plannedStart'],
-      plannedEnd: data['plannedEnd'],
-      executedStart: data['executedStart'],
-      executedEnd: data['executedEnd'],
-      executedRate: data['executedRate'],
-      planMonth: data['planMonth'],
-    );
-  }
-
-  /// نسخة من النموذج مع تحديث بعض الخصائص
-  ConservationPlanModel copyWith({
-    int? conservationPlanId,
-    int? elhalagatId,
-    String? plannedStart,
-    String? plannedEnd,
-    String? executedStart,
-    String? executedEnd,
-    double? executedRate,
-    String? planMonth,
-  }) {
-    return ConservationPlanModel(
-      conservationPlanId: conservationPlanId ?? this.conservationPlanId,
-      elhalagatId: elhalagatId ?? this.elhalagatId,
-      plannedStart: plannedStart ?? this.plannedStart,
-      plannedEnd: plannedEnd ?? this.plannedEnd,
-      executedStart: executedStart ?? this.executedStart,
-      executedEnd: executedEnd ?? this.executedEnd,
-      executedRate: executedRate ?? this.executedRate,
-      planMonth: planMonth ?? this.planMonth,
-    );
-  }
-
-  @override
-  String toString() {
-    return 'ConservationPlanModel(conservationPlanId: $conservationPlanId, elhalagatId: $elhalagatId, plannedStart: $plannedStart, plannedEnd: $plannedEnd, executedStart: $executedStart, executedEnd: $executedEnd, executedRate: $executedRate, planMonth: $planMonth)';
-  }
+  // factory ConservationPlanModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+  //   final data = doc.data()!;
+  //
+  //   return ConservationPlanModel(
+  //     conservationPlanId: data['conservationPlanId'],
+  //     elhalagatId: data['elhalagatId'],
+  //     plannedStart: data['plannedStart'],
+  //     plannedEnd: data['plannedEnd'],
+  //     executedStart: data['executedStart'],
+  //     executedEnd: data['executedEnd'],
+  //     executedRate: data['executedRate'],
+  //     planMonth: data['planMonth'],
+  //     isSync: data['isSync'],
+  //   );
+  // }
 }

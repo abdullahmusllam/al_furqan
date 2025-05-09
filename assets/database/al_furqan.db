@@ -96,6 +96,7 @@ CREATE TABLE "School_Activites" (
     "ActivityID" INTEGER NOT NULL,
     "PlannedCount" INTEGER,
     "ExecutedCount" INTEGER,
+    "isSync" BOOLEAN,
     CONSTRAINT "Activityfk" FOREIGN KEY("ActivityID") REFERENCES "Activities"("ActivityID"),
     CONSTRAINT "schoolIDfk" FOREIGN KEY("SchoolID") REFERENCES "School"("SchoolID")
 );
@@ -103,7 +104,8 @@ CREATE TABLE "School_Activites" (
 -- إنشاء جدول أنواع الأنشطة
 CREATE TABLE "ActivityTypes" (
     "ActivityTypeID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "Name" TEXT NOT NULL
+    "Name" TEXT NOT NULL,
+    "isSync" BOOLEAN,
 );
 
 -- إنشاء جدول التقارير الشهرية
@@ -116,6 +118,7 @@ CREATE TABLE "MonthlyReports" (
     "PlannedVisits" TEXT,
     "ConductedVisits" TEXT,
     "AchievementRate" REAL,
+    "isSync" BOOLEAN,
     CONSTRAINT "schoolid3fk" FOREIGN KEY("SchoolID") REFERENCES "School"("SchoolID")
 );
 
@@ -134,6 +137,7 @@ CREATE TABLE "ConservationPlans" (
     "ExecutedEndAya" INTEGER,
     "ExecutedRate" REAL,
     "PlanMonth" TEXT,
+    "isSync" BOOLEAN,
     CONSTRAINT "elahalagatID4fk" FOREIGN KEY("ElhalagatID") REFERENCES "Elhalagat"("halagaID")
 );
 
@@ -152,6 +156,7 @@ CREATE TABLE "EltlawahPlans" (
     "ExecutedEndAya" INTEGER,
     "ExecutedRate" REAL,
     "PlanMonth" TEXT,
+    "isSync" BOOLEAN,
     CONSTRAINT "elhalagatid3fk" FOREIGN KEY("ElhalagatID") REFERENCES "Elhalagat"("halagaID")
 );
 
@@ -161,6 +166,7 @@ CREATE TABLE "Recommendations" (
     "ElhalagatID" INTEGER NOT NULL,
     "ReasonDelay" TEXT NOT NULL,
     "Recommendation" TEXT NOT NULL,
+    "isSync" BOOLEAN,
     CONSTRAINT "elhalagatid2fk" FOREIGN KEY("ElhalagatID") REFERENCES "Elhalagat"("halagaID")
 );
 
@@ -172,4 +178,4 @@ CREATE TABLE "messages" (
       "timestamp" TEXT NOT NULL,
       "sync" INTEGER NOT NULL,
       "senderType" TEXT NOT NULL
-      );
+);
