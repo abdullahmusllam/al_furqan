@@ -2,10 +2,17 @@ import 'package:al_furqan/controllers/some_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/services/firebase_service.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class HalagaController {
   final SqlDb _sqlDb = SqlDb();
   final List<HalagaModel> halagaData = [];
+      
+      Future<bool> isConnected() async {
+    var conn = InternetConnectionChecker.createInstance().hasConnection;
+    return conn ;
+  }
 
   Future<List<HalagaModel>> getData(int id) async {
     List<Map> data = await _sqlDb.readData(
@@ -79,14 +86,22 @@ class HalagaController {
   Future<void> addHalaga(HalagaModel halagaData) async {
     try {
       halagaData.halagaID = await someController.newId("Elhalagat", "halagaID");
-
+      final db = await sqlDb.database;
       // إضافة الحلقة
-      int response = await _sqlDb.insertData(
-          "INSERT INTO Elhalagat (halagaID, SchoolID, Name, NumberStudent) VALUES (${halagaData.halagaID}, ${halagaData.SchoolID}, '${halagaData.Name}', ${halagaData.NumberStudent})");
-      print("تمت إضافة الحلقة، الاستجابة: $response");
-      if (response == 0) {
-        throw Exception("فشل في إضافة الحلقة");
+      if(await isConnected()){
+        halagaData.isSync = 1;
+        await db.insert('Elhalagat', halagaData.toMap());
+        await firebasehelper.addHalga(halagaData);
+      } else {
+        halagaData.isSync = 0;
+        await db.insert('Elhalagat', halagaData.toMap());
       }
+      // int response = await _sqlDb.insertData(
+      //     "INSERT INTO Elhalagat (halagaID, SchoolID, Name, NumberStudent) VALUES (${halagaData.halagaID}, ${halagaData.SchoolID}, '${halagaData.Name}', ${halagaData.NumberStudent})");
+      // print("تمت إضافة الحلقة، الاستجابة: $response");
+      // if (response == 0) {
+      //   throw Exception("فشل في إضافة الحلقة");
+      // }
 
       // إضافة خطة الحفظ إذا كانت متوفرة
       if (halagaData.conservationPlanStart != null &&

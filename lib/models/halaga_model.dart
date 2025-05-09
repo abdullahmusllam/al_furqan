@@ -7,6 +7,7 @@ class HalagaModel {
   int? NumberStudent;
   Double? AttendanceRate;
   String? TeacherName;
+  int? isSync;
 
   // خطة الحفظ
   String? conservationPlanStart; // تاريخ البداية
@@ -44,6 +45,7 @@ class HalagaModel {
     this.NumberStudent,
     this.AttendanceRate,
     this.TeacherName,
+    this.isSync,
     this.conservationPlanStart,
     this.conservationPlanEnd,
     this.conservationStartSurah,
@@ -74,6 +76,7 @@ class HalagaModel {
       NumberStudent: json['NumberStudent'],
       AttendanceRate: json['AttendanceRate'],
       TeacherName: json['TeacherName'],
+      isSync: json['isSync'],
       conservationPlanStart: json['conservationPlanStart'],
       conservationPlanEnd: json['conservationPlanEnd'],
       conservationStartSurah: json['conservationStartSurah'],
@@ -95,5 +98,37 @@ class HalagaModel {
       executedIslamicContent: json['executedIslamicContent'],
       islamicExecutionReason: json['islamicExecutionReason'],
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'halagaID': halagaID,
+      'SchoolID': SchoolID,
+      'Name': Name,
+      'NumberStudent': NumberStudent,
+      'AttendanceRate': AttendanceRate,
+      'TeacherName': TeacherName,
+      'isSync': isSync,
+      'conservationPlanStart': conservationPlanStart,
+      'conservationPlanEnd': conservationPlanEnd,
+      'conservationStartSurah': conservationStartSurah,
+      'conservationEndSurah': conservationEndSurah,
+      'conservationStartVerse': conservationStartVerse,
+      'conservationEndVerse': conservationEndVerse,
+      'recitationPlanStart': recitationPlanStart,
+      'recitationPlanEnd': recitationPlanEnd,
+      'recitationStartSurah': recitationStartSurah,
+      'recitationEndSurah': recitationEndSurah,
+      'recitationStartVerse': recitationStartVerse,
+      'recitationEndVerse': recitationEndVerse,
+      'executedStartSurah': executedStartSurah,
+      'executedEndSurah': executedEndSurah,
+      'executedStartVerse': executedStartVerse,
+      'executedEndVerse': executedEndVerse,
+      'islamicStudiesSubject': islamicStudiesSubject,
+      'islamicStudiesContent': islamicStudiesContent,
+      'executedIslamicContent': executedIslamicContent,
+      'islamicExecutionReason': islamicExecutionReason,
+    };
   }
 }

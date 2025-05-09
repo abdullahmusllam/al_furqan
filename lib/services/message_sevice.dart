@@ -10,8 +10,8 @@ class FirebaseHelper {
 
   // Check internet connectivity
   Future<bool> isConnected() async {
-    var intern = InternetConnectionChecker.createInstance().hasConnection;
-    return intern ;
+    var conn = InternetConnectionChecker.createInstance().hasConnection;
+    return conn ;
   }
 
   // Save message to Firebase and local if online, otherwise only local
