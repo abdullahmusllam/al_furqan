@@ -11,7 +11,11 @@ class UserController {
   final SqlDb _sqlDb = SqlDb();
   final FirebaseHelper _service = FirebaseHelper();
   final PasswordResetModel _model = PasswordResetModel();
-  final db = sqlDb.database;
+  // var db = sqlDb.database;
+  Future<bool> isConnected() async {
+    var conn = InternetConnectionChecker.createInstance().hasConnection;
+    return conn;
+  }
 
   List<UserModel> get users => _users;
   List<UserModel> get requests => _requests;
@@ -72,30 +76,42 @@ class UserController {
 
   // Method to add a new user
   Future<void> addUser(UserModel userModel, int type) async {
+    final db = await sqlDb.database;
     if (type == 1) {
-      userModel.user_id = await someController.newId("USERS", "user_id");
-      int response = await _sqlDb.insertData('''
-    INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
-    VALUES (${userModel.user_id}, '${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.password}', '${userModel.email}', '${userModel.phone_number}', '${userModel.telephone_number}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', '${userModel.isActivate}');
-    ''');
-      print("response = $response, isActivate = ${userModel.isActivate}");
+      userModel.user_id = await someController.newId("Users", "user_id");
+      if (await isConnected()) {
+        userModel.isSync = 1;
+        await firebasehelper.addUser(userModel);
+        await db.insert('Users', userModel.toMap());
+      } else {
+        userModel.isSync = 0;
+        await db.insert('Users', userModel.toMap());
+      }
+
+      //   int response = await _sqlDb.insertData('''
+      // INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
+      // VALUES (${userModel.user_id}, '${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.password}', '${userModel.email}', '${userModel.phone_number}', '${userModel.telephone_number}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', '${userModel.isActivate}');
+      // ''');
+      //   print("response = $response, isActivate = ${userModel.isActivate}");
 
       // Check for internet connectivity before using Firebase
-      bool hasInternet =
-          await InternetConnectionChecker.createInstance().hasConnection;
-      if (hasInternet) {
-        await firebasehelper.addUser(userModel);
-      } else {
-        print("No internet connection - Firebase sync skipped");
-      }
-    } else {
-      userModel.user_id = await someController.newId("USERS", "user_id");
-      int response = await _sqlDb.insertData('''
-    INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
-    VALUES (${userModel.user_id}, '${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.password}', '${userModel.email}', '${userModel.phone_number}', '${userModel.telephone_number}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', '${userModel.isActivate}');
-    ''');
-      print("response = $response, isActivate = ${userModel.isActivate}");
-    }
+      // bool hasInternet =
+      //     await InternetConnectionChecker.createInstance().hasConnection;
+      // if (hasInternet) {
+      //   await firebasehelper.addUser(userModel);
+      // } else {
+      //   print("No internet connection - Firebase sync skipped");
+      // }
+    } 
+
+    await db.insert('Users', userModel.toMap());
+    //   userModel.user_id = await someController.newId("USERS", "user_id");
+    //   int response = await _sqlDb.insertData('''
+    // INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
+    // VALUES (${userModel.user_id}, '${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.password}', '${userModel.email}', '${userModel.phone_number}', '${userModel.telephone_number}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', '${userModel.isActivate}');
+    // ''');
+    //   print("response = $response, isActivate = ${userModel.isActivate}");
+    
   }
 
   // Method to delete a user

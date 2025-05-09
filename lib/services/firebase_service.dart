@@ -137,14 +137,15 @@ class FirebaseHelper {
     }
   }
 
-  // addHalga(HalagaModel Halaga) async {
-  //   try{
-  //     final docRef = _firestore.collection('Elhalaga');
-  //     if(Halaga != null){
-
-  //     }
-  //   } catch (e){}
-  // }
+  addHalga(HalagaModel halaga) async {
+    try{
+      final docRef = await _firestore.collection('Elhalaga');
+      if(halaga != null){
+        docRef.doc(halaga.halagaID.toString()).set(halaga.toMap());
+        print('===== تم رفع حلقة ${halaga.Name} بنجاح');
+      }
+    } catch (e){}
+  }
 
 // =========================== End Elhalaga ==============================
 
