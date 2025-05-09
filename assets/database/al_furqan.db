@@ -123,11 +123,17 @@ CREATE TABLE "MonthlyReports" (
 CREATE TABLE "ConservationPlans" (
     "ConservationPlanID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "ElhalagatID" INTEGER NOT NULL,
-    "PlannedStart" TEXT,
-    "PlannedEnd" TEXT,
-    "ExecutedStart" TEXT,
-    "ExecutedEnd" TEXT,
+    "StudentID" INTEGER NOT NULL,
+    "PlannedStartSurah" TEXT,
+    "PlannedStartAya" INTEGER,
+    "PlannedEndSurah" TEXT,
+    "PlannedEndAya" INTEGER,
+    "ExecutedStartSurah" TEXT,
+    "ExecutedStartAya" INTEGER,
+    "ExecutedEndSurah" TEXT,
+    "ExecutedEndAya" INTEGER,
     "ExecutedRate" REAL,
+    "PlanMonth" TEXT,
     CONSTRAINT "elahalagatID4fk" FOREIGN KEY("ElhalagatID") REFERENCES "Elhalagat"("halagaID")
 );
 
@@ -135,11 +141,17 @@ CREATE TABLE "ConservationPlans" (
 CREATE TABLE "EltlawahPlans" (
     "EltlawahPlanID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "ElhalagatID" INTEGER NOT NULL,
-    "PlannedStart" TEXT,
-    "PlannedEnd" TEXT,
-    "ExecutedStart" TEXT,
-    "ExecutedEnd" TEXT,
+    "StudentID" INTEGER NOT NULL,
+    "PlannedStartSurah" TEXT,
+    "PlannedStartAya" INTEGER,
+    "PlannedEndSurah" TEXT,
+    "PlannedEndAya" INTEGER,
+    "ExecutedStartSurah" TEXT,
+    "ExecutedStartAya" INTEGER,
+    "ExecutedEndSurah" TEXT,
+    "ExecutedEndAya" INTEGER,
     "ExecutedRate" REAL,
+    "PlanMonth" TEXT,
     CONSTRAINT "elhalagatid3fk" FOREIGN KEY("ElhalagatID") REFERENCES "Elhalagat"("halagaID")
 );
 

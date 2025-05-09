@@ -38,71 +38,7 @@ class SqlDb {
   }
 
   _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    try {
-      if (oldVersion < 5) {
-        // التعديلات القديمة
-        if (oldVersion < 4) {
-          await db.execute("ALTER TABLE Students ADD COLUMN userID INTEGER NULL");
-          await db.execute("ALTER TABLE Users ADD COLUMN password TEXT NULL");
-        }
-        
-        // التعديلات الجديدة للإصدار 5
-        try {
-          await db.execute("ALTER TABLE ConservationPlans ADD COLUMN PlanMonth TEXT");
-          print("Added PlanMonth to ConservationPlans");
-        } catch (e) {
-          print("Error adding PlanMonth to ConservationPlans: $e");
-        }
-        
-        try {
-          await db.execute("ALTER TABLE EltlawahPlans ADD COLUMN PlanMonth TEXT");
-          print("Added PlanMonth to EltlawahPlans");
-        } catch (e) {
-          print("Error adding PlanMonth to EltlawahPlans: $e");
-        }
-        
-        try {
-          await db.execute('''
-          CREATE TABLE IF NOT EXISTS StudentConservationProgress (
-            StudentProgressID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            StudentID INTEGER NOT NULL,
-            ConservationPlanID INTEGER NOT NULL,
-            ExecutedStart TEXT,
-            ExecutedEnd TEXT,
-            ExecutedRate REAL,
-            PlanMonth TEXT,
-            CONSTRAINT student_id_fk FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
-            CONSTRAINT conservation_plan_id_fk FOREIGN KEY (ConservationPlanID) REFERENCES ConservationPlans(ConservationPlanID)
-          )
-          ''');
-          print("Created StudentConservationProgress table");
-        } catch (e) {
-          print("Error creating StudentConservationProgress table: $e");
-        }
-        
-        try {
-          await db.execute('''
-          CREATE TABLE IF NOT EXISTS StudentTlawahProgress (
-            StudentProgressID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            StudentID INTEGER NOT NULL,
-            EltlawahPlanID INTEGER NOT NULL,
-            ExecutedStart TEXT,
-            ExecutedEnd TEXT,
-            ExecutedRate REAL,
-            PlanMonth TEXT,
-            CONSTRAINT student_id_fk FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
-            CONSTRAINT eltlawah_plan_id_fk FOREIGN KEY (EltlawahPlanID) REFERENCES EltlawahPlans(EltlawahPlanID)
-          )
-          ''');
-          print("Created StudentTlawahProgress table");
-        } catch (e) {
-          print("Error creating StudentTlawahProgress table: $e");
-        }
-      }
-    } catch (e) {
-      print("Error upgrading database: $e");
-    }
-    print("Database upgraded from $oldVersion to $newVersion");
+
   }
 
   Future<String> loadSqlScript() async {
