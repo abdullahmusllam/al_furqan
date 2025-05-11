@@ -173,6 +173,43 @@ class FirebaseHelper {
     }
   }
 
+  /// الغاء ارتباط المعلم بالحلقة
+  Future<void> teacherCancel(int halagaId) async {
+  try {
+    final docRef = _firestore.collection('Users');
+
+    // ابحث عن المستخدم الذي لديه نفس ElhalagatID
+    final querySnapshot = await docRef
+        .where('ElhalagatID', isEqualTo: halagaId)
+        .where('roleID', isEqualTo: 2) // للتأكد أنه معلم
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      final docId = querySnapshot.docs.first.id;
+
+      // تحديث ElhalagatID إلى null
+      await docRef.doc(docId).update({'ElhalagatID': null});
+
+      print('تم إلغاء ارتباط المعلم بالحلفة بنجاح من Firebase');
+    } else {
+      print('لم يتم العثور على معلم مرتبط بهذه الحلقة');
+    }
+  } catch (e) {
+    print('حدث خطأ أثناء إلغاء ارتباط المعلم: $e');
+  }
+}
+
+newTeacher(int halagaId, int teacherId) async {
+  try{
+      final docRef = _firestore.collection('Users');
+      await docRef.doc(teacherId.toString()).update({'ElhalagatID': halagaId});
+  } catch(e){
+    print('error====$e');
+  }
+
+}
+
 // =========================== End Elhalaga ==============================
 
 // =========================== Start User ===============================

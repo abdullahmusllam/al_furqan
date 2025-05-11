@@ -1,6 +1,7 @@
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/views/SchoolDirector/AddHalaga.dart';
 import 'package:al_furqan/views/Teacher/HalqaReportScreen.dart';
 import 'package:al_furqan/views/SchoolDirector/halagaDetails.dart';
@@ -18,10 +19,15 @@ class HalqatListPage extends StatefulWidget {
 class _HalqatListPageState extends State<HalqatListPage> {
   // قائمة افتراضية تحتوي على بيانات الحلقات
   List<HalagaModel> halaqat = [];
+  final HalagaController halagaController = HalagaController();
+
   @override
   void initState() {
     super.initState();
-    _loadHalaqat(); // استدعاء دالة جلب الحلقات عند تهيئة الصفحة
+    // استدعاء جلب الحلقات من Firebase وتحميل البيانات
+    halagaController.getHalagatFromFirebase().then((_) {
+      _loadHalaqat();
+    });
   }
 
   // دالة لجلب الحلقات من قاعدة البيانات
@@ -33,25 +39,25 @@ class _HalqatListPageState extends State<HalqatListPage> {
     int? schoolID = widget.user?.schoolID;
 
     if (schoolID != null) {
-      // التأكد من أن القيمة التي تُرجعها gitData ليست null
-      List<HalagaModel>? loadedHalaqat =
-          await halagaController.getData(schoolID);
-      setState(() {
-        if (loadedHalaqat!.isNotEmpty) {
-          halaqat = loadedHalaqat;
-
-          print('تم تحميل ${halaqat.length} حلقة');
-        } else {
-          // عرض رسالة توضيحية عندما تكون القائمة فارغة أو null
-          halaqat = [];
-
-          print("لا يوجد حلقات");
-        }
-      });
+      try {
+        // التأكد من أن القيمة التي تُرجعها getData ليست null
+        List<HalagaModel>? loadedHalaqat = await halagaController.getData(schoolID);
+        setState(() {
+          if (loadedHalaqat != null && loadedHalaqat.isNotEmpty) {
+            halaqat = loadedHalaqat;
+            print('تم تحميل ${halaqat.length} حلقة');
+          } else {
+            // عرض رسالة توضيحية عندما تكون القائمة فارغة أو null
+            halaqat = [];
+            print("لا يوجد حلقات");
+          }
+        });
+      } catch (e) {
+        print("خطأ أثناء تحميل الحلقات: $e");
+      }
     } else {
       print("schoolID is null");
     }
-    if (halaqat.isNotEmpty) {}
   }
 
   @override
@@ -121,173 +127,43 @@ class _HalqatListPageState extends State<HalqatListPage> {
                       ),
                     )
                   : ListView.builder(
+                      itemCount: halaqat.length,
                       itemBuilder: (context, index) {
                         final halqa = halaqat[index];
 
                         return FutureBuilder<String>(
                           future: halagaController.getTeacher(halqa.halagaID!),
                           builder: (context, snapshot) {
-                            String teacherName =
-                                snapshot.data ?? 'لا يوجد معلم للحلقة';
-                            Color teacherTextColor =
-                                teacherName == 'لا يوجد معلم للحلقة'
-                                    ? Colors.red
-                                    : Colors.green[700]!;
-
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0, vertical: 8.0),
-                              child: Card(
-                                elevation: 3,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                  side: BorderSide(
-                                    color: Colors.teal.withOpacity(0.3),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(15),
-                                  onTap: () async {
-                                    final result = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => HalqaDetailsPage(
-                                          halqa: halqa,
-                                          teacher: teacherName,
-                                        ),
-                                      ),
-                                    );
-
-                                    if (result == true) {
-                                      await _loadHalaqat();
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content:
-                                              Text('تم تحديث بيانات الحلقة'),
-                                          backgroundColor: Colors.green,
-                                          duration: Duration(seconds: 2),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            CircleAvatar(
-                                              backgroundColor: Colors.teal,
-                                              radius: 24,
-                                              child: Icon(Icons.school,
-                                                  color: Colors.white,
-                                                  size: 28),
-                                            ),
-                                            SizedBox(width: 16),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    halqa.Name ??
-                                                        'اسم غير متوفر',
-                                                    style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 4),
-                                                  Row(
-                                                    children: [
-                                                      Icon(Icons.person,
-                                                          size: 16,
-                                                          color:
-                                                              teacherTextColor),
-                                                      SizedBox(width: 4),
-                                                      Expanded(
-                                                        child: Text(
-                                                          teacherName,
-                                                          style: TextStyle(
-                                                            fontSize: 16,
-                                                            color:
-                                                                teacherTextColor,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                          ),
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 12),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Icon(Icons.groups,
-                                                    size: 16,
-                                                    color: Colors.blue[700]),
-                                                SizedBox(width: 4),
-                                                Text(
-                                                  'عدد الطلاب: ${halqa.NumberStudent}',
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.blue[700],
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                IconButton(
-                                                  icon: Icon(
-                                                      Icons.picture_as_pdf,
-                                                      color: Colors.orange,
-                                                      size: 20),
-                                                  tooltip: 'تقرير PDF',
-                                                  onPressed: () {
-                                                    _showPdfFeatureDialog(
-                                                        context, halqa);
-                                                  },
-                                                ),
-                                                IconButton(
-                                                  icon: Icon(Icons.delete,
-                                                      color: Colors.red,
-                                                      size: 20),
-                                                  tooltip: 'حذف الحلقة',
-                                                  onPressed: () {
-                                                    _showDeleteConfirmationDialog(
-                                                        halqa);
-                                                  },
-                                                ),
-                                                Icon(Icons.arrow_forward_ios,
-                                                    color: Colors.teal,
-                                                    size: 16),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 8.0),
+                                child: Card(
+                                  elevation: 3,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    side: BorderSide(
+                                      color: Colors.teal.withOpacity(0.3),
+                                      width: 1,
                                     ),
                                   ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Center(child: CircularProgressIndicator()),
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            } else if (snapshot.hasError) {
+                              print("خطأ في جلب اسم المعلم للحلقة ${halqa.halagaID}: ${snapshot.error}");
+                              return _buildHalqaCard(halqa, 'خطأ في جلب المعلم', Colors.red);
+                            } else {
+                              String teacherName = snapshot.data ?? 'لا يوجد معلم للحلقة';
+                              Color teacherTextColor =
+                                  teacherName == 'لا يوجد معلم للحلقة'
+                                      ? Colors.red
+                                      : Colors.green[700]!;
+                              return _buildHalqaCard(halqa, teacherName, teacherTextColor);
+                            }
                           },
                         );
                       },
@@ -317,6 +193,137 @@ class _HalqatListPageState extends State<HalqatListPage> {
         },
         backgroundColor: Colors.teal,
         child: Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+
+  // دالة لإنشاء كارد الحلقة
+  Widget _buildHalqaCard(HalagaModel halqa, String teacherName, Color teacherTextColor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: BorderSide(
+            color: Colors.teal.withOpacity(0.3),
+            width: 1,
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(15),
+          onTap: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HalqaDetailsPage(
+                  halqa: halqa,
+                  teacher: teacherName,
+                ),
+              ),
+            );
+
+            if (result == true) {
+              await _loadHalaqat();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('تم تحديث بيانات الحلقة'),
+                  backgroundColor: Colors.green,
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.teal,
+                      radius: 24,
+                      child: Icon(Icons.school, color: Colors.white, size: 28),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            halqa.Name ?? 'اسم غير متوفر',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(Icons.person, size: 16, color: teacherTextColor),
+                              SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  teacherName,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: teacherTextColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.groups, size: 16, color: Colors.blue[700]),
+                        SizedBox(width: 4),
+                        Text(
+                          'عدد الطلاب: ${halqa.NumberStudent}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.blue[700],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.picture_as_pdf, color: Colors.orange, size: 20),
+                          tooltip: 'تقرير PDF',
+                          onPressed: () {
+                            _showPdfFeatureDialog(context, halqa);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red, size: 20),
+                          tooltip: 'حذف الحلقة',
+                          onPressed: () {
+                            _showDeleteConfirmationDialog(halqa);
+                          },
+                        ),
+                        Icon(Icons.arrow_forward_ios, color: Colors.teal, size: 16),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

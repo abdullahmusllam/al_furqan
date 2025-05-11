@@ -211,7 +211,8 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
             "الحلقة المحدثة - الاسم: ${updatedHalaga.Name}, ID: ${updatedHalaga.halagaID}");
 
         // استدعاء دالة تحديث الحلقة مع تمرير معرف المعلم المحدد
-        await halagaController.updateHalaga(updatedHalaga, selectedTeacherId,1);
+        await halagaController.updateHalaga(updatedHalaga,1);
+        await halagaController.updateTeacherAssignment(updatedHalaga.halagaID!, selectedTeacherId!);
         print("تم تحديث الحلقة بنجاح");
 
         setState(() => _isLoading = false);

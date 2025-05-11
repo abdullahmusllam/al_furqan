@@ -88,7 +88,7 @@ class FathersController {
     // print(elhalagatID);
     try{
   List<Map<String, dynamic>> response = await _sqlDb.readData(
-      "SELECT DISTINCT * FROM Users JOIN Students ON Users.user_id = Students.userID WHERE Students.ElhalagatID = $elhalagatID;"
+      "SELECT * FROM Users JOIN Students ON Users.user_id = Students.userID WHERE Students.ElhalagatID = $elhalagatID"
   );
 
   List<UserModel> fathers = [];
@@ -109,8 +109,9 @@ class FathersController {
       // date: e['date'],
       // isActivate: e['isActivate'],
     );
-
+print("Fathers List : ${fathers.length}");
     fathers.add(father);
+    
   }
 
   return fathers;
