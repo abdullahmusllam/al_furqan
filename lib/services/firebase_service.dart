@@ -147,6 +147,18 @@ class FirebaseHelper {
     } catch (e){}
   }
 
+  updateHalaga(HalagaModel halaga) async {
+    try{
+      final docRef = await _firestore.collection('Elhalaga');
+      if(halaga != null) {
+        docRef.doc(halaga.halagaID.toString()).update(halaga.toMap());
+      }
+    }
+    catch (e){
+
+    }
+  }
+
 // =========================== End Elhalaga ==============================
 
 // =========================== Start User ===============================

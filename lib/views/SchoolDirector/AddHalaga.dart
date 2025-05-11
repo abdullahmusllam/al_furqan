@@ -446,7 +446,7 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                 // تأكيد تعيين عدد الطلاب قبل تحديث الحلقة
                                 _halaqaModel.NumberStudent = studentCount;
                                 await halagaController.updateHalaga(
-                                    _halaqaModel, selectedTeacher!.user_id);
+                                    _halaqaModel, selectedTeacher!.user_id,1);
                                     
                                 // تحديث elhalagatID للمعلم
                                 selectedTeacher!.elhalagatID = _halaqaModel.halagaID;
