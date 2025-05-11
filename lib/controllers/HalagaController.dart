@@ -49,7 +49,7 @@ class HalagaController {
           Name: name,
           NumberStudent: numberStudent,
           SchoolID: schoolID,
-          TeacherName: teacherName,
+        
         ));
       }
     }
@@ -89,14 +89,6 @@ class HalagaController {
       halagaData.halagaID = await someController.newId("Elhalagat", "halagaID");
       final db = await sqlDb.database;
       // إضافة الحلقة
-      int response = await _sqlDb.insertData(
-          "INSERT INTO Elhalagat (halagaID, SchoolID, Name, NumberStudent)\n"
-          " VALUES\n"
-          " (${halagaData.halagaID}, ${halagaData.SchoolID}, '${halagaData.Name}', ${halagaData.NumberStudent})");
-      print("تمت إضافة الحلقة، الاستجابة: $response");
-      if (response == 0) {
-        throw Exception("فشل في إضافة الحلقة");
-      }
       if (await isConnected()) {
         halagaData.isSync = 1;
         await db.insert('Elhalagat', halagaData.toMap());
@@ -281,7 +273,7 @@ class HalagaController {
         NumberStudent: halagaData['NumberStudent'] != null
             ? int.parse(halagaData['NumberStudent'].toString())
             : 0,
-        TeacherName: teacherName,
+        
       );
 
       print('تم جلب بيانات الحلقة بنجاح: ${halaga.Name}');
@@ -297,6 +289,33 @@ class HalagaController {
         .readData("SELECT * FROM Elhalagat WHERE halagaID = $halagaID");
     return halagaData.map((halaga) => HalagaModel.fromJson(halaga)).toList();
   }
+
+  Future<String> getTeacher(int halagaId) async {
+  try {
+    final db = await sqlDb.database;
+    final result = await db.query(
+      'Users',
+      where: 'ElhalagatID = ?',
+      whereArgs: [halagaId],
+      limit: 1,
+    );
+
+    if (result.isNotEmpty) {
+      final firstName = result.first['first_name'] ?? '';
+      final middleName = result.first['middle_name'] ?? '';
+      final lastName = result.first['last_name'] ?? '';
+
+      final fullName = '$firstName $middleName $lastName'.trim();
+      return fullName.isEmpty ? 'لا يوجد معلم للحلقة' : fullName;
+    } else {
+      return 'لا يوجد معلم للحلقة';
+    }
+  } catch (e) {
+    print('خطأ في جلب اسم المعلم: $e');
+    return 'لا يوجد معلم للحلقة';
+  }
+}
+
 }
 
 HalagaController halagaController = HalagaController();

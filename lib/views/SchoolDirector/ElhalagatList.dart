@@ -39,17 +39,19 @@ class _HalqatListPageState extends State<HalqatListPage> {
       setState(() {
         if (loadedHalaqat!.isNotEmpty) {
           halaqat = loadedHalaqat;
-          
+
           print('تم تحميل ${halaqat.length} حلقة');
         } else {
           // عرض رسالة توضيحية عندما تكون القائمة فارغة أو null
           halaqat = [];
+
           print("لا يوجد حلقات");
         }
       });
     } else {
       print("schoolID is null");
     }
+    if (halaqat.isNotEmpty) {}
   }
 
   @override
@@ -119,159 +121,174 @@ class _HalqatListPageState extends State<HalqatListPage> {
                       ),
                     )
                   : ListView.builder(
-                      itemCount: halaqat.length,
                       itemBuilder: (context, index) {
-                        final halqa = halaqat[
-                            index]; // الحصول على الحلقة بناءً على الفهرس
+                        final halqa = halaqat[index];
 
-                        // تحديد لون المعلم بناء على وجوده
-                        Color teacherTextColor =
-                            halqa.TeacherName == 'لا يوجد معلم للحلقة'
-                                ? Colors.red
-                                : Colors.green[700]!;
+                        return FutureBuilder<String>(
+                          future: halagaController.getTeacher(halqa.halagaID!),
+                          builder: (context, snapshot) {
+                            String teacherName =
+                                snapshot.data ?? 'لا يوجد معلم للحلقة';
+                            Color teacherTextColor =
+                                teacherName == 'لا يوجد معلم للحلقة'
+                                    ? Colors.red
+                                    : Colors.green[700]!;
 
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8.0),
-                          child: Card(
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              side: BorderSide(
-                                  color: Colors.teal.withOpacity(0.3),
-                                  width: 1),
-                            ),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(15),
-                              onTap: () async {
-                                //الانتقال إلى صفحة تفاصيل الحلقة
-                                final result = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            HalqaDetailsPage(halqa: halqa)));
-
-                                // تحديث القائمة بعد العودة إذا تم التعديل
-                                if (result == true) {
-                                  await _loadHalaqat();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('تم تحديث بيانات الحلقة'),
-                                      backgroundColor: Colors.green,
-                                      duration: Duration(seconds: 2),
-                                    ),
-                                  );
-                                }
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        CircleAvatar(
-                                          backgroundColor: Colors.teal,
-                                          radius: 24,
-                                          child: Icon(Icons.school,
-                                              color: Colors.white, size: 28),
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 8.0),
+                              child: Card(
+                                elevation: 3,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                  side: BorderSide(
+                                    color: Colors.teal.withOpacity(0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(15),
+                                  onTap: () async {
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => HalqaDetailsPage(
+                                          halqa: halqa,
+                                          teacher: teacherName,
                                         ),
-                                        SizedBox(width: 16),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                halqa.Name ??
-                                                    'اسم غير متوفر', // عرض اسم الحلقة
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              SizedBox(height: 4),
-                                              Row(
+                                      ),
+                                    );
+
+                                    if (result == true) {
+                                      await _loadHalaqat();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content:
+                                              Text('تم تحديث بيانات الحلقة'),
+                                          backgroundColor: Colors.green,
+                                          duration: Duration(seconds: 2),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundColor: Colors.teal,
+                                              radius: 24,
+                                              child: Icon(Icons.school,
+                                                  color: Colors.white,
+                                                  size: 28),
+                                            ),
+                                            SizedBox(width: 16),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
-                                                  Icon(Icons.person,
-                                                      size: 16,
-                                                      color: teacherTextColor),
-                                                  SizedBox(width: 4),
-                                                  Expanded(
-                                                    child: Text(
-                                                      halqa.TeacherName ??
-                                                          'لا يوجد معلم للحلقة',
-                                                      style: TextStyle(
-                                                          fontSize: 16,
-                                                          color:
-                                                              teacherTextColor,
-                                                          fontWeight:
-                                                              FontWeight.w500),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
+                                                  Text(
+                                                    halqa.Name ??
+                                                        'اسم غير متوفر',
+                                                    style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Row(
+                                                    children: [
+                                                      Icon(Icons.person,
+                                                          size: 16,
+                                                          color:
+                                                              teacherTextColor),
+                                                      SizedBox(width: 4),
+                                                      Expanded(
+                                                        child: Text(
+                                                          teacherName,
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            color:
+                                                                teacherTextColor,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ],
                                               ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 12),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Icon(Icons.groups,
-                                                size: 16,
-                                                color: Colors.blue[700]),
-                                            SizedBox(width: 4),
-                                            Text(
-                                              'عدد الطلاب: ${halqa.NumberStudent}',
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.blue[700],
-                                                  fontWeight: FontWeight.w500),
                                             ),
                                           ],
                                         ),
+                                        SizedBox(height: 12),
                                         Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
-                                            // زر تقرير PDF
-                                            IconButton(
-                                              icon: Icon(Icons.picture_as_pdf,
-                                                  color: Colors.orange,
-                                                  size: 20),
-                                              tooltip: 'تقرير PDF',
-                                              onPressed: () {
-                                                _showPdfFeatureDialog(
-                                                    context, halqa);
-                                              },
+                                            Row(
+                                              children: [
+                                                Icon(Icons.groups,
+                                                    size: 16,
+                                                    color: Colors.blue[700]),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  'عدد الطلاب: ${halqa.NumberStudent}',
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.blue[700],
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                            // زر حذف الحلقة
-                                            IconButton(
-                                              icon: Icon(Icons.delete,
-                                                  color: Colors.red, size: 20),
-                                              tooltip: 'حذف الحلقة',
-                                              onPressed: () {
-                                                _showDeleteConfirmationDialog(
-                                                    halqa);
-                                              },
+                                            Row(
+                                              children: [
+                                                IconButton(
+                                                  icon: Icon(
+                                                      Icons.picture_as_pdf,
+                                                      color: Colors.orange,
+                                                      size: 20),
+                                                  tooltip: 'تقرير PDF',
+                                                  onPressed: () {
+                                                    _showPdfFeatureDialog(
+                                                        context, halqa);
+                                                  },
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(Icons.delete,
+                                                      color: Colors.red,
+                                                      size: 20),
+                                                  tooltip: 'حذف الحلقة',
+                                                  onPressed: () {
+                                                    _showDeleteConfirmationDialog(
+                                                        halqa);
+                                                  },
+                                                ),
+                                                Icon(Icons.arrow_forward_ios,
+                                                    color: Colors.teal,
+                                                    size: 16),
+                                              ],
                                             ),
-                                            Icon(Icons.arrow_forward_ios,
-                                                color: Colors.teal, size: 16),
                                           ],
                                         ),
                                       ],
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
+                            );
+                          },
                         );
                       },
                     ),

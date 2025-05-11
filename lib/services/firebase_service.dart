@@ -63,6 +63,15 @@ class FirebaseHelper {
       print('حدث خطأ: $error');
     });
   }
+
+  assignStudentToHalqa(int studentId, int halqaID) async {
+    try{
+    final docRef = _firestore.collection('Students').doc(studentId.toString());
+    await docRef.update({'ElhalagatID': halqaID});
+    }catch (e){
+      print('error=== $e');
+    }
+  }
 // ===================== End Student ===========================
 
 // =========================== Start School =============================

@@ -10,7 +10,8 @@ import 'package:flutter/material.dart';
 
 class EditHalagaScreen extends StatefulWidget {
   final HalagaModel halga;
-  const EditHalagaScreen({super.key, required this.halga});
+  final String teacher;
+  const EditHalagaScreen({super.key, required this.halga, required this.teacher});
 
   @override
   _EditHalagaScreenState createState() => _EditHalagaScreenState();
@@ -56,7 +57,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
           teachers = teacherController.teachers;
 
           // طلب معلم الحلقة الحالي
-          final String? currentTeacherName = widget.halga.TeacherName;
+          final String? currentTeacherName = widget.teacher;
           if (currentTeacherName != null &&
               currentTeacherName != 'لا يوجد معلم للحلقة') {
             // البحث عن المعلم الحالي بالاسم

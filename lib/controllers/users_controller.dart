@@ -47,9 +47,10 @@ class UserController {
       userModel.isSync = 1;
       await firebasehelper.addRequest(userModel);
       await db.insert('Users', userModel.toMap());
+    } else {
+      userModel.isSync = 0;
+      await db.insert('Users', userModel.toMap());
     }
-    userModel.isSync = 0;
-    await db.insert('Users', userModel.toMap());
   }
 
   // Method to get all data
@@ -89,8 +90,9 @@ class UserController {
         userModel.isSync = 0;
         await db.insert('Users', userModel.toMap());
       }
+    } else {
+      await db.insert('Users', userModel.toMap());
     }
-    await db.insert('Users', userModel.toMap());
   }
 
   // Method to delete a user
@@ -138,13 +140,13 @@ class UserController {
         await firebasehelper.updateUser(userModel);
       } else {
         userModel.isSync = 0;
-      await db.update('USERS', userModel.toMap(),
+        await db.update('USERS', userModel.toMap(),
             where: 'user_id = ?', whereArgs: [userModel.user_id]);
       }
       await db.update('USERS', userModel.toMap(),
-            where: 'user_id = ?', whereArgs: [userModel.user_id]);
-    } 
-      int response = await _sqlDb.updateData('''
+          where: 'user_id = ?', whereArgs: [userModel.user_id]);
+    }
+    int response = await _sqlDb.updateData('''
     UPDATE USERS SET
       ActivityID = ${userModel.activityID},
       ElhalagatID = ${userModel.elhalagatID},
@@ -162,37 +164,36 @@ class UserController {
       isActivate = ${userModel.isActivate}
     WHERE user_id = ${userModel.user_id}
     ''');
-      print("response = $response");
-    }
+    print("response = $response");
+  }
 
-    // Method to add a new request
+  // Method to add a new request
 
-    // Helper method to map response to UserModel
+  // Helper method to map response to UserModel
 
-    Future<void> addToLocalOfFirebase() async {
-      var connection =
-          await InternetConnectionChecker.createInstance().hasConnection;
+  Future<void> addToLocalOfFirebase() async {
+    var connection =
+        await InternetConnectionChecker.createInstance().hasConnection;
 
-      if (connection) {
-        List<UserModel> responseFirebase = await firebasehelper.getUsers();
-        print("responseFirebase = $responseFirebase");
+    if (connection) {
+      List<UserModel> responseFirebase = await firebasehelper.getUsers();
+      print("responseFirebase = $responseFirebase");
 
-        for (var user in responseFirebase) {
-          UserModel userModel = UserModel.fromJson(user.toMap());
-          bool exists = await _sqlDb.checkIfitemExists(
-              "Users", userModel.user_id!, "user_id");
-          if (exists) {
-            await updateUser(userModel, 0);
-          } else {
-            await addUser(userModel, 0);
-          }
+      for (var user in responseFirebase) {
+        UserModel userModel = UserModel.fromJson(user.toMap());
+        bool exists = await _sqlDb.checkIfitemExists(
+            "Users", userModel.user_id!, "user_id");
+        if (exists) {
+          await updateUser(userModel, 0);
+        } else {
+          await addUser(userModel, 0);
         }
-      } else {
-        print("لا يوجد اتصال بالانترنت");
-        await getDataUsers();
       }
+    } else {
+      print("لا يوجد اتصال بالانترنت");
+      await getDataUsers();
     }
-  
+  }
 
   // إرسال رمز التحقق
   Future<void> sendVerificationCode(int phoneNumber) async {

@@ -10,7 +10,8 @@ import 'package:al_furqan/views/Teacher/HalagaPlansScreen.dart';
 
 class HalqaDetailsPage extends StatefulWidget {
   final HalagaModel halqa;
-  const HalqaDetailsPage({super.key, required this.halqa});
+  final String teacher;
+  const HalqaDetailsPage({super.key, required this.halqa, required this.teacher});
 
   @override
   _HalqaDetailsPageState createState() => _HalqaDetailsPageState();
@@ -116,7 +117,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
               final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => EditHalagaScreen(halga: widget.halqa),
+                  builder: (context) => EditHalagaScreen(halga: widget.halqa, teacher: widget.teacher),
                 ),
               );
 
@@ -135,7 +136,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                       setState(() {
                         widget.halqa.Name = halqa.Name;
                         widget.halqa.NumberStudent = halqa.NumberStudent;
-                        widget.halqa.TeacherName = halqa.TeacherName;
+                        // widget. = halqa.TeacherName;
                       });
                       break;
                     }
@@ -202,7 +203,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                                     size: 18, color: Colors.grey[700]),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'اسم المعلم: ${widget.halqa.TeacherName ?? 'غير متوفر'}',
+                                  'اسم المعلم: ${widget.teacher ?? 'غير متوفر'}',
                                   style: TextStyle(
                                       fontSize: 16, color: Colors.grey[700]),
                                 ),
