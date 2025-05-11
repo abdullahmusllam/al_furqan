@@ -387,31 +387,31 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                             _halaqaModel.Name = halqaNameController.text;
 
                             // إضافة خطة الحفظ
-                            if (conservationStartDate != null &&
-                                conservationEndDate != null) {
-                              _halaqaModel.conservationPlanStart =
-                                  _formatDate(conservationStartDate);
-                              _halaqaModel.conservationPlanEnd =
-                                  _formatDate(conservationEndDate);
-                            }
+                            // if (conservationStartDate != null &&
+                            //     conservationEndDate != null) {
+                            //   _halaqaModel.conservationPlanStart =
+                            //       _formatDate(conservationStartDate);
+                            //   _halaqaModel.conservationPlanEnd =
+                            //       _formatDate(conservationEndDate);
+                            // }
 
                             // إضافة خطة التلاوة
-                            if (recitationStartDate != null &&
-                                recitationEndDate != null) {
-                              _halaqaModel.recitationPlanStart =
-                                  _formatDate(recitationStartDate);
-                              _halaqaModel.recitationPlanEnd =
-                                  _formatDate(recitationEndDate);
-                            }
+                            // if (recitationStartDate != null &&
+                            //     recitationEndDate != null) {
+                            //   _halaqaModel.recitationPlanStart =
+                            //       _formatDate(recitationStartDate);
+                            //   _halaqaModel.recitationPlanEnd =
+                            //       _formatDate(recitationEndDate);
+                            // }
 
                             // إضافة العلوم الشرعية
-                            if (islamicStudiesSubjectController
-                                .text.isNotEmpty) {
-                              _halaqaModel.islamicStudiesSubject =
-                                  islamicStudiesSubjectController.text;
-                              _halaqaModel.islamicStudiesContent =
-                                  islamicStudiesContentController.text;
-                            }
+                            // if (islamicStudiesSubjectController
+                            //     .text.isNotEmpty) {
+                            //   _halaqaModel.islamicStudiesSubject =
+                            //       islamicStudiesSubjectController.text;
+                            //   _halaqaModel.islamicStudiesContent =
+                            //       islamicStudiesContentController.text;
+                            // }
 
                             try {
                               // تعيين عدد الطلاب في نموذج الحلقة

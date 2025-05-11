@@ -1,19 +1,28 @@
+// ignore_for_file: file_names, use_build_context_synchronously, library_private_types_in_public_api
 import 'package:al_furqan/controllers/HalagaController.dart';
+import 'package:al_furqan/controllers/plan_controller.dart';
+import 'package:al_furqan/models/conservation_plan_model.dart';
+import 'package:al_furqan/models/eltlawah_plan_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
+import 'package:al_furqan/models/islamic_studies_model.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
-class HalagaPlansScreen extends StatefulWidget {
-  final HalagaModel halaga;
+import '../../utils/utils.dart';
 
-  const HalagaPlansScreen({Key? key, required this.halaga}) : super(key: key);
+class AddHalagaPlansScreen extends StatefulWidget {
+  HalagaModel halaga;
+
+  AddHalagaPlansScreen({super.key, required this.halaga});
 
   @override
-  _HalagaPlansScreenState createState() => _HalagaPlansScreenState();
+  _HalagaPlansScreenState createState() =>
+      _HalagaPlansScreenState(halaga: halaga);
 }
 
-class _HalagaPlansScreenState extends State<HalagaPlansScreen> {
+class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
   final _formKey = GlobalKey<FormState>();
+  HalagaModel halaga;
+  _HalagaPlansScreenState({required this.halaga});
 
   // قائمة المقررات الشرعية
   final List<String> islamicSubjects = [
@@ -58,59 +67,12 @@ class _HalagaPlansScreenState extends State<HalagaPlansScreen> {
   @override
   void initState() {
     super.initState();
-    _loadExistingData();
+    // _loadExistingData();
   }
 
-  void _loadExistingData() {
-    // تحميل خطة الحفظ إذا كانت موجودة
-    if (widget.halaga.conservationStartSurah != null) {
-      conservationStartSurahController.text =
-          widget.halaga.conservationStartSurah!;
-    }
+  // void _loadExistingData() {
 
-    if (widget.halaga.conservationEndSurah != null) {
-      conservationEndSurahController.text = widget.halaga.conservationEndSurah!;
-    }
-
-    if (widget.halaga.conservationStartVerse != null) {
-      conservationStartVerseController.text =
-          widget.halaga.conservationStartVerse.toString();
-    }
-
-    if (widget.halaga.conservationEndVerse != null) {
-      conservationEndVerseController.text =
-          widget.halaga.conservationEndVerse.toString();
-    }
-
-    // تحميل خطة التلاوة إذا كانت موجودة
-    if (widget.halaga.recitationStartSurah != null) {
-      recitationStartSurahController.text = widget.halaga.recitationStartSurah!;
-    }
-
-    if (widget.halaga.recitationEndSurah != null) {
-      recitationEndSurahController.text = widget.halaga.recitationEndSurah!;
-    }
-
-    if (widget.halaga.recitationStartVerse != null) {
-      recitationStartVerseController.text =
-          widget.halaga.recitationStartVerse.toString();
-    }
-
-    if (widget.halaga.recitationEndVerse != null) {
-      recitationEndVerseController.text =
-          widget.halaga.recitationEndVerse.toString();
-    }
-
-    // تحميل العلوم الشرعية إذا كانت موجودة
-    if (widget.halaga.islamicStudiesSubject != null) {
-      selectedIslamicSubject = widget.halaga.islamicStudiesSubject;
-    }
-
-    if (widget.halaga.islamicStudiesContent != null) {
-      islamicStudiesContentController.text =
-          widget.halaga.islamicStudiesContent!;
-    }
-  }
+  // }
 
   void _showAddSubjectDialog() {
     final TextEditingController newSubjectController = TextEditingController();
@@ -157,53 +119,42 @@ class _HalagaPlansScreenState extends State<HalagaPlansScreen> {
       _isLoading = true;
       _errorMessage = null;
     });
-
     try {
-      // تحديث نموذج الحلقة بالخطط الجديدة
-      HalagaModel updatedHalaga = widget.halaga;
-
-      // خطة الحفظ
-      updatedHalaga.conservationStartSurah =
-          conservationStartSurahController.text;
-      updatedHalaga.conservationEndSurah = conservationEndSurahController.text;
-      updatedHalaga.conservationStartVerse =
-          conservationStartVerseController.text.isEmpty
-              ? null
-              : int.tryParse(conservationStartVerseController.text);
-      updatedHalaga.conservationEndVerse =
-          conservationEndVerseController.text.isEmpty
-              ? null
-              : int.tryParse(conservationEndVerseController.text);
-
-      // خطة التلاوة
-      updatedHalaga.recitationStartSurah = recitationStartSurahController.text;
-      updatedHalaga.recitationEndSurah = recitationEndSurahController.text;
-      updatedHalaga.recitationStartVerse =
-          recitationStartVerseController.text.isEmpty
-              ? null
-              : int.tryParse(recitationStartVerseController.text);
-      updatedHalaga.recitationEndVerse =
-          recitationEndVerseController.text.isEmpty
-              ? null
-              : int.tryParse(recitationEndVerseController.text);
-
-      // العلوم الشرعية
-      updatedHalaga.islamicStudiesSubject = selectedIslamicSubject;
-      updatedHalaga.islamicStudiesContent =
-          islamicStudiesContentController.text.isEmpty
-              ? null
-              : islamicStudiesContentController.text;
-
-      // حفظ التغييرات
-      await halagaController.updateHalagaPlans(updatedHalaga);
-
+      await planController.getAllStudentsHalaga(halaga.halagaID!);
+      planController.studentsID.forEach((item) async {
+        // add ConservationPlan
+        await planController.addConservationPlan(ConservationPlanModel(
+            elhalagatId: halaga.halagaID,
+            studentId: item,
+            plannedStartSurah: conservationStartSurahController.text,
+            plannedStartAya:
+                int.tryParse(conservationStartVerseController.text),
+            plannedEndSurah: conservationEndSurahController.text,
+            plannedEndAya: int.tryParse(conservationEndVerseController.text)));
+        // add EltlawahPlan
+        await planController.addEltlawahPlan(EltlawahPlanModel(
+            elhalagatId: halaga.halagaID,
+            studentId: item,
+            plannedStartSurah: recitationStartSurahController.text,
+            plannedStartAya: int.tryParse(recitationStartVerseController.text),
+            plannedEndSurah: recitationEndSurahController.text,
+            plannedEndAya: int.tryParse(recitationEndVerseController.text)));
+        // add IslamicStudies
+        await planController.addIslamicStudies(IslamicStudiesModel(
+          elhalagatID: halaga.halagaID,
+          studentID: item,
+          subject: selectedIslamicSubject,
+          plannedContent: islamicStudiesContentController.text,
+        ));
+      });
       setState(() {
         _isLoading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تم حفظ الخطط بنجاح')),
-      );
+      Utils.showSnackBarSuccess(context, "تم حفظ الخطط بنجاح");
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('تم حفظ الخطط بنجاح')),
+      // );
 
       Navigator.pop(context, true); // العودة مع إشارة إلى أن التغييرات تمت
     } catch (e) {

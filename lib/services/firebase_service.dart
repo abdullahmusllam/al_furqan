@@ -1,6 +1,9 @@
 // This file contains Firebase service code, remove it entirely if not needed.
 import 'dart:math';
+import 'package:al_furqan/models/conservation_plan_model.dart';
+import 'package:al_furqan/models/eltlawah_plan_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
+import 'package:al_furqan/models/islamic_studies_model.dart';
 import 'package:al_furqan/models/schools_model.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
@@ -12,14 +15,14 @@ class FirebaseHelper {
   //  UserColl = _firestore.collection('Users');
 
   // ======================= Start Student ==============
-  Future<void> addStudent(
-       StudentModel StudentData, int schoolID) async {
+  Future<void> addStudent(StudentModel StudentData, int schoolID) async {
     final StudentRef = await _firestore.collection('Students');
-    
+
     StudentData.schoolId = schoolID;
     if (StudentData != null) {
       try {
-        await StudentRef.doc(StudentData.studentID.toString()).set(StudentData.toMap());
+        await StudentRef.doc(StudentData.studentID.toString())
+            .set(StudentData.toMap());
         print('تمت إضافة/تحديث الطالب بالرقم ${StudentData.studentID} بنجاح ');
       } catch (e) {
         print('خطأ أثناء إضافة الطالب إلى Firebase: $e');
@@ -52,7 +55,8 @@ class FirebaseHelper {
   }
 
   updateStudentData(StudentModel Student) async {
-    final docRef = _firestore.collection('Students').doc(Student.studentID.toString());
+    final docRef =
+        _firestore.collection('Students').doc(Student.studentID.toString());
     await docRef.update(Student.toMap()).then((_) {
       print('تم التعديل بنجاح');
     }).catchError((error) {
@@ -98,7 +102,8 @@ class FirebaseHelper {
   }
 
   updateSchool(SchoolModel school) async {
-    final docRef = _firestore.collection('School').doc(school.schoolID.toString());
+    final docRef =
+        _firestore.collection('School').doc(school.schoolID.toString());
     if (school != null) {
       await docRef.update({
         'school_name': school.school_name,
@@ -309,7 +314,6 @@ class FirebaseHelper {
   }
   // =========================== End User =================================
 
-
   Future<bool> checkDocumentExists(String collection, int id) async {
     try {
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
@@ -318,10 +322,53 @@ class FirebaseHelper {
           .get();
       print("Find document");
       return documentSnapshot.exists;
-
     } catch (e) {
       print('Not found document');
       return false;
+    }
+  }
+
+//   ================== Plans FireBase Method Start ====================
+  Future<void> addConservationPlan(
+      ConservationPlanModel plan, int idDoc) async {
+    try {
+      await _firestore
+          .collection("ConservationPlans")
+          .doc(idDoc.toString())
+          .set(plan.toMap());
+      print(
+          "---------------> The addConservationPlan in ((FirebaseService)) : Done");
+    } catch (e) {
+      print(
+          "---------------> The Error in addConservationPlan in ((FirebaseService)) : $e");
+    }
+  }
+
+  Future<void> addEltlawahPlan(EltlawahPlanModel plan, int idDoc) async {
+    try {
+      await _firestore
+          .collection("EltlawahPlans")
+          .doc(idDoc.toString())
+          .set(plan.toMap());
+      print(
+          "---------------> The addEltlawahPlan in ((FirebaseService)) : Done");
+    } catch (e) {
+      print(
+          "---------------> The Error in addEltlawahPlan in ((FirebaseService)) : $e");
+    }
+  }
+
+  Future<void> addIslamicStudyplan(IslamicStudiesModel plan, int idDoc) async {
+    try {
+      await _firestore
+          .collection("IslamicStudies")
+          .doc(idDoc.toString())
+          .set(plan.toMap());
+      print(
+          "---------------> The addIslamicStudyplan in ((FirebaseService)) : Done");
+    } catch (e) {
+      print(
+          "---------------> The Error in addIslamicStudyplan in ((FirebaseService)) : $e");
     }
   }
 } // End of FirebaseHelper class

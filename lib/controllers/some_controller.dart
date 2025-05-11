@@ -18,7 +18,7 @@ class SomeController {
 
   var maxId = response[0]['max_id'];
   // var maxID=response.last['max_id'];
-  if (maxId == null) {
+  if (maxId == null|| maxId == 0) {
     return 1; // يعني أول رقم جديد
   }
   return maxId + 1;

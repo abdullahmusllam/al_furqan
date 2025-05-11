@@ -1,7 +1,6 @@
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/models/messages_model.dart';
-import 'package:al_furqan/models/roles_model.dart';
 import 'package:al_furqan/models/schools_model.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
@@ -22,16 +21,13 @@ class Sync {
             await firebasehelper.checkDocumentExists('Users', user.user_id!);
         if (exists) {
           await firebasehelper.updateUser(user);
-
           await sqlDb.updateData(
               'update Users set isSync = 1 where user_id = ${user.user_id}');
           print('===== sync user (update) =====');
-
         } else {
           await firebasehelper.addUser(user);
           await sqlDb.updateData(
               'update Users set isSync = 1 where user_id = ${user.user_id}');
-
           print('===== sync user (add) =====');
         }
       }

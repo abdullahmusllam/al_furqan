@@ -7,13 +7,13 @@ class Utils {
   }
 
   static void showSnackBarError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red));
   }
 
   static void showSnackBarSuccess(BuildContext context, String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.green));
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.green));
   }
 
   static Color getThemeColor(BuildContext context) {
@@ -21,7 +21,7 @@ class Utils {
   }
 
   static Color getSecondaryColor(BuildContext context) {
-    return Theme.of(context).colorScheme.secondary; 
+    return Theme.of(context).colorScheme.secondary;
   }
 
   static Color getBackgroundColor(BuildContext context) {

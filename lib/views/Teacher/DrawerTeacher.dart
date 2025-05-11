@@ -1,8 +1,9 @@
 // ignore: file_names
 
 import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
+import 'package:al_furqan/views/Teacher/HalagaPlansListScreen.dart';
 import 'package:al_furqan/views/Teacher/HalagaPlansScreen.dart';
-import 'package:al_furqan/views/Teacher/student_plans_list_screen.dart';
+// import 'package:al_furqan/views/Teacher/student_plans_list_screen.dart';
 import 'package:al_furqan/views/shared/message_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
@@ -336,15 +337,6 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                     title: 'إدارة الطلاب',
                     onTap: () {
                       // الانتقال إلى شاشة الأنشطة
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => StudentPlansListScreen(
-                            halagaId: _teacherHalaga?.halagaID ?? 0,
-                            halagaName: _teacherHalaga?.Name ?? '',
-                          ),
-                        ),
-                      );
                     },
                   ),
                   _buildDivider(),
@@ -364,7 +356,6 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                         );
                         return;
                       }
-
                       if (_teacherHalaga == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -393,7 +384,7 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => HalagaPlansScreen(
+                          builder: (context) => HalagaPlansListScreen(
                             halaga: _teacherHalaga!,
                           ),
                         ),
@@ -413,7 +404,7 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                       // الانتقال إلى شاشة التقييمات
                     },
                   ),
-                   _buildMenuItem(
+                  _buildMenuItem(
                     context,
                     icon: Icons.message,
                     title: 'الرسائل',
@@ -421,8 +412,11 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ChatScreen(user: user!,),
-                        ),);
+                          builder: (context) => ChatScreen(
+                            user: user!,
+                          ),
+                        ),
+                      );
                     },
                   ),
                   _buildDivider(),
