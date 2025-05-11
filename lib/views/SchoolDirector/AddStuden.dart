@@ -112,7 +112,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
               action: SnackBarAction(
                 label: 'فهمت',
                 textColor: Colors.white,
-                onPressed: () {},
+                onPressed: () async {
+                  await studentController.addStudent(studentData)
+                },
               ),
             ),
           );

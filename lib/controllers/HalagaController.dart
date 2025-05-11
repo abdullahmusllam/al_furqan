@@ -3,15 +3,16 @@ import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class HalagaController {
   final SqlDb _sqlDb = SqlDb();
   final List<HalagaModel> halagaData = [];
-      
-      Future<bool> isConnected() async {
+
+  Future<bool> isConnected() async {
     var conn = InternetConnectionChecker.createInstance().hasConnection;
-    return conn ;
+    return conn;
   }
 
   Future<List<HalagaModel>> getData(int id) async {
@@ -88,7 +89,7 @@ class HalagaController {
       halagaData.halagaID = await someController.newId("Elhalagat", "halagaID");
       final db = await sqlDb.database;
       // إضافة الحلقة
-      if(await isConnected()){
+      if (await isConnected()) {
         halagaData.isSync = 1;
         await db.insert('Elhalagat', halagaData.toMap());
         await firebasehelper.addHalga(halagaData);
@@ -96,7 +97,7 @@ class HalagaController {
         halagaData.isSync = 0;
         await db.insert('Elhalagat', halagaData.toMap());
       }
-      
+
       // إضافة خطة الحفظ إذا كانت متوفرة
       if (halagaData.conservationPlanStart != null &&
           halagaData.conservationPlanEnd != null) {
@@ -135,51 +136,90 @@ class HalagaController {
     }
   }
 
-  Future<void> updateHalaga(HalagaModel halaga, int? teacherId) async {
+  Future<void> updateHalaga(
+      HalagaModel halaga, int? teacherId, int type) async {
+    final db = await sqlDb.database;
+
     try {
       // التحقق من صحة معرف الحلقة
       if (halaga.halagaID == null) {
         throw Exception("معرف الحلقة غير متوفر");
       }
 
-      // التحقق من قيمة NumberStudent وتعيين قيمة افتراضية إذا كانت null
-      int numberStudent = halaga.NumberStudent ?? 0;
+      // التحقق من NumberStudent
+      halaga.NumberStudent ??= 0;
 
-      // تحديث بيانات الحلقة
-      int response = await _sqlDb.updateData(
-          "UPDATE Elhalagat SET Name = '${halaga.Name}', NumberStudent = $numberStudent WHERE halagaID = ${halaga.halagaID}");
-      print("تم تحديث الحلقة ${halaga.halagaID}، الاستجابة: $response");
-      if (response == 0) {
-        throw Exception("فشل في تحديث الحلقة ${halaga.halagaID}");
-      }
+      if (type == 1) {
+        /// سوف تذهبىالبيانات الى الفايربيس
+        if (await isConnected()) {
+          halaga.isSync = 1;
 
-      try {
-        // إلغاء ارتباط المعلم الحالي (إذا كان موجودًا)
-        await _sqlDb.updateData(
-            "UPDATE Users SET ElhalagatID = NULL WHERE ElhalagatID = ${halaga.halagaID} AND roleID = 2");
-      } catch (e) {
-        print("خطأ في إلغاء ارتباط المعلم الحالي: $e");
-        // لا نرمي استثناء هنا لكي تستمر العملية
-      }
+          // 1. تحديث بيانات الحلقة في SQLite
+          await db.update(
+            'Elhalagat',
+            halaga.toMap(),
+            where: 'halagaID = ?',
+            whereArgs: [halaga.halagaID],
+          );
 
-      // ربط المعلم الجديد (إذا تم اختياره)
-      if (teacherId != null) {
-        try {
-          int teacherResponse = await _sqlDb.updateData(
-              "UPDATE Users SET ElhalagatID = ${halaga.halagaID} WHERE user_id = $teacherId AND roleID = 2");
-          print(
-              "تم تعيين المعلم $teacherId للحلقة ${halaga.halagaID}، الاستجابة: $teacherResponse");
-
-          // نتحقق من نجاح العملية لكن لا نرمي استثناء هنا
-          if (teacherResponse == 0) {
-            print(
-                "تحذير: تم تحديث الحلقة لكن قد تكون هناك مشكلة في تعيين المعلم");
+          // 2. إلغاء ارتباط المعلم الحالي
+          try {
+            await _sqlDb.updateData(
+                "UPDATE Users SET ElhalagatID = NULL WHERE ElhalagatID = ${halaga.halagaID} AND roleID = 2");
+          } catch (e) {
+            print("خطأ في إلغاء ارتباط المعلم الحالي: $e");
           }
-        } catch (e) {
-          print("خطأ في تعيين المعلم الجديد: $e");
-          // لا نرمي استثناء هنا لكي تستمر العملية
+
+          // 3. ربط المعلم الجديد إن وجد
+          if (teacherId != null) {
+            try {
+              int teacherResponse = await _sqlDb.updateData(
+                "UPDATE Users SET ElhalagatID = ${halaga.halagaID} WHERE user_id = $teacherId AND roleID = 2",
+              );
+              print(
+                  "تم تعيين المعلم $teacherId للحلقة ${halaga.halagaID}، الاستجابة: $teacherResponse");
+
+              if (teacherResponse == 0) {
+                print(
+                    "تحذير: تم تحديث الحلقة لكن قد تكون هناك مشكلة في تعيين المعلم");
+              }
+
+              // ✅ يمكن الآن إرسال المعلم الجديد إلى Firebase كمعلومة إضافية
+              final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+              await _firestore
+                  .collection('Users')
+                  .doc(teacherId.toString())
+                  .update({'ElhalagatID': halaga.halagaID});
+            } catch (e) {
+              print("خطأ في تعيين المعلم الجديد: $e");
+            }
+          } else {
+            // مزامنة بدون معلم (فقط بيانات الحلقة)
+            await firebasehelper.updateHalaga(halaga);
+          }
+        } else {
+          halaga.isSync = 0;
+
+          // عند عدم وجود اتصال، نخزن البيانات محلياً فقط
+          await db.update(
+            'Elhalagat',
+            halaga.toMap(),
+            where: 'halagaID = ?',
+            whereArgs: [halaga.halagaID],
+          );
+          await _sqlDb.updateData(
+            "UPDATE Users SET ElhalagatID = ${halaga.halagaID}, isSync = 0 WHERE user_id = $teacherId AND roleID = 2",
+          );
         }
       }
+
+      // // تحديث إضافي للحلقة بعد المزامنة
+      // await db.update(
+      //   'Elhalagat',
+      //   halaga.toMap(),
+      //   where: 'halagaID = ?',
+      //   whereArgs: [halaga.halagaID],
+      // );
     } catch (e) {
       print("خطأ في تحديث الحلقة: $e");
       rethrow;
