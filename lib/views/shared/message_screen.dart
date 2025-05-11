@@ -36,11 +36,15 @@ class _ChatScreenState extends State<ChatScreen> {
       if (widget.user.roleID == 1) {
         print('===== Role is : ${widget.user.roleID} =====');
         // Manager: Load all parents for the school
+        // print(widget.user.schoolID);
         users = await fathersController.getFathersBySchoolId(widget.user.schoolID!);
+
         
         print('===== Manager loaded ${users.length} parents =====');
       } else if (widget.user.roleID == 2) {
         // Teacher: Load parents by elhalagatID
+        // print(widget.user.user_id);
+        // print(widget.user.elhalagatID);
         users = await fathersController.getFathersByElhalagaId(widget.user.elhalagatID!);
         
         print('===== Teacher loaded ${users.length} parents =====');

@@ -1,4 +1,3 @@
-
 class HalagaModel {
   int? halagaID;
   int? SchoolID;
@@ -6,15 +5,16 @@ class HalagaModel {
   int? NumberStudent;
   double? AttendanceRate;
   String? TeacherName;
+  int? isSync;
 
-  HalagaModel({
-    this.halagaID,
-    this.SchoolID,
-    this.Name,
-    this.NumberStudent,
-    this.AttendanceRate,
-    this.TeacherName,
-  });
+  HalagaModel(
+      {this.halagaID,
+      this.SchoolID,
+      this.Name,
+      this.NumberStudent,
+      this.AttendanceRate,
+      this.TeacherName,
+      this.isSync});
 
   factory HalagaModel.fromJson(Map<String, dynamic> json) {
     return HalagaModel(
@@ -24,6 +24,19 @@ class HalagaModel {
       NumberStudent: json['NumberStudent'],
       AttendanceRate: json['AttendanceRate'],
       TeacherName: json['TeacherName'],
+      isSync: json['isSync'],
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'halagaID': halagaID,
+      'SchoolID': SchoolID,
+      'Name': Name,
+      'NumberStudent': NumberStudent,
+      'AttendanceRate': AttendanceRate,
+      'TeacherName': TeacherName,
+      'isSync': isSync,
+    };
   }
 }

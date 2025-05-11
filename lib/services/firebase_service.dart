@@ -142,14 +142,27 @@ class FirebaseHelper {
     }
   }
 
-  // addHalga(HalagaModel Halaga) async {
-  //   try{
-  //     final docRef = _firestore.collection('Elhalaga');
-  //     if(Halaga != null){
+  addHalga(HalagaModel halaga) async {
+    try{
+      final docRef = await _firestore.collection('Elhalaga');
+      if(halaga != null){
+        docRef.doc(halaga.halagaID.toString()).set(halaga.toMap());
+        print('===== تم رفع حلقة ${halaga.Name} بنجاح');
+      }
+    } catch (e){}
+  }
 
-  //     }
-  //   } catch (e){}
-  // }
+  updateHalaga(HalagaModel halaga) async {
+    try{
+      final docRef = await _firestore.collection('Elhalaga');
+      if(halaga != null) {
+        docRef.doc(halaga.halagaID.toString()).update(halaga.toMap());
+      }
+    }
+    catch (e){
+
+    }
+  }
 
 // =========================== End Elhalaga ==============================
 
@@ -206,25 +219,11 @@ class FirebaseHelper {
     }
   }
 
-  addRequest(int id, UserModel user) async {
+  addRequest(UserModel user) async {
     try {
-      final docRef = _firestore.collection('Users').doc(id.toString());
-      docRef.set({
-        'user_id': id,
-        'first_name': user.first_name,
-        'middle_name': user.middle_name,
-        'grandfather_name': user.grandfather_name,
-        'last_name': user.last_name,
-        'password': user.password,
-        'email': user.email,
-        'phone_number': user.phone_number,
-        'telephone_number': user.telephone_number,
-        'roleID': user.roleID,
-        'schoolID': user.schoolID,
-        'date': user.date,
-        'isActivate': 0
-      });
-      print("تمت اضافة الطلب $id بنجاح");
+      final docRef = _firestore.collection('Users').doc(user.user_id.toString());
+      docRef.set(user.toMap());
+      print("تمت اضافة الطلب ${user.user_id} بنجاح");
     } catch (e) {
       print('حدث خطأ: $e');
     }

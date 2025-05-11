@@ -85,11 +85,10 @@ class FathersController {
   }
 
   Future<List<UserModel>> getFathersByElhalagaId(int elhalagatID) async {
+    // print(elhalagatID);
     try{
   List<Map<String, dynamic>> response = await _sqlDb.readData(
-    "SELECT * FROM Users "
-    "INNER JOIN Students ON Users.user_id = Students.userID "
-    "WHERE Students.ElhalagatID = $elhalagatID"
+      "SELECT DISTINCT * FROM Users JOIN Students ON Users.user_id = Students.userID WHERE Students.ElhalagatID = $elhalagatID;"
   );
 
   List<UserModel> fathers = [];
