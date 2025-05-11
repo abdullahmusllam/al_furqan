@@ -7,6 +7,10 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 class StudentController {
   List<StudentModel> students = [];
   final SqlDb _sqldb = SqlDb();
+  Future<bool> isConnected() async {
+    var conn = InternetConnectionChecker.createInstance().hasConnection;
+    return conn;
+  }
 
   Future<List<StudentModel>> getStudents(int halagaID) async {
     List<Map> studentData = await _sqldb
@@ -222,20 +226,27 @@ class StudentController {
 
   Future<void> assignStudentToHalqa(int studentId, int halqaID) async {
     try {
-      int response = await _sqldb.updateData(
-          "UPDATE Students SET ElhalagatID = $halqaID WHERE StudentID = $studentId");
-      print(
-          "Assigned student $studentId to halqa $halqaID, response: $response");
-      if (response == 0) {
-        throw Exception(
-            "Failed to assign student $studentId to halqa $halqaID");
+      if (await isConnected()) {
+        await firebasehelper.assignStudentToHalqa(studentId, halqaID);
+        await _sqldb.updateData(
+            "UPDATE Students SET ElhalagatID = $halqaID ,isSync = 1 WHERE StudentID = $studentId");
+
+        final count = await _sqldb.readData(
+            "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = $halqaID");
+        final studentCount = count[0]['count'] as int;
+        await _sqldb.updateData(
+            "UPDATE Elhalagat SET NumberStudent = $studentCount, isSync = 1 WHERE halagaID = $halqaID");
       }
+
+      
+      await _sqldb.updateData(
+          "UPDATE Students SET ElhalagatID = $halqaID, isSync = 0 WHERE StudentID = $studentId");
 
       final count = await _sqldb.readData(
           "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = $halqaID");
       final studentCount = count[0]['count'] as int;
       int halagaResponse = await _sqldb.updateData(
-          "UPDATE Elhalagat SET NumberStudent = $studentCount WHERE halagaID = $halqaID");
+          "UPDATE Elhalagat SET NumberStudent = $studentCount, isSync = 0 WHERE halagaID = $halqaID");
       print(
           "Updated NumberStudent to $studentCount for halqa $halqaID, response: $halagaResponse");
     } catch (e) {
