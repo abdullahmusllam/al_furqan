@@ -27,8 +27,8 @@ CREATE TABLE "Users" (
 CREATE TABLE "Schools" (
     "SchoolID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "school_name" TEXT NOT NULL,
-    "school_location" TEXT NOT NULL
-    "isSync" BOOLEAN,
+    "school_location" TEXT NOT NULL,
+    "isSync" BOOLEAN
 );
 
 -- إنشاء جدول الأدوار
@@ -56,18 +56,6 @@ CREATE TABLE "Elhalagat" (
     "AttendanceRate" REAL NULL,
     "isSync" BOOLEAN,
     CONSTRAINT "schoolIDfk" FOREIGN KEY("SchoolID") REFERENCES "School"("SchoolID")
-);
-
--- إنشاء جدول الدراسات الإسلامية
-CREATE TABLE "IslamicStudies" (
-    "IslamicStudiesID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "ElhalagatID" INTEGER NOT NULL,
-    "Subject" TEXT NOT NULL,
-    "PlannedContent" TEXT,
-    "ExecutedContent" TEXT,
-    "ExecutedRate" REAL,
-    "isSync" BOOLEAN
-    CONSTRAINT "elhalagatidfk" FOREIGN KEY("ElhalagatID") REFERENCES "Elhalagat"("halagaID")
 );
 
 -- إنشاء جدول الطلاب
@@ -105,7 +93,7 @@ CREATE TABLE "School_Activites" (
 CREATE TABLE "ActivityTypes" (
     "ActivityTypeID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "Name" TEXT NOT NULL,
-    "isSync" BOOLEAN,
+    "isSync" BOOLEAN
 );
 
 -- إنشاء جدول التقارير الشهرية
@@ -120,6 +108,19 @@ CREATE TABLE "MonthlyReports" (
     "AchievementRate" REAL,
     "isSync" BOOLEAN,
     CONSTRAINT "schoolid3fk" FOREIGN KEY("SchoolID") REFERENCES "School"("SchoolID")
+);
+
+-- إنشاء جدول الدراسات الإسلامية
+CREATE TABLE "IslamicStudies" (
+    "IslamicStudiesID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "ElhalagatID" INTEGER NOT NULL,
+    "StudentID" INTEGER NOT NULL,
+    "Subject" TEXT NOT NULL,
+    "PlannedContent" TEXT,
+    "ExecutedContent" TEXT,
+    "PlanMonth" TEXT,
+    "isSync" BOOLEAN,
+    CONSTRAINT "elhalagatidfk" FOREIGN KEY("ElhalagatID") REFERENCES "Elhalagat"("halagaID")
 );
 
 -- إنشاء جدول خطط الحفظ

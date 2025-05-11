@@ -1,26 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EltlawahPlanModel {
-  final int? eltlawahPlanId;
-  final int? elhalagatId;
-  final String? plannedStartSurah;
-  final int? plannedStartAya;
-  final String? plannedEndSurah;
-  final int? plannedEndAya;
-  final String? executedStartSurah;
-  final int? executedStartAya;
-  final String? executedEndSurah;
-  final int? executedEndAya;
-  final double? executedRate;
+  int? eltlawahPlanId;
+  int? elhalagatId;
+  int? studentId;
+  String? plannedStartSurah;
+  int? plannedStartAya;
+  String? plannedEndSurah;
+  int? plannedEndAya;
+  String? executedStartSurah;
+  int? executedStartAya;
+  String? executedEndSurah;
+  int? executedEndAya;
+  double? executedRate;
 
   /// الشهر المرتبط بالخطة بتنسيق "YYYY-MM"
-  final String? planMonth;
-  final int? isSync;
+  String? planMonth;
+  int? isSync;
 
   /// إنشاء نموذج خطة تلاوة جديد
-  const EltlawahPlanModel(
+  EltlawahPlanModel(
       {this.eltlawahPlanId,
       required this.elhalagatId,
+      required this.studentId,
       required this.plannedStartSurah,
       required this.plannedStartAya,
       required this.plannedEndSurah,
@@ -38,6 +40,7 @@ class EltlawahPlanModel {
     return {
       'EltlawahPlanID': eltlawahPlanId,
       'ElhalagatID': elhalagatId,
+      'StudentID': studentId,
       'PlannedStartSurah': plannedStartSurah,
       'PlannedStartAya': plannedStartAya,
       'PlannedEndSurah': plannedEndSurah,
@@ -57,6 +60,7 @@ class EltlawahPlanModel {
     return EltlawahPlanModel(
         eltlawahPlanId: map['EltlawahPlanID'],
         elhalagatId: map['ElhalagatID'],
+        studentId: map['StudentID'],
         plannedStartSurah: map['PlannedStartSurah'],
         plannedStartAya: map['PlannedStartAya'],
         plannedEndSurah: map['PlannedEndSurah'],
@@ -71,40 +75,4 @@ class EltlawahPlanModel {
         planMonth: map['PlanMonth'],
         isSync: map['isSync']);
   }
-
-  /// تحويل النموذج إلى Map للحفظ في Firestore
-  Map<String, dynamic> toJson() {
-    return {
-      'eltlawahPlanId': eltlawahPlanId,
-      'elhalagatId': elhalagatId,
-      'PlannedStartSurah': plannedStartSurah,
-      'PlannedStartAya': plannedStartAya,
-      'PlannedEndSurah': plannedEndSurah,
-      'PlannedEndAya': plannedEndAya,
-      'ExecuteStartSurah': executedStartSurah,
-      'ExecuteStartAya': executedStartAya,
-      'ExecuteEndSurah': executedEndSurah,
-      'ExecuteEndAya': executedEndAya,
-      'executedRate': executedRate,
-      'planMonth': planMonth,
-      'lastUpdated': FieldValue.serverTimestamp(),
-      'isSync': isSync,
-    };
-  }
-
-  /// إنشاء نموذج من DocumentSnapshot من Firestore
-  // factory EltlawahPlanModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-  //   final data = doc.data()!;
-  //
-  //   return EltlawahPlanModel(
-  //     eltlawahPlanId: data['eltlawahPlanId'],
-  //     elhalagatId: data['elhalagatId'],
-  //     plannedStart: data['plannedStart'],
-  //     plannedEnd: data['plannedEnd'],
-  //     executedStart: data['executedStart'],
-  //     executedEnd: data['executedEnd'],
-  //     executedRate: data['executedRate'],
-  //     planMonth: data['planMonth'],
-  //   );
-  // }
 }

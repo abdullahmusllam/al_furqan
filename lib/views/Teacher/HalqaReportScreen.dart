@@ -53,10 +53,10 @@ class _HalqaReportScreenState extends State<HalqaReportScreen> {
 
   Future<void> _generatePdfReport() async {
     try {
-      if (_halqaDetails != null) {
-        final bytes = await pdfService.generateHalqaReport(_halqaDetails!);
-        setState(() => _pdfBytes = bytes);
-      }
+      // if (_halqaDetails != null) {
+      //   final bytes = await pdfService.generateHalqaReport(_halqaDetails!);
+      //   setState(() => _pdfBytes = bytes);
+      // }
     } catch (e) {
       setState(() => _errorMessage = 'حدث خطأ أثناء إنشاء التقرير: $e');
       print('Error generating PDF: $e');
@@ -76,11 +76,11 @@ class _HalqaReportScreenState extends State<HalqaReportScreen> {
     if (_pdfBytes == null) return;
 
     try {
-      final fileName = 'تقرير_حلقة_${_halqaDetails?.Name ?? "تقرير"}.pdf';
-      await pdfService.savePdfFile(_pdfBytes!, fileName);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تم حفظ التقرير بنجاح')),
-      );
+      // final fileName = 'تقرير_حلقة_${_halqaDetails?.Name ?? "تقرير"}.pdf';
+      // await pdfService.savePdfFile(_pdfBytes!, fileName);
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('تم حفظ التقرير بنجاح')),
+      // );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('حدث خطأ أثناء حفظ التقرير: $e')),
@@ -92,8 +92,8 @@ class _HalqaReportScreenState extends State<HalqaReportScreen> {
     if (_pdfBytes == null) return;
 
     try {
-      final documentName = 'تقرير_حلقة_${_halqaDetails?.Name ?? "تقرير"}';
-      await pdfService.printPdf(_pdfBytes!, documentName);
+      // final documentName = 'تقرير_حلقة_${_halqaDetails?.Name ?? "تقرير"}';
+      // await pdfService.printPdf(_pdfBytes!, documentName);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('حدث خطأ أثناء طباعة التقرير: $e')),

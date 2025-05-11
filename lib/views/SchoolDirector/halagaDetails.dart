@@ -357,16 +357,16 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
 
   Widget _buildConservationPlanSection() {
     // بيانات المخطط
-    String? plannedStartSurah = _halqaDetails?.conservationStartSurah;
-    String? plannedEndSurah = _halqaDetails?.conservationEndSurah;
-    int? plannedStartVerse = _halqaDetails?.conservationStartVerse;
-    int? plannedEndVerse = _halqaDetails?.conservationEndVerse;
+    // String? plannedStartSurah = _halqaDetails?.conservationStartSurah;
+    // String? plannedEndSurah = _halqaDetails?.conservationEndSurah;
+    // int? plannedStartVerse = _halqaDetails?.conservationStartVerse;
+    // int? plannedEndVerse = _halqaDetails?.conservationEndVerse;
 
     // بيانات المنفذ
-    String? executedStartSurah = _halqaDetails?.executedStartSurah;
-    String? executedEndSurah = _halqaDetails?.executedEndSurah;
-    int? executedStartVerse = _halqaDetails?.executedStartVerse;
-    int? executedEndVerse = _halqaDetails?.executedEndVerse;
+    // String? executedStartSurah = _halqaDetails?.executedStartSurah;
+    // String? executedEndSurah = _halqaDetails?.executedEndSurah;
+    // int? executedStartVerse = _halqaDetails?.executedStartVerse;
+    // int? executedEndVerse = _halqaDetails?.executedEndVerse;
 
     // نسبة الإنجاز (يمكن حساب هذه النسبة لاحقًا)
     String completionRate = '0%';
@@ -418,10 +418,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('من',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text(
-                          plannedStartSurah != null
-                              ? '${plannedStartSurah}${plannedStartVerse != null ? " - آية ${plannedStartVerse}" : ""}'
-                              : 'لم يتم التحديد',
+                      Text('none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -430,10 +427,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('إلى',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text(
-                          plannedEndSurah != null
-                              ? '${plannedEndSurah}${plannedEndVerse != null ? " - آية ${plannedEndVerse}" : ""}'
-                              : 'لم يتم التحديد',
+                      Text('none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -473,10 +467,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('من',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text(
-                          executedStartSurah != null
-                              ? '${executedStartSurah}${executedStartVerse != null ? " - آية ${executedStartVerse}" : ""}'
-                              : 'لم يتم التنفيذ بعد',
+                      Text('none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -485,10 +476,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('إلى',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text(
-                          executedEndSurah != null
-                              ? '${executedEndSurah}${executedEndVerse != null ? " - آية ${executedEndVerse}" : ""}'
-                              : 'لم يتم التنفيذ بعد',
+                      Text('none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -511,16 +499,16 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
 
   Widget _buildRecitationPlanSection() {
     // بيانات المخطط
-    String? plannedStartSurah = _halqaDetails?.recitationStartSurah;
-    String? plannedEndSurah = _halqaDetails?.recitationEndSurah;
-    int? plannedStartVerse = _halqaDetails?.recitationStartVerse;
-    int? plannedEndVerse = _halqaDetails?.recitationEndVerse;
+    // String? plannedStartSurah = _halqaDetails?.recitationStartSurah;
+    // String? plannedEndSurah = _halqaDetails?.recitationEndSurah;
+    // int? plannedStartVerse = _halqaDetails?.recitationStartVerse;
+    // int? plannedEndVerse = _halqaDetails?.recitationEndVerse;
 
     // بيانات المنفذ
-    String? executedStartSurah = _halqaDetails?.executedStartSurah;
-    String? executedEndSurah = _halqaDetails?.executedEndSurah;
-    int? executedStartVerse = _halqaDetails?.executedStartVerse;
-    int? executedEndVerse = _halqaDetails?.executedEndVerse;
+    // String? executedStartSurah = _halqaDetails?.executedStartSurah;
+    // String? executedEndSurah = _halqaDetails?.executedEndSurah;
+    // int? executedStartVerse = _halqaDetails?.executedStartVerse;
+    // int? executedEndVerse = _halqaDetails?.executedEndVerse;
 
     // نسبة الإنجاز (يمكن حساب هذه النسبة لاحقًا)
     String completionRate = '0%';
@@ -573,10 +561,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('من',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text(
-                          plannedStartSurah != null
-                              ? '${plannedStartSurah}${plannedStartVerse != null ? " - آية ${plannedStartVerse}" : ""}'
-                              : 'لم يتم التحديد',
+                      Text('none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -585,10 +570,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('إلى',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text(
-                          plannedEndSurah != null
-                              ? '${plannedEndSurah}${plannedEndVerse != null ? " - آية ${plannedEndVerse}" : ""}'
-                              : 'لم يتم التحديد',
+                      Text('none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -628,10 +610,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('من',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text(
-                          executedStartSurah != null
-                              ? '${executedStartSurah}${executedStartVerse != null ? " - آية ${executedStartVerse}" : ""}'
-                              : 'لم يتم التنفيذ بعد',
+                      Text('none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -640,10 +619,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('إلى',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text(
-                          executedEndSurah != null
-                              ? '${executedEndSurah}${executedEndVerse != null ? " - آية ${executedEndVerse}" : ""}'
-                              : 'لم يتم التنفيذ بعد',
+                      Text('none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -666,10 +642,10 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
 
   Widget _buildIslamicStudiesSection() {
     // بيانات العلوم الشرعية
-    String? subject = _halqaDetails?.islamicStudiesSubject;
-    String? plannedContent = _halqaDetails?.islamicStudiesContent;
-    String? executedContent = _halqaDetails?.executedIslamicContent;
-    String? executionReason = _halqaDetails?.islamicExecutionReason;
+    // String? subject = _halqaDetails?.islamicStudiesSubject;
+    // String? plannedContent = _halqaDetails?.islamicStudiesContent;
+    // String? executedContent = _halqaDetails?.executedIslamicContent;
+    // String? executionReason = _halqaDetails?.islamicExecutionReason;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -714,7 +690,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                 children: [
                   const Text('المقرر: ',
                       style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text(subject ?? 'لم يتم التحديد'),
+                  Text('subject'),
                 ],
               ),
               const SizedBox(height: 8),
@@ -724,7 +700,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                   const Text('المحتوى: ',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Expanded(
-                    child: Text(plannedContent ?? 'لم يتم التحديد'),
+                    child: Text('plannedContent'),
                   ),
                 ],
               ),
@@ -760,24 +736,24 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                   const Text('المحتوى: ',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Expanded(
-                    child: Text(executedContent ?? 'لم يتم التنفيذ بعد'),
+                    child: Text('executedContent'),
                   ),
                 ],
               ),
-              if (executionReason != null && executionReason.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('أسباب التأخر: ',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    Expanded(
-                      child: Text(executionReason,
-                          style: TextStyle(color: Colors.red[700])),
-                    ),
-                  ],
-                ),
-              ],
+              // if (executionReason != null && executionReason.isNotEmpty) ...[
+              //   const SizedBox(height: 12),
+              //   Row(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       const Text('أسباب التأخر: ',
+              //           style: TextStyle(fontWeight: FontWeight.bold)),
+              //       Expanded(
+              //         child: Text(executionReason,
+              //             style: TextStyle(color: Colors.red[700])),
+              //       ),
+              //     ],
+              //   ),
+              // ],
             ],
           ),
         ),

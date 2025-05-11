@@ -89,6 +89,14 @@ class HalagaController {
       halagaData.halagaID = await someController.newId("Elhalagat", "halagaID");
       final db = await sqlDb.database;
       // إضافة الحلقة
+      int response = await _sqlDb.insertData(
+          "INSERT INTO Elhalagat (halagaID, SchoolID, Name, NumberStudent)\n"
+          " VALUES\n"
+          " (${halagaData.halagaID}, ${halagaData.SchoolID}, '${halagaData.Name}', ${halagaData.NumberStudent})");
+      print("تمت إضافة الحلقة، الاستجابة: $response");
+      if (response == 0) {
+        throw Exception("فشل في إضافة الحلقة");
+      }
       if (await isConnected()) {
         halagaData.isSync = 1;
         await db.insert('Elhalagat', halagaData.toMap());
@@ -96,39 +104,6 @@ class HalagaController {
       } else {
         halagaData.isSync = 0;
         await db.insert('Elhalagat', halagaData.toMap());
-      }
-
-      // إضافة خطة الحفظ إذا كانت متوفرة
-      if (halagaData.conservationPlanStart != null &&
-          halagaData.conservationPlanEnd != null) {
-        int conservationPlanID = await someController.newId(
-            "ConservationPlans", "ConservationPlanID");
-        int conservationResponse = await _sqlDb.insertData(
-            "INSERT INTO ConservationPlans (ConservationPlanID, ElhalagatID, PlannedStart, PlannedEnd) "
-            "VALUES ($conservationPlanID, ${halagaData.halagaID}, '${halagaData.conservationPlanStart}', '${halagaData.conservationPlanEnd}')");
-        print("تمت إضافة خطة الحفظ، الاستجابة: $conservationResponse");
-      }
-
-      // إضافة خطة التلاوة إذا كانت متوفرة
-      if (halagaData.recitationPlanStart != null &&
-          halagaData.recitationPlanEnd != null) {
-        int recitationPlanID =
-            await someController.newId("EltlawahPlans", "EltlawahPlanID");
-        int recitationResponse = await _sqlDb.insertData(
-            "INSERT INTO EltlawahPlans (EltlawahPlanID, ElhalagatID, PlannedStart, PlannedEnd) "
-            "VALUES ($recitationPlanID, ${halagaData.halagaID}, '${halagaData.recitationPlanStart}', '${halagaData.recitationPlanEnd}')");
-        print("تمت إضافة خطة التلاوة، الاستجابة: $recitationResponse");
-      }
-
-      // إضافة العلوم الشرعية إذا كانت متوفرة
-      if (halagaData.islamicStudiesSubject != null) {
-        int islamicStudiesID =
-            await someController.newId("IslamicStudies", "IslamicStudiesID");
-        int islamicStudiesResponse = await _sqlDb.insertData(
-            "INSERT INTO IslamicStudies (IslamicStudiesID, ElhalagatID, Subject, PlannedContent) "
-            "VALUES ($islamicStudiesID, ${halagaData.halagaID}, '${halagaData.islamicStudiesSubject}', "
-            "'${halagaData.islamicStudiesContent ?? ''}')");
-        print("تمت إضافة العلوم الشرعية، الاستجابة: $islamicStudiesResponse");
       }
     } catch (e) {
       print("خطأ في إضافة الحلقة: $e");
@@ -307,42 +282,6 @@ class HalagaController {
             ? int.parse(halagaData['NumberStudent'].toString())
             : 0,
         TeacherName: teacherName,
-        // بيانات الخطة - الحفظ والتلاوة وباقي البيانات كما هي
-        conservationPlanStart: halagaData['conservationPlanStart'],
-        conservationPlanEnd: halagaData['conservationPlanEnd'],
-        conservationStartSurah: halagaData['conservationStartSurah'],
-        conservationEndSurah: halagaData['conservationEndSurah'],
-        conservationStartVerse: halagaData['conservationStartVerse'] != null
-            ? int.parse(halagaData['conservationStartVerse'].toString())
-            : null,
-        conservationEndVerse: halagaData['conservationEndVerse'] != null
-            ? int.parse(halagaData['conservationEndVerse'].toString())
-            : null,
-        // بيانات الخطة - التلاوة
-        recitationPlanStart: halagaData['recitationPlanStart'],
-        recitationPlanEnd: halagaData['recitationPlanEnd'],
-        recitationStartSurah: halagaData['recitationStartSurah'],
-        recitationEndSurah: halagaData['recitationEndSurah'],
-        recitationStartVerse: halagaData['recitationStartVerse'] != null
-            ? int.parse(halagaData['recitationStartVerse'].toString())
-            : null,
-        recitationEndVerse: halagaData['recitationEndVerse'] != null
-            ? int.parse(halagaData['recitationEndVerse'].toString())
-            : null,
-        // بيانات التنفيذ - الحفظ والتلاوة
-        executedStartSurah: halagaData['executedStartSurah'],
-        executedEndSurah: halagaData['executedEndSurah'],
-        executedStartVerse: halagaData['executedStartVerse'] != null
-            ? int.parse(halagaData['executedStartVerse'].toString())
-            : null,
-        executedEndVerse: halagaData['executedEndVerse'] != null
-            ? int.parse(halagaData['executedEndVerse'].toString())
-            : null,
-        // بيانات العلوم الشرعية
-        islamicStudiesSubject: halagaData['islamicStudiesSubject'],
-        islamicStudiesContent: halagaData['islamicStudiesContent'],
-        executedIslamicContent: halagaData['executedIslamicContent'],
-        islamicExecutionReason: halagaData['islamicExecutionReason'],
       );
 
       print('تم جلب بيانات الحلقة بنجاح: ${halaga.Name}');
@@ -350,115 +289,6 @@ class HalagaController {
     } catch (e) {
       print('خطأ في جلب بيانات الحلقة: $e');
       return null;
-    }
-  }
-
-  Future<void> updateHalagaPlans(HalagaModel halaga) async {
-    try {
-      if (halaga.halagaID == null) {
-        throw Exception('معرف الحلقة مطلوب للتحديث');
-      }
-
-      // جلب بيانات الحلقة الحالية للاحتفاظ ببيانات التنفيذ
-      HalagaModel? currentHalaga = await getHalqaDetails(halaga.halagaID!);
-      if (currentHalaga != null) {
-        // احتفظ ببيانات التنفيذ الحالية
-        halaga.executedStartSurah = currentHalaga.executedStartSurah;
-        halaga.executedEndSurah = currentHalaga.executedEndSurah;
-        halaga.executedStartVerse = currentHalaga.executedStartVerse;
-        halaga.executedEndVerse = currentHalaga.executedEndVerse;
-        halaga.executedIslamicContent = currentHalaga.executedIslamicContent;
-        halaga.islamicExecutionReason = currentHalaga.islamicExecutionReason;
-      }
-
-      // 1. تحديث خطة الحفظ
-      if (halaga.conservationPlanStart != null &&
-          halaga.conservationPlanEnd != null) {
-        // التحقق من وجود خطة حفظ سابقة
-        List<Map> existingPlans = await _sqlDb.readData(
-            "SELECT ConservationPlanID FROM ConservationPlans WHERE ElhalagatID = ${halaga.halagaID}");
-
-        if (existingPlans.isEmpty) {
-          // إضافة خطة جديدة
-          int conservationPlanID = await someController.newId(
-              "ConservationPlans", "ConservationPlanID");
-          await _sqlDb.insertData(
-              "INSERT INTO ConservationPlans (ConservationPlanID, ElhalagatID, PlannedStart, PlannedEnd, StartSurah, EndSurah, StartVerse, EndVerse) "
-              "VALUES ($conservationPlanID, ${halaga.halagaID}, '${halaga.conservationPlanStart}', '${halaga.conservationPlanEnd}', "
-              "'${halaga.conservationStartSurah}', '${halaga.conservationEndSurah}', ${halaga.conservationStartVerse ?? 'NULL'}, ${halaga.conservationEndVerse ?? 'NULL'})");
-        } else {
-          // تحديث الخطة الموجودة
-          await _sqlDb.updateData(
-              "UPDATE ConservationPlans SET PlannedStart = '${halaga.conservationPlanStart}', "
-              "PlannedEnd = '${halaga.conservationPlanEnd}', "
-              "StartSurah = '${halaga.conservationStartSurah}', "
-              "EndSurah = '${halaga.conservationEndSurah}', "
-              "StartVerse = ${halaga.conservationStartVerse ?? 'NULL'}, "
-              "EndVerse = ${halaga.conservationEndVerse ?? 'NULL'} "
-              "WHERE ElhalagatID = ${halaga.halagaID}");
-        }
-      }
-
-      // 2. تحديث خطة التلاوة
-      if (halaga.recitationPlanStart != null &&
-          halaga.recitationPlanEnd != null) {
-        // التحقق من وجود خطة تلاوة سابقة
-        List<Map> existingPlans = await _sqlDb.readData(
-            "SELECT EltlawahPlanID FROM EltlawahPlans WHERE ElhalagatID = ${halaga.halagaID}");
-
-        if (existingPlans.isEmpty) {
-          // إضافة خطة جديدة
-          int recitationPlanID =
-              await someController.newId("EltlawahPlans", "EltlawahPlanID");
-          await _sqlDb.insertData(
-              "INSERT INTO EltlawahPlans (EltlawahPlanID, ElhalagatID, PlannedStart, PlannedEnd, StartSurah, EndSurah, StartVerse, EndVerse) "
-              "VALUES ($recitationPlanID, ${halaga.halagaID}, '${halaga.recitationPlanStart}', '${halaga.recitationPlanEnd}', "
-              "'${halaga.recitationStartSurah}', '${halaga.recitationEndSurah}', ${halaga.recitationStartVerse ?? 'NULL'}, ${halaga.recitationEndVerse ?? 'NULL'})");
-        } else {
-          // تحديث الخطة الموجودة
-          await _sqlDb.updateData(
-              "UPDATE EltlawahPlans SET PlannedStart = '${halaga.recitationPlanStart}', "
-              "PlannedEnd = '${halaga.recitationPlanEnd}', "
-              "StartSurah = '${halaga.recitationStartSurah}', "
-              "EndSurah = '${halaga.recitationEndSurah}', "
-              "StartVerse = ${halaga.recitationStartVerse ?? 'NULL'}, "
-              "EndVerse = ${halaga.recitationEndVerse ?? 'NULL'} "
-              "WHERE ElhalagatID = ${halaga.halagaID}");
-        }
-      }
-
-      // 3. منفذ التلاوة (لا نقوم بتحديثه من هنا، فقط احتفظ به)
-      // منفذ التلاوة يتم تحديثه من صفحة التفاصيل
-
-      // 4. تحديث العلوم الشرعية
-      if (halaga.islamicStudiesSubject != null) {
-        // التحقق من وجود العلوم الشرعية
-        List<Map> existingStudies = await _sqlDb.readData(
-            "SELECT IslamicStudiesID FROM IslamicStudies WHERE ElhalagatID = ${halaga.halagaID}");
-
-        if (existingStudies.isEmpty) {
-          // إضافة علوم شرعية جديدة
-          int islamicStudiesID =
-              await someController.newId("IslamicStudies", "IslamicStudiesID");
-          await _sqlDb.insertData(
-              "INSERT INTO IslamicStudies (IslamicStudiesID, ElhalagatID, Subject, PlannedContent, ExecutedContent, ExecutionReason) "
-              "VALUES ($islamicStudiesID, ${halaga.halagaID}, '${halaga.islamicStudiesSubject}', "
-              "'${halaga.islamicStudiesContent ?? ''}', '${halaga.executedIslamicContent ?? ''}', '${halaga.islamicExecutionReason ?? ''}')");
-        } else {
-          // تحديث العلوم الشرعية الموجودة، مع الاحتفاظ ببيانات التنفيذ الحالية
-          await _sqlDb.updateData(
-              "UPDATE IslamicStudies SET Subject = '${halaga.islamicStudiesSubject}', "
-              "PlannedContent = '${halaga.islamicStudiesContent ?? ''}', "
-              "ExecutedContent = '${halaga.executedIslamicContent ?? ''}', "
-              "ExecutionReason = '${halaga.islamicExecutionReason ?? ''}' "
-              "WHERE ElhalagatID = ${halaga.halagaID}");
-        }
-      }
-
-      print("تم تحديث خطط الحلقة ${halaga.halagaID} بنجاح");
-    } catch (e) {
-      print("خطأ في تحديث خطط الحلقة: $e");
-      rethrow;
     }
   }
 

@@ -1,24 +1,26 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ConservationPlanModel {
-  final int? conservationPlanId;
-  final int? elhalagatId;
-  final String? plannedStartSurah;
-  final int? plannedStartAya;
-  final String? plannedEndSurah;
-  final int? plannedEndAya;
-  final String? executedStartSurah;
-  final int? executedStartAya;
-  final String? executedEndSurah;
-  final int? executedEndAya;
-  final double? executedRate;
-  final String? planMonth;
-  final int? isSync;
+   int? conservationPlanId;
+   int? elhalagatId;
+   int? studentId;
+   String? plannedStartSurah;
+   int? plannedStartAya;
+   String? plannedEndSurah;
+   int? plannedEndAya;
+   String? executedStartSurah;
+   int? executedStartAya;
+   String? executedEndSurah;
+   int? executedEndAya;
+   double? executedRate;
+   String? planMonth;
+   int? isSync;
 
   /// إنشاء نموذج خطة حفظ جديد
-  const ConservationPlanModel({
+   ConservationPlanModel({
     this.conservationPlanId,
     required this.elhalagatId,
+    required this.studentId,
     required this.plannedStartSurah,
     required this.plannedStartAya,
     required this.plannedEndSurah,
@@ -37,6 +39,7 @@ class ConservationPlanModel {
     return {
       'ConservationPlanID': conservationPlanId,
       'ElhalagatID': elhalagatId,
+      'StudentID': studentId,
       'PlannedStartSurah': plannedStartSurah,
       'PlannedStartAya': plannedStartAya,
       'PlannedEndSurah': plannedEndSurah,
@@ -56,6 +59,7 @@ class ConservationPlanModel {
     return ConservationPlanModel(
       conservationPlanId: map['ConservationPlanID'],
       elhalagatId: map['ElhalagatID'],
+      studentId: map['StudentID'],
       plannedStartSurah: map['PlannedStartSurah'],
       plannedStartAya: map['PlannedStartAya'],
       plannedEndSurah: map['PlannedEndSurah'],
@@ -77,6 +81,7 @@ class ConservationPlanModel {
     return {
       'conservationPlanId': conservationPlanId,
       'elhalagatId': elhalagatId,
+      'studentId': studentId,
       'PlannedStartSurah': plannedStartSurah,
       'PlannedStartAya': plannedStartAya,
       'PlannedEndSurah': plannedEndSurah,
@@ -87,25 +92,7 @@ class ConservationPlanModel {
       'ExecuteEndAya': executedEndAya,
       'executedRate': executedRate,
       'planMonth': planMonth,
-      'lastUpdated': FieldValue.serverTimestamp(),
       'isSync': isSync,
     };
   }
-
-  /// إنشاء نموذج من DocumentSnapshot من Firestore
-  // factory ConservationPlanModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-  //   final data = doc.data()!;
-  //
-  //   return ConservationPlanModel(
-  //     conservationPlanId: data['conservationPlanId'],
-  //     elhalagatId: data['elhalagatId'],
-  //     plannedStart: data['plannedStart'],
-  //     plannedEnd: data['plannedEnd'],
-  //     executedStart: data['executedStart'],
-  //     executedEnd: data['executedEnd'],
-  //     executedRate: data['executedRate'],
-  //     planMonth: data['planMonth'],
-  //     isSync: data['isSync'],
-  //   );
-  // }
 }
