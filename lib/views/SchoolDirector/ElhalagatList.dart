@@ -47,6 +47,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
         List<HalagaModel>? loadedHalaqat = await halagaController.getData(schoolID);
         if (loadedHalaqat != null && loadedHalaqat.isNotEmpty) {
           halaqat = loadedHalaqat;
+          
           print('تم تحميل ${halaqat.length} حلقة');
 
           // جلب أسماء المعلمين لكل حلقة
@@ -150,9 +151,10 @@ class _HalqatListPageState extends State<HalqatListPage> {
                   : ListView.builder(
                       itemCount: halaqat.length,
                       itemBuilder: (context, index) {
-                        final halqa = halaqat[index];
-                        // جلب اسم المعلم من الخريطة
-                        halqa.teacherName ?? 'لا يوجد معلم للحلقة';
+                        final halqa = halaqat[
+                            index]; // الحصول على الحلقة بناءً على الفهرس
+
+                        // تحديد لون المعلم بناء على وجوده
                         Color teacherTextColor =
                             halqa.teacherName == 'لا يوجد معلم للحلقة'
                                 ? Colors.red
