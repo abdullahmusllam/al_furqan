@@ -287,9 +287,10 @@ class HalagaController {
         whereArgs: [halagaId],
         limit: 1,
       );
-
+      print('================$result');
       if (result.isNotEmpty) {
         final firstName = result.first['first_name'] ?? '';
+        print('===============$firstName');
         final middleName = result.first['middle_name'] ?? '';
         final lastName = result.first['last_name'] ?? '';
 

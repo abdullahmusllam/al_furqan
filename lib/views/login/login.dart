@@ -44,8 +44,10 @@ class _LoginScreenState extends State<LoginScreen> {
           await sqlDb.checkIfitemExists("Users", user.user_id!, "user_id");
       if (exists) {
         await userController.updateUser(user, 0);
+        print('===== Find user (update) =====');
       } else {
         await userController.addUser(user, 0);
+        print('===== Find user (update) =====');
       }
     }
   }
