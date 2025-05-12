@@ -39,7 +39,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
       setState(() {
         if (loadedHalaqat!.isNotEmpty) {
           halaqat = loadedHalaqat;
-          
+
           print('تم تحميل ${halaqat.length} حلقة');
         } else {
           // عرض رسالة توضيحية عندما تكون القائمة فارغة أو null
@@ -121,8 +121,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
                   : ListView.builder(
                       itemCount: halaqat.length,
                       itemBuilder: (context, index) {
-                        final halqa = halaqat[
-                            index]; // الحصول على الحلقة بناءً على الفهرس
+                        final halqa = halaqat[index]; // الحصول على الحلقة بناءً على الفهرس
 
                         // تحديد لون المعلم بناء على وجوده
                         Color teacherTextColor =

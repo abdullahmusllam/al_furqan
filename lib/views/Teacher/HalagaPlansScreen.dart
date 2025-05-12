@@ -1,22 +1,18 @@
-// ignore_for_file: file_names, use_build_context_synchronously, library_private_types_in_public_api
-import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/plan_controller.dart';
 import 'package:al_furqan/models/conservation_plan_model.dart';
 import 'package:al_furqan/models/eltlawah_plan_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/models/islamic_studies_model.dart';
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../utils/utils.dart';
 
 class AddHalagaPlansScreen extends StatefulWidget {
   HalagaModel halaga;
-
   AddHalagaPlansScreen({super.key, required this.halaga});
 
   @override
-  _HalagaPlansScreenState createState() =>
-      _HalagaPlansScreenState(halaga: halaga);
+  _HalagaPlansScreenState createState() => _HalagaPlansScreenState(halaga: halaga);
 }
 
 class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
@@ -24,7 +20,6 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
   HalagaModel halaga;
   _HalagaPlansScreenState({required this.halaga});
 
-  // قائمة المقررات الشرعية
   final List<String> islamicSubjects = [
     'التفسير',
     'الحديث',
@@ -37,46 +32,125 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
 
   String? selectedIslamicSubject;
 
-  // controllers للخطة الحفظ
-  final TextEditingController conservationStartSurahController =
-      TextEditingController();
-  final TextEditingController conservationEndSurahController =
-      TextEditingController();
-  final TextEditingController conservationStartVerseController =
-      TextEditingController();
-  final TextEditingController conservationEndVerseController =
-      TextEditingController();
+  final TextEditingController conservationStartSurahController = TextEditingController();
+  final TextEditingController conservationEndSurahController = TextEditingController();
+  final TextEditingController conservationStartVerseController = TextEditingController();
+  final TextEditingController conservationEndVerseController = TextEditingController();
 
-  // controllers لخطة التلاوة
-  final TextEditingController recitationStartSurahController =
-      TextEditingController();
-  final TextEditingController recitationEndSurahController =
-      TextEditingController();
-  final TextEditingController recitationStartVerseController =
-      TextEditingController();
-  final TextEditingController recitationEndVerseController =
-      TextEditingController();
+  final TextEditingController recitationStartSurahController = TextEditingController();
+  final TextEditingController recitationEndSurahController = TextEditingController();
+  final TextEditingController recitationStartVerseController = TextEditingController();
+  final TextEditingController recitationEndVerseController = TextEditingController();
 
-  // controllers للعلوم الشرعية
-  final TextEditingController islamicStudiesContentController =
-      TextEditingController();
+  final TextEditingController islamicStudiesContentController = TextEditingController();
 
   bool _isLoading = false;
   String? _errorMessage;
 
-  @override
-  void initState() {
-    super.initState();
-    // _loadExistingData();
+  Future<void> _savePlans() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await planController.clearAllPlans(); // حذف البيانات القديمة
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('halagaID', halaga.halagaID!);
+      print("-----------------Add------------------------");
+      List<int> studentsID = await planController.getAllStudentsHalaga(halaga.halagaID!);
+      print("-----> studentsID = $studentsID");
+
+      for (int item in studentsID) {
+        print("----------> Processing studentId: $item");
+
+        // التحقق من صحة السور
+        if (!isValidSurah(conservationStartSurahController.text) ||
+            !isValidSurah(conservationEndSurahController.text) ||
+            !isValidSurah(recitationStartSurahController.text) ||
+            !isValidSurah(recitationEndSurahController.text)) {
+          setState(() {
+            _isLoading = false;
+            _errorMessage = 'أسماء السور غير صالحة';
+          });
+          return;
+        }
+
+        // إضافة خطة الحفظ
+        int conservationResult = await planController.addConservationPlan2(
+          ConservationPlanModel(
+            elhalagatId: halaga.halagaID,
+            studentId: item,
+            plannedStartSurah: conservationStartSurahController.text,
+            plannedStartAya: int.tryParse(conservationStartVerseController.text),
+            plannedEndSurah: conservationEndSurahController.text,
+            plannedEndAya: int.tryParse(conservationEndVerseController.text),
+            planMonth: "2025-05",
+            isSync: 0,
+          ),
+        );
+
+        // إضافة خطة التلاوة
+        int eltlawahResult = await planController.addEltlawahPlan2(
+          EltlawahPlanModel(
+            elhalagatId: halaga.halagaID,
+            studentId: item,
+            plannedStartSurah: recitationStartSurahController.text,
+            plannedStartAya: int.tryParse(recitationStartVerseController.text),
+            plannedEndSurah: recitationEndSurahController.text,
+            plannedEndAya: int.tryParse(recitationEndVerseController.text),
+            planMonth: "2025-05",
+            isSync: 0,
+          ),
+        );
+
+        // إضافة خطة العلوم الشرعية
+        int islamicResult = await planController.addIslamicStudies2(
+          IslamicStudiesModel(
+            elhalagatID: halaga.halagaID,
+            studentID: item,
+            subject: selectedIslamicSubject,
+            plannedContent: islamicStudiesContentController.text,
+            planMonth: "2025-05",
+            isSync: 0,
+          ),
+        );
+
+        // التحقق من نجاح العمليات
+        if (conservationResult <= 0 || eltlawahResult <= 0 || islamicResult <= 0) {
+          setState(() {
+            _isLoading = false;
+            _errorMessage = 'فشل في إضافة خطط الطالب $item';
+          });
+          return;
+        }
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      Utils.showSnackBarSuccess(context, "تم حفظ الخطط بنجاح");
+      Navigator.pop(context, true);
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'حدث خطأ أثناء حفظ الخطط: $e';
+      });
+    }
   }
 
-  // void _loadExistingData() {
-
-  // }
+  bool isValidSurah(String surah) {
+    final validSurahs = ['الفاتحة', 'البقرة', 'آل عمران', 'النساء']; // أضف المزيد حسب الحاجة
+    return validSurahs.contains(surah);
+  }
 
   void _showAddSubjectDialog() {
     final TextEditingController newSubjectController = TextEditingController();
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -110,61 +184,6 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
     );
   }
 
-  Future<void> _savePlans() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-    try {
-      await planController.getAllStudentsHalaga(halaga.halagaID!);
-      planController.studentsID.forEach((item) async {
-        // add ConservationPlan
-        await planController.addConservationPlan(ConservationPlanModel(
-            elhalagatId: halaga.halagaID,
-            studentId: item,
-            plannedStartSurah: conservationStartSurahController.text,
-            plannedStartAya:
-                int.tryParse(conservationStartVerseController.text),
-            plannedEndSurah: conservationEndSurahController.text,
-            plannedEndAya: int.tryParse(conservationEndVerseController.text)));
-        // add EltlawahPlan
-        await planController.addEltlawahPlan(EltlawahPlanModel(
-            elhalagatId: halaga.halagaID,
-            studentId: item,
-            plannedStartSurah: recitationStartSurahController.text,
-            plannedStartAya: int.tryParse(recitationStartVerseController.text),
-            plannedEndSurah: recitationEndSurahController.text,
-            plannedEndAya: int.tryParse(recitationEndVerseController.text)));
-        // add IslamicStudies
-        await planController.addIslamicStudies(IslamicStudiesModel(
-          elhalagatID: halaga.halagaID,
-          studentID: item,
-          subject: selectedIslamicSubject,
-          plannedContent: islamicStudiesContentController.text,
-        ));
-      });
-      setState(() {
-        _isLoading = false;
-      });
-
-      Utils.showSnackBarSuccess(context, "تم حفظ الخطط بنجاح");
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('تم حفظ الخطط بنجاح')),
-      // );
-
-      Navigator.pop(context, true); // العودة مع إشارة إلى أن التغييرات تمت
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'حدث خطأ أثناء حفظ الخطط: $e';
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -180,9 +199,8 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // عنوان الحلقة
               Text(
-                'خطط حلقة: ${widget.halaga.Name ?? ""}',
+                'خطط حلقة: ${halaga.Name ?? ""}',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -190,8 +208,6 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
                 ),
               ),
               SizedBox(height: 24),
-
-              // خطة الحفظ
               _buildCard(
                 title: 'خطة الحفظ',
                 icon: Icons.menu_book,
@@ -202,22 +218,19 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
                       label: 'من',
                       surahController: conservationStartSurahController,
                       verseController: conservationStartVerseController,
-                      surahHint: 'سورة الرحمن',
+                      surahHint: 'سورة الفاتحة',
                     ),
                     SizedBox(height: 10),
                     _buildSurahInputRow(
                       label: 'إلى',
                       surahController: conservationEndSurahController,
                       verseController: conservationEndVerseController,
-                      surahHint: 'سورة الناس',
+                      surahHint: 'سورة البقرة',
                     ),
                   ],
                 ),
               ),
-
               SizedBox(height: 24),
-
-              // خطة التلاوة
               _buildCard(
                 title: 'خطة التلاوة',
                 icon: Icons.record_voice_over,
@@ -228,29 +241,25 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
                       label: 'من',
                       surahController: recitationStartSurahController,
                       verseController: recitationStartVerseController,
-                      surahHint: 'سورة الرحمن',
+                      surahHint: 'سورة الفاتحة',
                     ),
                     SizedBox(height: 10),
                     _buildSurahInputRow(
                       label: 'إلى',
                       surahController: recitationEndSurahController,
                       verseController: recitationEndVerseController,
-                      surahHint: 'سورة الأحقاف',
+                      surahHint: 'سورة البقرة',
                     ),
                   ],
                 ),
               ),
-
               SizedBox(height: 24),
-
-              // العلوم الشرعية
               _buildCard(
                 title: 'خطة العلوم الشرعية',
                 icon: Icons.local_library,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // المقرر مع زر إضافة
                     Row(
                       children: [
                         Text(
@@ -299,10 +308,7 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
                         ),
                       ],
                     ),
-
                     SizedBox(height: 16),
-
-                    // المحتوى المخطط
                     Text(
                       'المخطط',
                       style: TextStyle(
@@ -315,6 +321,12 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
                     TextFormField(
                       controller: islamicStudiesContentController,
                       maxLines: 3,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "الحقل مطلوب!";
+                        }
+                        return null;
+                      },
                       decoration: InputDecoration(
                         hintText: 'أدخل المحتوى المخطط للمقرر',
                         border: OutlineInputBorder(
@@ -325,8 +337,6 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
                   ],
                 ),
               ),
-
-              // عرض رسالة الخطأ إذا وجدت
               if (_errorMessage != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -335,10 +345,7 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
                     style: TextStyle(color: Colors.red),
                   ),
                 ),
-
               SizedBox(height: 24),
-
-              // زر الحفظ
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -353,8 +360,6 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
                       : Text('حفظ الخطط', style: TextStyle(fontSize: 18)),
                 ),
               ),
-
-              // إشعار للمستخدم
               SizedBox(height: 16),
               Center(
                 child: Text(
@@ -372,8 +377,7 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
     );
   }
 
-  Widget _buildCard(
-      {required String title, required IconData icon, required Widget child}) {
+  Widget _buildCard({required String title, required IconData icon, required Widget child}) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -451,8 +455,7 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             ),
             validator: (value) {
               if (isRequired && (value == null || value.isEmpty)) {
@@ -477,6 +480,15 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
               contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
             ),
             textAlign: TextAlign.center,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "أدخل قيمة";
+              }
+              if (int.tryParse(value) == null) {
+                return "أدخل رقم صحيح";
+              }
+              return null;
+            },
           ),
         ),
       ],

@@ -113,7 +113,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                 label: 'فهمت',
                 textColor: Colors.white,
                 onPressed: () async {
-                  await studentController.addStudent(studentData)
+                  // await studentController.addStudent(studentData);
                 },
               ),
             ),

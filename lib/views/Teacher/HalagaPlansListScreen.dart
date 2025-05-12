@@ -1,11 +1,10 @@
+import 'package:al_furqan/controllers/plan_controller.dart';
+import 'package:al_furqan/models/conservation_plan_model.dart';
+import 'package:al_furqan/models/eltlawah_plan_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
+import 'package:al_furqan/models/islamic_studies_model.dart';
 import 'package:flutter/material.dart';
-
 import 'HalagaPlansScreen.dart';
-// import 'package:provider/provider.dart';
-// import '../../controllers/QuranPlansSyncController.dart';
-// import '../../models/ConservationPlan.dart';
-// import '../../models/EltlawahPlan.dart';
 
 class HalagaPlansListScreen extends StatefulWidget {
   HalagaModel halaga;
@@ -19,26 +18,21 @@ class HalagaPlansListScreen extends StatefulWidget {
 class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
   HalagaModel halagaModel;
   _HalagaPlansListScreenState({required this.halagaModel});
-  // late QuranPlansSyncController _plansController;
   bool _isLoading = true;
-  // List<ConservationPlan> _conservationPlans = [];
-  // List<EltlawahPlan> _tlawahPlans = [];
 
   @override
   void initState() {
     super.initState();
-    // _plansController = Provider.of<QuranPlansSyncController>(context, listen: false);
     _loadPlans();
   }
 
   Future<void> _loadPlans() async {
     setState(() => _isLoading = true);
     try {
-      // _conservationPlans = await _plansController.getConservationPlans();
-      // _tlawahPlans = await _plansController.getEltlawahPlans();
+      await planController.getPlans(halagaModel.halagaID!);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('حدث خطأ في تحميل الخطط: ${e.toString()}')),
+        SnackBar(content: Text('حدث خطأ في تحميل الخطط: $e')),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -48,69 +42,96 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('خطط الحلقات'),
+          title: Text('خطط الحلقة: ${halagaModel.Name ?? ""}'),
           centerTitle: true,
+          backgroundColor: Theme.of(context).primaryColor,
+          titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
           bottom: const TabBar(
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            indicatorColor: Colors.white,
             tabs: [
               Tab(text: 'خطط الحفظ'),
               Tab(text: 'خطط التلاوة'),
+              Tab(text: 'خطط العلوم الشرعية'),
             ],
           ),
         ),
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : TabBarView(
-                children: [
-                  _buildConservationPlansList(),
-                  _buildTlawahPlansList(),
-                ],
-              ),
+          children: [
+            _buildConservationPlansList(),
+            _buildTlawahPlansList(),
+            _buildIslamicStudyPlansList(),
+          ],
+        ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // TODO: Add navigation to create new plan screen
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => AddHalagaPlansScreen(
-                      halaga: halagaModel,
-                    )));
+          onPressed: () async {
+            final result = await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => AddHalagaPlansScreen(halaga: halagaModel),
+              ),
+            );
+            if (result == true) {
+              _loadPlans(); // تحديث القوائم بعد إضافة خطط جديدة
+            }
           },
-          child: const Icon(Icons.add),
+          backgroundColor: Theme.of(context).primaryColor,
+          child: const Icon(Icons.add, color: Colors.white),
         ),
       ),
     );
   }
 
   Widget _buildConservationPlansList() {
+    List<ConservationPlanModel> planC = planController.conservationPlans;
+    if (planC.isEmpty) {
+      return const Center(child: Text('لا توجد خطط حفظ متاحة'));
+    }
     return ListView.builder(
-      itemCount: 5,
+      itemCount: planC.length,
       itemBuilder: (context, index) {
-        // final plan = _conservationPlans[index];
+        final plan = planC[index];
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: ListTile(
-            title: Text('خطة الحفظ ${index}'),
-            subtitle: Text('معدل التنفيذ: ${index}%'),
+            title: Text('خطة شهر ${plan.planMonth ?? 'غير محدد'}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('من: ${plan.plannedStartSurah}، آية: ${plan.plannedStartAya ?? 0}'),
+                Text('إلى: ${plan.plannedEndSurah}، آية: ${plan.plannedEndAya ?? 0}'),
+                Text('معدل التنفيذ: ${(plan.executedRate ?? 0) * 100}%'),
+                Text('المزامنة: ${plan.isSync == 1 ? 'تمت' : 'لم تتم'}'),
+              ],
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.edit),
+                  icon: const Icon(Icons.edit, color: Colors.blue),
                   onPressed: () {
-                    // TODO: Add navigation to edit plan screen
+                    _editPlan(context, plan);
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete),
+                  icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () {
-                    // _showDeleteConfirmationDialog(plan);
+                    _showDeleteConfirmationDialog(
+                      plan.conservationPlanId!,
+                      "ConservationPlans",
+                      "ConservationPlanID",
+                    );
                   },
                 ),
               ],
             ),
             onTap: () {
-              // TODO: Add navigation to plan details screen
+              // يمكن إضافة تفاصيل الخطة هنا
             },
           ),
         );
@@ -119,38 +140,50 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
   }
 
   Widget _buildTlawahPlansList() {
-    // if (_tlawahPlans.isEmpty) {
-    //   return const Center(child: Text('لا توجد خطط تلاوة'));
-    // }
-
+    List<EltlawahPlanModel> planE = planController.eltlawahPlans;
+    if (planE.isEmpty) {
+      return const Center(child: Text('لا توجد خطط تلاوة متاحة'));
+    }
     return ListView.builder(
-      itemCount: 5,
+      itemCount: planE.length,
       itemBuilder: (context, index) {
-        // final plan = _tlawahPlans[index];
+        final plan = planE[index];
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: ListTile(
-            title: Text('خطة التلاوة ${index}'),
-            subtitle: Text('معدل التنفيذ: ${index}%'),
+            title: Text('خطة شهر ${plan.planMonth ?? 'غير محدد'}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('من: ${plan.plannedStartSurah}، آية: ${plan.plannedStartAya ?? 0}'),
+                Text('إلى: ${plan.plannedEndSurah}، آية: ${plan.plannedEndAya ?? 0}'),
+                Text('معدل التنفيذ: ${(plan.executedRate ?? 0) * 100}%'),
+                Text('المزامنة: ${plan.isSync == 1 ? 'تمت' : 'لم تتم'}'),
+              ],
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.edit),
+                  icon: const Icon(Icons.edit, color: Colors.blue),
                   onPressed: () {
-                    // TODO: Add navigation to edit plan screen
+                    _editPlan(context, plan);
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete),
+                  icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () {
-                    // _showDeleteConfirmationDialog(plan);
+                    _showDeleteConfirmationDialog(
+                      plan.eltlawahPlanId!,
+                      "EltlawahPlans",
+                      "EltlawahPlanID",
+                    );
                   },
                 ),
               ],
             ),
             onTap: () {
-              // TODO: Add navigation to plan details screen
+              // يمكن إضافة تفاصيل الخطة هنا
             },
           ),
         );
@@ -158,7 +191,59 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
     );
   }
 
-  Future<void> _showDeleteConfirmationDialog(dynamic plan) async {
+  Widget _buildIslamicStudyPlansList() {
+    List<IslamicStudiesModel> planI = planController.islamicStudyPlans;
+    if (planI.isEmpty) {
+      return const Center(child: Text('لا توجد خطط علوم شرعية متاحة'));
+    }
+    return ListView.builder(
+      itemCount: planI.length,
+      itemBuilder: (context, index) {
+        final plan = planI[index];
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: ListTile(
+            title: Text('خطة شهر ${plan.planMonth ?? 'غير محدد'}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('المقرر: ${plan.subject}'),
+                Text('المحتوى: ${plan.plannedContent}'),
+                Text('المزامنة: ${plan.isSync == 1 ? 'تمت' : 'لم تتم'}'),
+              ],
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blue),
+                  onPressed: () {
+                    _editPlan(context, plan);
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    _showDeleteConfirmationDialog(
+                      plan.islamicStudiesID!,
+                      "IslamicStudies",
+                      "IslamicStudiesID",
+                    );
+                  },
+                ),
+              ],
+            ),
+            onTap: () {
+              // يمكن إضافة تفاصيل الخطة هنا
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showDeleteConfirmationDialog(
+      int planID, String table, String column) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -170,28 +255,41 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
             child: const Text('إلغاء'),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('حذف'),
+            onPressed: () async {
+              try {
+                await planController.deletePlan(planID, table, column);
+                Navigator.of(context).pop(true);
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('حدث خطأ أثناء الحذف: $e')),
+                );
+                Navigator.of(context).pop(false);
+              }
+            },
+            child: const Text('حذف', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
 
-    // if (result == true) {
-    //   try {
-    //     if (plan is ConservationPlan) {
-    //       await _plansController.deleteConservationPlan(plan);
-    //     } else if (plan is EltlawahPlan) {
-    //       await _plansController.deleteEltlawahPlan(plan);
-    //     }
-    //     await _loadPlans();
-    //   } catch (e) {
-    //     if (mounted) {
-    //       ScaffoldMessenger.of(context).showSnackBar(
-    //         SnackBar(content: Text('حدث خطأ في حذف الخطة: ${e.toString()}')),
-    //       );
-    //     }
-    //   }
-    // }
+    if (result == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم حذف الخطة بنجاح')),
+      );
+      await _loadPlans(); // تحديث القوائم بعد الحذف
+    }
+  }
+
+  void _editPlan(BuildContext context, dynamic plan) {
+    // الانتقال إلى شاشة التعديل (نستخدم AddHalagaPlansScreen مع بيانات الخطة)
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AddHalagaPlansScreen(halaga: halagaModel),
+      ),
+    ).then((result) {
+      if (result == true) {
+        _loadPlans(); // تحديث القوائم بعد التعديل
+      }
+    });
   }
 }
