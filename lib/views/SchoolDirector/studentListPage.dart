@@ -85,15 +85,15 @@ class _StudentsListPageState extends State<StudentsListPage> {
       if (isConnected) {
           // جلب بيانات الطلاب من Firebase
           print("جاري جلب بيانات الطلاب من Firebase...");
-          List<Map<String, dynamic>> studentsList =
+          List<StudentModel> studentsList =
               await firebasehelper.getStudentData(schoolID);
           print("تم جلب ${studentsList.length} طالب من Firebase");
           print("بيانات الطلاب من Firebase: $studentsList");
 
-          for (var studentData in studentsList) {
+          for (var student in studentsList) {
             // تحويل البيانات إلى StudentModel
-            print("جاري معالجة بيانات الطالب: $studentData");
-            StudentModel student = StudentModel.fromJson(studentData);
+            print("جاري معالجة بيانات الطالب: $student");
+            // StudentModel student = StudentModel.fromJson(studentData);
             print(
                 "تم تحويل البيانات إلى نموذج الطالب: ${student.firstName}, ID: ${student.studentID}, حلقة: ${student.elhalaqaID}");
             // التحقق إذا كان الطالب موجودًا في قاعدة البيانات المحلية
@@ -108,7 +108,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
 
             if (exists) {
               // إذا كان موجودًا، يتم التحديث
-              await studentController.updateStudent(student, student.studentID!, 0);
+              await studentController.updateStudent(student, 0);
               print("تم تحديث بيانات الطالب ${student.firstName}");
             } else {
               // إذا لم يكن موجودًا، يتم إضافته

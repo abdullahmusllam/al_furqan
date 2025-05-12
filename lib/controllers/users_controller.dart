@@ -180,13 +180,13 @@ class UserController {
       print("responseFirebase = $responseFirebase");
 
       for (var user in responseFirebase) {
-        UserModel userModel = UserModel.fromJson(user.toMap());
+        // UserModel userModel = UserModel.fromJson(user.toMap());
         bool exists = await _sqlDb.checkIfitemExists(
-            "Users", userModel.user_id!, "user_id");
+            "Users", user.user_id!, "user_id");
         if (exists) {
-          await updateUser(userModel, 0);
+          await updateUser(user, 0);
         } else {
-          await addUser(userModel, 0);
+          await addUser(user, 0);
         }
       }
     } else {

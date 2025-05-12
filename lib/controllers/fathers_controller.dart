@@ -85,7 +85,7 @@ class FathersController {
   }
 
   Future<List<UserModel>> getFathersByElhalagaId(int elhalagatID) async {
-    // print(elhalagatID);
+    // print('============================================= $elhalagatID');
     try{
   List<Map<String, dynamic>> response = await _sqlDb.readData(
       "SELECT * FROM Users JOIN Students ON Users.user_id = Students.userID WHERE Students.ElhalagatID = $elhalagatID"
@@ -95,7 +95,7 @@ class FathersController {
 
   for (var e in response) {
     UserModel father = UserModel(
-      user_id: e['userID'],
+      user_id: e['user_id'],
       first_name: e['first_name'],
       middle_name: e['middle_name'],
       // grandfather_name: e['grandfather_name'],
@@ -109,7 +109,7 @@ class FathersController {
       // date: e['date'],
       // isActivate: e['isActivate'],
     );
-print("Fathers List : ${fathers.length}");
+      print("===========================Fathers List : ${fathers.length}");
     fathers.add(father);
     
   }
@@ -122,6 +122,8 @@ print("Fathers List : ${fathers.length}");
 }
 
 Future<List<UserModel>> getFathersBySchoolId(int schoolID) async {
+  // print('========================================= father');
+  try{
   List<Map<String, dynamic>> response = await _sqlDb.readData(
     "SELECT * FROM Users "
     "INNER JOIN Students ON Users.user_id = Students.userID "
@@ -132,7 +134,7 @@ Future<List<UserModel>> getFathersBySchoolId(int schoolID) async {
 
   for (var e in response) {
     UserModel father = UserModel(
-      user_id: e['userID'],
+      user_id: e['user_id'],
       first_name: e['first_name'],
       middle_name: e['middle_name'],
       // grandfather_name: e['grandfather_name'],
@@ -149,8 +151,12 @@ Future<List<UserModel>> getFathersBySchoolId(int schoolID) async {
 
     fathers.add(father);
   }
-
+  print('=================================== father');
   return fathers;
+  } catch(e){
+    print('====$e');
+    return [];
+  }
 }
 
 

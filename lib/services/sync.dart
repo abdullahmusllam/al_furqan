@@ -6,6 +6,7 @@ import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/services/message_sevice.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Sync {
 
@@ -67,6 +68,8 @@ class Sync {
   }
 
 Future<void> syncMessage() async {
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
     print('===== sync Message =====');
     List<Map<String, dynamic>> map =
         await sqlDb.readDataID("messages", 'sync', 0);
@@ -77,14 +80,17 @@ Future<void> syncMessage() async {
         bool exists =
             await firebasehelper.checkDocumentExists('messages', message.id!);
         if (exists) {
-          await firebaseHelper.updateMessage(message);
+          await _firestore
+            .collection('messages')
+            .doc(message.id.toString())
+            .update(message.toJson());
 
           await sqlDb.updateData(
               'update messages set sync = 1 where id = ${message.id}');
           print('===== sync message (update) =====');
 
         } else {
-          await firebaseHelper.saveMessage(message);
+          await _firestore.collection('messages').add(message.toJson());
           await sqlDb.updateData(
               'update messages set sync = 1 where id = ${message.id}');
 

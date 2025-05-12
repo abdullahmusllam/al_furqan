@@ -32,18 +32,16 @@ class FirebaseHelper {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getStudentData(int id) async {
+  Future<List<StudentModel>> getStudentData(int id) async {
     try {
-      QuerySnapshot querySnapshot = await _firestore
+      QuerySnapshot snapshot = await _firestore
           .collection('Students')
           .where('SchoolID', isEqualTo: id)
           .get();
 
-      if (querySnapshot.docs.isNotEmpty) {
+      if (snapshot.docs.isNotEmpty) {
         print('تم العثور على مستند');
-        return querySnapshot.docs
-            .map((doc) => doc.data() as Map<String, dynamic>)
-            .toList();
+        return snapshot.docs.map((doc) => StudentModel.fromJson(doc.data() as Map<String, dynamic>)).toList();
       } else {
         print('لا توجد مستندات تطابق الشرط');
         return [];
@@ -169,7 +167,7 @@ class FirebaseHelper {
       }
     }
     catch (e){
-
+      print('error ==== $e');
     }
   }
 
@@ -288,12 +286,12 @@ newTeacher(int halagaId, int teacherId) async {
 
 // services/password_service.dart
   // إرسال رمز التحقق عبر واتساب
-  Future<String> sendWhatsAppVerification(int idNumber) async {
+  Future<String> sendWhatsAppVerification(int number) async {
     try {
       // 1. البحث عن المستخدم في Firestore
       final query = await _firestore
           .collection('Users')
-          .where('phone_number', isEqualTo: idNumber)
+          .where('phone_number', isEqualTo: number)
           .limit(1)
           .get();
 
@@ -302,20 +300,26 @@ newTeacher(int halagaId, int teacherId) async {
       if (query.docs.isEmpty) {
         throw 'رقم الهاتف غير مسجل';
       }
+      UserModel user = query.docs.map((doc) => UserModel.fromMap(doc.data())) as UserModel;
 
-      final userData = query.docs.first.data();
-      final userPhone = userData['phone_number'];
+      // final userData = query.docs.first.data();
+      // final userPhone = userData['phone_number'];
 
-      if (userPhone == null || userPhone.toString().isEmpty) {
-        throw 'لا يوجد رقم هاتف مسجل لهذا الحساب';
-      }
+      // if (userPhone == null || userPhone.toString().isEmpty) {
+      //   throw 'لا يوجد رقم هاتف مسجل لهذا الحساب';
+      // }
 
       // 2. توليد رمز تحقق عشوائي (6 أرقام)
       final verificationCode = (100000 + Random().nextInt(900000)).toString();
 
+      await _firestore.collection('code').add({
+        'user_id': user.user_id,
+        'code': verificationCode
+      });
+
       // 3. تنظيف رقم الهاتف
       final cleanUserPhone =
-          userPhone.toString().replaceAll(RegExp(r'[^0-9]'), '');
+          user.phone_number.toString().replaceAll(RegExp(r'[^0-9]'), '');
 
       // 4. إعداد رابط واتساب مع رقم المرسل الثابت
       final message = 'رمز التحقق لتغيير كلمة المرور هو: $verificationCode';

@@ -148,23 +148,25 @@ class StudentController {
     }
   }
 
-  Future<void> updateStudent(StudentModel student, int id, int type) async {
+  Future<void> updateStudent(StudentModel student, int type) async {
     try {
       if (type == 1) {
-        print("Student in update : ${student.grandfatherName}");
-
-        int update = await _sqldb.updateData(
-            "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}' WHERE StudentID = $id");
+        if(await isConnected()){
+          student.isSync = 1;
+          int update = await _sqldb.updateData(
+            "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}', isSync = 1 WHERE StudentID = ${student.studentID}");
         print("Update response: $update");
         print("User ID : ${student.userID}");
         await firebasehelper.updateStudentData(student);
-
-        if (update == 0) {
-          throw Exception("Failed to update student $id");
+        }else{
+          await _sqldb.updateData(
+            "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}', isSync = 0 WHERE StudentID = ${student.studentID}");
         }
+        print("Student in update : ${student.grandfatherName}");
+
       } else {
         int update = await _sqldb.updateData(
-            "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}' WHERE StudentID = $id");
+            "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}' WHERE StudentID = ${student.studentID}");
         print("Update response: $update");
         print("User ID : ${student.userID}");
       }
@@ -266,6 +268,28 @@ class StudentController {
     } catch (e) {
       print("Error removing student from halqa: $e");
       rethrow;
+    }
+  }
+
+  Future<void> addToLocalOfFirebase(int schoolId) async {
+    if (await isConnected()) {
+      List<StudentModel> responseFirebase = await firebasehelper.getStudentData(schoolId);
+      print("responseFirebase = $responseFirebase");
+
+      for (var student in responseFirebase) {
+        bool exists = await sqlDb.checkIfitemExists(
+            "Students", student.studentID!, "StudentID");
+        if (exists) {
+          await updateStudent(student, 0);
+          print('===== Find student (update) =====');
+        } else {
+          await addStudent(student);
+          print('===== Find student (add) =====');
+
+        }
+      }
+    } else {
+      print("لا يوجد اتصال بالانترنت");
     }
   }
 
