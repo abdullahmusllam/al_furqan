@@ -4,6 +4,7 @@ class HalagaModel {
   String? Name;
   int? NumberStudent;
   double? AttendanceRate;
+  String? teacherName;
   int? isSync;
 
   HalagaModel(
@@ -12,6 +13,7 @@ class HalagaModel {
       this.Name,
       this.NumberStudent,
       this.AttendanceRate,
+      this.teacherName,
       this.isSync});
 
   factory HalagaModel.fromJson(Map<String, dynamic> json) {

@@ -17,8 +17,10 @@ class HalqatListPage extends StatefulWidget {
 }
 
 class _HalqatListPageState extends State<HalqatListPage> {
-  // قائمة افتراضية تحتوي على بيانات الحلقات
+  // قائمة الحلقات
   List<HalagaModel> halaqat = [];
+  // خريطة لتخزين أسماء المعلمين بناءً على halagaID
+  Map<String, String> teacherNames = {};
   final HalagaController halagaController = HalagaController();
 
   @override
@@ -30,33 +32,52 @@ class _HalqatListPageState extends State<HalqatListPage> {
     });
   }
 
-  // دالة لجلب الحلقات من قاعدة البيانات
+  // دالة لجلب الحلقات وأسماء المعلمين
   Future<void> _loadHalaqat() async {
     setState(() {
       halaqat = []; // تهيئة القائمة عند تحميل البيانات
+      teacherNames = {}; // تهيئة خريطة أسماء المعلمين
     });
 
     int? schoolID = widget.user?.schoolID;
 
     if (schoolID != null) {
       try {
-        // التأكد من أن القيمة التي تُرجعها getData ليست null
+        // جلب الحلقات
         List<HalagaModel>? loadedHalaqat = await halagaController.getData(schoolID);
-        setState(() {
-          if (loadedHalaqat != null && loadedHalaqat.isNotEmpty) {
-            halaqat = loadedHalaqat;
-            print('تم تحميل ${halaqat.length} حلقة');
-          } else {
-            // عرض رسالة توضيحية عندما تكون القائمة فارغة أو null
-            halaqat = [];
-            print("لا يوجد حلقات");
+        if (loadedHalaqat != null && loadedHalaqat.isNotEmpty) {
+          halaqat = loadedHalaqat;
+          print('تم تحميل ${halaqat.length} حلقة');
+
+          // جلب أسماء المعلمين لكل حلقة
+          for (var halqa in halaqat) {
+            halqa.teacherName = await halagaController.getTeacher(halqa.halagaID!);
+             print(halqa.teacherName);
           }
-        });
+        } else {
+          halaqat = [];
+          print("لا يوجد حلقات");
+        }
+        setState(() {}); // تحديث الواجهة بعد جلب البيانات
       } catch (e) {
         print("خطأ أثناء تحميل الحلقات: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('حدث خطأ أثناء تحميل الحلقات: $e'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
     } else {
       print("schoolID is null");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('معرف المدرسة غير متوفر'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -130,42 +151,13 @@ class _HalqatListPageState extends State<HalqatListPage> {
                       itemCount: halaqat.length,
                       itemBuilder: (context, index) {
                         final halqa = halaqat[index];
-
-                        return FutureBuilder<String>(
-                          future: halagaController.getTeacher(halqa.halagaID!),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0, vertical: 8.0),
-                                child: Card(
-                                  elevation: 3,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                    side: BorderSide(
-                                      color: Colors.teal.withOpacity(0.3),
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Center(child: CircularProgressIndicator()),
-                                  ),
-                                ),
-                              );
-                            } else if (snapshot.hasError) {
-                              print("خطأ في جلب اسم المعلم للحلقة ${halqa.halagaID}: ${snapshot.error}");
-                              return _buildHalqaCard(halqa, 'خطأ في جلب المعلم', Colors.red);
-                            } else {
-                              String teacherName = snapshot.data ?? 'لا يوجد معلم للحلقة';
-                              Color teacherTextColor =
-                                  teacherName == 'لا يوجد معلم للحلقة'
-                                      ? Colors.red
-                                      : Colors.green[700]!;
-                              return _buildHalqaCard(halqa, teacherName, teacherTextColor);
-                            }
-                          },
-                        );
+                        // جلب اسم المعلم من الخريطة
+                        halqa.teacherName ?? 'لا يوجد معلم للحلقة';
+                        Color teacherTextColor =
+                            halqa.teacherName == 'لا يوجد معلم للحلقة'
+                                ? Colors.red
+                                : Colors.green[700]!;
+                        return _buildHalqaCard(halqa, halqa.teacherName ?? '', teacherTextColor);
                       },
                     ),
             ),
@@ -265,7 +257,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
                               SizedBox(width: 4),
                               Expanded(
                                 child: Text(
-                                  teacherName,
+                                  halqa.teacherName ?? '',
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: teacherTextColor,
