@@ -1,4 +1,9 @@
+import 'package:al_furqan/controllers/HalagaController.dart';
+import 'package:al_furqan/controllers/StudentController.dart';
+import 'package:al_furqan/controllers/fathers_controller.dart';
+import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
+import 'package:al_furqan/services/message_sevice.dart';
 import 'package:al_furqan/views/Teacher/DrawerTeacher.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +23,19 @@ class _TeacherDashboardState extends State<TeacherDashboard>
     super.didChangeDependencies();
     // تحديث البيانات في كل مرة يتم الدخول للواجهة
     fetchUserData();
+    loadMessagesAndStudent();
+    halagaController.getHalagatFromFirebase();
+    
+  }
+
+  Future<void> loadMessagesAndStudent() async {
+    final prefs = await SharedPreferences.getInstance();
+    int? Id = prefs.getInt('user_id');
+    print('===== ($Id) =====');
+    await messageService.loadMessagesFromFirestore(Id!);
+    await studentController.addToLocalOfFirebase(schoolID!);
+    await halagaController.getTeachers(schoolID!);
+    await fathersController.getFathersBySchoolId(schoolID!);
   }
 
   @override

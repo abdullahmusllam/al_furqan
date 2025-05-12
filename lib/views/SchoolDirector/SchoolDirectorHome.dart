@@ -7,6 +7,7 @@ import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
+import 'package:al_furqan/services/message_sevice.dart';
 import 'package:al_furqan/views/SchoolDirector/DrawerSchoolDirector.dart';
 import 'package:al_furqan/views/SchoolDirector/add_teacher.dart';
 import 'package:al_furqan/views/login/login.dart';
@@ -33,6 +34,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   int _teacherCount = 0;
   int _studentCount = 0;
   int _halqatCount = 0;
+  
 
   @override
   void initState() {
@@ -41,9 +43,16 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
       loadUsersFromFirebase();
       _loadData();
     });
+    loadMessages();
+  }
+  Future<void> loadMessages() async {
+    final prefs = await SharedPreferences.getInstance();
+    int? Id = prefs.getInt('user_id');
+    print('===== ($Id) =====');
+    await messageService.loadMessagesFromFirestore(Id!);
   }
 
-Future<void> loadUsersFromFirebase() async {
+  Future<void> loadUsersFromFirebase() async {
     List<UserModel> users = await firebasehelper.getUsers();
     for (var user in users) {
       bool exists =
@@ -53,10 +62,11 @@ Future<void> loadUsersFromFirebase() async {
         print('===== Find user (update) =====');
       } else {
         await userController.addUser(user, 0);
-        print('===== Find user (update) =====');
+        print('===== Find user (add) =====');
       }
     }
   }
+
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
 
