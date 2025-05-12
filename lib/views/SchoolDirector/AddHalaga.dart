@@ -392,7 +392,7 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                               _halaqaModel.NumberStudent = studentCount;
                               
                               // إضافة الحلقة
-                              await halagaController.addHalaga(_halaqaModel);
+                              await halagaController.addHalaga(_halaqaModel,1);
 
                               // الحصول على قائمة معرفات الطلاب المحددين
                               List<int> selectedStudentIds = [];
@@ -419,8 +419,8 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                 // تأكيد تعيين عدد الطلاب قبل تحديث الحلقة
                                 _halaqaModel.NumberStudent = studentCount;
                                 await halagaController.updateHalaga(
-                                    _halaqaModel, selectedTeacher!.user_id,1);
-                                    
+                                    _halaqaModel, 1);
+                                await halagaController.updateTeacherAssignment(selectedTeacher!.user_id!, _halaqaModel.halagaID!);
                                 // تحديث elhalagatID للمعلم
                                 selectedTeacher!.elhalagatID = _halaqaModel.halagaID;
                                 await userController.updateUser(selectedTeacher!, 1);

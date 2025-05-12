@@ -1,9 +1,12 @@
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
+import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/views/SchoolDirector/DrawerSchoolDirector.dart';
 import 'package:al_furqan/views/SchoolDirector/add_teacher.dart';
 import 'package:al_furqan/views/login/login.dart';
@@ -35,10 +38,25 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   void initState() {
     super.initState();
     initializeDateFormatting('ar', null).then((_) {
+      loadUsersFromFirebase();
       _loadData();
     });
   }
 
+Future<void> loadUsersFromFirebase() async {
+    List<UserModel> users = await firebasehelper.getUsers();
+    for (var user in users) {
+      bool exists =
+          await sqlDb.checkIfitemExists("Users", user.user_id!, "user_id");
+      if (exists) {
+        await userController.updateUser(user, 0);
+        print('===== Find user (update) =====');
+      } else {
+        await userController.addUser(user, 0);
+        print('===== Find user (update) =====');
+      }
+    }
+  }
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
 

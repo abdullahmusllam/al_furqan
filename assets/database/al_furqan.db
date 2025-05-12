@@ -1,7 +1,7 @@
 
 -- إنشاء جدول المستخدمين مع الربط بالجداول المطلوبة
 CREATE TABLE "Users" (
-    "user_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "user_id" INTEGER NOT NULL PRIMARY KEY ,
     "ActivityID" INTEGER NULL,
     "ElhalagatID" INTEGER NULL,
     "first_name" TEXT NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE "Users" (
 
 -- إنشاء جدول المدارس
 CREATE TABLE "Schools" (
-    "SchoolID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "SchoolID" INTEGER NOT NULL PRIMARY KEY ,
     "school_name" TEXT NOT NULL,
     "school_location" TEXT NOT NULL,
     "isSync" BOOLEAN
@@ -33,14 +33,14 @@ CREATE TABLE "Schools" (
 
 -- إنشاء جدول الأدوار
 CREATE TABLE "Roles" (
-    "RoleID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "RoleID" INTEGER NOT NULL PRIMARY KEY ,
     "Name" TEXT NOT NULL,
     "Description" TEXT
 );
 
 -- إنشاء جدول الأنشطة
 CREATE TABLE "Activities" (
-    "ActivityID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "ActivityID" INTEGER NOT NULL PRIMARY KEY ,
     "ActivityTypeID" INTEGER NOT NULL,
     "Name" TEXT NOT NULL,
     "isSync" BOOLEAN,
@@ -49,7 +49,7 @@ CREATE TABLE "Activities" (
 
 -- إنشاء جدول الحلقات
 CREATE TABLE "Elhalagat" (
-    "halagaID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "halagaID" INTEGER NOT NULL PRIMARY KEY ,
     "SchoolID" INTEGER NOT NULL,
     "Name" TEXT NOT NULL,
     "NumberStudent" INTEGER NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE "Elhalagat" (
 
 -- إنشاء جدول الطلاب
 CREATE TABLE "Students" (
-    "StudentID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "StudentID" INTEGER NOT NULL PRIMARY KEY ,
     "ElhalagatID" INTEGER NULL,
     "SchoolID" INTEGER NULL,
     "userID" INTEGER NULL,
@@ -79,7 +79,7 @@ CREATE TABLE "Students" (
 
 -- إنشاء جدول الأنشطة المدرسية
 CREATE TABLE "School_Activites" (
-    "School_ActiviesID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "School_ActiviesID" INTEGER NOT NULL PRIMARY KEY ,
     "SchoolID" INTEGER NOT NULL,
     "ActivityID" INTEGER NOT NULL,
     "PlannedCount" INTEGER,
@@ -91,14 +91,14 @@ CREATE TABLE "School_Activites" (
 
 -- إنشاء جدول أنواع الأنشطة
 CREATE TABLE "ActivityTypes" (
-    "ActivityTypeID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "ActivityTypeID" INTEGER NOT NULL PRIMARY KEY ,
     "Name" TEXT NOT NULL,
     "isSync" BOOLEAN
 );
 
 -- إنشاء جدول التقارير الشهرية
 CREATE TABLE "MonthlyReports" (
-    "MonthlyReportID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "MonthlyReportID" INTEGER NOT NULL PRIMARY KEY ,
     "SchoolID" INTEGER NOT NULL,
     "Date" TEXT,
     "PlannedMeetings" TEXT,
@@ -112,7 +112,7 @@ CREATE TABLE "MonthlyReports" (
 
 -- إنشاء جدول الدراسات الإسلامية
 CREATE TABLE "IslamicStudies" (
-    "IslamicStudiesID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "IslamicStudiesID" INTEGER NOT NULL PRIMARY KEY ,
     "ElhalagatID" INTEGER NOT NULL,
     "StudentID" INTEGER NOT NULL,
     "Subject" TEXT NOT NULL,
@@ -125,7 +125,7 @@ CREATE TABLE "IslamicStudies" (
 
 -- إنشاء جدول خطط الحفظ
 CREATE TABLE "ConservationPlans" (
-    "ConservationPlanID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "ConservationPlanID" INTEGER NOT NULL PRIMARY KEY ,
     "ElhalagatID" INTEGER NOT NULL,
     "StudentID" INTEGER NOT NULL,
     "PlannedStartSurah" TEXT,
@@ -144,7 +144,7 @@ CREATE TABLE "ConservationPlans" (
 
 -- إنشاء جدول خطط التلاوة
 CREATE TABLE "EltlawahPlans" (
-    "EltlawahPlanID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "EltlawahPlanID" INTEGER NOT NULL PRIMARY KEY ,
     "ElhalagatID" INTEGER NOT NULL,
     "StudentID" INTEGER NOT NULL,
     "PlannedStartSurah" TEXT,
@@ -163,7 +163,7 @@ CREATE TABLE "EltlawahPlans" (
 
 -- إنشاء جدول التوصيات
 CREATE TABLE "Recommendations" (
-    "RecommendationsID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "RecommendationsID" INTEGER NOT NULL PRIMARY KEY ,
     "ElhalagatID" INTEGER NOT NULL,
     "ReasonDelay" TEXT NOT NULL,
     "Recommendation" TEXT NOT NULL,
