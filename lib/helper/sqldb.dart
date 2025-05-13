@@ -35,17 +35,7 @@ class SqlDb {
     print("Database Created Successfully");
   }
 
-  _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // if (oldVersion < 6) {
-    //   await db.execute(
-    //       "ALTER TABLE ConservationPlans ADD COLUMN isSync INTEGER DEFAULT 0");
-    //   await db.execute(
-    //       "ALTER TABLE EltlawahPlans ADD COLUMN isSync INTEGER DEFAULT 0");
-    //   await db.execute(
-    //       "ALTER TABLE IslamicStudies ADD COLUMN isSync INTEGER DEFAULT 0");
-    //   print("Database Upgraded: Added isSync columns");
-    // }
-  }
+  _onUpgrade(Database db, int oldVersion, int newVersion) async {}
 
   Future<String> loadSqlScript() async {
     return await rootBundle.loadString('assets/database/al_furqan.db');

@@ -3,6 +3,7 @@
 import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
 import 'package:al_furqan/views/Teacher/HalagaPlansListScreen.dart';
 import 'package:al_furqan/views/Teacher/HalagaPlansScreen.dart';
+import 'package:al_furqan/views/Teacher/islamic_studies_plans_list.dart';
 // import 'package:al_furqan/views/Teacher/student_plans_list_screen.dart';
 import 'package:al_furqan/views/shared/message_screen.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class DrawerTeacher extends StatefulWidget {
 }
 
 class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
-  HalagaController _halagaController = HalagaController();
+  final HalagaController _halagaController = HalagaController();
   HalagaModel? _teacherHalaga;
   bool _isLoadingHalaga = false;
   String? _errorMessage;
@@ -402,6 +403,19 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                     title: 'العلوم الشرعية',
                     onTap: () {
                       // الانتقال إلى شاشة التقييمات
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => IslamicStudiesPlansListScreen(
+                            halaga: _teacherHalaga!,
+                          ),
+                        ),
+                      ).then((value) {
+                        // إعادة تحميل البيانات عند العودة
+                        if (value == true) {
+                          _loadTeacherHalaga();
+                        }
+                      });
                     },
                   ),
                   _buildMenuItem(

@@ -416,6 +416,49 @@ newTeacher(int halagaId, int teacherId) async {
           "---------------> The Error in addIslamicStudyplan in ((FirebaseService)) : $e");
     }
   }
+  //===================== Update ConservationPlan =================
+  Future<void> updateConservationPlan(
+      ConservationPlanModel plan, int idDoc) async {
+    try {
+      await _firestore
+          .collection("ConservationPlans")
+          .doc(idDoc.toString())
+          .update(plan.toMap());
+      print(
+          "---------------> The updateConservationPlan in ((FirebaseService)) : Done");
+    } catch (e) {
+      print(
+          "---------------> The Error in updateConservationPlan in ((FirebaseService)) : $e");
+    }
+  }
+  //===================== Update EltlawahPlan =================
+  Future<void> updateEltlawahPlan(EltlawahPlanModel plan, int idDoc) async {
+    try {
+      await _firestore
+          .collection("EltlawahPlans")
+          .doc(idDoc.toString())
+          .update(plan.toMap());
+      print(
+          "---------------> The updateEltlawahPlan in ((FirebaseService)) : Done");
+    } catch (e) {
+      print(
+          "---------------> The Error in updateEltlawahPlan in ((FirebaseService)) : $e");
+    }
+  }
+  //===================== Update IslamicStudyplan =================
+  Future<void> updateIslamicStudyplan(IslamicStudiesModel plan, int idDoc) async {
+    try {
+      await _firestore
+          .collection("IslamicStudies")
+          .doc(idDoc.toString())
+          .update(plan.toMap());
+      print(
+          "---------------> The updateIslamicStudyplan in ((FirebaseService)) : Done");
+    } catch (e) {
+      print(
+          "---------------> The Error in updateIslamicStudyplan in ((FirebaseService)) : $e");
+    }
+  }
 } // End of FirebaseHelper class
 
 FirebaseHelper firebasehelper = FirebaseHelper();
