@@ -89,7 +89,6 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
             plannedStartAya: int.tryParse(conservationStartVerseController.text),
             plannedEndSurah: conservationEndSurahController.text,
             plannedEndAya: int.tryParse(conservationEndVerseController.text),
-            planMonth: "2025-05",
             isSync: 0,
           ),
         );
@@ -103,7 +102,6 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
             plannedStartAya: int.tryParse(recitationStartVerseController.text),
             plannedEndSurah: recitationEndSurahController.text,
             plannedEndAya: int.tryParse(recitationEndVerseController.text),
-            planMonth: "2025-05",
             isSync: 0,
           ),
         );
