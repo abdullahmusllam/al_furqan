@@ -214,6 +214,172 @@ class PlanController {
       throw Exception("Failed to delete plan: $e");
     }
   }
+  
+  // دوال تحديث الخطط
+  Future<int> updateConservationPlan2(ConservationPlanModel plan) async {
+    try {
+      final Map<String, dynamic> updateData = plan.toMap();
+      // إزالة المعرف من البيانات لأنه لا يمكن تعديله
+      updateData.remove('ConservationPlanID');
+      
+      // تحديث في قاعدة البيانات المحلية
+      int result = await sqlDb.updateData3(
+        'ConservationPlans',
+        updateData,
+        'ConservationPlanID = ?',
+        [plan.conservationPlanId],
+      );
+      
+      print("------------------> Update ConservationPlan ${plan.conservationPlanId} is: ${result > 0 ? 'Done' : 'Failed'}");
+      
+      // مزامنة مع Firebase إذا كان متصلاً
+      bool hasConnection = await InternetConnectionChecker().hasConnection;
+      if (result > 0 && hasConnection) {
+        plan.isSync = 1;
+        // ملاحظة: تم تعطيل المزامنة المباشرة مع Firebase حاليًا لأن الدالة غير معرفة
+        await firebasehelper.updateConservationPlan(plan, plan.conservationPlanId!);
+        await sqlDb.updateData3(
+          'ConservationPlans',
+          {'isSync': 1},
+          'ConservationPlanID = ?',
+          [plan.conservationPlanId],
+        );
+        print("------------------> isSync: Sync Done for update!");
+      } else {
+        // تحديث علامة المزامنة إلى 0 إذا لم يتم المزامنة
+        await sqlDb.updateData3(
+          'ConservationPlans',
+          {'isSync': 0},
+          'ConservationPlanID = ?',
+          [plan.conservationPlanId],
+        );
+        print("------------------> isSync: update not Sync");
+      }
+
+      // تحديث الخطة في القائمة المحلية
+      if (result > 0) {
+        int index = conservationPlans.indexWhere((p) => p.conservationPlanId == plan.conservationPlanId);
+        if (index != -1) {
+          conservationPlans[index] = plan;
+        }
+      }
+
+      return result;
+    } catch (e) {
+      print("------------------> Error in updateConservationPlan in ((planController)) : $e");
+      return -1;
+    }
+  }
+
+  Future<int> updateEltlawahPlan2(EltlawahPlanModel plan) async {
+    try {
+      final Map<String, dynamic> updateData = plan.toMap();
+      // إزالة المعرف من البيانات لأنه لا يمكن تعديله
+      updateData.remove('EltlawahPlanID');
+      
+      // تحديث في قاعدة البيانات المحلية
+      int result = await sqlDb.updateData3(
+        'EltlawahPlans',
+        updateData,
+        'EltlawahPlanID = ?',
+        [plan.eltlawahPlanId],
+      );
+      
+      print("------------------> Update EltlawahPlan ${plan.eltlawahPlanId} is: ${result > 0 ? 'Done' : 'Failed'}");
+      
+      // مزامنة مع Firebase إذا كان متصلاً
+      bool hasConnection = await InternetConnectionChecker().hasConnection;
+      if (result > 0 && hasConnection) {
+        plan.isSync = 1;
+        // ملاحظة: تم تعطيل المزامنة المباشرة مع Firebase حاليًا لأن الدالة غير معرفة
+        await firebasehelper.updateEltlawahPlan(plan, plan.eltlawahPlanId!);
+        await sqlDb.updateData3(
+          'EltlawahPlans',
+          {'isSync': 1},
+          'EltlawahPlanID = ?',
+          [plan.eltlawahPlanId],
+        );
+        print("------------------> isSync: Sync Done for update!");
+      } else {
+        // تحديث علامة المزامنة إلى 0 إذا لم يتم المزامنة
+        await sqlDb.updateData3(
+          'EltlawahPlans',
+          {'isSync': 0},
+          'EltlawahPlanID = ?',
+          [plan.eltlawahPlanId],
+        );
+        print("------------------> isSync: update not Sync");
+      }
+
+      // تحديث الخطة في القائمة المحلية
+      if (result > 0) {
+        int index = eltlawahPlans.indexWhere((p) => p.eltlawahPlanId == plan.eltlawahPlanId);
+        if (index != -1) {
+          eltlawahPlans[index] = plan;
+        }
+      }
+
+      return result;
+    } catch (e) {
+      print("------------------> Error in updateEltlawahPlan in ((planController)) : $e");
+      return -1;
+    }
+  }
+
+  Future<int> updateIslamicStudies2(IslamicStudiesModel plan) async {
+    try {
+      final Map<String, dynamic> updateData = plan.toMap();
+      // إزالة المعرف من البيانات لأنه لا يمكن تعديله
+      updateData.remove('IslamicStudiesID');
+      
+      // تحديث في قاعدة البيانات المحلية
+      int result = await sqlDb.updateData3(
+        'IslamicStudies',
+        updateData,
+        'IslamicStudiesID = ?',
+        [plan.islamicStudiesID],
+      );
+      
+      print("------------------> Update IslamicStudies ${plan.islamicStudiesID} is: ${result > 0 ? 'Done' : 'Failed'}");
+      
+      // مزامنة مع Firebase إذا كان متصلاً
+      bool hasConnection = await InternetConnectionChecker().hasConnection;
+      if (result > 0 && hasConnection) {
+        plan.isSync = 1;
+        // ملاحظة: تم تعطيل المزامنة المباشرة مع Firebase حاليًا لأن الدالة غير معرفة
+        await firebasehelper.updateIslamicStudyplan(plan, plan.islamicStudiesID!);
+        await sqlDb.updateData3(
+          'IslamicStudies',
+          {'isSync': 1},
+          'IslamicStudiesID = ?',
+          [plan.islamicStudiesID],
+        );
+        print("------------------> isSync: Sync Done for update!");
+      } else {
+        // تحديث علامة المزامنة إلى 0 إذا لم يتم المزامنة
+        await sqlDb.updateData3(
+          'IslamicStudies',
+          {'isSync': 0},
+          'IslamicStudiesID = ?',
+          [plan.islamicStudiesID],
+        );
+        print("------------------> isSync: update not Sync");
+      }
+
+      // تحديث الخطة في القائمة المحلية
+      if (result > 0) {
+        int index = islamicStudyPlans.indexWhere((p) => p.islamicStudiesID == plan.islamicStudiesID);
+        if (index != -1) {
+          islamicStudyPlans[index] = plan;
+        }
+      }
+
+      return result;
+    } catch (e) {
+      print("------------------> Error in updateIslamicStudies in ((planController)) : $e");
+      return -1;
+    }
+  }
 }
 
 PlanController planController = PlanController();
