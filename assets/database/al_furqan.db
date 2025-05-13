@@ -178,5 +178,6 @@ CREATE TABLE "messages" (
       "content" TEXT NOT NULL,
       "timestamp" TEXT NOT NULL,
       "sync" INTEGER NOT NULL,
-      "senderType" TEXT NOT NULL
+      "senderType" TEXT NOT NULL,
+      "isRead" INTEGER DEFAULT 0
 );

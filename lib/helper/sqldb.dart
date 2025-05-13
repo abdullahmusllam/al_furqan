@@ -17,7 +17,7 @@ class SqlDb {
     String path = join(databasePath, 'alforqanDB.db');
     Database mydb = await openDatabase(
       path,
-      version: 6, // زوّدنا الإصدار عشان التعديلات
+      version: 7, // زوّدنا الإصدار عشان إضافة عمود isRead
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -34,6 +34,7 @@ class SqlDb {
     }
     print("Database Created Successfully");
   }
+
 
   _onUpgrade(Database db, int oldVersion, int newVersion) async {}
 

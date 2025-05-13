@@ -2,6 +2,7 @@ import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/services/message_sevice.dart';
 import 'package:al_furqan/views/Teacher/DrawerTeacher.dart';
@@ -17,25 +18,66 @@ class TeacherDashboard extends StatefulWidget {
 }
 
 class _TeacherDashboardState extends State<TeacherDashboard>
-    with UserDataMixin {
+    with UserDataMixin, WidgetsBindingObserver {
+  int _unreadMessagesCount = 0;
+  
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // تحديث البيانات في كل مرة يتم الدخول للواجهة
+  void initState() {
+    super.initState();
+    // إضافة مراقب دورة حياة التطبيق
+    WidgetsBinding.instance.addObserver(this);
+    
+    // Initial data loading
     fetchUserData();
     loadMessagesAndStudent();
     halagaController.getHalagatFromFirebase();
-    
+  }
+  
+  @override
+  void dispose() {
+    // إزالة مراقب دورة حياة التطبيق
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+  
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // تحديث عدد الإشعارات عند العودة للتطبيق
+    if (state == AppLifecycleState.resumed) {
+      updateNotificationCount();
+    }
+  }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
 
+  // تحميل الرسائل وبيانات الطلاب
   Future<void> loadMessagesAndStudent() async {
     final prefs = await SharedPreferences.getInstance();
     int? Id = prefs.getInt('user_id');
     print('===== ($Id) =====');
+    
+    // تحميل الرسائل من فايربيس
     await messageService.loadMessagesFromFirestore(Id!);
+    
+    // تحديث عدد الإشعارات
+    await updateNotificationCount();
+    
+    // تحميل بيانات الطلاب والمعلمين
     await studentController.addToLocalOfFirebase(schoolID!);
     await halagaController.getTeachers(schoolID!);
     await fathersController.getFathersBySchoolId(schoolID!);
+  }
+  
+  // تحديث عدد الإشعارات
+  Future<void> updateNotificationCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    int? Id = prefs.getInt('user_id');
+    if (Id != null) {
+      _unreadMessagesCount = await messageController.getUnreadMessagesCount(Id);
+      setState(() {}); // تحديث واجهة المستخدم
+    }
   }
 
   @override
@@ -47,8 +89,11 @@ class _TeacherDashboardState extends State<TeacherDashboard>
           // زر تحديث البيانات
           IconButton(
             onPressed: () {
+              updateNotificationCount();
               // استدعاء دالة تحديث البيانات مباشرة (ستقوم بتحديث حالة التحميل داخلياً)
               fetchUserData().then((_) {
+                // تحديث عدد الإشعارات عند الضغط على زر التحديث
+                updateNotificationCount();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('تم تحديث البيانات بنجاح'),
@@ -145,24 +190,55 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                   ),
                                 ),
                                 SizedBox(width: 16),
-                                // كارد 2
+                                // كارد 2 - بطاقة الإشعارات
                                 Expanded(
                                   child: Card(
                                     elevation: 6,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    color: Colors.white,
+                                    color: Theme.of(context).primaryColor,
                                     shadowColor: Colors.grey.withOpacity(0.3),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16.0),
-                                      child: Center(
-                                        child: Text(
-                                          'اسم المعلم',
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold),
-                                        ),
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                'الإشعارات',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              CircleAvatar(
+                                                radius: 12,
+                                                backgroundColor: Colors.white,
+                                                child: Text(
+                                                  '$_unreadMessagesCount',
+                                                  style: TextStyle(
+                                                    color: Theme.of(context).primaryColor,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 8),
+                                          Text(
+                                            _unreadMessagesCount > 0
+                                                ? 'لديك $_unreadMessagesCount رسائل جديدة'
+                                                : 'لا توجد رسائل جديدة',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.white.withOpacity(0.9),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
