@@ -93,6 +93,34 @@ class FirebaseHelper {
       await messageController.updateMessage(message);
     }
   }
+  
+  // تحديث حالة قراءة الرسائل في الفايربيس
+  Future<void> updateMessagesReadStatus(int receiverId) async {
+    try {
+      if (await isConnected()) {
+        // جلب الرسائل غير المقروءة مباشرة من فايربيس
+        QuerySnapshot snapshot = await FirebaseFirestore.instance
+            .collection('messages')
+            .where('receiverId', isEqualTo: receiverId)
+            .where('isRead', isEqualTo: 0)
+            .get();
+        
+        // تحديث كل رسالة في الفايربيس
+        int updatedCount = 0;
+        for (var doc in snapshot.docs) {
+          await FirebaseFirestore.instance
+              .collection('messages')
+              .doc(doc.id)
+              .update({'isRead': 1});
+          updatedCount++;
+        }
+        
+        print('تم تحديث حالة قراءة $updatedCount رسالة في الفايربيس');
+      }
+    } catch (e) {
+      print('خطأ في تحديث حالة قراءة الرسائل في الفايربيس: $e');
+    }
+  }
 }
 
 FirebaseHelper messageService = FirebaseHelper();

@@ -17,7 +17,7 @@ class SqlDb {
     String path = join(databasePath, 'alforqanDB.db');
     Database mydb = await openDatabase(
       path,
-      version: 6, // زوّدنا الإصدار عشان التعديلات
+      version: 7, // زوّدنا الإصدار عشان إضافة عمود isRead
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -36,15 +36,15 @@ class SqlDb {
   }
 
   _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // if (oldVersion < 6) {
-    //   await db.execute(
-    //       "ALTER TABLE ConservationPlans ADD COLUMN isSync INTEGER DEFAULT 0");
-    //   await db.execute(
-    //       "ALTER TABLE EltlawahPlans ADD COLUMN isSync INTEGER DEFAULT 0");
-    //   await db.execute(
-    //       "ALTER TABLE IslamicStudies ADD COLUMN isSync INTEGER DEFAULT 0");
-    //   print("Database Upgraded: Added isSync columns");
-    // }
+    // Add isRead column to messages table for version 7
+    if (oldVersion < 7) {
+      try {
+        await db.execute("ALTER TABLE messages ADD COLUMN isRead INTEGER DEFAULT 0");
+        print("Database Upgraded: Added isRead column to messages table");
+      } catch (e) {
+        print("Error upgrading database: $e");
+      }
+    }
   }
 
   Future<String> loadSqlScript() async {

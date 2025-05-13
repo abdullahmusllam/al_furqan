@@ -2,14 +2,15 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/services/message_sevice.dart';
+import 'package:al_furqan/services/sync.dart';
 import 'package:al_furqan/views/SchoolDirector/DrawerSchoolDirector.dart';
-import 'package:al_furqan/views/SchoolDirector/add_teacher.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,7 @@ class SchoolManagerScreen extends StatefulWidget {
 }
 
 class _SchoolManagerScreenState extends State<SchoolManagerScreen>
-    with UserDataMixin {
+    with UserDataMixin, WidgetsBindingObserver {
   final teachers = teacherController.teachers;
   final students = studentController.students;
   List<dynamic> _recentActivities = [];
@@ -34,22 +35,60 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   int _teacherCount = 0;
   int _studentCount = 0;
   int _halqatCount = 0;
+  int _unreadMessagesCount = 0;
   
 
   @override
   void initState() {
     super.initState();
+    // إضافة مراقب دورة حياة التطبيق
+    WidgetsBinding.instance.addObserver(this);
+    
+    sync.syncUsers();
+    sync.syncElhalagat();
+    sync.syncStudents();
     initializeDateFormatting('ar', null).then((_) {
       loadUsersFromFirebase();
       _loadData();
     });
     loadMessages();
   }
+  
+  @override
+  void dispose() {
+    // إزالة مراقب دورة حياة التطبيق
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+  
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // تحديث عدد الإشعارات عند العودة للتطبيق
+    if (state == AppLifecycleState.resumed) {
+      updateNotificationCount();
+    }
+  }
+  // تحميل الرسائل
   Future<void> loadMessages() async {
     final prefs = await SharedPreferences.getInstance();
     int? Id = prefs.getInt('user_id');
     print('===== ($Id) =====');
+    
+    // تحميل الرسائل من فايربيس
     await messageService.loadMessagesFromFirestore(Id!);
+    
+    // تحديث عدد الإشعارات
+    await updateNotificationCount();
+  }
+  
+  // تحديث عدد الإشعارات
+  Future<void> updateNotificationCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    int? Id = prefs.getInt('user_id');
+    if (Id != null) {
+      _unreadMessagesCount = await messageController.getUnreadMessagesCount(Id);
+      setState(() {}); // تحديث واجهة المستخدم
+    }
   }
 
   Future<void> loadUsersFromFirebase() async {
@@ -145,7 +184,10 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               ),
         actions: [
           IconButton(
-            onPressed: _loadData,
+            onPressed: () {
+              _loadData();
+              updateNotificationCount(); // تحديث عدد الإشعارات عند الضغط على زر التحديث
+            },
             icon: Icon(Icons.refresh, color: Colors.white),
             tooltip: 'تحديث البيانات',
           ),
@@ -298,7 +340,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                   ),
                   SizedBox(height: 4),
                   Text(
-                    "لديك ${_recentActivities.length} تحديثات جديدة",
+                    "لديك ${_unreadMessagesCount} رسائل جديدة",
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white.withOpacity(0.9),

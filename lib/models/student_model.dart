@@ -49,18 +49,18 @@ class StudentModel {
 
   factory StudentModel.fromJson(Map<String, dynamic> json) {
     // معالجة ElhalagatID إذا كان نصاً
-    // int? elhalaqaID;
-    // if (json['ElhalagatID'] != null) {
-    //   if (json['ElhalagatID'] is String) {
-    //     elhalaqaID = int.tryParse(json['ElhalagatID']);
-    //   } else {
-    //     elhalaqaID = json['ElhalagatID'] as int?;
-    //   }
-    // }
+    int? elhalaqaID;
+    if (json['ElhalagatID'] != null) {
+      if (json['ElhalagatID'] is String) {
+        elhalaqaID = int.tryParse(json['ElhalagatID']);
+      } else {
+        elhalaqaID = json['ElhalagatID'] as int?;
+      }
+    }
 
     return StudentModel(
       studentID: json['StudentID'] ,
-      elhalaqaID: json['ElhalagatID'],
+      elhalaqaID: elhalaqaID,
       schoolId: json['SchoolID'],
       userID: json['userID'],
       firstName: json['FirstName'],
