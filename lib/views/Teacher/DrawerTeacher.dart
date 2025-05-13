@@ -4,6 +4,7 @@ import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
 import 'package:al_furqan/views/Teacher/HalagaPlansListScreen.dart';
 import 'package:al_furqan/views/Teacher/HalagaPlansScreen.dart';
 import 'package:al_furqan/views/Teacher/islamic_studies_plans_list.dart';
+import 'package:al_furqan/views/shared/main_screen.dart';
 // import 'package:al_furqan/views/Teacher/student_plans_list_screen.dart';
 import 'package:al_furqan/views/shared/message_screen.dart';
 import 'package:flutter/material.dart';
@@ -426,8 +427,8 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ChatScreen(
-                            user: user!,
+                          builder: (context) => MainScreen(
+                            currentUser: user!,
                           ),
                         ),
                       );

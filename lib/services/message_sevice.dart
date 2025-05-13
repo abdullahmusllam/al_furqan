@@ -11,50 +11,88 @@ class FirebaseHelper {
   // Check internet connectivity
   Future<bool> isConnected() async {
     var conn = InternetConnectionChecker.createInstance().hasConnection;
-    return conn ;
+    return conn;
   }
 
-  // Save message to Firebase and local if online, otherwise only local
-  Future<void> saveMessage(Message message) async {
-    message.id = await someController.newId('messages', 'id');
-    if (await isConnected()) {
-      // Save to Firebase
-      await _firestore.collection('messages').add(message.toJson());
-      // Save to local with sync = 1
-      message.sync = 1;
-      await messageController.saveMessage(message, message.id!);
-      print('===== تم اضافة المحادثة بنجاح =====');
-    } else {
-      // Save to local with sync = 0
-      message.sync = 0;
-      await messageController.saveMessage(message, message.id!);
-      print('===== تم الاضافة لكن محليا =====');
+  Future<void> loadMessagesFromFirestore(int receiverId) async {
+  try {
+    // جلب الرسائل من Firestore بناءً على receiverId
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('messages')
+        .where('receiverId', isEqualTo: receiverId)
+        .get();
+
+    if (snapshot.docs.isEmpty) {
+      print('============ فااااااارغ ============');
     }
+
+    // حفظ الرسائل في قاعدة البيانات المحلية وتحويلها
+    for (var doc in snapshot.docs) {
+      Message message = Message.fromMap(doc.data() as Map<String, dynamic>);
+
+      bool exists =   
+          await sqlDb.checkIfitemExists('messages', message.id!, 'id');
+                print('================== 1');
+
+      if (exists) {
+        await messageService.updateMessage(message, 0);
+        print('===== Find message (update) =====');
+      } else {
+        await messageService.saveMessage(message, 0);
+        print('===== Find message (add) =====');
+      }
+    }
+  } catch (e) {
+    print('خطأ في جلب الرسائل من Firestore: $e');
+  }
+}
+
+  // Save message to Firebase and local if online, otherwise only local
+  Future<void> saveMessage(Message message, int type) async {
+    if (type == 1) {
+      message.id = await someController.newId('messages', 'id');
+      if (await isConnected()) {
+        message.sync = 1;
+        await _firestore.collection('messages').doc(message.id.toString()).set(message.toJson());
+        await messageController.saveMessage(message);
+      } else {
+        // Save to local with sync = 0
+        message.sync = 0;
+        await messageController.saveMessage(message);
+        print('===== تم الاضافة لكن محليا =====');
+      }
+    } else {
+      await messageController.saveMessage(message);
+    }
+    print('===== تم اضافة المحادثة بنجاح =====');
   }
 
   // Delete message from Firebase and local
   Future<void> deleteMessage(String firebaseId, int localId) async {
-
     if (await isConnected()) {
       await _firestore.collection('messages').doc(firebaseId).delete();
     }
     await messageController.deleteMessage(localId);
   }
 
-  Future<void> updateMessage(Message message) async {
-  if (await isConnected()) {
-    // Update in Firebase
-    await _firestore.collection('messages').doc(message.id.toString()).update(message.toJson());
-    // Update local with sync = 1
-    message.sync = 1;
-    await messageController.updateMessage(message);
-    print('===== تم تعديل المحادثة بنجاح =====');
-  } else {
-    // Update local with sync = 0
-    message.sync = 0;
-    await messageController.updateMessage(message);
-    print('===== تم التعديل محليًا =====');
+  Future<void> updateMessage(Message message, int type) async {
+    if (type == 1) {
+      if (await isConnected()) {
+        message.sync = 1;
+        await _firestore
+            .collection('messages')
+            .doc(message.id.toString())
+            .update(message.toJson());
+        await messageController.updateMessage(message);
+      } else {
+        message.sync = 0;
+        await messageController.updateMessage(message);
+        print('===== تم التعديل محليا =====');
+      }
+    } else {
+      await messageController.updateMessage(message);
+    }
   }
 }
-}
-FirebaseHelper firebaseHelper = FirebaseHelper();
+
+FirebaseHelper messageService = FirebaseHelper();

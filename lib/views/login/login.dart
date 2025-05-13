@@ -47,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
         print('===== Find user (update) =====');
       } else {
         await userController.addUser(user, 0);
-        print('===== Find user (update) =====');
+        print('===== Find user (add) =====');
       }
     }
   }
@@ -144,6 +144,10 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     id = user.user_id!;
     await saveUserLogin(phone, user.roleID!, user.isActivate!);
+    final per = await SharedPreferences.getInstance();
+    await per.setInt('user_id', id);
+    await per.setInt('schoolId', user.schoolID!);
+    print('===== save id ($id) =====');
     await chooseScreen(context);
   }
 

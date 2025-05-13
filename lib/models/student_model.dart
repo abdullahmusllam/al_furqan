@@ -11,6 +11,7 @@ class StudentModel {
   int? absenceDays;
   String? excuse;
   String? reasonAbsence;
+  int? isSync;
 
   StudentModel({
     this.studentID,
@@ -25,6 +26,7 @@ class StudentModel {
     this.absenceDays,
     this.excuse,
     this.reasonAbsence,
+    this.isSync
   });
 
   Map<String, dynamic> toMap() {
@@ -40,44 +42,36 @@ class StudentModel {
       'AttendanceDays': attendanceDays,
       'AbsenceDays': absenceDays,
       'Excuse': excuse,
-      'ReasonAbsence': reasonAbsence
+      'ReasonAbsence': reasonAbsence,
+      'isSync': isSync
     };
   }
 
   factory StudentModel.fromJson(Map<String, dynamic> json) {
     // معالجة ElhalagatID إذا كان نصاً
-    int? elhalaqaID;
-    if (json['ElhalagatID'] != null) {
-      if (json['ElhalagatID'] is String) {
-        elhalaqaID = int.tryParse(json['ElhalagatID']);
-      } else {
-        elhalaqaID = json['ElhalagatID'] as int?;
-      }
-    }
+    // int? elhalaqaID;
+    // if (json['ElhalagatID'] != null) {
+    //   if (json['ElhalagatID'] is String) {
+    //     elhalaqaID = int.tryParse(json['ElhalagatID']);
+    //   } else {
+    //     elhalaqaID = json['ElhalagatID'] as int?;
+    //   }
+    // }
 
     return StudentModel(
-      studentID: json['StudentID'] is String
-          ? int.tryParse(json['StudentID'])
-          : json['StudentID'] as int?,
-      elhalaqaID: elhalaqaID,
-      schoolId: json['SchoolID'] is String
-          ? int.tryParse(json['SchoolID'])
-          : json['SchoolID'] as int?,
-      userID: json['userID'] is String
-          ? int.tryParse(json['userID'])
-          : json['userID'] as int?,
-      firstName: json['FirstName'] as String?,
-      middleName: json['MiddleName'] as String?,
-      grandfatherName: json['grandfatherName'] as String?,
+      studentID: json['StudentID'] ,
+      elhalaqaID: json['ElhalagatID'],
+      schoolId: json['SchoolID'],
+      userID: json['userID'],
+      firstName: json['FirstName'],
+      middleName: json['MiddleName'],
+      grandfatherName: json['grandfatherName'] ,
       lastName: json['LastName'] as String?,
-      attendanceDays: json['AttendanceDays'] is String
-          ? int.tryParse(json['AttendanceDays'])
-          : json['AttendanceDays'] as int?,
-      absenceDays: json['AbsenceDays'] is String
-          ? int.tryParse(json['AbsenceDays'])
-          : json['AbsenceDays'] as int?,
+      attendanceDays: json['AttendanceDays'],
+      absenceDays: json['AbsenceDays'] ,
       excuse: json['Excuse'] as String?,
-      reasonAbsence: json['ReasonAbsence'] as String?,
+      reasonAbsence: json['ReasonAbsence'] ,
+      isSync: json['isSync']
     );
   }
 }
