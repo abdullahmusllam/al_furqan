@@ -192,12 +192,12 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.chat_bubble_outline,
-                            size: 64, color: Colors.grey.shade400),
+                            size: 64, color: Theme.of(context).disabledColor),
                         SizedBox(height: 16),
                         Text(
                           'لا توجد محادثات',
                           style: TextStyle(
-                              fontSize: 18, color: Colors.grey.shade700),
+                              fontSize: 18, color: Theme.of(context).textTheme.bodyLarge?.color),
                         ),
                         SizedBox(height: 24),
                         ElevatedButton.icon(
@@ -386,7 +386,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
           ).then((_) => loadConversations());
         },
         child: Icon(Icons.add_comment, color: Colors.white),
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: Theme.of(context).primaryColor,
         tooltip: 'محادثة جديدة',
       ),
     );

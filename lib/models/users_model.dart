@@ -31,7 +31,7 @@ class UserModel {
     this.email,
     this.password,
     this.roleID,
-    this.schoolID,
+    this.schoolID = 0,
     this.date,
     this.isActivate = 0,
     this.isSync,

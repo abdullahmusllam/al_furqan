@@ -7,7 +7,7 @@ import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
 import 'package:al_furqan/views/SchoolDirector/SchoolDirectorHome.dart';
 import 'package:al_furqan/views/Teacher/mainTeacher.dart';
-import 'package:al_furqan/views/login/forgot_password.dart';
+import 'package:al_furqan/views/auth/forgot_password_screen.dart';
 import 'package:al_furqan/views/login/signup_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
