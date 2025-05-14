@@ -118,7 +118,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('تم إرسال الرسالة'),
-          backgroundColor: Colors.green,
+          backgroundColor: Theme.of(context).primaryColor,
         ),
       );
     } catch (e) {
@@ -227,7 +227,7 @@ class _ChatScreenState extends State<ChatScreen> {
           if (!showReceivedMessages)
             Container(
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              color: Colors.grey.shade50,
+              color: Theme.of(context).primaryColor.withOpacity(0.1),
               child: Row(
                 children: [
                   CircleAvatar(
@@ -294,14 +294,14 @@ class _ChatScreenState extends State<ChatScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.chat_bubble_outline,
-                              size: 64, color: Colors.grey.shade400),
+                              size: 64, color: Theme.of(context).disabledColor),
                           SizedBox(height: 16),
                           Text(
                             showReceivedMessages
                                 ? 'لا توجد رسائل مستلمة'
                                 : 'لا توجد رسائل، ابدأ المحادثة!',
                             style: TextStyle(
-                                fontSize: 18, color: Colors.grey.shade700),
+                                fontSize: 18, color: Theme.of(context).textTheme.bodyLarge?.color),
                           ),
                         ],
                       ),
@@ -375,7 +375,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                         _formatTimestamp(message.timestamp),
                                         style: TextStyle(
                                           fontSize: 11, 
-                                          color: Colors.grey.shade700,
+                                          color: Theme.of(context).primaryColor,
                                         ),
                                       ),
                                     ],
@@ -441,7 +441,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   SizedBox(width: 8),
                   Material(
-                    color: Colors.blue.shade700,
+                    color: Theme.of(context).primaryColor,
                     borderRadius: BorderRadius.circular(24),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(24),

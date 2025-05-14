@@ -7,6 +7,7 @@ import 'package:al_furqan/models/islamic_studies_model.dart';
 import 'package:al_furqan/models/schools_model.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/models/verification_code_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -273,6 +274,24 @@ newTeacher(int halagaId, int teacherId) async {
     }
   }
 
+  Future<UserModel?> getUserByPhoneNumber(int phoneNumber) async {
+    try {
+      final docRef = _firestore.collection('Users');
+      final snapshot = await docRef
+          .where('phone_number', isEqualTo: phoneNumber)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        return UserModel.fromMap(snapshot.docs.first.data());
+      }
+      return null;
+    } catch (e) {
+      print('حدث خطأ: $e');
+      return null;
+    }
+  }
+
   Future<List<UserModel>> getUsers() async {
     try {
       final docRef = _firestore.collection('Users');
@@ -284,83 +303,12 @@ newTeacher(int halagaId, int teacherId) async {
     }
   }
 
-// services/password_service.dart
-  // إرسال رمز التحقق عبر واتساب
-  Future<String> sendWhatsAppVerification(int number) async {
-    try {
-      // 1. البحث عن المستخدم في Firestore
-      final query = await _firestore
-          .collection('Users')
-          .where('phone_number', isEqualTo: number)
-          .limit(1)
-          .get();
-
-      print(query.docs.first.data());
-
-      if (query.docs.isEmpty) {
-        throw 'رقم الهاتف غير مسجل';
-      }
-      UserModel user = query.docs.map((doc) => UserModel.fromMap(doc.data())) as UserModel;
-
-      // final userData = query.docs.first.data();
-      // final userPhone = userData['phone_number'];
-
-      // if (userPhone == null || userPhone.toString().isEmpty) {
-      //   throw 'لا يوجد رقم هاتف مسجل لهذا الحساب';
-      // }
-
-      // 2. توليد رمز تحقق عشوائي (6 أرقام)
-      final verificationCode = (100000 + Random().nextInt(900000)).toString();
-
-      await _firestore.collection('code').add({
-        'user_id': user.user_id,
-        'code': verificationCode
-      });
-
-      // 3. تنظيف رقم الهاتف
-      final cleanUserPhone =
-          user.phone_number.toString().replaceAll(RegExp(r'[^0-9]'), '');
-
-      // 4. إعداد رابط واتساب مع رقم المرسل الثابت
-      final message = 'رمز التحقق لتغيير كلمة المرور هو: $verificationCode';
-
-      final whatsappUrl =
-          "https://wa.me/$cleanUserPhone?text=${Uri.encodeComponent(message)}"; // إضافة رقم المرسل
-      // 5. إرسال الرسالة
-      if (await canLaunch(whatsappUrl)) {
-        await launch(whatsappUrl);
-        return verificationCode;
-      } else {
-        throw 'لا يمكن فتح واتساب';
-      }
-    } catch (e) {
-      // throw 'فشل إرسال الرمز: ${e.toString()}';
-      print(e.toString());
-      return null!;
-    }
-  }
+  
+  // Generate verification code for a request
+  
 
   // تحديث كلمة المرور في Firestore
-  Future<void> updatePassword(int idNumber, String newPassword) async {
-    try {
-      final query = await _firestore
-          .collection('Users')
-          .where('phone_number', isEqualTo: idNumber)
-          .limit(1)
-          .get();
-
-      if (query.docs.isEmpty) {
-        throw 'رقم الهاتف غير مسجل';
-      }
-
-      await query.docs.first.reference.update({
-        'password': newPassword, // يجب تشفير كلمة المرور في التطبيق الحقيقي
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-    } catch (e) {
-      throw 'فشل تحديث كلمة المرور: ${e.toString()}';
-    }
-  }
+  
   // =========================== End User =================================
 
   Future<bool> checkDocumentExists(String collection, int id) async {
