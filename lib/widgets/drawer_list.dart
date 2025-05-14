@@ -1,10 +1,9 @@
 // ignore: file_names
 
-import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
-import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
 import 'package:al_furqan/views/Supervisor/show_all_schools.dart';
 import 'package:al_furqan/views/Supervisor/show_all_teacher.dart';
+import 'package:al_furqan/views/supervisor/verification_requests_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
@@ -81,9 +80,13 @@ class DrawerList extends StatelessWidget {
           ),
           _createDrawerItem(
             icon: Icons.notifications,
-            text: 'الإشعارات',
+            text: 'طلبات التحقق',
             onTap: () {
-              // Navigate to notifications page
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                    builder: (context) => VerificationRequestsScreen()),
+              );
             },
           ),
         ],

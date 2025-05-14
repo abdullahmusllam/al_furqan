@@ -3,9 +3,12 @@ import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/password_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:al_furqan/services/verification_service.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class UserController {
+  final VerificationService _verificationService = VerificationService();
   final List<UserModel> _users = [];
   final List<UserModel> _requests = [];
   final SqlDb _sqlDb = SqlDb();
@@ -180,7 +183,6 @@ class UserController {
       print("responseFirebase = $responseFirebase");
 
       for (var user in responseFirebase) {
-        // UserModel userModel = UserModel.fromJson(user.toMap());
         bool exists = await _sqlDb.checkIfitemExists(
             "Users", user.user_id!, "user_id");
         if (exists) {
@@ -194,37 +196,6 @@ class UserController {
       await getDataUsers();
     }
   }
-
-  // إرسال رمز التحقق
-  Future<void> sendVerificationCode(int phoneNumber) async {
-    _model.phoneNumber = phoneNumber;
-    _model.generatedCode = await _service.sendWhatsAppVerification(phoneNumber);
-    _model.codeSent = true;
-  }
-
-  // تغيير كلمة المرور
-  Future<void> resetPassword() async {
-    if (!_model.isValidCode) {
-      throw 'رمز التحقق غير صحيح';
-    }
-
-    if (!_model.isValidNewPassword) {
-      throw 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
-    }
-
-    await _service.updatePassword(
-      _model.phoneNumber!,
-      _model.newPassword!,
-    );
-  }
-
-  // Getters للوصول إلى بيانات النموذج
-  bool get codeSent => _model.codeSent;
-  int? get phoneNumber => _model.phoneNumber;
-
-  // Setters لتحديث بيانات النموذج
-  set verificationCode(String code) => _model.verificationCode = code;
-  set newPassword(String password) => _model.newPassword = password;
 
   // إضافة بيانات الأب إلى Firebase
   Future<void> addFatherToFirebase(UserModel fatherData, int schoolID) async {

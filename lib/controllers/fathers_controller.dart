@@ -85,41 +85,52 @@ class FathersController {
   }
 
   Future<List<UserModel>> getFathersByElhalagaId(int elhalagatID) async {
-    // print('============================================= $elhalagatID');
-    try{
-  List<Map<String, dynamic>> response = await _sqlDb.readData(
-      "SELECT * FROM Users JOIN Students ON Users.user_id = Students.userID WHERE Students.ElhalagatID = $elhalagatID"
-  );
+    print('getFathersByElhalagaId called with elhalagatID: $elhalagatID');
+    try {
+      // المشكلة قد تكون في العلاقة بين الجداول - نستخدم استعلام مختلف
+      // نحاول الحصول على آباء الطلاب في الحلقة المحددة
+      List<Map<String, dynamic>> response = await _sqlDb.readData(
+        """SELECT DISTINCT Users.* FROM Users 
+           JOIN Students ON Users.user_id = Students.fatherID 
+           WHERE Students.ElhalagatID = $elhalagatID AND Users.roleID = 3"""
+      );
 
-  List<UserModel> fathers = [];
+      print("Query result count: ${response.length}");
+      
+      if (response.isEmpty) {
+        // محاولة استعلام بديل إذا كان الاستعلام الأول لا يعيد نتائج
+        response = await _sqlDb.readData(
+          """SELECT DISTINCT Users.* FROM Users 
+             JOIN Students ON Users.user_id = Students.userID 
+             WHERE Students.ElhalagatID = $elhalagatID AND Users.roleID = 3"""
+        );
+        print("Alternative query result count: ${response.length}");
+      }
 
-  for (var e in response) {
-    UserModel father = UserModel(
-      user_id: e['user_id'],
-      first_name: e['first_name'],
-      middle_name: e['middle_name'],
-      // grandfather_name: e['grandfather_name'],
-      last_name: e['last_name'],
-      phone_number: e['phone_number'],
-      telephone_number: e['telephone_number'],
-      email: e['email'],
-      // password: e['password'],
-      // roleID: e['roleID'],
-      // schoolID: e['schoolID'],
-      // date: e['date'],
-      // isActivate: e['isActivate'],
-    );
-      print("===========================Fathers List : ${fathers.length}");
-    fathers.add(father);
-    
-  }
+      List<UserModel> fathers = [];
 
-  return fathers;
-    } catch (e){
-      print('error $e');
+      for (var e in response) {
+        print("Processing user: ${e['first_name']} (ID: ${e['user_id']})");
+        UserModel father = UserModel(
+          user_id: e['user_id'],
+          first_name: e['first_name'],
+          middle_name: e['middle_name'],
+          last_name: e['last_name'],
+          phone_number: e['phone_number'],
+          telephone_number: e['telephone_number'],
+          email: e['email'],
+          roleID: e['roleID'],
+        );
+        fathers.add(father);
+      }
+
+      print("Total fathers found: ${fathers.length}");
+      return fathers;
+    } catch (e) {
+      print('Error in getFathersByElhalagaId: $e');
       return [];
     }
-}
+  }
 
 Future<List<UserModel>> getFathersBySchoolId(int schoolID) async {
   // print('========================================= father');

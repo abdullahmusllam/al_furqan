@@ -17,7 +17,7 @@ class SqlDb {
     String path = join(databasePath, 'alforqanDB.db');
     Database mydb = await openDatabase(
       path,
-      version: 7, // زوّدنا الإصدار عشان التعديلات
+      version: 8, // زوّدنا الإصدار عشان التعديلات
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -80,6 +80,7 @@ class SqlDb {
         print("---------------------------> Error upgrading database: $e");
       }
   }
+
 
   Future<String> loadSqlScript() async {
     return await rootBundle.loadString('assets/database/al_furqan.db');

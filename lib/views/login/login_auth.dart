@@ -1,15 +1,11 @@
-import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
-import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
-import 'package:al_furqan/views/login/forgot_password.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../models/users_model.dart';
 import '../SchoolDirector/SchoolDirectorHome.dart';
 import '../Teacher/mainTeacher.dart';
-import 'signup_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 int id = 0;

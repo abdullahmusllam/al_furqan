@@ -6,6 +6,7 @@ class Message {
   String timestamp;
   int sync;
   String senderType;
+  int isRead; // 0 = unread, 1 = read
 
   Message({
     this.id,
@@ -15,6 +16,7 @@ class Message {
     required this.timestamp,
     required this.sync,
     required this.senderType,
+    this.isRead = 0, // Default to unread
   });
 
   // Convert Message to Map for SQLite
@@ -27,6 +29,7 @@ class Message {
       'timestamp': timestamp,
       'sync': sync,
       'senderType': senderType,
+      'isRead': isRead,
     };
   }
 
@@ -40,6 +43,7 @@ class Message {
     timestamp: map['timestamp'] ?? '',
     sync: map['sync'] ?? 0,
     senderType: map['senderType'] ?? '',
+    isRead: map['isRead'] ?? 0,
   );
 }
 
@@ -54,6 +58,7 @@ class Message {
       'timestamp': timestamp,
       'sync':sync,
       'senderType': senderType,
+      'isRead': isRead,
     };
   }
 
@@ -67,6 +72,7 @@ class Message {
       timestamp: json['timestamp'],
       sync: 1, // Synced messages from Firebase
       senderType: json['senderType'],
+      isRead: json['isRead'] ?? 0,
     );
   }
 }

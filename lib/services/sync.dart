@@ -69,12 +69,11 @@ class Sync {
 
 Future<void> syncMessage() async {
     final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-    print('===== sync Message =====');
     List<Map<String, dynamic>> map =
         await sqlDb.readDataID("messages", 'sync', 0);
     if (map.isNotEmpty) {
       print('===== map.isNotEmpty =====');
+      print('===== sync Message =====');
       List<Message> messages = map.map((map) => Message.fromMap(map)).toList();
       for (var message in messages) {
         bool exists =
