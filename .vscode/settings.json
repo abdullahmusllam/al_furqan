@@ -69,5 +69,7 @@
         "الجوال",
         "الهاتف"
     ],
-    "editor.fontFamily": "Fira Code"
+    "editor.fontFamily": "JetBrains Mono,Fira Code",
+    "editor.tabSize": 2,
+    "editor.fontLigatures": true
 }

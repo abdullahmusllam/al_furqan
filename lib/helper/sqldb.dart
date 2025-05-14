@@ -35,17 +35,8 @@ class SqlDb {
     print("Database Created Successfully");
   }
 
-  _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // Add isRead column to messages table for version 7
-    if (oldVersion < 7) {
-      try {
-        await db.execute("ALTER TABLE messages ADD COLUMN isRead INTEGER DEFAULT 0");
-        print("Database Upgraded: Added isRead column to messages table");
-      } catch (e) {
-        print("Error upgrading database: $e");
-      }
-    }
-  }
+
+  _onUpgrade(Database db, int oldVersion, int newVersion) async {}
 
   Future<String> loadSqlScript() async {
     return await rootBundle.loadString('assets/database/al_furqan.db');
