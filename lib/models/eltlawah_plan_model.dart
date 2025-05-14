@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EltlawahPlanModel {
   int? eltlawahPlanId;
@@ -22,7 +21,7 @@ class EltlawahPlanModel {
   EltlawahPlanModel(
       {this.eltlawahPlanId,
       required this.elhalagatId,
-      required this.studentId,
+      this.studentId,
       required this.plannedStartSurah,
       required this.plannedStartAya,
       required this.plannedEndSurah,

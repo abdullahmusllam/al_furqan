@@ -4,6 +4,7 @@ import 'package:al_furqan/models/conservation_plan_model.dart';
 import 'package:al_furqan/models/eltlawah_plan_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/models/student_model.dart';
+import 'package:al_furqan/services/firebase_service.dart';
 import 'package:flutter/material.dart';
 import 'HalagaPlansScreen.dart';
 import 'EditHalagaPlanScreen.dart';
@@ -404,7 +405,7 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          SizedBox(
             child: Text(
               '$label:',
               style: const TextStyle(
@@ -485,6 +486,13 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
             onPressed: () async {
               try {
                 await planController.deletePlan(planID, table, column);
+                if (table == "ConservationPlans") { 
+                  await firebasehelper.deleteConservationPlan(planID);
+                } else if (table == "EltlawahPlans") {
+                  await firebasehelper.deleteEltlawahPlan(planID);
+                } else if (table == "IslamicStudies") {
+                  await firebasehelper.deleteIslamicStudyplan(planID);
+                }
                 Navigator.of(context).pop(true);
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
