@@ -92,34 +92,10 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
             isSync: 0,
           ),
         );
-
-        // إضافة خطة التلاوة
-        int eltlawahResult = await planController.addEltlawahPlan2(
-          EltlawahPlanModel(
-            elhalagatId: halaga.halagaID,
-            studentId: item,
-            plannedStartSurah: recitationStartSurahController.text,
-            plannedStartAya: int.tryParse(recitationStartVerseController.text),
-            plannedEndSurah: recitationEndSurahController.text,
-            plannedEndAya: int.tryParse(recitationEndVerseController.text),
-            isSync: 0,
-          ),
-        );
-
-        // إضافة خطة العلوم الشرعية
-        int islamicResult = await planController.addIslamicStudies2(
-          IslamicStudiesModel(
-            elhalagatID: halaga.halagaID,
-            studentID: item,
-            subject: selectedIslamicSubject,
-            plannedContent: islamicStudiesContentController.text,
-            planMonth: "2025-05",
-            isSync: 0,
-          ),
-        );
+       
 
         // التحقق من نجاح العمليات
-        if (conservationResult <= 0 || eltlawahResult <= 0 || islamicResult <= 0) {
+        if (conservationResult <= 0) {
           setState(() {
             _isLoading = false;
             _errorMessage = 'فشل في إضافة خطط الطالب $item';
@@ -127,6 +103,41 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
           return;
         }
       }
+      // إضافة خطة التلاوة
+      int eltlawahResult = await planController.addEltlawahPlan2(
+        EltlawahPlanModel(
+          elhalagatId: halaga.halagaID,
+            plannedStartSurah: recitationStartSurahController.text,
+            plannedStartAya: int.tryParse(recitationStartVerseController.text),
+            plannedEndSurah: recitationEndSurahController.text,
+            plannedEndAya: int.tryParse(recitationEndVerseController.text),
+            isSync: 0,
+          ),
+        );
+        if(eltlawahResult <= 0){
+          setState(() {
+            _isLoading = false;
+            _errorMessage = 'فشل في إضافة خطط التلاوة';
+          });
+          return;
+        }
+         // إضافة خطة العلوم الشرعية
+        int islamicResult = await planController.addIslamicStudies2(
+          IslamicStudiesModel(
+            elhalagatID: halaga.halagaID,
+            subject: selectedIslamicSubject,
+            plannedContent: islamicStudiesContentController.text,
+            planMonth: "2025-05",
+            isSync: 0,
+          ),
+        );
+        if(islamicResult <= 0){
+          setState(() {
+            _isLoading = false;
+            _errorMessage = 'فشل في إضافة خطط العلوم الشرعية';
+          });
+          return;
+        }
 
       setState(() {
         _isLoading = false;
@@ -143,7 +154,122 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
   }
 
   bool isValidSurah(String surah) {
-    final validSurahs = ['الفاتحة', 'البقرة', 'آل عمران', 'النساء']; // أضف المزيد حسب الحاجة
+    final validSurahs = [
+      'الفاتحة',
+      'البقرة',
+      'آل عمران',
+      'النساء',
+      'المائدة',
+      'الأنعام',
+      'الأعراف',
+      'الأنفال',
+      'التوبة',
+      'يونس',
+      'هود',
+      'يوسف',
+      'الرعد',
+      'إبراهيم',
+      'الحجر',
+      'النحل',
+      'الإسراء',
+      'الكهف',
+      'مريم',
+      'طه',
+      'الأنبياء',
+      'الحج',
+      'المؤمنون',
+      'النور',
+      'الفرقان',
+      'الشعراء',
+      'النمل',
+      'القصص',
+      'العنكبوت',
+      'الروم',
+      'لقمان',
+      'السجدة',
+      'الأحزاب',
+      'سبأ',
+      'فاطر',
+      'يس',
+      'الصافات',
+      'ص',
+      'الزمر',
+      'غافر',
+      'فصلت',
+      'الشورى',
+      'الزخرف',
+      'الدخان',
+      'الجاثية',
+      'الأحقاف',
+      'محمد',
+      'الفتح',
+      'الحجرات',
+      'ق',
+      'الذاريات',
+      'الطور',
+      'النجم',
+      'القمر',
+      'الرحمن',
+      'الواقعة',
+      'الحديد',
+      'المجادلة',
+      'الحشر',
+      'الممتحنة',
+      'الصف',
+      'الجمعة',
+      'المنافقون',
+      'التغابن',
+      'الطلاق',
+      'التحريم',
+      'الملك',
+      'القلم',
+      'الحاقة',
+      'المعارج',
+      'نوح',
+      'الجن',
+      'المزمل',
+      'المدثر',
+      'القيامة',
+      'الإنسان',
+      'المرسلات',
+      'النبأ',
+      'النازعات',
+      'عبس',
+      'التكوير',
+      'الإنفطار',
+      'المطففين',
+      'الإنشقاق',
+      'البروج',
+      'الطارق',
+      'الأعلى',
+      'الغاشية',
+      'الفجر',
+      'البلد',
+      'الشمس',
+      'الليل',
+      'الضحى',
+      'الشرح',
+      'التين',
+      'العلق',
+      'القدر',
+      'البينة',
+      'الزلزلة',
+      'العاديات',
+      'القارعة',
+      'التكاثر',
+      'العصر',
+      'الهمز',
+      'الفيل',
+      'قريش',
+      'الماعون',
+      'الكوثر',
+      'الكافرون',
+      'النصر',
+      'المسد',
+      'الإخلاص',
+      'الفلق',
+      'الناس',
+    ];
     return validSurahs.contains(surah);
   }
 

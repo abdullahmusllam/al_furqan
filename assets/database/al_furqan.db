@@ -114,7 +114,7 @@ CREATE TABLE "MonthlyReports" (
 CREATE TABLE "IslamicStudies" (
     "IslamicStudiesID" INTEGER NOT NULL PRIMARY KEY ,
     "ElhalagatID" INTEGER NOT NULL,
-    "StudentID" INTEGER NOT NULL,
+    "StudentID" INTEGER NOT NULL DEFAULT -1,
     "Subject" TEXT NOT NULL,
     "PlannedContent" TEXT,
     "ExecutedContent" TEXT,
@@ -146,7 +146,7 @@ CREATE TABLE "ConservationPlans" (
 CREATE TABLE "EltlawahPlans" (
     "EltlawahPlanID" INTEGER NOT NULL PRIMARY KEY ,
     "ElhalagatID" INTEGER NOT NULL,
-    "StudentID" INTEGER NOT NULL,
+    "StudentID" INTEGER NOT NULL DEFAULT -1,
     "PlannedStartSurah" TEXT,
     "PlannedStartAya" INTEGER,
     "PlannedEndSurah" TEXT,

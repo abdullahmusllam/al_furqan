@@ -106,14 +106,6 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
     }).toList();
   }
 
-  String _getStudentName(int studentId) {
-    final student = _students.firstWhere(
-      (s) => s.studentID == studentId,
-      orElse: () => StudentModel(firstName: "غير", lastName: "معروف", studentID: 0),
-    );
-    return "${student.firstName} ${student.lastName}";
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -285,7 +277,6 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
   }
 
   Widget _buildPlanCard(IslamicStudiesModel plan) {
-    final studentName = _getStudentName(plan.studentID!);
     // حساب معدل التنفيذ بناءً على محتوى المخطط والمنفذ
     final double executionRate = _calculateExecutionRate(plan);
     final String executionRateText = (executionRate * 100).toStringAsFixed(0);
@@ -297,7 +288,7 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // رأس البطاقة - معلومات الطالب
+          // رأس البطاقة - معلومات الحلقة
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -311,18 +302,15 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
               children: [
                 CircleAvatar(
                   backgroundColor: Colors.white,
-                  child: Text(
-                    studentName.isNotEmpty ? studentName[0] : '؟',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Icon(
+                    Icons.group,
+                    color: Theme.of(context).primaryColor,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    studentName,
+                    'خطة الحلقة بأكملها',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -583,18 +571,15 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
 
   void _navigateToAddPlan(BuildContext context) {
     // التنقل إلى شاشة إضافة خطة جديدة
-    // يمكن استخدام نفس شاشة التعديل مع خطة فارغة
-    if (_students.isEmpty) {
-      _showErrorSnackBar('لا يوجد طلاب في الحلقة');
-      return;
-    }
+    // نستخدم طالب افتراضي لأن الخطة للحلقة بأكملها
+    StudentModel dummyStudent = StudentModel(firstName: "الحلقة", lastName: "بأكملها", studentID: -1);
     
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => EditHalagaPlanScreen(
           halaga: widget.halaga,
           planType: "islamic",
-          student: _students.first,
+          student: dummyStudent,
           plan: null,
         ),
       ),
@@ -606,30 +591,17 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
   }
 
   void _editPlan(IslamicStudiesModel plan) {
-    // البحث عن الطالب المناسب
-    StudentModel student = StudentModel(firstName: "غير", lastName: "معروف", studentID: plan.studentID!);
-    bool foundStudent = false;
-    
-    for (var s in _students) {
-      if (s.studentID == plan.studentID) {
-        student = s;
-        foundStudent = true;
-        break;
-      }
-    }
-
-    if (!foundStudent) {
-      _showErrorSnackBar('لم يتم العثور على الطالب، سيتم استخدام بيانات افتراضية');
-    }
-
     // الانتقال إلى شاشة تعديل الخطة
+    // نستخدم طالب افتراضي لأن الخطة للحلقة بأكملها
+    StudentModel dummyStudent = StudentModel(firstName: "الحلقة", lastName: "بأكملها", studentID: -1);
+    
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => EditHalagaPlanScreen(
           halaga: widget.halaga,
           plan: plan,
           planType: "islamic",
-          student: student,
+          student: dummyStudent,
         ),
       ),
     ).then((result) {

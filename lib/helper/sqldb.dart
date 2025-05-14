@@ -17,7 +17,7 @@ class SqlDb {
     String path = join(databasePath, 'alforqanDB.db');
     Database mydb = await openDatabase(
       path,
-      version: 6, // زوّدنا الإصدار عشان التعديلات
+      version: 7, // زوّدنا الإصدار عشان التعديلات
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -35,7 +35,51 @@ class SqlDb {
     print("Database Created Successfully");
   }
 
-  _onUpgrade(Database db, int oldVersion, int newVersion) async {}
+  _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    try {
+        // تعطيل قيود المفاتيح الأجنبية مؤقتًا
+        await db.execute('PRAGMA foreign_keys=off;');
+        
+        // بدء المعاملة
+        await db.execute('BEGIN TRANSACTION;');
+        
+        // إنشاء جدول مؤقت بالهيكل الجديد (بدون حقل StudentID أو بجعله اختياري)
+        await db.execute('''
+          CREATE TABLE IslamicStudies_temp (
+            "IslamicStudiesID" INTEGER NOT NULL PRIMARY KEY ,
+            "ElhalagatID" INTEGER NOT NULL,
+            "StudentID" INTEGER NOT NULL DEFAULT -1,
+            "Subject" TEXT NOT NULL,
+            "PlannedContent" TEXT,
+            "ExecutedContent" TEXT,
+            "PlanMonth" TEXT,
+            "isSync" BOOLEAN,
+            CONSTRAINT "elhalagatidfk" FOREIGN KEY("ElhalagatID") REFERENCES "Elhalagat"("halagaID")
+          );
+        ''');
+        
+        // نسخ البيانات من الجدول القديم إلى الجدول المؤقت
+        await db.execute('INSERT INTO IslamicStudies_temp SELECT * FROM IslamicStudies;');
+        
+        // حذف الجدول القديم
+        await db.execute('DROP TABLE IslamicStudies;');
+        
+        // إعادة تسمية الجدول المؤقت
+        await db.execute('ALTER TABLE IslamicStudies_temp RENAME TO IslamicStudies;');
+        
+        // إنهاء المعاملة
+        await db.execute('COMMIT;');
+        
+        // إعادة تفعيل قيود المفاتيح الأجنبية
+        await db.execute('PRAGMA foreign_keys=on;');
+        
+        print("---------------------------> Upgrade to version 7 completed successfully!");
+      } catch (e) {
+        // التراجع عن المعاملة في حالة حدوث خطأ
+        await db.execute('ROLLBACK;');
+        print("---------------------------> Error upgrading database: $e");
+      }
+  }
 
   Future<String> loadSqlScript() async {
     return await rootBundle.loadString('assets/database/al_furqan.db');

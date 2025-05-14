@@ -463,6 +463,39 @@ newTeacher(int halagaId, int teacherId) async {
           "---------------> The Error in updateIslamicStudyplan in ((FirebaseService)) : $e");
     }
   }
+  //===================== Delete ConservationPlan =================
+  Future<void> deleteConservationPlan(int idDoc) async {
+    try {
+      await _firestore.collection("ConservationPlans").doc(idDoc.toString()).delete();
+      print(
+          "---------------> The deleteConservationPlan in ((FirebaseService)) : Done");
+    } catch (e) {
+      print(
+          "---------------> The Error in deleteConservationPlan in ((FirebaseService)) : $e");
+    }
+  }
+  //===================== Delete EltlawahPlan =================
+  Future<void> deleteEltlawahPlan(int idDoc) async {
+    try {
+      await _firestore.collection("EltlawahPlans").doc(idDoc.toString()).delete();
+      print(
+          "---------------> The deleteEltlawahPlan in ((FirebaseService)) : Done");
+    } catch (e) {
+      print(
+          "---------------> The Error in deleteEltlawahPlan in ((FirebaseService)) : $e");
+    }
+  }
+  //===================== Delete IslamicStudyplan =================
+  Future<void> deleteIslamicStudyplan(int idDoc) async {
+    try {
+      await _firestore.collection("IslamicStudies").doc(idDoc.toString()).delete();
+      print(
+          "---------------> The deleteIslamicStudyplan in ((FirebaseService)) : Done");
+    } catch (e) {
+      print(
+          "---------------> The Error in deleteIslamicStudyplan in ((FirebaseService)) : $e");
+    }
+  }
 } // End of FirebaseHelper class
 
 FirebaseHelper firebasehelper = FirebaseHelper();

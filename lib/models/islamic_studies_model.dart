@@ -11,7 +11,7 @@ class IslamicStudiesModel {
   IslamicStudiesModel({
     this.islamicStudiesID,
     required this.elhalagatID,
-    required this.studentID,
+    this.studentID,
     required this.subject,
     required this.plannedContent,
     this.executedContent,
