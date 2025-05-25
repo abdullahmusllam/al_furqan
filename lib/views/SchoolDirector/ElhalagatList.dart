@@ -27,9 +27,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
   void initState() {
     super.initState();
     // استدعاء جلب الحلقات من Firebase وتحميل البيانات
-    halagaController.getHalagatFromFirebase().then((_) {
       _loadHalaqat();
-    });
   }
 
   // دالة لجلب الحلقات وأسماء المعلمين

@@ -82,6 +82,7 @@ class DrawerList extends StatelessWidget {
             icon: Icons.notifications,
             text: 'طلبات التحقق',
             onTap: () {
+              Navigator.of(context).pop();
               Navigator.push(
                 context,
                 CupertinoPageRoute(

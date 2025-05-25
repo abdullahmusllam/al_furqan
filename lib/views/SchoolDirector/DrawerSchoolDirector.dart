@@ -159,6 +159,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     icon: Icons.people,
                     title: 'تحضير المعلمين',
                     onTap: () {
+                      Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -171,6 +172,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     icon: Icons.manage_accounts,
                     title: "إدارة المعلمين",
                     onTap: () {
+                      Navigator.pop(context);
                       Navigator.of(context).push(
                         CupertinoPageRoute(
                             builder: (context) => TeacherManagement()),
@@ -187,6 +189,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     icon: Icons.school,
                     title: 'إدارة الطلاب',
                     onTap: () {
+                      Navigator.pop(context);
                       Navigator.push(
                         context,
                         CupertinoPageRoute(
@@ -200,6 +203,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     icon: Icons.groups,
                     title: 'إدارة الحلقات',
                     onTap: () {
+                      Navigator.pop(context);
                       Navigator.push(
                         context,
                         CupertinoPageRoute(
@@ -216,6 +220,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     icon: Icons.book,
                     title: 'المناهج',
                     onTap: () {
+                      Navigator.pop(context);
                       // الانتقال إلى شاشة المناهج
                     },
                   ),
@@ -226,6 +231,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     icon: Icons.settings,
                     title: 'الإعدادات',
                     onTap: () {
+                      Navigator.pop(context);
                       // الانتقال إلى شاشة الإعدادات
                     },
                   ),

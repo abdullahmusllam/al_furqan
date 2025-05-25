@@ -43,12 +43,8 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     super.initState();
     // إضافة مراقب دورة حياة التطبيق
     WidgetsBinding.instance.addObserver(this);
-    
-    sync.syncUsers();
-    sync.syncElhalagat();
-    sync.syncStudents();
+
     initializeDateFormatting('ar', null).then((_) {
-      loadUsersFromFirebase();
       _loadData();
     });
     loadMessages();
@@ -70,12 +66,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   }
   // تحميل الرسائل
   Future<void> loadMessages() async {
-    final prefs = await SharedPreferences.getInstance();
-    int? Id = prefs.getInt('user_id');
-    print('===== ($Id) =====');
-    
-    // تحميل الرسائل من فايربيس
-    await messageService.loadMessagesFromFirestore(Id!);
+
     
     // تحديث عدد الإشعارات
     await updateNotificationCount();
@@ -91,20 +82,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     }
   }
 
-  Future<void> loadUsersFromFirebase() async {
-    List<UserModel> users = await firebasehelper.getUsers();
-    for (var user in users) {
-      bool exists =
-          await sqlDb.checkIfitemExists("Users", user.user_id!, "user_id");
-      if (exists) {
-        await userController.updateUser(user, 0);
-        print('===== Find user (update) =====');
-      } else {
-        await userController.addUser(user, 0);
-        print('===== Find user (add) =====');
-      }
-    }
-  }
+
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
