@@ -188,36 +188,7 @@ class FirestoreService {
     }
   }
 
-  // إرسال رسالة
-  Future<void> sendMessage(Message message) async {
-    try {
-      await _db.collection('messages').add(message.toMap());
-    } catch (e) {
-      print('خطأ في إرسال الرسالة: $e');
-    }
-  }
-
-  // جلب الرسائل
-  Future<List<Message>> getMessages(String senderId, String receiverId, String circleId) async {
-    try {
-      QuerySnapshot snapshot = await _db
-          .collection('messages')
-          .where('senderId', whereIn: [senderId, receiverId])
-          .where('receiverId', whereIn: [senderId, receiverId])
-          .where('circleId', isEqualTo: circleId)
-          .orderBy('timestamp', descending: true)
-          .get();
-      return snapshot.docs
-          .map((doc) => Message.fromMap({
-                ...doc.data() as Map<String, dynamic>,
-                'id': doc.id,
-              }))
-          .toList();
-    } catch (e) {
-      print('خطأ في جلب الرسائل: $e');
-      return [];
-    }
-  }
+  
   
   // جلب المدرسين حسب معرف الحلقة
   Future<List<UserModel>> getTeachersByCircleId(int circleId) async {
@@ -264,6 +235,37 @@ class FirestoreService {
     } catch (e) {
       print('خطأ في إضافة طلب التسجيل: $e');
       throw e; // إعادة رمي الخطأ ليتم التعامل معه في الشاشة
+    }
+  }
+  
+  // جلب خطة الحفظ للطالب
+  Future<Map<String, dynamic>?> getStudentConservationPlan(int studentId) async {
+    try {
+      // البحث عن خطة الحفظ للطالب في مجموعة ConservationPlans
+      // استخدام استعلام بسيط بدون ترتيب لتجنب الحاجة إلى فهرس مركب
+      QuerySnapshot snapshot = await _db
+          .collection('ConservationPlans')
+          .where('StudentID', isEqualTo: studentId)
+          .get();
+      
+      if (snapshot.docs.isEmpty) {
+        return null;
+      }
+      
+      // فرز النتائج يدويًا بعد الحصول عليها
+      List<QueryDocumentSnapshot> docs = snapshot.docs;
+      docs.sort((a, b) {
+        String planMonthA = a['PlanMonth'] as String? ?? '';
+        String planMonthB = b['PlanMonth'] as String? ?? '';
+        // ترتيب تنازلي (الأحدث أولاً)
+        return planMonthB.compareTo(planMonthA);
+      });
+      
+      // الحصول على أحدث خطة
+      return docs.first.data() as Map<String, dynamic>;
+    } catch (e) {
+      print('خطأ في جلب خطة الحفظ للطالب: $e');
+      return null;
     }
   }
 }

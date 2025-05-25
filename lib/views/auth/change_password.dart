@@ -20,6 +20,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
+      if (!mounted) return; // Check if widget is still mounted
+      
       setState(() => _isLoading = true);
 
       try {
@@ -28,16 +30,23 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
         await verificationService.updatePassword(idNumber, newPassword);
 
+        if (!mounted) return; // Check if widget is still mounted
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('تم تغيير كلمة المرور بنجاح'),
-            backgroundColor: Colors.green,
+            backgroundColor: Color(0xFF017546),
           ),
         );
 
-        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())); // أو الانتقال إلى شاشة تسجيل الدخول
+        if (mounted) { // Check if widget is still mounted
+          Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())); // أو الانتقال إلى شاشة تسجيل الدخول
+        }
+        
         await verificationService.deleteAllUsedVerificationCodes();
       } catch (e) {
+        if (!mounted) return; // Check if widget is still mounted
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString()),
@@ -45,6 +54,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           ),
         );
       } finally {
+        if (!mounted) return; // Check if widget is still mounted
+        
         setState(() => _isLoading = false);
       }
     }

@@ -30,6 +30,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   Future<void> _sendVerificationRequest() async {
     if (_formKey.currentState!.validate()) {
+      if (!mounted) return; // Check if widget is still mounted
+      
       setState(() {
         _isLoading = true;
       });
@@ -38,17 +40,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           print('=========================================');
           await verificationService.verificationRequest(int.parse(_phoneController.text));
         
+        if (!mounted) return; // Check if widget is still mounted
+        
         setState(() {
           _isCodeSent = true;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('تم إرسال رمز التحقق بنجاح'),
-            backgroundColor: Colors.green,
+            backgroundColor: Color(0xFF017546),
             behavior: SnackBarBehavior.floating,
           ),
         );
       } catch (e) {
+        if (!mounted) return; // Check if widget is still mounted
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('خطأ في إرسال رمز التحقق: ${e.toString()}'),
@@ -57,6 +63,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
         );
       } finally {
+        if (!mounted) return; // Check if widget is still mounted
+        
         setState(() {
           _isLoading = false;
         });
@@ -66,6 +74,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   Future<void> _verifyCode() async {
   if (_formKey.currentState!.validate()) {
+    if (!mounted) return; // Check if widget is still mounted
+    
     setState(() {
       _isLoading = true;
     });
@@ -80,6 +90,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           .where('used', isEqualTo: 0) // تأكد أنه لم يُستخدم
           .get();
 
+      if (!mounted) return; // Check if widget is still mounted
+      
       if (snapshot.docs.isNotEmpty) {
         // ✅ الكود صحيح ولم يُستخدم
         final docId = snapshot.docs.first.id;
@@ -90,10 +102,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             .doc(docId)
             .update({'used': 1});
 
+        if (!mounted) return; // Check if widget is still mounted
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('رمز التحقق صحيح، يمكنك تغيير كلمة المرور الآن'),
-            backgroundColor: Colors.green,
+            backgroundColor: Color(0xFF017546),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -116,6 +130,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         );
       }
     } catch (e) {
+      if (!mounted) return; // Check if widget is still mounted
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('حدث خطأ: ${e.toString()}'),
@@ -124,6 +140,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         ),
       );
     } finally {
+      if (!mounted) return; // Check if widget is still mounted
+      
       setState(() => _isLoading = false);
     }
   }
@@ -134,6 +152,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     _countdownSeconds = 60; // 1 minute countdown
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      
       setState(() {
         if (_countdownSeconds > 0) {
           _countdownSeconds--;

@@ -275,7 +275,7 @@ class _SignupScreenState extends State<SignupScreen> {
           firstDate: DateTime(1700),
           lastDate: DateTime(2300),
         );
-        if (pickedDate != null) {
+        if (pickedDate != null && mounted) { // Check if widget is still mounted
           String formattedDate = DateFormat.yMMMd().format(pickedDate);
           setState(() {
             _date.text = formattedDate;
@@ -315,7 +315,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  void _handleSubmit() {
+  void _handleSubmit() async {
     if (_formKey.currentState!.validate()) {
       int phone = int.parse(_phone.text);
       int telephone = int.parse(_telephone.text);
@@ -350,24 +350,32 @@ class _SignupScreenState extends State<SignupScreen> {
       // إضافة طلب التسجيل مباشرة إلى Firebase
       try {
         // استخدام Firebase Firestore لإضافة طلب التسجيل
-        _firestoreService.addRequest(_userModel);
+        await _firestoreService.addRequest(_userModel);
+        
+        if (!mounted) return; // Check if widget is still mounted
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("تم إرسال طلب التسجيل بنجاح"),
+          ),
+        );
+        
+        if (mounted) { // Check if widget is still mounted before updating state
+          setState(() {});
+          Navigator.of(context).pop();
+        }
       } catch (e) {
         print('خطأ في إضافة طلب التسجيل: $e');
+        
+        if (!mounted) return; // Check if widget is still mounted
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('حدث خطأ أثناء إرسال الطلب. حاول مرة أخرى.'),
             backgroundColor: Colors.red,
           ),
         );
-        return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("تم إرسال طلب التسجيل بنجاح"),
-        ),
-      );
-      setState(() {});
-      Navigator.of(context).pop();
     }
   }
 }

@@ -3,6 +3,7 @@ class UserModel {
   int? user_id;
   int? activityID;
   int? elhalagatID;
+  String? elhalagatName; // Added property for halaqat name
   String? first_name;
   String? middle_name;
   String? grandfather_name;
@@ -21,6 +22,7 @@ class UserModel {
     this.user_id,
     this.activityID,
     this.elhalagatID,
+    this.elhalagatName,
     this.first_name,
     this.middle_name,
     this.grandfather_name,
@@ -42,6 +44,7 @@ class UserModel {
       'user_id': user_id,
       'ActivityID': activityID,
       'ElhalagatID': elhalagatID,
+      'ElhalagatName': elhalagatName,
       'first_name': first_name,
       'middle_name': middle_name,
       'grandfather_name': grandfather_name,
@@ -64,6 +67,7 @@ class UserModel {
       user_id: map['user_id'] as int?,
       activityID: map['ActivityID'] as int?,
       elhalagatID: map['ElhalagatID'] as int?,
+      elhalagatName: map['ElhalagatName'] as String?,
       first_name: map['first_name'] as String?,
       middle_name: map['middle_name'] as String?,
       grandfather_name: map['grandfather_name'] as String?,
@@ -84,6 +88,7 @@ class UserModel {
       user_id: json['user_id'] as int?,
       activityID: json['ActivityID'] as int?,
       elhalagatID: json['ElhalagatID'] as int?,
+      elhalagatName: json['ElhalagatName'] as String?,
       first_name: json['first_name'] as String?,
       middle_name: json['middle_name'] as String?,
       grandfather_name: json['grandfather_name'] as String?,

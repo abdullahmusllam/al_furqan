@@ -15,11 +15,16 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
   String _schoolName = 'جاري التحميل...';
   String _halagaName = 'جاري التحميل...';
   bool _isLoading = true;
+  
+  // متغيرات لخطة الحفظ
+  bool _isLoadingPlan = true;
+  Map<String, dynamic>? _conservationPlan;
 
   @override
   void initState() {
     super.initState();
     _loadSchoolAndHalagaNames();
+    _loadConservationPlan();
   }
 
   Future<void> _loadSchoolAndHalagaNames() async {
@@ -45,6 +50,28 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
       }
     }
   }
+  
+  // تحميل خطة الحفظ للطالب
+  Future<void> _loadConservationPlan() async {
+    try {
+      final plan = await firestoreService.getStudentConservationPlan(widget.student.studentID);
+      
+      if (mounted) {
+        setState(() {
+          _conservationPlan = plan;
+          _isLoadingPlan = false;
+        });
+      }
+    } catch (e) {
+      print('خطأ في تحميل خطة الحفظ: $e');
+      if (mounted) {
+        setState(() {
+          _conservationPlan = null;
+          _isLoadingPlan = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +79,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
       appBar: AppBar(
         title: Text('تفاصيل الطالب', style: TextStyle(fontFamily: 'RB', fontWeight: FontWeight.bold)),
         centerTitle: true,
-        backgroundColor: Colors.green.shade600,
+        backgroundColor: Color(0xFF017546),
         elevation: 0,
         actions: [
           Container(
@@ -70,7 +97,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.green.shade100, Colors.white],
+            colors: [Color(0xFFE8F5F0), Colors.white], // Light version of #017546
           ),
         ),
         child: SafeArea(
@@ -113,7 +140,11 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
               
               SizedBox(height: 16),
               
-              // بطاقة الحضور والغياب
+              // بطاقة خطة الحفظ
+              _buildConservationPlanCard(context),
+              
+              SizedBox(height: 16),
+              
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -122,13 +153,13 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                     begin: Alignment.topRight,
                     end: Alignment.bottomLeft,
                     colors: [
-                      Colors.green.shade400,
-                      Colors.green.shade600,
+                      Color(0xFF017546).withOpacity(0.8),
+                      Color(0xFF017546),
                     ],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.green.shade200.withOpacity(0.5),
+                      color: Color(0xFF017546).withOpacity(0.2),
                       blurRadius: 10,
                       offset: Offset(0, 4),
                     ),
@@ -286,7 +317,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
           ),
           child: CircleAvatar(
             radius: 50,
-            backgroundColor: Colors.green.shade600,
+            backgroundColor: Color(0xFF017546),
             child: Text(
               widget.student.firstName.isNotEmpty ? widget.student.firstName.substring(0, 1) : '',
               style: TextStyle(
@@ -310,23 +341,6 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
           ),
         ),
         SizedBox(height: 8),
-        // Container(
-        //   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        //   decoration: BoxDecoration(
-        //     color: Colors.green.shade50,
-        //     borderRadius: BorderRadius.circular(20),
-        //     border: Border.all(color: Colors.green.shade200),
-        //   ),
-        //   // child: Text(
-        //   //   'معرف الطالب: ${widget.student.studentID}',
-        //   //   style: TextStyle(
-        //   //     fontSize: 14,
-        //   //     fontFamily: 'RB',
-        //   //     color: Colors.green.shade800,
-        //   //     fontWeight: FontWeight.w500,
-        //   //   ),
-        //   // ),
-        // ),
       ],
     );
   }
@@ -470,7 +484,6 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
           children: [
             _buildAttendanceItem('أيام الحضور', attendance, Colors.white, Icons.check_circle),
             _buildAttendanceItem('أيام الغياب', absence, Colors.white.withOpacity(0.9), Icons.cancel),
-            _buildAttendanceItem('الإجمالي', total, Colors.white.withOpacity(0.9), Icons.calendar_today),
           ],
         ),
       ],
@@ -483,7 +496,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
       height: 90, // تقليل الارتفاع من 100 إلى 90
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12), // تقليل نصف قطر الزاوية
-        border: Border.all(color: Colors.green.shade100, width: 1),
+        border: Border.all(color: Color(0xFFE8F5F0), width: 1),
       ),
       child: Card(
         margin: EdgeInsets.zero,
@@ -499,10 +512,10 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
               Container(
                 padding: EdgeInsets.all(6), // تقليل الحشو الداخلي للأيقونة
                 decoration: BoxDecoration(
-                  color: Colors.green.shade100,
+                  color: Color(0xFFE8F5F0),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: Colors.green.shade700, size: 18), // تقليل حجم الأيقونة
+                child: Icon(icon, color: Color(0xFF017546), size: 18), // تقليل حجم الأيقونة
               ),
               SizedBox(height: 6), // تقليل المسافة
               Text(
@@ -521,7 +534,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                     width: 10,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade700),
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF017546)),
                     ),
                   )
                 : Text(
@@ -540,6 +553,178 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
         ),
       ),
     );
+  }
+
+  // بناء بطاقة خطة الحفظ
+  Widget _buildConservationPlanCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.menu_book, color: Color(0xFF017546)),
+              SizedBox(width: 8),
+              Text(
+                'خطة الحفظ',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'RB',
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          Divider(height: 24, thickness: 1),
+          _isLoadingPlan
+              ? Center(child: CircularProgressIndicator(color: Color(0xFF017546)))
+              : _conservationPlan == null
+                  ? Center(
+                      child: Text(
+                        'لا توجد خطة حفظ متوفرة',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'RB',
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // المقرر للحفظ
+                        _buildPlanSection(
+                          title: 'مقرر الحفظ',
+                          icon: Icons.assignment,
+                          color: Color(0xFF017546),
+                          content: _buildPlanContent(
+                            startSurah: _conservationPlan!['PlannedStartSurah'] ?? '',
+                            startAya: _conservationPlan!['PlannedStartAya'],
+                            endSurah: _conservationPlan!['PlannedEndSurah'] ?? '',
+                            endAya: _conservationPlan!['PlannedEndAya'],
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        // المنفذ من الحفظ
+                        _buildPlanSection(
+                          title: 'المنفذ من الحفظ',
+                          icon: Icons.check_circle,
+                          color: Colors.blue,
+                          content: _conservationPlan!['ExecutedStartSurah'] == null
+                              ? 'لم يتم تسجيل أي تقدم بعد'
+                              : _buildPlanContent(
+                                  startSurah: _conservationPlan!['ExecutedStartSurah'] ?? '',
+                                  startAya: _conservationPlan!['ExecutedStartAya'],
+                                  endSurah: _conservationPlan!['ExecutedEndSurah'] ?? '',
+                                  endAya: _conservationPlan!['ExecutedEndAya'],
+                                ),
+                        ),
+                        if (_conservationPlan!['ExecutedRate'] != null) ...[  
+                          SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Icon(Icons.percent, color: Colors.amber, size: 18),
+                              SizedBox(width: 8),
+                              Text(
+                                'نسبة الإنجاز: ${_conservationPlan!['ExecutedRate']}%',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'RB',
+                                  color: Colors.amber.shade800,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                        SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_today, color: Colors.grey.shade600, size: 16),
+                            SizedBox(width: 8),
+                            Text(
+                              'شهر الخطة: ${_conservationPlan!['PlanMonth'] ?? ''}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'RB',
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+        ],
+      ),
+    );
+  }
+  
+  // بناء قسم من خطة الحفظ
+  Widget _buildPlanSection({
+    required String title,
+    required IconData icon,
+    required Color color,
+    required String content,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: color, size: 18),
+            SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'RB',
+                color: color,
+              ),
+            ),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 26, top: 8),
+          child: Text(
+            content,
+            style: TextStyle(
+              fontSize: 15,
+              fontFamily: 'RB',
+              color: Colors.black87,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+  
+  // بناء محتوى خطة الحفظ
+  String _buildPlanContent({
+    required String startSurah,
+    required dynamic startAya,
+    required String endSurah,
+    required dynamic endAya,
+  }) {
+    if (startSurah.isEmpty || endSurah.isEmpty) {
+      return 'غير محدد';
+    }
+    
+    return 'من $startSurah آية ${startAya ?? ''} إلى $endSurah آية ${endAya ?? ''}';
   }
 
   Widget _buildAttendanceItem(String label, int value, Color color, IconData icon) {

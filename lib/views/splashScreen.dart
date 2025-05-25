@@ -37,6 +37,8 @@ class _SplashScreenState extends State<SplashScreen> {
       print('===== isLoggedIn: $isLoggedIn =====');
       print('===== userId: $userId =====');
       
+      if (!mounted) return; // Check if widget is still mounted
+      
       if (isLoggedIn && userId != null) {
         // إذا كان المستخدم مسجل الدخول وتم العثور على معرف المستخدم
         Navigator.of(context).pushReplacement(
@@ -50,6 +52,9 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     } catch (e) {
       print('خطأ في التحقق من حالة تسجيل الدخول: $e');
+      
+      if (!mounted) return; // Check if widget is still mounted
+      
       // في حالة حدوث خطأ، الانتقال إلى شاشة تسجيل الدخول
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -69,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.green.shade100, Colors.white],
+            colors: [Color(0xFFE8F5F0), Colors.white], // Light version of #017546
           ),
         ),
         child: Center(
@@ -86,13 +91,13 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
               ),
               SizedBox(height: 20),
-              CircularProgressIndicator(color: Colors.green),
+              CircularProgressIndicator(color: Color(0xFF017546)),
               SizedBox(height: 20),
               Text(
                 "جاري التحميل...",
                 style: TextStyle(
                   fontSize: 18,
-                  color: Colors.green.shade800,
+                  color: Color(0xFF017546),
                   fontWeight: FontWeight.bold,
                 ),
               ),

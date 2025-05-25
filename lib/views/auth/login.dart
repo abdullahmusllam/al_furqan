@@ -167,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.green.shade100, Colors.white],
+            colors: [Color(0xFFE8F5F0), Colors.white], // Light version of #017546
           ),
         ),
         child: SafeArea(
@@ -205,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
-                              color: Colors.green.shade800,
+                              color: Color(0xFF017546),
                             ),
                           ),
                           SizedBox(height: 8),
@@ -233,13 +233,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         prefixIcon:
-                            Icon(Icons.lock_rounded, color: Colors.green),
+                            Icon(Icons.lock_rounded, color: Color(0xFF017546)),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword
                                 ? Icons.visibility_off
                                 : Icons.visibility,
-                            color: Colors.green,
+                            color: Color(0xFF017546),
                           ),
                           onPressed: () {
                             setState(() {
@@ -257,12 +257,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
                           borderSide:
-                              BorderSide(color: Colors.green.shade200, width: 1),
+                              BorderSide(color: Color(0xFFE8F5F0), width: 1),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
                           borderSide:
-                              BorderSide(color: Colors.green, width: 2),
+                              BorderSide(color: Color(0xFF017546), width: 2),
                         ),
                         contentPadding: EdgeInsets.symmetric(vertical: 16),
                       ),
@@ -295,14 +295,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     ElevatedButton(
                       onPressed: _isLoading ? null : () => _login(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
+                        backgroundColor: Color(0xFF017546),
                         foregroundColor: Colors.white,
                         minimumSize: Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
                         elevation: 5,
-                        shadowColor: Colors.green.withOpacity(0.5),
+                        shadowColor: Color(0xFF017546).withOpacity(0.5),
                       ),
                       child: _isLoading
                           ? CircularProgressIndicator(color: Colors.white)
@@ -335,7 +335,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             );
                           },
                           style: TextButton.styleFrom(
-                            foregroundColor: Colors.green.shade700,
+                            foregroundColor: Color(0xFF017546),
                             padding: EdgeInsets.symmetric(horizontal: 5),
                             minimumSize: Size(50, 30),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -370,7 +370,7 @@ class _LoginScreenState extends State<LoginScreen> {
       obscureText: obscureText,
       keyboardType: keyboardType,
       decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: Colors.green),
+        prefixIcon: Icon(icon, color: Color(0xFF017546)),
         hintText: hint,
         filled: true,
         fillColor: Colors.white,
@@ -380,11 +380,11 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide(color: Colors.green.shade200, width: 1),
+          borderSide: BorderSide(color: Color(0xFFE8F5F0), width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide(color: Colors.green, width: 2),
+          borderSide: BorderSide(color: Color(0xFF017546), width: 2),
         ),
         contentPadding: EdgeInsets.symmetric(vertical: 16),
       ),
