@@ -187,6 +187,22 @@ class FirestoreService {
       return [];
     }
   }
+  
+  // جلب المستخدمين حسب الدور
+  Future<List<UserModel>> getUsersByRole(int roleId) async {
+    try {
+      QuerySnapshot snapshot = await _db
+          .collection('Users')
+          .where('roleID', isEqualTo: roleId)
+          .get();
+      return snapshot.docs
+          .map((doc) => UserModel.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('خطأ في جلب المستخدمين حسب الدور: $e');
+      return [];
+    }
+  }
 
   
   

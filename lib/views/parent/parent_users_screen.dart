@@ -1,15 +1,20 @@
 import '../../models/user.dart';
+import '../../models/student.dart';
 import 'parent_message_screen.dart';
 import 'package:flutter/material.dart';
 
 class ParentUsersScreen extends StatefulWidget {
   final UserModel currentUser;
   final List<UserModel> availableTeachers;
+  final List<UserModel>? availablePrincipals; // إضافة قائمة مديري المدارس
+  final List<Student> children; // إضافة قائمة أبناء ولي الأمر
 
   const ParentUsersScreen({
     Key? key,
     required this.currentUser,
     required this.availableTeachers,
+    this.availablePrincipals, // إضافة مديري المدارس كمعلمة اختيارية
+    required this.children, // إضافة أبناء ولي الأمر كمعلمة مطلوبة
   }) : super(key: key);
 
   @override
@@ -18,20 +23,66 @@ class ParentUsersScreen extends StatefulWidget {
 
 class _ParentUsersScreenState extends State<ParentUsersScreen> {
   List<UserModel> displayedUsers = [];
+  List<UserModel> allUsers = [];
+  bool showTeachers = true;
+  bool showPrincipals = true;
 
   @override
   void initState() {
     super.initState();
-    displayedUsers = widget.availableTeachers
-        .where((user) => user.user_id != null && user.user_id != 0)
+    // جمع المعلمين ومديري المدارس في قائمة واحدة
+    allUsers = [];
+    
+    // استخراج قائمة معرفات الحلقات الخاصة بأبناء ولي الأمر
+    final List<int?> childrenHalaqatIds = widget.children
+        .map((child) => child.elhalagatID)
+        .where((id) => id != null)
         .toList();
+        
+    // استخراج قائمة معرفات المدارس الخاصة بأبناء ولي الأمر
+    final List<int?> childrenSchoolIds = widget.children
+        .map((child) => child.schoolID)
+        .where((id) => id != null)
+        .toList();
+    
+    // إضافة المعلمين الذين يشتركون في نفس معرف الحلقة مع أبناء ولي الأمر
+    allUsers.addAll(widget.availableTeachers
+        .where((user) => 
+            user.user_id != null && 
+            user.user_id != 0 && 
+            user.elhalagatID != null && 
+            childrenHalaqatIds.contains(user.elhalagatID))
+        .toList());
+    
+    // إضافة مديري المدارس الذين يشتركون في نفس معرف المدرسة مع أبناء ولي الأمر
+    if (widget.availablePrincipals != null) {
+      allUsers.addAll(widget.availablePrincipals!
+          .where((user) => 
+              user.user_id != null && 
+              user.user_id != 0 && 
+              user.schoolID != null && 
+              childrenSchoolIds.contains(user.schoolID))
+          .toList());
+    }
+    
+    // تعيين قائمة المستخدمين المعروضة
+    displayedUsers = List.from(allUsers);
   }
 
   // دالة للبحث في المستخدمين
   List<UserModel> _filterUsers(String query) {
-    if (query.isEmpty) return displayedUsers;
+    // تصفية المستخدمين حسب الأدوار المحددة
+    List<UserModel> filteredByRole = allUsers.where((user) {
+      if (user.roleID == 2 && !showTeachers) return false; // معلم
+      if (user.roleID == 1 && !showPrincipals) return false; // مدير
+      return true;
+    }).toList();
     
-    return displayedUsers.where((user) {
+    // إذا كان البحث فارغًا، أعد القائمة المصفاة حسب الدور فقط
+    if (query.isEmpty) return filteredByRole;
+    
+    // تصفية حسب الاسم والدور
+    return filteredByRole.where((user) {
       final name = user.first_name?.toLowerCase() ?? '';
       return name.contains(query.toLowerCase());
     }).toList();
@@ -41,7 +92,7 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('اختيار معلم للمراسلة', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('اختيار مستخدم للمراسلة', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -53,7 +104,7 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
             padding: EdgeInsets.all(16.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'البحث عن معلم...',
+                hintText: 'البحث عن مستخدم...',
                 prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
@@ -71,6 +122,53 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
             ),
           ),
           
+          // خيارات التصفية
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                Text(
+                  'تصفية حسب:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                SizedBox(width: 12),
+                // خيار المعلمين
+                FilterChip(
+                  label: Text('المعلمين'),
+                  selected: showTeachers,
+                  onSelected: (selected) {
+                    setState(() {
+                      showTeachers = selected;
+                      displayedUsers = _filterUsers('');
+                    });
+                  },
+                  backgroundColor: Colors.grey.shade200,
+                  selectedColor: Colors.blue.shade100,
+                  checkmarkColor: Colors.blue.shade700,
+                ),
+                SizedBox(width: 8),
+                // خيار المديرين
+                FilterChip(
+                  label: Text('المديرين'),
+                  selected: showPrincipals,
+                  onSelected: (selected) {
+                    setState(() {
+                      showPrincipals = selected;
+                      displayedUsers = _filterUsers('');
+                    });
+                  },
+                  backgroundColor: Colors.grey.shade200,
+                  selectedColor: Colors.green.shade100,
+                  checkmarkColor: Colors.green.shade700,
+                ),
+              ],
+            ),
+          ),
+          
           // عنوان القسم
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -78,7 +176,9 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'قائمة المعلمين',
+                  showTeachers && showPrincipals ? 'قائمة المستخدمين' :
+                  showTeachers ? 'قائمة المعلمين' :
+                  showPrincipals ? 'قائمة المديرين' : 'لا يوجد مستخدمين',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -86,7 +186,10 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
                   ),
                 ),
                 Text(
-                  '${displayedUsers.length} معلم',
+                  '${displayedUsers.length} ' + 
+                  (showTeachers && showPrincipals ? 'مستخدم' :
+                  showTeachers ? 'معلم' :
+                  showPrincipals ? 'مدير' : ''),
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey.shade600,
@@ -174,14 +277,14 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
                                           Container(
                                             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                             decoration: BoxDecoration(
-                                              color: Colors.blue.shade50,
+                                              color: user.roleID == 1 ? Colors.green.shade50 : Colors.blue.shade50,
                                               borderRadius: BorderRadius.circular(12),
                                             ),
                                             child: Text(
-                                              'معلم',
+                                              user.roleID == 1 ? 'مدير' : 'معلم',
                                               style: TextStyle(
                                                 fontSize: 12,
-                                                color: Colors.blue.shade700,
+                                                color: user.roleID == 1 ? Colors.green.shade700 : Colors.blue.shade700,
                                               ),
                                             ),
                                           ),

@@ -44,17 +44,28 @@ class _ParentChatScreenState extends State<ParentChatScreen> {
       return;
     }
 
-    // Get messages from the service
-    List<Message> allMessages = [];
-    setState(() {
-      messages = allMessages
-          .where((msg) =>
-              (msg.senderId == widget.currentUser.user_id &&
-                  msg.receiverId == widget.selectedUser!.user_id) ||
-              (msg.senderId == widget.selectedUser!.user_id &&
-                  msg.receiverId == widget.currentUser.user_id))
-          .toList();
-    });
+    if (widget.currentUser.user_id == null) {
+      print('خطأ: معرف المستخدم الحالي غير موجود');
+      return;
+    }
+
+    try {
+      // استخدام دالة getMessagesBetweenUsers لجلب الرسائل بين المستخدمين
+      List<Message> allMessages = await messageService.getMessagesBetweenUsers(
+        widget.currentUser.user_id!,
+        widget.selectedUser!.user_id!,
+      );
+      
+      if (mounted) {
+        setState(() {
+          messages = allMessages;
+        });
+      }
+      
+      print('تم تحميل ${messages.length} رسالة بين المستخدمين');
+    } catch (e) {
+      print('خطأ في تحميل الرسائل: $e');
+    }
     
     // Mark messages as read after loading
     markMessagesAsRead();
@@ -67,13 +78,22 @@ class _ParentChatScreenState extends State<ParentChatScreen> {
       return;
     }
 
-    // Get messages from the service
-    List<Message> allMessages = [];
-    setState(() {
-      receivedMessages = allMessages
-          .where((msg) => msg.receiverId == widget.currentUser.user_id)
-          .toList();
-    });
+    try {
+      // استخدام دالة getMessagesByReceiverId لجلب الرسائل المستلمة
+      List<Message> allMessages = await messageService.getMessagesByReceiverId(
+        widget.currentUser.user_id!,
+      );
+      
+      if (mounted) {
+        setState(() {
+          receivedMessages = allMessages;
+        });
+      }
+      
+      print('تم تحميل ${receivedMessages.length} رسالة مستلمة');
+    } catch (e) {
+      print('خطأ في تحميل الرسائل المستلمة: $e');
+    }
     
     // Mark messages as read after loading
     markMessagesAsRead();
@@ -134,10 +154,44 @@ class _ParentChatScreenState extends State<ParentChatScreen> {
     }
     
     try {
-      // تعليم جميع الرسائل الخاصة بالمستخدم الحالي كمقروءة
-      // سيتم تنفيذ هذا من خلال الخدمة الفعلية
+      int updatedCount = 0;
       
-      print('تم تعليم الرسائل كمقروءة');
+      // إذا كان هناك مستخدم محدد (مثل المدير)، نقوم بتحديث الرسائل المرسلة منه فقط
+      if (widget.selectedUser != null && widget.selectedUser!.user_id != null) {
+        // تحديث الرسائل المرسلة من المستخدم المحدد إلى المستخدم الحالي
+        List<Message> messagesToUpdate = [];
+        
+        // البحث عن الرسائل غير المقروءة في قائمة الرسائل المحملة
+        for (var message in messages) {
+          if (message.senderId == widget.selectedUser!.user_id && 
+              message.receiverId == widget.currentUser.user_id && 
+              message.isRead == 0) {
+            // تحديث حالة الرسالة محليًا
+            message.isRead = 1;
+            messagesToUpdate.add(message);
+          }
+        }
+        
+        // تحديث الرسائل في Firestore
+        for (var message in messagesToUpdate) {
+          await messageService.updateMessage(message);
+          updatedCount++;
+        }
+        
+        // تحديث واجهة المستخدم
+        if (mounted) {
+          setState(() {});
+        }
+      } else {
+        // إذا لم يكن هناك مستخدم محدد، نقوم بتحديث جميع الرسائل غير المقروءة للمستخدم الحالي
+        updatedCount = await messageService.updateMessagesReadStatus(widget.currentUser.user_id!);
+      }
+      
+      if (updatedCount > 0) {
+        print('تم تعليم $updatedCount رسالة كمقروءة');
+      } else {
+        print('لا توجد رسائل غير مقروءة لتحديثها');
+      }
     } catch (e) {
       print('خطأ في تعليم الرسائل كمقروءة: $e');
     }

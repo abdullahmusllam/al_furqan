@@ -21,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   UserModel? _parent;
   List<UserModel> _availableTeachers = [];
+  List<UserModel> _availablePrincipals = []; // إضافة قائمة لمديري المدارس
 
   @override
   void initState() {
@@ -60,16 +61,20 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
       
-      // جلب المدرسين والمدير من Firestore
-      List<UserModel> teachers = await _firestoreService.getTeachersAndPrincipal();
+      // جلب المدرسين من Firestore (roleID = 2)
+      List<UserModel> teachers = await _firestoreService.getUsersByRole(2); // 2 = معلم
+      
+      // جلب مديري المدارس من Firestore (roleID = 1)
+      List<UserModel> principals = await _firestoreService.getUsersByRole(1); // 1 = مدير
       
       if (!mounted) return; // Check if widget is still mounted
       
       setState(() {
         _availableTeachers = teachers;
+        _availablePrincipals = principals;
       });
     } catch (e) {
-      print('خطأ في تحميل بيانات المدرسين: $e');
+      print('خطأ في تحميل بيانات المدرسين والمديرين: $e');
     }
   }
 
@@ -283,7 +288,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               builder: (context) =>
                                   ParentConversationsScreen(
                                       currentUser: _parent!,
-                                      availableTeachers: _availableTeachers),
+                                      availableTeachers: _availableTeachers,
+                                      availablePrincipals: _availablePrincipals), // إضافة قائمة مديري المدارس
                             ),
                           );
                         },

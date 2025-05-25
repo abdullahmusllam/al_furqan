@@ -1,5 +1,7 @@
 import '../../models/message.dart';
+import '../../models/student.dart';
 import '../../models/user.dart';
+import '../../service/fierbase_service.dart';
 import '../../service/message_sevice.dart';
 import 'parent_message_screen.dart';
 import 'parent_users_screen.dart';
@@ -10,11 +12,13 @@ import 'package:intl/intl.dart';
 class ParentConversationsScreen extends StatefulWidget {
   final UserModel currentUser;
   final List<UserModel> availableTeachers;
+  final List<UserModel>? availablePrincipals; // إضافة قائمة مديري المدارس
 
   const ParentConversationsScreen({
     Key? key,
     required this.currentUser,
     required this.availableTeachers,
+    this.availablePrincipals, // إضافة مديري المدارس كمعلمة اختيارية
   }) : super(key: key);
 
   @override
@@ -23,75 +27,104 @@ class ParentConversationsScreen extends StatefulWidget {
 
 class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
   List<UserModel> conversationUsers = [];
+  List<Student> children = [];
+  final FirestoreService firestoreService = FirestoreService();
 
   @override
   void initState() {
     super.initState();
     loadConversations();
+    _loadChildren();
+  }
+  
+  // تحميل بيانات أبناء ولي الأمر
+  Future<void> _loadChildren() async {
+    if (widget.currentUser.user_id != null) {
+      final studentsList = await firestoreService.getStudentsByParentId(widget.currentUser.user_id!);
+      if (mounted) {
+        setState(() {
+          children = studentsList;
+        });
+      }
+    }
   }
 
   Future<void> loadConversations() async {
     try {
-      // تحميل المستخدمين من الخدمة
+      // تحميل الرسائل من الخدمة
       List<Message> messages = await messageService.getAllMessages();
       Set<int> userIds = {};
       
+      // جمع معرفات المستخدمين الذين تبادلوا الرسائل مع المستخدم الحالي
       for (var message in messages) {
-        if (message.senderId == widget.currentUser.user_id) {
-          if (!userIds.contains(message.receiverId)) {
-            userIds.add(message.receiverId!);
-          }
-        } else if (message.receiverId == widget.currentUser.user_id) {
-          if (!userIds.contains(message.senderId)) {
-            userIds.add(message.senderId!);
-          }
+        if (message.senderId == widget.currentUser.user_id && message.receiverId != null) {
+          userIds.add(message.receiverId!);
+        } else if (message.receiverId == widget.currentUser.user_id && message.senderId != null) {
+          userIds.add(message.senderId!);
         }
       }
-    } catch (e) {
-      print('Error loading conversations: $e');
-      return;
-    }
-
-    List<UserModel> users = [];
-    for (UserModel user in users) {
       
+      // إنشاء قائمة المستخدمين من معرفاتهم
+      List<UserModel> users = [];
       
-      // Check in available teachers
+      // إضافة المعلمين الذين تبادلوا الرسائل مع المستخدم الحالي
       for (var teacher in widget.availableTeachers) {
-        if (teacher.user_id == user.user_id) {
-          user = teacher;
-          break;
+        if (teacher.user_id != null && userIds.contains(teacher.user_id)) {
+          users.add(teacher);
+          // إزالة المعرف من القائمة بعد إضافة المستخدم
+          userIds.remove(teacher.user_id);
         }
       }
-
-      if (user == null) {
+      
+      // إضافة مديري المدارس الذين تبادلوا الرسائل مع المستخدم الحالي
+      if (widget.availablePrincipals != null) {
+        for (var principal in widget.availablePrincipals!) {
+          if (principal.user_id != null && userIds.contains(principal.user_id)) {
+            users.add(principal);
+            // إزالة المعرف من القائمة بعد إضافة المستخدم
+            userIds.remove(principal.user_id);
+          }
+        }
+      }
+      
+      // البحث عن المستخدمين المتبقين في Firestore
+      for (int userId in userIds) {
         try {
           var doc = await FirebaseFirestore.instance
               .collection('Users')
-              .doc(user.user_id.toString())
+              .doc(userId.toString())
               .get();
+              
           if (doc.exists) {
-            user = UserModel.fromJson(doc.data() as Map<String, dynamic>);
+            UserModel user = UserModel.fromJson(doc.data() as Map<String, dynamic>);
+            users.add(user);
+          } else {
+            // إضافة مستخدم غير معروف إذا لم يتم العثور عليه
+            users.add(UserModel(
+              user_id: userId,
+              first_name: 'مستخدم غير معروف',
+              roleID: 0,
+            ));
           }
         } catch (e) {
-          print('خطأ في جلب المستخدم ${user.user_id}: $e');
+          print('خطأ في جلب المستخدم $userId: $e');
+          // إضافة مستخدم غير معروف في حالة حدوث خطأ
+          users.add(UserModel(
+            user_id: userId,
+            first_name: 'مستخدم غير معروف',
+            roleID: 0,
+          ));
         }
       }
-
-      if (user == null) {
-        user = UserModel(
-          user_id: user.user_id,
-          first_name: 'مستخدم غير معروف',
-          roleID: 0,
-        );
-      }
-
-      users.add(user);
+      
+      if (!mounted) return;
+      setState(() {
+        conversationUsers = users;
+      });
+      
+    } catch (e) {
+      print('خطأ في تحميل المحادثات: $e');
     }
-    if(!mounted) return;
-    setState(() {
-      conversationUsers = users;
-    });
   }
 
   // استخراج آخر رسالة لكل مستخدم
@@ -203,6 +236,8 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
                                 builder: (context) => ParentUsersScreen(
                                   currentUser: widget.currentUser,
                                   availableTeachers: widget.availableTeachers,
+                                  availablePrincipals: widget.availablePrincipals,
+                                  children: children,
                                 ),
                               ),
                             ).then((_) => loadConversations());
@@ -219,7 +254,8 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
                       final user = conversationUsers[index];
                       final lastMessage = lastMessages[user.user_id];
                       final hasUnreadMessage = lastMessage != null && 
-                          lastMessage.senderId != widget.currentUser.user_id;
+                          lastMessage.senderId != widget.currentUser.user_id &&
+                          lastMessage.isRead == 0; // فقط إذا كانت الرسالة غير مقروءة
                       
                       return InkWell(
                         onTap: () {
@@ -366,6 +402,8 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
               builder: (context) => ParentUsersScreen(
                 currentUser: widget.currentUser,
                 availableTeachers: widget.availableTeachers,
+                availablePrincipals: widget.availablePrincipals, // تمرير قائمة مديري المدارس
+                children: children, // تمرير قائمة أبناء ولي الأمر
               ),
             ),
           ).then((_) => loadConversations());

@@ -291,32 +291,39 @@ class MessageService {
         return [];
       }
 
-      // Get messages where user1 and user2 are sender/receiver
-      QuerySnapshot snapshot = await _firestore
+      // استخدام استعلامين منفصلين بدلاً من استعلام مركب
+      // الاستعلام الأول: الرسائل من المستخدم 1 إلى المستخدم 2
+      QuerySnapshot snapshot1 = await _firestore
           .collection('messages')
-          .where(Filter.or(
-            Filter.and(
-              Filter('senderId', isEqualTo: userId1),
-              Filter('receiverId', isEqualTo: userId2)
-            ),
-            Filter.and(
-              Filter('senderId', isEqualTo: userId2),
-              Filter('receiverId', isEqualTo: userId1)
-            )
-          ))
-          .orderBy('timestamp')
+          .where('senderId', isEqualTo: userId1)
+          .where('receiverId', isEqualTo: userId2)
           .get();
 
-      if (snapshot.docs.isEmpty) {
+      // الاستعلام الثاني: الرسائل من المستخدم 2 إلى المستخدم 1
+      QuerySnapshot snapshot2 = await _firestore
+          .collection('messages')
+          .where('senderId', isEqualTo: userId2)
+          .where('receiverId', isEqualTo: userId1)
+          .get();
+
+      // دمج نتائج الاستعلامين
+      List<QueryDocumentSnapshot> allDocs = [];
+      allDocs.addAll(snapshot1.docs);
+      allDocs.addAll(snapshot2.docs);
+
+      if (allDocs.isEmpty) {
         print('لا توجد رسائل بين المستخدمين $userId1 و $userId2');
         return [];
       }
 
       // Convert Firestore documents to Message objects
-      for (var doc in snapshot.docs) {
+      for (var doc in allDocs) {
         Message message = Message.fromMap(doc.data() as Map<String, dynamic>);
         messages.add(message);
       }
+      
+      // ترتيب الرسائل حسب الوقت
+      messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
       
       return messages;
     } catch (e) {
