@@ -50,6 +50,11 @@ dev_dependencies:
   intl:
   shared_preferences:
   internet_connection_checker:
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  image_path: "assets/pictures/al_furqan_icon.png"
 
 
 # For information on the generic Dart part of this file, see the
