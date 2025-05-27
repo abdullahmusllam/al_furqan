@@ -333,14 +333,6 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                       );
                     },
                   ),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.event,
-                    title: 'إدارة الطلاب',
-                    onTap: () {
-                      // الانتقال إلى شاشة الأنشطة
-                    },
-                  ),
                   _buildDivider(),
                   _buildMenuCategory('التعليم'),
                   _buildMenuItem(
