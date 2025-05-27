@@ -536,7 +536,6 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
     } else if (plan is EltlawahPlanModel) {
       planType = "tlawah";
       studentId = plan.studentId!;
-
     }
 
     // البحث عن الطالب المناسب

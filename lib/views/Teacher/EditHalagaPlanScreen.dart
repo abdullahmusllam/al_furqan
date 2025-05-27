@@ -10,7 +10,8 @@ import '../../utils/utils.dart';
 
 class EditHalagaPlanScreen extends StatefulWidget {
   final HalagaModel halaga;
-  final dynamic plan; // يمكن أن يكون ConservationPlanModel أو EltlawahPlanModel أو IslamicStudiesModel
+  final dynamic
+      plan; // يمكن أن يكون ConservationPlanModel أو EltlawahPlanModel أو IslamicStudiesModel
   final String planType; // "conservation", "tlawah", "islamic"
   final StudentModel student;
 
@@ -29,24 +30,34 @@ class EditHalagaPlanScreen extends StatefulWidget {
 class _EditHalagaPlanScreenState extends State<EditHalagaPlanScreen> {
   final _formKey = GlobalKey<FormState>();
   late String titleText;
-  
+
   // المخطط
-  final TextEditingController plannedStartSurahController = TextEditingController();
-  final TextEditingController plannedEndSurahController = TextEditingController();
-  final TextEditingController plannedStartVerseController = TextEditingController();
-  final TextEditingController plannedEndVerseController = TextEditingController();
-  
+  final TextEditingController plannedStartSurahController =
+      TextEditingController();
+  final TextEditingController plannedEndSurahController =
+      TextEditingController();
+  final TextEditingController plannedStartVerseController =
+      TextEditingController();
+  final TextEditingController plannedEndVerseController =
+      TextEditingController();
+
   // المنفذ
-  final TextEditingController executedStartSurahController = TextEditingController();
-  final TextEditingController executedEndSurahController = TextEditingController();
-  final TextEditingController executedStartVerseController = TextEditingController();
-  final TextEditingController executedEndVerseController = TextEditingController();
-  
+  final TextEditingController executedStartSurahController =
+      TextEditingController();
+  final TextEditingController executedEndSurahController =
+      TextEditingController();
+  final TextEditingController executedStartVerseController =
+      TextEditingController();
+  final TextEditingController executedEndVerseController =
+      TextEditingController();
+
   // العلوم الشرعية
-  final TextEditingController plannedContentController = TextEditingController();
-  final TextEditingController executedContentController = TextEditingController();
+  final TextEditingController plannedContentController =
+      TextEditingController();
+  final TextEditingController executedContentController =
+      TextEditingController();
   String? selectedIslamicSubject;
-  
+
   final List<String> islamicSubjects = [
     'التفسير',
     'الحديث',
@@ -59,7 +70,7 @@ class _EditHalagaPlanScreenState extends State<EditHalagaPlanScreen> {
 
   // الشهر
   String planMonth = DateFormat('yyyy-MM').format(DateTime.now());
-  
+
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -89,52 +100,55 @@ class _EditHalagaPlanScreenState extends State<EditHalagaPlanScreen> {
   void _loadPlanData() {
     if (widget.planType == "conservation") {
       ConservationPlanModel plan = widget.plan as ConservationPlanModel;
-      
+
       // تعيين بيانات المخطط
       plannedStartSurahController.text = plan.plannedStartSurah ?? '';
       plannedEndSurahController.text = plan.plannedEndSurah ?? '';
       plannedStartVerseController.text = plan.plannedStartAya?.toString() ?? '';
       plannedEndVerseController.text = plan.plannedEndAya?.toString() ?? '';
-      
+
       // تعيين بيانات المنفذ
       executedStartSurahController.text = plan.executedStartSurah ?? '';
       executedEndSurahController.text = plan.executedEndSurah ?? '';
-      executedStartVerseController.text = plan.executedStartAya?.toString() ?? '';
+      executedStartVerseController.text =
+          plan.executedStartAya?.toString() ?? '';
       executedEndVerseController.text = plan.executedEndAya?.toString() ?? '';
-      
+
       // تعيين الشهر
-      planMonth = plan.planMonth ?? DateFormat('yyyy-MM').format(DateTime.now());
-    } 
-    else if (widget.planType == "tlawah") {
+      planMonth =
+          plan.planMonth ?? DateFormat('yyyy-MM').format(DateTime.now());
+    } else if (widget.planType == "tlawah") {
       EltlawahPlanModel plan = widget.plan as EltlawahPlanModel;
-      
+
       // تعيين بيانات المخطط
       plannedStartSurahController.text = plan.plannedStartSurah ?? '';
       plannedEndSurahController.text = plan.plannedEndSurah ?? '';
       plannedStartVerseController.text = plan.plannedStartAya?.toString() ?? '';
       plannedEndVerseController.text = plan.plannedEndAya?.toString() ?? '';
-      
+
       // تعيين بيانات المنفذ
       executedStartSurahController.text = plan.executedStartSurah ?? '';
       executedEndSurahController.text = plan.executedEndSurah ?? '';
-      executedStartVerseController.text = plan.executedStartAya?.toString() ?? '';
+      executedStartVerseController.text =
+          plan.executedStartAya?.toString() ?? '';
       executedEndVerseController.text = plan.executedEndAya?.toString() ?? '';
-      
+
       // تعيين الشهر
-      planMonth = plan.planMonth ?? DateFormat('yyyy-MM').format(DateTime.now());
-    }
-    else if (widget.planType == "islamic") {
+      planMonth =
+          plan.planMonth ?? DateFormat('yyyy-MM').format(DateTime.now());
+    } else if (widget.planType == "islamic") {
       IslamicStudiesModel plan = widget.plan as IslamicStudiesModel;
-      
+
       // تعيين المادة
       selectedIslamicSubject = plan.subject;
-      
+
       // تعيين المحتوى المخطط والمنفذ
       plannedContentController.text = plan.plannedContent ?? '';
       executedContentController.text = plan.executedContent ?? '';
-      
+
       // تعيين الشهر
-      planMonth = plan.planMonth ?? DateFormat('yyyy-MM').format(DateTime.now());
+      planMonth =
+          plan.planMonth ?? DateFormat('yyyy-MM').format(DateTime.now());
     }
   }
 
@@ -151,66 +165,116 @@ class _EditHalagaPlanScreenState extends State<EditHalagaPlanScreen> {
     try {
       if (widget.planType == "conservation") {
         ConservationPlanModel plan = widget.plan as ConservationPlanModel;
-        
+
         // تحديث بيانات المخطط
         plan.plannedStartSurah = plannedStartSurahController.text;
         plan.plannedEndSurah = plannedEndSurahController.text;
         plan.plannedStartAya = int.tryParse(plannedStartVerseController.text);
         plan.plannedEndAya = int.tryParse(plannedEndVerseController.text);
-        
+
         // تحديث بيانات المنفذ
         plan.executedStartSurah = executedStartSurahController.text;
         plan.executedEndSurah = executedEndSurahController.text;
         plan.executedStartAya = int.tryParse(executedStartVerseController.text);
         plan.executedEndAya = int.tryParse(executedEndVerseController.text);
-        
+
         // تحديث الشهر
         plan.planMonth = planMonth;
-        
+
         // وضع علامة للمزامنة
         plan.isSync = 0;
+
+        // وضع معدل التنفيذ
+        print("DEBUG: plannedEndSurah = ${plan.plannedEndSurah}, executedEndSurah = ${plan.executedEndSurah}");
+        print("DEBUG: plannedEndAya = ${plan.plannedEndAya}, executedEndAya = ${plan.executedEndAya}");
         
+        // تحسين حساب معدل التنفيذ
+        if (plan.executedEndSurah == plan.plannedEndSurah) {
+          print("DEBUG: السورة متطابقة، جاري حساب المعدل");
+          if (plan.plannedEndAya != null && plan.executedEndAya != null && plan.plannedEndAya! > 0) {
+            if (plan.plannedEndAya! >= plan.executedEndAya!) {
+              double executedRate = (plan.executedEndAya! / plan.plannedEndAya!) * 100;
+              plan.executedRate = executedRate;
+              print("DEBUG: تم حساب المعدل = ${plan.executedRate}%");
+            } else {
+              plan.executedRate = 100.0; // إذا كان المنفذ أكثر من المخطط، فقد تم تنفيذ 100%
+              print("DEBUG: المنفذ أكبر من المخطط، المعدل = 100%");
+            }
+          } else {
+            plan.executedRate = 0.0;
+            print("DEBUG: قيم الآيات غير صالحة، المعدل = 0%");
+          }
+        } else {
+          // يمكن إضافة حساب أكثر تعقيدًا هنا للسور المختلفة
+          plan.executedRate = 0.0;
+          print("DEBUG: السور مختلفة، المعدل = 0%");
+        }
+
         // تحديث في قاعدة البيانات - سنستخدم updatePlan لأن updateConservationPlan غير معرف
         await planController.updateConservationPlan2(plan);
-      } 
-      else if (widget.planType == "tlawah") {
+      } else if (widget.planType == "tlawah") {
         EltlawahPlanModel plan = widget.plan as EltlawahPlanModel;
-        
+
         // تحديث بيانات المخطط
         plan.plannedStartSurah = plannedStartSurahController.text;
         plan.plannedEndSurah = plannedEndSurahController.text;
         plan.plannedStartAya = int.tryParse(plannedStartVerseController.text);
         plan.plannedEndAya = int.tryParse(plannedEndVerseController.text);
-        
+
         // تحديث بيانات المنفذ
         plan.executedStartSurah = executedStartSurahController.text;
         plan.executedEndSurah = executedEndSurahController.text;
         plan.executedStartAya = int.tryParse(executedStartVerseController.text);
         plan.executedEndAya = int.tryParse(executedEndVerseController.text);
-        
+
         // تحديث الشهر
         plan.planMonth = planMonth;
-        
+
         // وضع علامة للمزامنة
         plan.isSync = 0;
+
+        // وضع معدل التنفيذ
+        print("DEBUG: plannedEndSurah = ${plan.plannedEndSurah}, executedEndSurah = ${plan.executedEndSurah}");
+        print("DEBUG: plannedEndAya = ${plan.plannedEndAya}, executedEndAya = ${plan.executedEndAya}");
         
+        // تحسين حساب معدل التنفيذ
+        if (plan.executedEndSurah == plan.plannedEndSurah) {
+          print("DEBUG: السورة متطابقة، جاري حساب المعدل");
+          if (plan.plannedEndAya != null && plan.executedEndAya != null && plan.plannedEndAya! > 0) {
+            if (plan.plannedEndAya! >= plan.executedEndAya!) {
+              double executedRate = (plan.executedEndAya! / plan.plannedEndAya!) * 100;
+              plan.executedRate = executedRate.roundToDouble();
+              print("DEBUG: تم حساب المعدل = ${plan.executedRate}%");
+            } else {
+              plan.executedRate = 100.0; // إذا كان المنفذ أكثر من المخطط، فقد تم تنفيذ 100%
+              print("DEBUG: المنفذ أكبر من المخطط، المعدل = 100%");
+            }
+          } else {
+            plan.executedRate = 0.0;
+            print("DEBUG: قيم الآيات غير صالحة، المعدل = 0%");
+          }
+        } else {
+          // يمكن إضافة حساب أكثر تعقيدًا هنا للسور المختلفة
+          plan.executedRate = 0.0;
+          print("DEBUG: السور مختلفة، المعدل = 0%");
+        }
+
         // تحديث في قاعدة البيانات - سنستخدم updateEltlawahPlan2 لأن updateEltlawahPlan غير معرف
         await planController.updateEltlawahPlan2(plan);
-      } 
-      else if (widget.planType == "islamic") {
+      } else if (widget.planType == "islamic") {
         IslamicStudiesModel plan = widget.plan as IslamicStudiesModel;
-        
+
         // تحديث المادة والمحتوى
         plan.subject = selectedIslamicSubject;
         plan.plannedContent = plannedContentController.text;
         plan.executedContent = executedContentController.text;
-        
+
         // تحديث الشهر
         plan.planMonth = planMonth;
-        
+
         // وضع علامة للمزامنة
         plan.isSync = 0;
-        
+
         // تحديث في قاعدة البيانات - سنستخدم updateIslamicStudies2 لأن updateIslamicStudies غير معرف
         await planController.updateIslamicStudies2(plan);
       }
@@ -247,18 +311,18 @@ class _EditHalagaPlanScreenState extends State<EditHalagaPlanScreen> {
               // معلومات الطالب
               _buildStudentInfoCard(),
               SizedBox(height: 24),
-              
+
               // رأس الخطة والشهر
               _buildHeaderSection(),
               SizedBox(height: 24),
-              
+
               // بناء محتوى الشاشة حسب نوع الخطة
-              if (widget.planType == "conservation" || widget.planType == "tlawah")
+              if (widget.planType == "conservation" ||
+                  widget.planType == "tlawah")
                 _buildQuranPlanContent(),
-              
-              if (widget.planType == "islamic")
-                _buildIslamicStudiesContent(),
-              
+
+              if (widget.planType == "islamic") _buildIslamicStudiesContent(),
+
               // رسائل الخطأ
               if (_errorMessage != null)
                 Padding(
@@ -268,7 +332,7 @@ class _EditHalagaPlanScreenState extends State<EditHalagaPlanScreen> {
                     style: TextStyle(color: Colors.red),
                   ),
                 ),
-              
+
               // زر التحديث
               SizedBox(height: 24),
               SizedBox(
@@ -381,7 +445,6 @@ class _EditHalagaPlanScreenState extends State<EditHalagaPlanScreen> {
   }
 
   Widget _buildQuranPlanContent() {
-    
     return Column(
       children: [
         // قسم المخطط
@@ -407,9 +470,9 @@ class _EditHalagaPlanScreenState extends State<EditHalagaPlanScreen> {
             ],
           ),
         ),
-        
+
         SizedBox(height: 24),
-        
+
         // قسم المنفذ
         _buildCard(
           title: "المنفذ",
@@ -525,9 +588,9 @@ class _EditHalagaPlanScreenState extends State<EditHalagaPlanScreen> {
             ],
           ),
         ),
-        
+
         SizedBox(height: 24),
-        
+
         // قسم المنفذ
         _buildCard(
           title: "المنفذ",
