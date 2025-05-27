@@ -3,6 +3,7 @@
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/Supervisor/show_all_schools.dart';
 import 'package:al_furqan/views/Supervisor/show_all_teacher.dart';
+import 'package:al_furqan/views/checkDBlocal/database_viewer_entry.dart';
 import 'package:al_furqan/views/supervisor/verification_requests_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -86,6 +87,18 @@ class DrawerList extends StatelessWidget {
                 context,
                 CupertinoPageRoute(
                     builder: (context) => VerificationRequestsScreen()),
+              );
+            },
+          ),
+          // إضافة رابط لصفحة فحص قاعدة البيانات
+          _createDrawerItem(
+            icon: Icons.storage,
+            text: 'فحص قاعدة البيانات',
+            onTap: () {
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                    builder: (context) => DatabaseViewerEntry()),
               );
             },
           ),

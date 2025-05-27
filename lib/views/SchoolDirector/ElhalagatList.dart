@@ -53,7 +53,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
           // جلب أسماء المعلمين لكل حلقة
           for (var halqa in halaqat) {
             halqa.teacherName = await halagaController.getTeacher(halqa.halagaID!);
-             print(halqa.teacherName);
+            print(halqa.teacherName);
           }
         } else {
           halaqat = [];
@@ -153,7 +153,6 @@ class _HalqatListPageState extends State<HalqatListPage> {
                       itemBuilder: (context, index) {
                         final halqa = halaqat[
                             index]; // الحصول على الحلقة بناءً على الفهرس
-
                         // تحديد لون المعلم بناء على وجوده
                         Color teacherTextColor =
                             halqa.teacherName == 'لا يوجد معلم للحلقة'

@@ -1,5 +1,9 @@
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/StudentController.dart';
+import 'package:al_furqan/controllers/plan_controller.dart';
+import 'package:al_furqan/models/conservation_plan_model.dart';
+import 'package:al_furqan/models/eltlawah_plan_model.dart';
+import 'package:al_furqan/models/islamic_studies_model.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/views/SchoolDirector/EditHalaga.dart';
 import 'package:al_furqan/views/Teacher/HalqaReportScreen.dart';
@@ -21,12 +25,19 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
   List<StudentModel> students = [];
   bool _isLoading = false;
   HalagaModel? _halqaDetails;
+  List<ConservationPlanModel> conservationPlans = [];
+  List<EltlawahPlanModel> eltlawahPlans = [];
+  List<IslamicStudiesModel> islamicStudyPlans = [];
+  
+  // خرائط لربط معرفات الطلاب بخططهم
+  Map<int, ConservationPlanModel> studentConservationPlans = {};
 
   @override
   void initState() {
     super.initState();
     _loadStudents();
     _loadHalqaDetails();
+    _loadPlanDetails();
   }
 
   Future<void> _loadStudents() async {
@@ -84,8 +95,64 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
     }
   }
 
+  Future<void> _loadPlanDetails() async {
+    final int? halagaID = widget.halqa.halagaID;
+    print("------> halagaID: $halagaID");
+    if (halagaID == null) {
+      print("------> halagaID is null, returning");
+      return;
+    }
+
+    try {
+      setState(() => _isLoading = true);
+      
+      // التحقق من وجود الحلقة في قاعدة البيانات
+      print("------> Attempting to load plans for halagaID: $halagaID");
+      
+      // الحصول على تفاصيل الحلقة بما في ذلك خطة الحفظ والتلاوة والعلوم الشرعية
+      await planController.getPlans(halagaID);
+      
+      // طباعة معلومات تصحيح للتحقق من البيانات
+      print("------> Loaded plans from controller");
+      print("------> Conservation Plans: ${planController.conservationPlans.length}");
+      print("------> Eltlawah Plans: ${planController.eltlawahPlans.length}");
+      print("------> Islamic Study Plans: ${planController.islamicStudyPlans.length}");
+      
+      if (mounted) {
+        // تعيين القوائم بشكل صحيح بدون استخدام async داخل setState
+        setState(() {
+          conservationPlans = planController.conservationPlans;
+          eltlawahPlans = planController.eltlawahPlans;
+          islamicStudyPlans = planController.islamicStudyPlans;
+          
+          // إنشاء خريطة من معرفات الطلاب إلى خطط الحفظ الخاصة بهم
+          studentConservationPlans.clear();
+          for (var plan in conservationPlans) {
+            if (plan.studentId != null && plan.studentId! > 0) {
+              studentConservationPlans[plan.studentId!] = plan;
+              print("------> Added plan for student ID: ${plan.studentId}");
+            }
+          }
+          
+          _isLoading = false;
+          
+          // طباعة معلومات تصحيح للتحقق من البيانات بعد التعيين
+          print("------> Updated state with plans");
+          print("------> Local Conservation Plans: ${conservationPlans.length}");
+          print("------> Local Eltlawah Plans: ${eltlawahPlans.length}");
+          print("------> Local Islamic Study Plans: ${islamicStudyPlans.length}");
+          print("------> Student Conservation Plans Map size: ${studentConservationPlans.length}");
+        });
+      }
+    } catch (e) {
+      print("Error loading halqa details: $e");
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // _loadPlanDetails();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
@@ -254,12 +321,6 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                             ),
                             const Divider(),
 
-                            // خطة الحفظ
-                            _buildConservationPlanSection(),
-
-                            const SizedBox(height: 15),
-                            const Divider(),
-
                             // خطة التلاوة
                             _buildRecitationPlanSection(),
 
@@ -279,20 +340,35 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'الطلاب',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
-                          ),
+                        Row(
+                          children: [
+                            Icon(Icons.people, color: Theme.of(context).primaryColor),
+                            const SizedBox(width: 8),
+                            Text(
+                              'الطلاب (${students.length})',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 10),
                         Container(
-                          height: 300,
+                          height: 350,
                           decoration: BoxDecoration(
+                            color: Colors.white,
                             border: Border.all(color: Colors.grey[300]!),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.1),
+                                spreadRadius: 1,
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
                           child: _isLoading
                               ? const Center(child: CircularProgressIndicator())
@@ -317,31 +393,231 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                                       ),
                                     )
                                   : ListView.builder(
+                                      padding: const EdgeInsets.all(8),
                                       itemCount: students.length,
                                       itemBuilder: (context, index) {
                                         final student = students[index];
-                                        return ListTile(
-                                          leading: CircleAvatar(
-                                            backgroundColor: Theme.of(context)
-                                                .primaryColor
-                                                .withOpacity(0.1),
-                                            child: Text(
-                                              student.firstName
-                                                      ?.substring(0, 1)
-                                                      .toUpperCase() ??
-                                                  'S',
-                                              style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .primaryColor,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
+                                        final hasConservationPlan = studentConservationPlans.containsKey(student.studentID);
+                                        
+                                        return Card(
+                                          margin: const EdgeInsets.only(bottom: 12),
+                                          elevation: 1,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
                                           ),
-                                          title: Text(
-                                            '${student.firstName ?? ''} ${student.middleName ?? ''} ${student.lastName ?? ''}'
-                                                .trim(),
-                                            style:
-                                                const TextStyle(fontSize: 16),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(12.0),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                // معلومات الطالب
+                                                Row(
+                                                  children: [
+                                                    CircleAvatar(
+                                                      radius: 24,
+                                                      backgroundColor: Theme.of(context)
+                                                          .primaryColor
+                                                          .withOpacity(0.1),
+                                                      child: Text(
+                                                        student.firstName
+                                                                ?.substring(0, 1)
+                                                                .toUpperCase() ??
+                                                            'S',
+                                                        style: TextStyle(
+                                                          fontSize: 18,
+                                                          color: Theme.of(context)
+                                                              .primaryColor,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                    Expanded(
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text(
+                                                            '${student.firstName ?? ''} ${student.middleName ?? ''} ${student.lastName ?? ''}'
+                                                                .trim(),
+                                                            style: const TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight: FontWeight.bold,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            'رقم الهوية: ${student.studentID ?? "غير متوفر"}',
+                                                            style: TextStyle(
+                                                              fontSize: 12,
+                                                              color: Colors.grey[600],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                
+                                                // خطة الحفظ
+                                                if (hasConservationPlan) ...[  
+                                                  const SizedBox(height: 16),
+                                                  Container(
+                                                    padding: const EdgeInsets.all(12),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey[50],
+                                                      borderRadius: BorderRadius.circular(8),
+                                                      border: Border.all(color: Colors.grey[200]!),
+                                                    ),
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        // المخطط
+                                                        Row(
+                                                          children: [
+                                                            Icon(Icons.assignment, size: 16, color: Theme.of(context).primaryColor),
+                                                            const SizedBox(width: 4),
+                                                            Text(
+                                                              'خطة الحفظ',
+                                                              style: TextStyle(
+                                                                fontWeight: FontWeight.bold,
+                                                                color: Theme.of(context).primaryColor,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        const SizedBox(height: 4),
+                                                        Row(
+                                                          children: [
+                                                            Expanded(
+                                                              child: Container(
+                                                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors.white,
+                                                                  borderRadius: BorderRadius.circular(4),
+                                                                ),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Text('من: ', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                                                                    Expanded(
+                                                                      child: Text(
+                                                                        '${studentConservationPlans[student.studentID]?.plannedStartSurah ?? "غير محدد"} ${studentConservationPlans[student.studentID]?.plannedStartAya ?? ""}',
+                                                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            const SizedBox(width: 8),
+                                                            Expanded(
+                                                              child: Container(
+                                                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors.white,
+                                                                  borderRadius: BorderRadius.circular(4),
+                                                                ),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Text('إلى: ', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                                                                    Expanded(
+                                                                      child: Text(
+                                                                        '${studentConservationPlans[student.studentID]?.plannedEndSurah ?? "غير محدد"} ${studentConservationPlans[student.studentID]?.plannedEndAya ?? ""}',
+                                                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        
+                                                        // المنفذ
+                                                        const SizedBox(height: 12),
+                                                        Row(
+                                                          children: [
+                                                            Icon(Icons.check_circle, size: 16, color: Colors.green[700]),
+                                                            const SizedBox(width: 4),
+                                                            Text(
+                                                              'المنفذ:',
+                                                              style: TextStyle(
+                                                                fontWeight: FontWeight.bold,
+                                                                color: Colors.green[700],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        const SizedBox(height: 4),
+                                                        Row(
+                                                          children: [
+                                                            Expanded(
+                                                              child: Container(
+                                                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors.white,
+                                                                  borderRadius: BorderRadius.circular(4),
+                                                                ),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Text('من: ', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                                                                    Expanded(
+                                                                      child: Text(
+                                                                        '${studentConservationPlans[student.studentID]?.executedStartSurah ?? "غير محدد"} ${studentConservationPlans[student.studentID]?.executedStartAya ?? ""}',
+                                                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            const SizedBox(width: 8),
+                                                            Expanded(
+                                                              child: Container(
+                                                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors.white,
+                                                                  borderRadius: BorderRadius.circular(4),
+                                                                ),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Text('إلى: ', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                                                                    Expanded(
+                                                                      child: Text(
+                                                                        '${studentConservationPlans[student.studentID]?.executedEndSurah ?? "غير محدد"} ${studentConservationPlans[student.studentID]?.executedEndAya ?? ""}',
+                                                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ] else ...[  
+                                                  const SizedBox(height: 8),
+                                                  Container(
+                                                    padding: const EdgeInsets.all(8),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey[100],
+                                                      borderRadius: BorderRadius.circular(4),
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Icon(Icons.info_outline, size: 16, color: Colors.grey[600]),
+                                                        const SizedBox(width: 4),
+                                                        Text(
+                                                          'لا توجد خطة حفظ لهذا الطالب',
+                                                          style: TextStyle(color: Colors.grey[600]),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
                                           ),
                                         );
                                       },
@@ -500,19 +776,35 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
 
   Widget _buildRecitationPlanSection() {
     // بيانات المخطط
-    // String? plannedStartSurah = _halqaDetails?.recitationStartSurah;
-    // String? plannedEndSurah = _halqaDetails?.recitationEndSurah;
-    // int? plannedStartVerse = _halqaDetails?.recitationStartVerse;
-    // int? plannedEndVerse = _halqaDetails?.recitationEndVerse;
+    String? plannedStartSurah;
+    String? plannedEndSurah;
+    int? plannedStartVerse;
+    int? plannedEndVerse;
 
     // بيانات المنفذ
-    // String? executedStartSurah = _halqaDetails?.executedStartSurah;
-    // String? executedEndSurah = _halqaDetails?.executedEndSurah;
-    // int? executedStartVerse = _halqaDetails?.executedStartVerse;
-    // int? executedEndVerse = _halqaDetails?.executedEndVerse;
+    String? executedStartSurah;
+    String? executedEndSurah;
+    int? executedStartVerse;
+    int? executedEndVerse;
 
     // نسبة الإنجاز (يمكن حساب هذه النسبة لاحقًا)
     String completionRate = '0%';
+  
+    // طباعة معلومات تصحيح للتحقق من البيانات
+    print("_buildRecitationPlanSection - eltlawahPlans length: ${eltlawahPlans.length}");
+  
+    // تحقق من وجود خطط تلاوة قبل محاولة الوصول إليها
+    if (eltlawahPlans.isNotEmpty) {
+      plannedStartSurah = eltlawahPlans[0].plannedStartSurah;
+      plannedEndSurah = eltlawahPlans[0].plannedEndSurah;
+      plannedStartVerse = eltlawahPlans[0].plannedStartAya;
+      plannedEndVerse = eltlawahPlans[0].plannedEndAya;
+
+      executedStartSurah = eltlawahPlans[0].executedStartSurah;
+      executedEndSurah = eltlawahPlans[0].executedEndSurah;
+      executedStartVerse = eltlawahPlans[0].executedStartAya;
+      executedEndVerse = eltlawahPlans[0].executedEndAya;
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -562,7 +854,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('من',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text('none',
+                      Text(plannedStartSurah??'none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -571,7 +863,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('إلى',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text('none',
+                      Text(plannedEndSurah??'none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -611,7 +903,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('من',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text('none',
+                      Text(executedStartSurah??'none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -620,7 +912,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('إلى',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text('none',
+                      Text(executedEndSurah??'none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -643,10 +935,12 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
 
   Widget _buildIslamicStudiesSection() {
     // بيانات العلوم الشرعية
-    // String? subject = _halqaDetails?.islamicStudiesSubject;
-    // String? plannedContent = _halqaDetails?.islamicStudiesContent;
-    // String? executedContent = _halqaDetails?.executedIslamicContent;
-    // String? executionReason = _halqaDetails?.islamicExecutionReason;
+    String? subject = islamicStudyPlans.isNotEmpty ? islamicStudyPlans[0].subject : null;
+    String? plannedContent = islamicStudyPlans.isNotEmpty ? islamicStudyPlans[0].plannedContent : null;
+    String? executedContent = islamicStudyPlans.isNotEmpty ? islamicStudyPlans[0].executedContent : null;
+    
+    // طباعة معلومات تصحيح للتحقق من البيانات
+    print("------> Islamic Study Plans in _buildIslamicStudiesSection: ${islamicStudyPlans.length}");
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -691,7 +985,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                 children: [
                   const Text('المقرر: ',
                       style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('subject'),
+                  Text(subject??'none'),
                 ],
               ),
               const SizedBox(height: 8),
@@ -701,7 +995,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                   const Text('المحتوى: ',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Expanded(
-                    child: Text('plannedContent'),
+                    child: Text(plannedContent??'none'),
                   ),
                 ],
               ),
@@ -737,7 +1031,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                   const Text('المحتوى: ',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Expanded(
-                    child: Text('executedContent'),
+                    child: Text(executedContent??'none'),
                   ),
                 ],
               ),

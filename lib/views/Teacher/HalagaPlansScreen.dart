@@ -92,7 +92,6 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
             isSync: 0,
           ),
         );
-       
 
         // التحقق من نجاح العمليات
         if (conservationResult <= 0) {
