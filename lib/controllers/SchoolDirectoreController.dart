@@ -36,6 +36,16 @@ class SchoolDirectorController {
     // });
     print("${userData.isEmpty}");
   }
+
+  Future<String> getSchoolName(int schoolId) async {
+    List<Map> Data = await _sqlDb.readData("SELECT * FROM 'SCHOOLS' WHERE SchoolID = '$schoolId'");
+    String schoolName = "";
+    for (var i = 0; i < Data.length; i++) {
+      schoolName = Data[i]['school_name'];
+    }
+    print("school name: $schoolName");
+    return schoolName;
+  }
   
 }
 

@@ -2,6 +2,7 @@ import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/ElhalagatList.dart';
 import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
+import 'package:al_furqan/views/SchoolDirector/attendanceQrScreen.dart';
 import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
 import 'package:al_furqan/views/SchoolDirector/teacher_management.dart';
 import 'package:al_furqan/views/shared/main_screen.dart';
@@ -159,18 +160,20 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     icon: Icons.people,
                     title: 'تحضير المعلمين',
                     onTap: () {
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => AttendanceScreen(),
-                      //   ),
-                      // );
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AttendanceQRScreen(),
+                        ),
+                      );
                     },
                   ),
                   _buildMenuItem(
                     icon: Icons.manage_accounts,
                     title: "إدارة المعلمين",
                     onTap: () {
+                      Navigator.pop(context);
                       Navigator.of(context).push(
                         CupertinoPageRoute(
                             builder: (context) => TeacherManagement()),
@@ -187,6 +190,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     icon: Icons.school,
                     title: 'إدارة الطلاب',
                     onTap: () {
+                      Navigator.pop(context);
                       Navigator.push(
                         context,
                         CupertinoPageRoute(
@@ -200,6 +204,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     icon: Icons.groups,
                     title: 'إدارة الحلقات',
                     onTap: () {
+                      Navigator.pop(context);
                       Navigator.push(
                         context,
                         CupertinoPageRoute(
@@ -216,6 +221,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     icon: Icons.book,
                     title: 'المناهج',
                     onTap: () {
+                      Navigator.pop(context);
                       // الانتقال إلى شاشة المناهج
                     },
                   ),
@@ -226,6 +232,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     icon: Icons.settings,
                     title: 'الإعدادات',
                     onTap: () {
+                      Navigator.pop(context);
                       // الانتقال إلى شاشة الإعدادات
                     },
                   ),

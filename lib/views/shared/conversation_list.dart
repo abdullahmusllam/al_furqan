@@ -233,7 +233,8 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                       final user = conversationUsers[index];
                       final lastMessage = lastMessages[user.user_id];
                       final hasUnreadMessage = lastMessage != null && 
-                          lastMessage.senderId != widget.currentUser.user_id;
+                          lastMessage.senderId != widget.currentUser.user_id &&
+                          lastMessage.isRead == 0;
                       
                       return InkWell(
                         onTap: () {
