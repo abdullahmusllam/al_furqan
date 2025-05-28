@@ -1,6 +1,7 @@
 // ignore: file_names
 
 import 'package:al_furqan/views/Teacher/HalagaPlansListScreen.dart';
+import 'package:al_furqan/views/Teacher/attendTeacherScreen.dart';
 import 'package:al_furqan/views/Teacher/islamic_studies_plans_list.dart';
 import 'package:al_furqan/views/Teacher/monthly_report.dart';
 import 'package:al_furqan/views/shared/main_screen.dart';
