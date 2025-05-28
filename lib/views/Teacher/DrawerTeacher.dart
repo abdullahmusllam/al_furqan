@@ -365,6 +365,7 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                     icon: Icons.book,
                     title: 'خطة الحفظ والتلاوة',
                     onTap: () {
+                      Navigator.pop(context);
                       if (_isLoadingHalaga) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -420,6 +421,7 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                     icon: Icons.assessment,
                     title: 'العلوم الشرعية',
                     onTap: () {
+                      Navigator.pop(context);
                       // الانتقال إلى شاشة التقييمات
                       Navigator.push(
                         context,
@@ -441,6 +443,7 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                     icon: Icons.message,
                     title: 'الرسائل',
                     onTap: () {
+                      Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -458,6 +461,7 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                     icon: Icons.settings,
                     title: 'الإعدادات',
                     onTap: () {
+                      Navigator.pop(context);
                       // الانتقال إلى شاشة الإعدادات
                     },
                   ),
@@ -466,6 +470,7 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                     icon: Icons.refresh,
                     title: 'تحديث البيانات',
                     onTap: () {
+                      Navigator.pop(context);
                       _loadTeacherHalaga();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(

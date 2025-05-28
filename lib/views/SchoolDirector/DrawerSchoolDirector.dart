@@ -5,6 +5,7 @@ import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
 import 'package:al_furqan/views/SchoolDirector/attendanceQrScreen.dart';
 import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
 import 'package:al_furqan/views/SchoolDirector/teacher_management.dart';
+import 'package:al_furqan/views/SchoolDirector/teachers_attendance_list.dart';
 import 'package:al_furqan/views/shared/main_screen.dart';
 import 'package:al_furqan/views/shared/message_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -171,18 +172,25 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                   ),
                   _buildMenuItem(
                     icon: Icons.manage_accounts,
-                    title: "إدارة المعلمين",
+                    title: "عرض الحضور",
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.of(context).push(
                         CupertinoPageRoute(
-                            builder: (context) => TeacherManagement()),
+                            builder: (context) => TeachersAttendanceListScreen(
+                                schoolId: widget.user!.schoolID!.toString())),
                       );
                     },
                   ),
-                  _buildMenuItem(icon: Icons.message, title: "الرسائل", onTap: () {
-                    Navigator.of(context).push(CupertinoPageRoute(builder: (context) => MainScreen(currentUser: widget.user!)));
-                  }),
+                  _buildMenuItem(
+                      icon: Icons.message,
+                      title: "الرسائل",
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.of(context).push(CupertinoPageRoute(
+                            builder: (context) =>
+                                MainScreen(currentUser: widget.user!)));
+                      }),
 
                   // Student Management Section
                   _buildSectionTitle('إدارة الطلاب والحلقات'),
