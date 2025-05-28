@@ -53,17 +53,80 @@ class _AddUserState extends State<AddUser> {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).primaryColor;
+    
     return Scaffold(
       appBar: AppBar(
-        title: Text('إضافة مستخدم جديد'),
+        title: Text(
+          'إضافة مستخدم جديد',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: primaryColor,
+        elevation: 2,
+        iconTheme: IconThemeData(color: Colors.white),
+        centerTitle: true,
+        toolbarHeight: 70,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20),
+          ),
+        ),
       ),
-      body: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: [
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.green.shade50, Colors.white],
+            stops: [0.0, 0.3],
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header section
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: Text(
+                      'معلومات المستخدم',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: primaryColor,
+                      ),
+                    ),
+                  ),
+                  
+                  // Form card
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Personal information section
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: Text(
+                              'المعلومات الشخصية',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: primaryColor,
+                              ),
+                            ),
+                          ),
+                          Divider(height: 1, color: Colors.grey.shade300),
+                          SizedBox(height: 16),
                 _buildTextFormField(
                   controller: _firstname,
                   label: 'الاسم الأول',
@@ -154,7 +217,12 @@ class _AddUserState extends State<AddUser> {
                 _buildActivateSwitch(),
                 SizedBox(height: 10),
                 _buildSubmitButton(),
-              ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -170,17 +238,41 @@ class _AddUserState extends State<AddUser> {
     required String validatorMsg,
     String? Function(String?)? additionalValidator,
   }) {
+    final primaryColor = Theme.of(context).primaryColor;
+    
     return TextFormField(
       controller: controller,
       keyboardType: inputType,
       maxLength: maxLength,
       inputFormatters: [
-        FilteringTextInputFormatter.deny(RegExp(r'[0-9_\-!#\$%^&*(),?":{}|<>]'))
+        FilteringTextInputFormatter.deny(RegExp(r'[0-9_\-!#\$%^&*(),?":{}<>]'))
       ],
       textInputAction: TextInputAction.next,
+      style: TextStyle(fontSize: 16),
       decoration: InputDecoration(
         labelText: label,
-        border: OutlineInputBorder(),
+        counterText: '',
+        prefixIcon: Icon(
+          inputType == TextInputType.emailAddress 
+              ? Icons.email_outlined 
+              : Icons.person_outline,
+          color: primaryColor,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: primaryColor, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -202,18 +294,37 @@ class _AddUserState extends State<AddUser> {
     required String validatorMsg,
     String? Function(String?)? additionalValidator,
   }) {
+    final primaryColor = Theme.of(context).primaryColor;
+    
     return TextFormField(
       controller: controller,
       keyboardType: inputType,
       maxLength: maxLength,
       textInputAction: TextInputAction.next,
+      style: TextStyle(fontSize: 16),
       inputFormatters: [
         FilteringTextInputFormatter.deny(
-            RegExp(r'[ا-يa-zA-Z@._\-!#\$%^&*(),?":{}|<>]'))
+            RegExp(r'[ا-يa-zA-Z@._\-!#\$%^&*(),?":{}<>]'))
       ],
       decoration: InputDecoration(
         labelText: label,
-        border: OutlineInputBorder(),
+        counterText: '',
+        prefixIcon: Icon(Icons.phone_outlined, color: primaryColor),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: primaryColor, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -228,19 +339,39 @@ class _AddUserState extends State<AddUser> {
   }
 
   TextFormField _buildPasswordFormField() {
+    final primaryColor = Theme.of(context).primaryColor;
+    
     return TextFormField(
       controller: _password,
       obscureText: !_isPasswordVisible,
       textInputAction: TextInputAction.next,
       maxLength: 8,
+      style: TextStyle(fontSize: 16),
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
         labelText: 'كلمة المرور',
-        border: OutlineInputBorder(),
+        counterText: '',
+        prefixIcon: Icon(Icons.lock_outline, color: primaryColor),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: primaryColor, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         suffixIcon: IconButton(
           icon: Icon(
             _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+            color: Colors.grey.shade600,
           ),
           onPressed: () {
             setState(() {
@@ -261,13 +392,31 @@ class _AddUserState extends State<AddUser> {
   }
 
   TextFormField _buildDateFormField() {
+    final primaryColor = Theme.of(context).primaryColor;
+    
     return TextFormField(
       textInputAction: TextInputAction.next,
       controller: _date,
       readOnly: true,
+      style: TextStyle(fontSize: 16),
       decoration: InputDecoration(
         labelText: 'تاريخ الميلاد',
-        border: OutlineInputBorder(),
+        prefixIcon: Icon(Icons.calendar_today, color: primaryColor),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: primaryColor, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
       onTap: () async {
         DateTime? pickedDate = await showDatePicker(
@@ -293,14 +442,32 @@ class _AddUserState extends State<AddUser> {
   }
 
   Row _buildSchoolDropdown() {
+    final primaryColor = Theme.of(context).primaryColor;
+    
     return Row(
       children: [
         Expanded(
           child: DropdownButtonFormField<int>(
             value: _selectedSchoolId,
+            style: TextStyle(fontSize: 16, color: Colors.black87),
             decoration: InputDecoration(
               labelText: 'اختر المدرسة',
-              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.school, color: primaryColor),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: primaryColor, width: 2),
+              ),
+              filled: true,
+              fillColor: Colors.grey.shade50,
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
             items: _schoolItems,
             onChanged: (newValue) {
@@ -310,24 +477,50 @@ class _AddUserState extends State<AddUser> {
             },
           ),
         ),
-        IconButton(
-          icon: Icon(Icons.add),
-          onPressed: () async {
-            await Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => AddSchool()));
-            await _loadSchools();
-          },
+        Container(
+          decoration: BoxDecoration(
+            color: primaryColor,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          margin: EdgeInsets.only(right: 8),
+          child: IconButton(
+            icon: Icon(Icons.add, color: Colors.white),
+            tooltip: 'إضافة مدرسة جديدة',
+            onPressed: () async {
+              await Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => AddSchool()));
+              await _loadSchools();
+            },
+          ),
         ),
       ],
     );
   }
 
   DropdownButtonFormField<String> _buildRoleDropdown() {
+    final primaryColor = Theme.of(context).primaryColor;
+    
     return DropdownButtonFormField<String>(
       value: _selectedRole,
+      style: TextStyle(fontSize: 16, color: Colors.black87),
       decoration: InputDecoration(
         labelText: 'اختر الدور',
-        border: OutlineInputBorder(),
+        prefixIcon: Icon(Icons.assignment_ind, color: primaryColor),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: primaryColor, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
       items: <String>['مشرف', 'مدير', 'معلم'].map((String value) {
         return DropdownMenuItem<String>(
@@ -350,9 +543,24 @@ class _AddUserState extends State<AddUser> {
   }
 
   SwitchListTile _buildActivateSwitch() {
+    final primaryColor = Theme.of(context).primaryColor;
+    
     return SwitchListTile(
-      title: Text('تفعيل المستخدم'),
+      title: Text('تفعيل المستخدم', style: TextStyle(fontSize: 16)),
+      subtitle: Text(_isActivate ? 'المستخدم مفعل' : 'المستخدم غير مفعل', 
+        style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
       value: _isActivate,
+      activeColor: primaryColor,
+      secondary: Icon(
+        _isActivate ? Icons.check_circle : Icons.cancel_outlined,
+        color: _isActivate ? primaryColor : Colors.grey,
+      ),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(color: Colors.grey.shade300),
+      ),
+      tileColor: Colors.grey.shade50,
       onChanged: (bool value) {
         setState(() {
           _isActivate = value;
@@ -362,13 +570,34 @@ class _AddUserState extends State<AddUser> {
   }
 
   ElevatedButton _buildSubmitButton() {
+    final primaryColor = Theme.of(context).primaryColor;
+    
     return ElevatedButton(
       onPressed: () {
         if (_formKey.currentState!.validate()) {
           _submitForm();
         }
       },
-      child: Text('إضافة المستخدم'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        elevation: 2,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.person_add),
+          SizedBox(width: 8),
+          Text(
+            'إضافة المستخدم',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
     );
   }
 

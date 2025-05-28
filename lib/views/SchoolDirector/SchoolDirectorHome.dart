@@ -7,6 +7,7 @@ import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/services/message_sevice.dart';
 import 'package:al_furqan/services/sync.dart';
@@ -30,13 +31,12 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     with UserDataMixin, WidgetsBindingObserver {
   final teachers = teacherController.teachers;
   final students = studentController.students;
-  List<dynamic> _recentActivities = [];
+  List<HalagaModel> _halaqatList = [];
   bool _isLoading = true;
   int _teacherCount = 0;
   int _studentCount = 0;
   int _halqatCount = 0;
   int _unreadMessagesCount = 0;
-  
 
   @override
   void initState() {
@@ -49,14 +49,14 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     });
     loadMessages();
   }
-  
+
   @override
   void dispose() {
     // إزالة مراقب دورة حياة التطبيق
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
-  
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // تحديث عدد الإشعارات عند العودة للتطبيق
@@ -64,14 +64,13 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
       updateNotificationCount();
     }
   }
+
   // تحميل الرسائل
   Future<void> loadMessages() async {
-
-    
     // تحديث عدد الإشعارات
     await updateNotificationCount();
   }
-  
+
   // تحديث عدد الإشعارات
   Future<void> updateNotificationCount() async {
     final prefs = await SharedPreferences.getInstance();
@@ -82,15 +81,13 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     }
   }
 
-
-
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
 
     try {
       await fetchUserData();
       await _fetchCounts();
-      _generateRecentActivities();
+      // No longer calling _generateRecentActivities() as it's not needed
     } catch (e) {
       print('Error loading data: $e');
     } finally {
@@ -107,43 +104,15 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
 
         _teacherCount = teachers.length;
 
-        final halaqatList = await halagaController.getData(user!.schoolID!);
-        _halqatCount = halaqatList.length;
+        _halaqatList = await halagaController.getData(user!.schoolID!);
+        _halqatCount = _halaqatList.length;
       }
     } catch (e) {
       print('Error fetching counts: $e');
     }
   }
 
-  void _generateRecentActivities() {
-    // Example recent activities - in a real app, fetch these from a database
-    _recentActivities = [
-      {
-        'type': 'teacher',
-        'action': 'تم إضافة معلم جديد',
-        'name': 'أحمد محمد',
-        'date': DateTime.now().subtract(Duration(hours: 2)),
-        'icon': Icons.person_add,
-        'color': Colors.green,
-      },
-      {
-        'type': 'student',
-        'action': 'تم تسجيل طالب جديد',
-        'name': 'عبدالله خالد',
-        'date': DateTime.now().subtract(Duration(days: 1)),
-        'icon': Icons.school,
-        'color': Colors.blue,
-      },
-      {
-        'type': 'halqa',
-        'action': 'تم إنشاء حلقة جديدة',
-        'name': 'حلقة القرآن الكريم',
-        'date': DateTime.now().subtract(Duration(days: 3)),
-        'icon': Icons.menu_book,
-        'color': Colors.purple,
-      },
-    ];
-  }
+  // Method removed as it's no longer needed
 
   @override
   Widget build(BuildContext context) {
@@ -164,6 +133,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
           IconButton(
             onPressed: () {
               _loadData();
+              halagaController.getHalagatFromFirebase();
               updateNotificationCount(); // تحديث عدد الإشعارات عند الضغط على زر التحديث
             },
             icon: Icon(Icons.refresh, color: Colors.white),
@@ -542,53 +512,105 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
-          child: Text(
-            "آخر الأنشطة",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Text(
+                "قائمة الحلقات",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          ),
+            TextButton.icon(
+              onPressed: () {
+                // Navigate to full halaqat list
+              },
+              icon: Icon(Icons.menu_book, size: 18),
+              label: Text("عرض الكل"),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).primaryColor,
+              ),
+            ),
+          ],
         ),
         Card(
           elevation: 4,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: _recentActivities.isNotEmpty
-                ? ListView.separated(
+            padding: EdgeInsets.all(12.0),
+            child: _halaqatList.isEmpty
+                ? Container(
+                    height: 120,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.menu_book_outlined,
+                              size: 32, color: Colors.grey),
+                          SizedBox(height: 8),
+                          Text(
+                            "لا توجد حلقات متاحة",
+                            style: TextStyle(color: Colors.grey.shade700),
+                          ),
+                          SizedBox(height: 8),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              // Navigate to add halaqat
+                            },
+                            icon: Icon(Icons.add),
+                            label: Text("إضافة حلقة"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColor,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : ListView.separated(
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
-                    itemCount: _recentActivities.length,
+                    itemCount:
+                        _halaqatList.length > 3 ? 3 : _halaqatList.length,
                     separatorBuilder: (context, index) => Divider(),
                     itemBuilder: (context, index) {
-                      final activity = _recentActivities[index];
                       return ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: activity['color'].withOpacity(0.2),
-                          child:
-                              Icon(activity['icon'], color: activity['color']),
+                          backgroundColor: Colors.purple.shade100,
+                          child: Icon(Icons.menu_book,
+                              color: Colors.purple.shade700),
                         ),
-                        title: Text(activity['action']),
-                        subtitle: Text(activity['name']),
-                        trailing: Text(
-                          _formatDate(activity['date']),
-                          style: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontSize: 12,
-                          ),
+                        title: Text(
+                          "${_halaqatList[index].Name ?? 'حلقة بدون اسم'}",
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        subtitle: Text(
+                            'عدد الطلاب: ${_halaqatList[index].NumberStudent ?? 0}'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.info, color: Colors.blue),
+                              onPressed: () {
+                                // عرض تفاصيل الحلقة
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.edit, color: Colors.orange),
+                              onPressed: () {
+                                // تعديل بيانات الحلقة
+                              },
+                            ),
+                          ],
                         ),
                       );
                     },
-                  )
-                : Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Center(
-                      child: Text("لا توجد أنشطة حديثة"),
-                    ),
                   ),
           ),
         ),
@@ -750,20 +772,5 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     );
   }
 
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays == 0) {
-      if (difference.inHours == 0) {
-        return 'منذ ${difference.inMinutes} دقيقة';
-      }
-      return 'منذ ${difference.inHours} ساعة';
-    } else if (difference.inDays <= 7) {
-      return 'منذ ${difference.inDays} يوم';
-    } else {
-      // Use Arabic locale for date formatting
-      return DateFormat.yMd('ar').format(date);
-    }
-  }
+  // Method removed as it's no longer used
 }
