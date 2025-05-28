@@ -159,12 +159,12 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     icon: Icons.people,
                     title: 'تحضير المعلمين',
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AttendanceScreen(),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => AttendanceScreen(),
+                      //   ),
+                      // );
                     },
                   ),
                   _buildMenuItem(
