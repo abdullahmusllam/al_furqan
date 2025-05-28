@@ -23,6 +23,8 @@ class StudentController {
         middleName: student['MiddleName'],
         grandfatherName: student['grandfatherName'],
         lastName: student['LastName'],
+        attendanceDays: student['AttendanceDays'],
+        absenceDays: student['AbsenceDays'],
         elhalaqaID: student['ElhalagatID'],
       );
     }).toList();
