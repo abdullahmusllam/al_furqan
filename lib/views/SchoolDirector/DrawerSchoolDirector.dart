@@ -165,8 +165,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                         MaterialPageRoute(
                           builder: (context) => AttendanceScreen(),
                         ),
-                      );
-                    },
+                      );                  },
                   ),
                   _buildMenuItem(
                     icon: Icons.manage_accounts,

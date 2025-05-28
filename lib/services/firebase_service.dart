@@ -42,7 +42,10 @@ class FirebaseHelper {
 
       if (snapshot.docs.isNotEmpty) {
         print('تم العثور على مستند');
-        return snapshot.docs.map((doc) => StudentModel.fromJson(doc.data() as Map<String, dynamic>)).toList();
+        return snapshot.docs
+            .map((doc) =>
+                StudentModel.fromJson(doc.data() as Map<String, dynamic>))
+            .toList();
       } else {
         print('لا توجد مستندات تطابق الشرط');
         return [];
@@ -64,10 +67,11 @@ class FirebaseHelper {
   }
 
   assignStudentToHalqa(int studentId, int halqaID) async {
-    try{
-    final docRef = _firestore.collection('Students').doc(studentId.toString());
-    await docRef.update({'ElhalagatID': halqaID});
-    }catch (e){
+    try {
+      final docRef =
+          _firestore.collection('Students').doc(studentId.toString());
+      await docRef.update({'ElhalagatID': halqaID});
+    } catch (e) {
       print('error=== $e');
     }
   }
@@ -151,63 +155,61 @@ class FirebaseHelper {
   }
 
   addHalga(HalagaModel halaga) async {
-    try{
+    try {
       final docRef = await _firestore.collection('Elhalaga');
-      if(halaga != null){
+      if (halaga != null) {
         docRef.doc(halaga.halagaID.toString()).set(halaga.toMap());
         print('===== تم رفع حلقة ${halaga.Name} بنجاح');
       }
-    } catch (e){}
+    } catch (e) {}
   }
 
   updateHalaga(HalagaModel halaga) async {
-    try{
+    try {
       final docRef = await _firestore.collection('Elhalaga');
-      if(halaga != null) {
+      if (halaga != null) {
         docRef.doc(halaga.halagaID.toString()).update(halaga.toMap());
       }
-    }
-    catch (e){
+    } catch (e) {
       print('error ==== $e');
     }
   }
 
   /// الغاء ارتباط المعلم بالحلقة
   Future<void> teacherCancel(int halagaId) async {
-  try {
-    final docRef = _firestore.collection('Users');
+    try {
+      final docRef = _firestore.collection('Users');
 
-    // ابحث عن المستخدم الذي لديه نفس ElhalagatID
-    final querySnapshot = await docRef
-        .where('ElhalagatID', isEqualTo: halagaId)
-        .where('roleID', isEqualTo: 2) // للتأكد أنه معلم
-        .limit(1)
-        .get();
+      // ابحث عن المستخدم الذي لديه نفس ElhalagatID
+      final querySnapshot = await docRef
+          .where('ElhalagatID', isEqualTo: halagaId)
+          .where('roleID', isEqualTo: 2) // للتأكد أنه معلم
+          .limit(1)
+          .get();
 
-    if (querySnapshot.docs.isNotEmpty) {
-      final docId = querySnapshot.docs.first.id;
+      if (querySnapshot.docs.isNotEmpty) {
+        final docId = querySnapshot.docs.first.id;
 
-      // تحديث ElhalagatID إلى null
-      await docRef.doc(docId).update({'ElhalagatID': null});
+        // تحديث ElhalagatID إلى null
+        await docRef.doc(docId).update({'ElhalagatID': null});
 
-      print('تم إلغاء ارتباط المعلم بالحلفة بنجاح من Firebase');
-    } else {
-      print('لم يتم العثور على معلم مرتبط بهذه الحلقة');
+        print('تم إلغاء ارتباط المعلم بالحلفة بنجاح من Firebase');
+      } else {
+        print('لم يتم العثور على معلم مرتبط بهذه الحلقة');
+      }
+    } catch (e) {
+      print('حدث خطأ أثناء إلغاء ارتباط المعلم: $e');
     }
-  } catch (e) {
-    print('حدث خطأ أثناء إلغاء ارتباط المعلم: $e');
   }
-}
 
-newTeacher(int halagaId, int teacherId) async {
-  try{
+  newTeacher(int halagaId, int teacherId) async {
+    try {
       final docRef = _firestore.collection('Users');
       await docRef.doc(teacherId.toString()).update({'ElhalagatID': halagaId});
-  } catch(e){
-    print('error====$e');
+    } catch (e) {
+      print('error====$e');
+    }
   }
-
-}
 
 // =========================== End Elhalaga ==============================
 
@@ -266,7 +268,8 @@ newTeacher(int halagaId, int teacherId) async {
 
   addRequest(UserModel user) async {
     try {
-      final docRef = _firestore.collection('Users').doc(user.user_id.toString());
+      final docRef =
+          _firestore.collection('Users').doc(user.user_id.toString());
       docRef.set(user.toMap());
       print("تمت اضافة الطلب ${user.user_id} بنجاح");
     } catch (e) {
@@ -303,12 +306,10 @@ newTeacher(int halagaId, int teacherId) async {
     }
   }
 
-  
   // Generate verification code for a request
-  
 
   // تحديث كلمة المرور في Firestore
-  
+
   // =========================== End User =================================
 
   Future<bool> checkDocumentExists(String collection, int id) async {
@@ -368,6 +369,7 @@ newTeacher(int halagaId, int teacherId) async {
           "---------------> The Error in addIslamicStudyplan in ((FirebaseService)) : $e");
     }
   }
+
   //===================== Update ConservationPlan =================
   Future<void> updateConservationPlan(
       ConservationPlanModel plan, int idDoc) async {
@@ -383,6 +385,7 @@ newTeacher(int halagaId, int teacherId) async {
           "---------------> The Error in updateConservationPlan in ((FirebaseService)) : $e");
     }
   }
+
   //===================== Update EltlawahPlan =================
   Future<void> updateEltlawahPlan(EltlawahPlanModel plan, int idDoc) async {
     try {
@@ -397,8 +400,10 @@ newTeacher(int halagaId, int teacherId) async {
           "---------------> The Error in updateEltlawahPlan in ((FirebaseService)) : $e");
     }
   }
+
   //===================== Update IslamicStudyplan =================
-  Future<void> updateIslamicStudyplan(IslamicStudiesModel plan, int idDoc) async {
+  Future<void> updateIslamicStudyplan(
+      IslamicStudiesModel plan, int idDoc) async {
     try {
       await _firestore
           .collection("IslamicStudies")
@@ -411,10 +416,14 @@ newTeacher(int halagaId, int teacherId) async {
           "---------------> The Error in updateIslamicStudyplan in ((FirebaseService)) : $e");
     }
   }
+
   //===================== Delete ConservationPlan =================
   Future<void> deleteConservationPlan(int idDoc) async {
     try {
-      await _firestore.collection("ConservationPlans").doc(idDoc.toString()).delete();
+      await _firestore
+          .collection("ConservationPlans")
+          .doc(idDoc.toString())
+          .delete();
       print(
           "---------------> The deleteConservationPlan in ((FirebaseService)) : Done");
     } catch (e) {
@@ -422,10 +431,14 @@ newTeacher(int halagaId, int teacherId) async {
           "---------------> The Error in deleteConservationPlan in ((FirebaseService)) : $e");
     }
   }
+
   //===================== Delete EltlawahPlan =================
   Future<void> deleteEltlawahPlan(int idDoc) async {
     try {
-      await _firestore.collection("EltlawahPlans").doc(idDoc.toString()).delete();
+      await _firestore
+          .collection("EltlawahPlans")
+          .doc(idDoc.toString())
+          .delete();
       print(
           "---------------> The deleteEltlawahPlan in ((FirebaseService)) : Done");
     } catch (e) {
@@ -433,15 +446,66 @@ newTeacher(int halagaId, int teacherId) async {
           "---------------> The Error in deleteEltlawahPlan in ((FirebaseService)) : $e");
     }
   }
+
   //===================== Delete IslamicStudyplan =================
   Future<void> deleteIslamicStudyplan(int idDoc) async {
     try {
-      await _firestore.collection("IslamicStudies").doc(idDoc.toString()).delete();
+      await _firestore
+          .collection("IslamicStudies")
+          .doc(idDoc.toString())
+          .delete();
       print(
           "---------------> The deleteIslamicStudyplan in ((FirebaseService)) : Done");
     } catch (e) {
       print(
           "---------------> The Error in deleteIslamicStudyplan in ((FirebaseService)) : $e");
+    }
+  }
+
+  //===================== Update Attendance =================
+  Future<void> updateAttendance(
+      int studentID, bool isPresent, String absenceReasons) async {
+    try {
+      // الحصول على بيانات الطالب الحالية من Firestore
+      var studentDoc = await _firestore
+          .collection("Students")
+          .doc(studentID.toString())
+          .get();
+
+      if (studentDoc.exists) {
+        var studentData = studentDoc.data();
+
+        // استخراج قيم الحضور والغياب الحالية
+        int currentAttendance = studentData?['AttendanceDays'] ?? 0;
+        int currentAbsence = studentData?['AbsenceDays'] ?? 0;
+
+        // تحديث القيم بناءً على حالة الحضور
+        if (isPresent) {
+          await _firestore
+              .collection("Students")
+              .doc(studentID.toString())
+              .update({
+            "AttendanceDays": currentAttendance + 1,
+            "isSync": 1, // إضافة هذا السطر لتحديث حالة المزامنة
+          });
+        } else {
+          await _firestore
+              .collection("Students")
+              .doc(studentID.toString())
+              .update({
+            "AbsenceDays": currentAbsence + 1,
+            "ReasonAbsence": absenceReasons,
+            "isSync": 1, // إضافة هذا السطر لتحديث حالة المزامنة
+          });
+        }
+
+        print("---------------> تم تحديث بيانات الحضور في Firestore بنجاح");
+      } else {
+        print(
+            "---------------> لم يتم العثور على الطالب في Firestore برقم: $studentID");
+      }
+    } catch (e) {
+      print("---------------> خطأ في تحديث بيانات الحضور في Firestore: $e");
     }
   }
 } // End of FirebaseHelper class
