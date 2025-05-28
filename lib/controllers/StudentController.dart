@@ -151,19 +151,18 @@ class StudentController {
   Future<void> updateStudent(StudentModel student, int type) async {
     try {
       if (type == 1) {
-        if(await isConnected()){
+        if (await isConnected()) {
           student.isSync = 1;
           int update = await _sqldb.updateData(
-            "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}', isSync = 1 WHERE StudentID = ${student.studentID}");
-        print("Update response: $update");
-        print("User ID : ${student.userID}");
-        await firebasehelper.updateStudentData(student);
-        }else{
+              "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}', isSync = 1 WHERE StudentID = ${student.studentID}");
+          print("Update response: $update");
+          print("User ID : ${student.userID}");
+          await firebasehelper.updateStudentData(student);
+        } else {
           await _sqldb.updateData(
-            "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}', isSync = 0 WHERE StudentID = ${student.studentID}");
+              "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}', isSync = 0 WHERE StudentID = ${student.studentID}");
         }
         print("Student in update : ${student.grandfatherName}");
-
       } else {
         int update = await _sqldb.updateData(
             "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}' WHERE StudentID = ${student.studentID}");
@@ -173,6 +172,65 @@ class StudentController {
     } catch (e) {
       print("Error updating student: $e");
       rethrow;
+    }
+  }
+
+  Future<void> updateAttendance(int studentID, bool isPresent, String absenceReasons) async {
+    // التحقق من حالة الاتصال بالإنترنت
+    bool hasConnection = await isConnected();
+    int syncValue = hasConnection ? 1 : 0;
+    
+    if (isPresent) {
+      print("تحديث الحضور للطالب: $studentID");
+      try {
+        // التحقق من القيمة الحالية لأيام الحضور
+        List<Map> currentData = await _sqldb.readData(
+            "SELECT AttendanceDays FROM Students WHERE StudentID = $studentID");
+        
+        if (currentData.isNotEmpty) {
+          var currentAttendance = currentData[0]['AttendanceDays'];
+          int newAttendance = (currentAttendance == null) ? 1 : currentAttendance + 1;
+          
+          int response = await _sqldb.updateData(
+              "UPDATE Students SET AttendanceDays = $newAttendance, isSync = $syncValue WHERE StudentID = $studentID");
+          if(syncValue==1){
+            await firebasehelper.updateAttendance(studentID, isPresent, absenceReasons);
+          }
+          print("استجابة تحديث الحضور: $response");
+          print("حالة المزامنة: ${hasConnection ? 'متصل' : 'غير متصل'}, isSync = $syncValue");
+        } else {
+          print("لم يتم العثور على الطالب برقم: $studentID");
+        }
+      } catch (e) {
+        print("خطأ في تحديث الحضور: $e");
+        rethrow;
+      }
+    } else {
+      try {
+        print("تحديث الغياب للطالب: $studentID مع سبب: $absenceReasons");
+        
+        // التحقق من القيمة الحالية لأيام الغياب
+        List<Map> currentData = await _sqldb.readData(
+            "SELECT AbsenceDays FROM Students WHERE StudentID = $studentID");
+        
+        if (currentData.isNotEmpty) {
+          var currentAbsence = currentData[0]['AbsenceDays'];
+          int newAbsence = (currentAbsence == null) ? 1 : currentAbsence + 1;
+          
+          int response = await _sqldb.updateData(
+              "UPDATE Students SET AbsenceDays = $newAbsence, ReasonAbsence = '$absenceReasons', isSync = $syncValue WHERE StudentID = $studentID");
+          if(syncValue==1){
+            await firebasehelper.updateAttendance(studentID, isPresent, absenceReasons);
+          }
+          print("استجابة تحديث الغياب: $response");
+          print("حالة المزامنة: ${hasConnection ? 'متصل' : 'غير متصل'}, isSync = $syncValue");
+        } else {
+          print("لم يتم العثور على الطالب برقم: $studentID");
+        }
+      } catch (e) {
+        print("خطأ في تحديث الغياب: $e");
+        rethrow;
+      }
     }
   }
 
@@ -240,7 +298,6 @@ class StudentController {
             "UPDATE Elhalagat SET NumberStudent = $studentCount, isSync = 1 WHERE halagaID = $halqaID");
       }
 
-      
       await _sqldb.updateData(
           "UPDATE Students SET ElhalagatID = $halqaID, isSync = 0 WHERE StudentID = $studentId");
 
@@ -273,7 +330,8 @@ class StudentController {
 
   Future<void> addToLocalOfFirebase(int schoolId) async {
     if (await isConnected()) {
-      List<StudentModel> responseFirebase = await firebasehelper.getStudentData(schoolId);
+      List<StudentModel> responseFirebase =
+          await firebasehelper.getStudentData(schoolId);
       print("responseFirebase = $responseFirebase");
 
       for (var student in responseFirebase) {
@@ -285,7 +343,6 @@ class StudentController {
         } else {
           await addStudent(student);
           print('===== Find student (add) =====');
-
         }
       }
     } else {

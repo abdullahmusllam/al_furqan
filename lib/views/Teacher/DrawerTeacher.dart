@@ -7,6 +7,7 @@ import 'package:al_furqan/views/Teacher/islamic_studies_plans_list.dart';
 import 'package:al_furqan/views/shared/main_screen.dart';
 // import 'package:al_furqan/views/Teacher/student_plans_list_screen.dart';
 import 'package:al_furqan/views/shared/message_screen.dart';
+import 'package:al_furqan/views/Teacher/students_attendance.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
 import 'package:al_furqan/helper/user_helper.dart';
@@ -328,7 +329,7 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AttendanceScreen(),
+                          builder: (context) => StudentsAttendance(),
                         ),
                       );
                     },
