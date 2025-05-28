@@ -8,6 +8,7 @@ import 'dart:math';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:al_furqan/views/SchoolDirector/teachers_attendance_list.dart';
 
 class AttendanceQRScreen extends StatefulWidget {
   const AttendanceQRScreen({Key? key}) : super(key: key);
@@ -243,9 +244,25 @@ class _AttendanceQRScreenState extends State<AttendanceQRScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('QR Code لتحضير المعلمين - $schoolName'),
-        backgroundColor: Colors.blueAccent,
-        elevation: 0,
+        title: Text(
+          'QR Code لتحضير المعلمين',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _loadAttendanceCode,
+            tooltip: 'تحديث الكود',
+          ),
+          IconButton(
+            icon: Icon(Icons.print),
+            onPressed: _generatePdf,
+            tooltip: 'طباعة الكود',
+          ),
+        ],
       ),
       body: attendanceCode.isEmpty
           ? const Center(child: CircularProgressIndicator())
@@ -263,39 +280,50 @@ class _AttendanceQRScreenState extends State<AttendanceQRScreen> {
                     //   ),
                     // ),
                     const SizedBox(height: 30),
-                    ElevatedButton.icon(
-                      onPressed: _generatePdf,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _generatePdf,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 3,
+                            ),
+                            icon: const Icon(Icons.print),
+                            label: const Text(
+                              'طباعة كود QR',
+                              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      icon: const Icon(Icons.print),
-                      label: const Text(
-                        'طباعة كود QR',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
+                        
+                      ],
                     ),
                     const SizedBox(height: 30),
                     Center(
                       child: Container(
-                        padding: const EdgeInsets.all(15),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              blurRadius: 10,
-                              spreadRadius: 2,
+                              color: Theme.of(context).primaryColor.withOpacity(0.2),
+                              blurRadius: 15,
+                              spreadRadius: 3,
                               offset: const Offset(0, 5),
                             ),
                           ],
+                          border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.1), width: 1.5),
                         ),
                         child: Column(
                           children: [

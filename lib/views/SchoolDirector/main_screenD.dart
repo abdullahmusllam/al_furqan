@@ -27,13 +27,16 @@ class _MainScreenState extends State<MainScreenD> {
   @override
   void initState() {
     super.initState();
-    sync.syncUsers();
-    sync.syncElhalagat();
-    sync.syncStudents();
-    loadDate();
-    loadUsersFromFirebase();
-    halagaController.getHalagatFromFirebase();
+    load();
+  }
 
+  Future<void> load() async {
+    await sync.syncUsers();
+    await sync.syncElhalagat();
+    await sync.syncStudents();
+    await loadDate();
+    await loadUsersFromFirebase();
+    await halagaController.getHalagatFromFirebase();
   }
   Future<void> loadUsersFromFirebase() async {
     List<UserModel> users = await firebasehelper.getUsers();
