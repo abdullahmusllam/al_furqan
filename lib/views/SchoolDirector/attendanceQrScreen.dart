@@ -243,9 +243,25 @@ class _AttendanceQRScreenState extends State<AttendanceQRScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('QR Code لتحضير المعلمين - $schoolName'),
-        backgroundColor: Colors.blueAccent,
-        elevation: 0,
+        title: Text(
+          'QR Code لتحضير المعلمين',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _loadAttendanceCode,
+            tooltip: 'تحديث الكود',
+          ),
+          IconButton(
+            icon: Icon(Icons.print),
+            onPressed: _generatePdf,
+            tooltip: 'طباعة الكود',
+          ),
+        ],
       ),
       body: attendanceCode.isEmpty
           ? const Center(child: CircularProgressIndicator())
@@ -266,7 +282,8 @@ class _AttendanceQRScreenState extends State<AttendanceQRScreen> {
                     ElevatedButton.icon(
                       onPressed: _generatePdf,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
+                        backgroundColor: Theme.of(context).primaryColor,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 12,
@@ -274,42 +291,78 @@ class _AttendanceQRScreenState extends State<AttendanceQRScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        elevation: 3,
                       ),
                       icon: const Icon(Icons.print),
                       label: const Text(
                         'طباعة كود QR',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(height: 30),
                     Center(
                       child: Container(
-                        padding: const EdgeInsets.all(15),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              blurRadius: 10,
-                              spreadRadius: 2,
+                              color: Theme.of(context).primaryColor.withOpacity(0.2),
+                              blurRadius: 15,
+                              spreadRadius: 3,
                               offset: const Offset(0, 5),
                             ),
                           ],
+                          border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.1), width: 1.5),
                         ),
                         child: Column(
                           children: [
-                            QrImageView(
-                              data: "$attendanceCode:$schoolId", // دمج الكود مع معرف المدرسة
-                              version: QrVersions.auto,
-                              size: 250.0,
+                            Container(
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.2), width: 2),
+                              ),
+                              child: QrImageView(
+                                data: "$attendanceCode:$schoolId", // دمج الكود مع معرف المدرسة
+                                version: QrVersions.auto,
+                                size: 250.0,
+                                backgroundColor: Colors.white,
+                                eyeStyle: QrEyeStyle(
+                                  eyeShape: QrEyeShape.square,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                dataModuleStyle: QrDataModuleStyle(
+                                  dataModuleShape: QrDataModuleShape.square,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                'كود الحضور: $attendanceCode',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'اسم المدرسة: $schoolName',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
+                              'مدرسة: $schoolName',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey.shade700,
                               ),
                             ),
                           ],
