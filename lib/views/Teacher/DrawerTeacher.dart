@@ -3,6 +3,7 @@
 import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
 import 'package:al_furqan/views/Teacher/HalagaPlansListScreen.dart';
 import 'package:al_furqan/views/Teacher/HalagaPlansScreen.dart';
+import 'package:al_furqan/views/Teacher/attendTeacherScreen.dart';
 import 'package:al_furqan/views/Teacher/islamic_studies_plans_list.dart';
 import 'package:al_furqan/views/shared/main_screen.dart';
 // import 'package:al_furqan/views/Teacher/student_plans_list_screen.dart';
@@ -326,10 +327,24 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                     icon: Icons.people,
                     title: 'تحضير الطلاب',
                     onTap: () {
+                      Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => StudentsAttendance(),
+                        ),
+                      );
+                    },
+                  ), _buildMenuItem(
+                    context,
+                    icon: Icons.qr_code,
+                    title: 'حضوري ',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AttendanceScannerPage(),
                         ),
                       );
                     },

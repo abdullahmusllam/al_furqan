@@ -143,10 +143,12 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
     id = user.user_id!;
+    String name = "${user.first_name!} ${user.last_name!}";
     await saveUserLogin(phone, user.roleID!, user.isActivate!);
     final per = await SharedPreferences.getInstance();
     await per.setInt('user_id', id);
     await per.setInt('schoolId', user.schoolID!);
+    await per.setString('user_name', name);
     print('===== save id ($id) =====');
     await chooseScreen(context);
   }

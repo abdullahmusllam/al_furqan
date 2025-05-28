@@ -2,6 +2,7 @@ import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/ElhalagatList.dart';
 import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
+import 'package:al_furqan/views/SchoolDirector/attendanceQrScreen.dart';
 import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
 import 'package:al_furqan/views/SchoolDirector/teacher_management.dart';
 import 'package:al_furqan/views/shared/main_screen.dart';
@@ -163,9 +164,10 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AttendanceScreen(),
+                          builder: (context) => AttendanceQRScreen(),
                         ),
-                      );                  },
+                      );
+                    },
                   ),
                   _buildMenuItem(
                     icon: Icons.manage_accounts,
