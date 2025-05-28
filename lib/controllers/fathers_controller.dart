@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/helper/sqldb.dart';
@@ -81,6 +83,95 @@ class FathersController {
     print("Response into addFather method : $response");
     return father.user_id = response;
   }
+
+  Future<List<UserModel>> getFathersByElhalagaId(int elhalagatID) async {
+    print('getFathersByElhalagaId called with elhalagatID: $elhalagatID');
+    try {
+      // المشكلة قد تكون في العلاقة بين الجداول - نستخدم استعلام مختلف
+      // نحاول الحصول على آباء الطلاب في الحلقة المحددة
+      List<Map<String, dynamic>> response = await _sqlDb.readData(
+        """SELECT DISTINCT Users.* FROM Users 
+           JOIN Students ON Users.user_id = Students.fatherID 
+           WHERE Students.ElhalagatID = $elhalagatID AND Users.roleID = 3"""
+      );
+
+      print("Query result count: ${response.length}");
+      
+      if (response.isEmpty) {
+        // محاولة استعلام بديل إذا كان الاستعلام الأول لا يعيد نتائج
+        response = await _sqlDb.readData(
+          """SELECT DISTINCT Users.* FROM Users 
+             JOIN Students ON Users.user_id = Students.userID 
+             WHERE Students.ElhalagatID = $elhalagatID AND Users.roleID = 3"""
+        );
+        print("Alternative query result count: ${response.length}");
+      }
+
+      List<UserModel> fathers = [];
+
+      for (var e in response) {
+        print("Processing user: ${e['first_name']} (ID: ${e['user_id']})");
+        UserModel father = UserModel(
+          user_id: e['user_id'],
+          first_name: e['first_name'],
+          middle_name: e['middle_name'],
+          last_name: e['last_name'],
+          phone_number: e['phone_number'],
+          telephone_number: e['telephone_number'],
+          email: e['email'],
+          roleID: e['roleID'],
+        );
+        fathers.add(father);
+      }
+
+      print("Total fathers found: ${fathers.length}");
+      return fathers;
+    } catch (e) {
+      print('Error in getFathersByElhalagaId: $e');
+      return [];
+    }
+  }
+
+Future<List<UserModel>> getFathersBySchoolId(int schoolID) async {
+  // print('========================================= father');
+  try{
+  List<Map<String, dynamic>> response = await _sqlDb.readData(
+    "SELECT * FROM Users "
+    "INNER JOIN Students ON Users.user_id = Students.userID "
+    "WHERE Students.SchoolID = $schoolID"
+  );
+
+  List<UserModel> fathers = [];
+
+  for (var e in response) {
+    UserModel father = UserModel(
+      user_id: e['user_id'],
+      first_name: e['first_name'],
+      middle_name: e['middle_name'],
+      // grandfather_name: e['grandfather_name'],
+      last_name: e['last_name'],
+      phone_number: e['phone_number'],
+      telephone_number: e['telephone_number'],
+      email: e['email'],
+      // password: e['password'],
+      // roleID: e['roleID'],
+      // schoolID: e['schoolID'],
+      // date: e['date'],
+      // isActivate: e['isActivate'],
+    );
+
+    fathers.add(father);
+  }
+  print('=================================== father');
+  return fathers;
+  } catch(e){
+    print('====$e');
+    return [];
+  }
+}
+
+
+
 }
 
 FathersController fathersController = FathersController();

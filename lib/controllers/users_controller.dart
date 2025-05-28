@@ -1,13 +1,60 @@
+import 'package:al_furqan/controllers/some_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
+import 'package:al_furqan/models/password_model.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/services/firebase_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:al_furqan/services/verification_service.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class UserController {
+  final VerificationService _verificationService = VerificationService();
   final List<UserModel> _users = [];
   final List<UserModel> _requests = [];
   final SqlDb _sqlDb = SqlDb();
+  final FirebaseHelper _service = FirebaseHelper();
+  final PasswordResetModel _model = PasswordResetModel();
+  // var db = sqlDb.database;
+  Future<bool> isConnected() async {
+    var conn = InternetConnectionChecker.createInstance().hasConnection;
+    return conn;
+  }
 
   List<UserModel> get users => _users;
   List<UserModel> get requests => _requests;
+  List<UserModel> _mapResponseToUserModel(List<Map> response) {
+    return response.map((data) {
+      return UserModel(
+        user_id: data['user_id'] as int?,
+        first_name: data['first_name'],
+        middle_name: data['middle_name'],
+        grandfather_name: data['grandfather_name'],
+        last_name: data['last_name'],
+        phone_number: int.tryParse(data['phone_number'].toString()),
+        telephone_number: int.tryParse(data['telephone_number'].toString()),
+        email: data['email'],
+        password: data['password'] as String?, // Ensure password is a string
+        roleID: data['roleID'] as int?,
+        schoolID: data['schoolID'] as int?,
+        date: data['date'],
+        isActivate: data['isActivate'] as int?,
+      );
+    }).toList();
+  }
+
+  Future<void> addRequest(UserModel userModel) async {
+    final db = await sqlDb.database;
+    userModel.user_id = await someController.newId("Users", "user_id");
+    userModel.isActivate = 0;
+    if (await isConnected()) {
+      userModel.isSync = 1;
+      await firebasehelper.addRequest(userModel);
+      await db.insert('Users', userModel.toMap());
+    } else {
+      userModel.isSync = 0;
+      await db.insert('Users', userModel.toMap());
+    }
+  }
 
   // Method to get all data
   Future<void> getData() async {
@@ -15,17 +62,6 @@ class UserController {
     // await getDataRequests();
   }
 
-  // Method to get active users data
-  // Future<void> getDataUsers() async {
-  //   List<Map> response =
-  //       await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 1");
-  //   if (!(ConnectivityResult == ConnectivityResult.none)) {
-  //     var responseFirebase = await firebasehelper.getUsers("manager&admin");
-  //   }
-  //   _users.clear();
-  //   _users.addAll(_mapResponseToUserModel(response));
-  //   print("Users List : ${_users.isEmpty}");
-  // }
   Future<void> getDataUsers() async {
     // 1. جلب البيانات من قاعدة البيانات المحلية (SQLite) أولاً
     List<Map> response =
@@ -33,50 +69,8 @@ class UserController {
     _users.clear();
     _users.addAll(_mapResponseToUserModel(response));
     print("Users List (Local): ${_users.isEmpty}");
-
-    // 2. محاولة جلب البيانات من Firebase
-    // try {
-    //   // جلب البيانات من Firebase
-    //   List<UserModel> responseFirebase = await firebasehelper.getUsers();
-
-    //   // 3. التحقق إن responseFirebase مش null ومش فاضية
-    //   if (responseFirebase.isNotEmpty) {
-    //     // مسح البيانات القديمة من الجدول (النشطين فقط)
-    //     await _sqlDb.deleteData("DELETE FROM USERS WHERE isActivate = 1");
-
-    //     // إضافة البيانات الجديدة من Firebase
-    //     for (var user in responseFirebase) {
-    //       if (user.user_id != null) {
-    //         await _sqlDb.insertData('''
-    //         INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
-    //         VALUES (${user.user_id}, '${user.first_name ?? ''}', '${user.middle_name ?? ''}', '${user.grandfather_name ?? ''}', '${user.last_name ?? ''}', '${user.password ?? 0}', '${user.email ?? ''}', ${user.phone_number ?? 0}, ${user.telephone_number ?? 0}, ${user.roleID ?? 0}, ${user.schoolID ?? 0}, '${user.date ?? ''}', 1)
-    //       ''');
-    //       }
-    //     }
-
-    //     // 4. إعادة جلب البيانات من SQLite بعد التحديث
-    //     response =
-    //         await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 1");
-    //     _users.clear();
-    //     _users.addAll(_mapResponseToUserModel(response));
-    //     print("Users List (After Firebase Sync): ${_users.isEmpty}");
-    //   } else {
-    //     print("لا توجد بيانات من Firebase لتحديث قاعدة البيانات المحلية");
-    //   }
-    // } catch (e) {
-    //   print("خطأ أثناء مزامنة البيانات من Firebase: $e");
-    //   // لو حصل خطأ (مثل ما فيه إنترنت أو مشكلة في Firestore)، بنعتمد على البيانات المحلية
-    // }
   }
 
-  // Method to get requests data
-  // Future<void> getDataRequests() async {
-  //   List<Map> response =
-  //       await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 0");
-  //   _requests.clear();
-  //   _requests.addAll(_mapResponseToUserModel(response));
-  //   print("Request List : ${_requests.isEmpty}");
-  // }
   Future<void> getDataRequests() async {
     // 1. جلب البيانات من قاعدة البيانات المحلية (SQLite) أولاً
     List<Map> response =
@@ -84,51 +78,24 @@ class UserController {
     _requests.clear();
     _requests.addAll(_mapResponseToUserModel(response));
     print("_requests List (Local): ${_requests.isEmpty}");
-
-    // 2. محاولة جلب البيانات من Firebase
-    // try {
-    //   // جلب البيانات من Firebase
-    //   List<UserModel> responseFirebase = await firebasehelper.getUsers();
-
-    //   // 3. التحقق إن responseFirebase مش null ومش فاضية
-    //   if (responseFirebase.isNotEmpty) {
-    //     // مسح البيانات القديمة من الجدول (الغبر مفعلين فقط)
-    //     await _sqlDb.deleteData("DELETE FROM USERS WHERE isActivate = 0");
-
-    //     // إضافة البيانات الجديدة من Firebase
-    //     for (var user in responseFirebase) {
-    //       if (user.user_id != null) {
-    //         await _sqlDb.insertData('''
-    //         INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
-    //         VALUES (${user.user_id}, '${user.first_name ?? ''}', '${user.middle_name ?? ''}', '${user.grandfather_name ?? ''}', '${user.last_name ?? ''}', '${user.password ?? 0}', '${user.email ?? ''}', ${user.phone_number ?? 0}, ${user.telephone_number ?? 0}, ${user.roleID ?? 0}, ${user.schoolID ?? 0}, '${user.date ?? ''}', 0)
-    //       ''');
-    //       }
-    //     }
-
-    //     // 4. إعادة جلب البيانات من SQLite بعد التحديث
-    //     response =
-    //         await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 0");
-    //     _users.clear();
-    //     _users.addAll(_mapResponseToUserModel(response));
-    //     print("Users List (After Firebase Sync): ${_users.isEmpty}");
-    //   } else {
-    //     print("لا توجد بيانات من Firebase لتحديث قاعدة البيانات المحلية");
-    //   }
-    // } catch (e) {
-    //   print("خطأ أثناء مزامنة البيانات من Firebase: $e");
-    //   // لو حصل خطأ (مثل ما فيه إنترنت أو مشكلة في Firestore)، بنعتمد على البيانات المحلية
-    // }
   }
 
   // Method to add a new user
-  Future<void> addUser(UserModel userModel) async {
-    userModel.user_id = await someController.newId("USERS", "user_id");
-    int response = await _sqlDb.insertData('''
-    INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, password, email, phone_number, telephone_number, roleID, schoolID, date, isActivate)
-    VALUES (${userModel.user_id}, '${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.password}', '${userModel.email}', '${userModel.phone_number}', '${userModel.telephone_number}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', '${userModel.isActivate}');
-    ''');
-    print("response = $response, isActivate = ${userModel.isActivate}");
-    await firebasehelper.addUser(response, userModel);
+  Future<void> addUser(UserModel userModel, int type) async {
+    final db = await sqlDb.database;
+    if (type == 1) {
+      userModel.user_id = await someController.newId("Users", "user_id");
+      if (await isConnected()) {
+        userModel.isSync = 1;
+        await firebasehelper.addUser(userModel);
+        await db.insert('Users', userModel.toMap());
+      } else {
+        userModel.isSync = 0;
+        await db.insert('Users', userModel.toMap());
+      }
+    } else {
+      await db.insert('Users', userModel.toMap());
+    }
   }
 
   // Method to delete a user
@@ -142,11 +109,20 @@ class UserController {
 
   // Method to activate a user
   Future<void> activateUser(int userId) async {
-    await _sqlDb.updateData('''
+    try {
+      if (await isConnected()) {
+        await firebasehelper.activateUser(userId);
+        await _sqlDb.updateData('''
     UPDATE USERS SET isActivate = 1 WHERE user_id = $userId
     ''');
-    await getData();
-    await firebasehelper.activateUser(userId);
+        await getData();
+      }
+      await _sqlDb.updateData('''
+    UPDATE USERS SET isActivate = 1, isSync = 0 WHERE user_id = $userId
+    ''');
+    } catch (e) {
+      print('========$e=======');
+    }
   }
 
   // Method to delete a request
@@ -157,34 +133,26 @@ class UserController {
   }
 
   // Method to update a user
-  Future<void> updateUser(UserModel userModel) async {
+  Future<void> updateUser(UserModel userModel, int type) async {
+    final db = await sqlDb.database;
+    if (type == 1) {
+      if (await isConnected()) {
+        userModel.isSync = 1;
+        await db.update('USERS', userModel.toMap(),
+            where: 'user_id = ?', whereArgs: [userModel.user_id]);
+        await firebasehelper.updateUser(userModel);
+      } else {
+        userModel.isSync = 0;
+        await db.update('USERS', userModel.toMap(),
+            where: 'user_id = ?', whereArgs: [userModel.user_id]);
+      }
+      await db.update('USERS', userModel.toMap(),
+          where: 'user_id = ?', whereArgs: [userModel.user_id]);
+    }
     int response = await _sqlDb.updateData('''
     UPDATE USERS SET
-      ActivityID = ${userModel.ActivityID},
-      ElhalagatID = ${userModel.ElhalagatID},
-      first_name = '${userModel.first_name}',
-      middle_name = '${userModel.middle_name}',
-      grandfather_name = '${userModel.grandfather_name}',
-      last_name = '${userModel.last_name}',
-      password = '${userModel.password}',
-      email = '${userModel.email}',
-      phone_number = '${userModel.phone_number}',
-      telephone_number = '${userModel.telephone_number}',
-      roleID = ${userModel.roleID},
-      schoolID = ${userModel.schoolID},
-      date = '${userModel.date}',
-      isActivate = ${userModel.isActivate}
-    WHERE user_id = ${userModel.user_id}
-    ''');
-    print("response = $response");
-
-    await firebasehelper.updateUser(userModel.user_id!, userModel);
-    // await getData();
-    }else{
-       int response = await _sqlDb.updateData('''
-    UPDATE USERS SET
-      ActivityID = ${userModel.ActivityID},
-      ElhalagatID = ${userModel.ElhalagatID},
+      ActivityID = ${userModel.activityID},
+      ElhalagatID = ${userModel.elhalagatID},
       first_name = '${userModel.first_name}',
       middle_name = '${userModel.middle_name}',
       grandfather_name = '${userModel.grandfather_name}',
@@ -203,61 +171,56 @@ class UserController {
   }
 
   // Method to add a new request
-  Future<void> addRequest(UserModel userModel) async {
-    userModel.user_id = await someController.newId("USERS", "user_id");
-    int response = await _sqlDb.insertData('''
-    INSERT INTO USERS (user_id, first_name, middle_name, grandfather_name, last_name, phone_number, telephone_number, email, password, roleID, schoolID, date, isActivate)
-    VALUES (${userModel.user_id}, '${userModel.first_name}', '${userModel.middle_name}', '${userModel.grandfather_name}', '${userModel.last_name}', '${userModel.phone_number}', '${userModel.telephone_number}', '${userModel.email}', '${userModel.password}', ${userModel.roleID}, ${userModel.schoolID}, '${userModel.date}', 0);
-    ''');
-    print("request school id : ${userModel.schoolID}");
-    print("response = $response, isActivate = ${userModel.isActivate}");
-    await firebasehelper.addRequest(response, userModel);
-  }
 
   // Helper method to map response to UserModel
-  List<UserModel> _mapResponseToUserModel(List<Map> response) {
-    return response.map((data) {
-      return UserModel(
-        user_id: data['user_id'] as int?,
-        first_name: data['first_name'],
-        middle_name: data['middle_name'],
-        grandfather_name: data['grandfather_name'],
-        last_name: data['last_name'],
-        phone_number: int.tryParse(data['phone_number'].toString()),
-        telephone_number: int.tryParse(data['telephone_number'].toString()),
-        email: data['email'],
-        password: data['password'] as int?, // Ensure password is a string
-        roleID: data['roleID'] as int?,
-        schoolID: data['schoolID'] as int?,
-        date: data['date'],
-        isActivate: data['isActivate'] as int?,
-      );
-    }).toList();
-  }
 
   Future<void> addToLocalOfFirebase() async {
-    
-    var connectivityResult = await Connectivity().checkConnectivity();
+    var connection =
+        await InternetConnectionChecker.createInstance().hasConnection;
 
-      if (connectivityResult != ConnectivityResult.none) {
-      List<Map<String, dynamic>> responseFirebase = await firebasehelper.getUsers();
+    if (connection) {
+      List<UserModel> responseFirebase = await firebasehelper.getUsers();
       print("responseFirebase = $responseFirebase");
-      
+
       for (var user in responseFirebase) {
-        UserModel userModel = UserModel.fromJson(user);
-       bool exists = await _sqlDb.checkIfitemExists("Users", userModel.user_id!, "user_id");
+        bool exists = await _sqlDb.checkIfitemExists(
+            "Users", user.user_id!, "user_id");
         if (exists) {
-          await updateUser(userModel, 1);
+          await updateUser(user, 0);
         } else {
-          await addUser(userModel);
+          await addUser(user, 0);
         }
+      }
+    } else {
+      print("لا يوجد اتصال بالانترنت");
+      await getDataUsers();
     }
-  } else {
-    print("لا يوجد اتصال بالانترنت");
-    await getDataUsers();
-  } 
+  }
+
+  // إضافة بيانات الأب إلى Firebase
+  Future<void> addFatherToFirebase(UserModel fatherData, int schoolID) async {
+    print("جاري إضافة ولي الأمر إلى Firebase - معرف المدرسة: $schoolID");
+    // التحقق أولاً من وجود اتصال بالإنترنت
+    bool hasConnection =
+        await InternetConnectionChecker.createInstance().hasConnection;
+    if (!hasConnection) {
+      print("لا يوجد اتصال بالإنترنت، لا يمكن إضافة ولي الأمر إلى Firebase");
+      return;
+    }
+
+    if (fatherData.user_id == null) {
+      print("تحذير: معرف ولي الأمر غير موجود (user_id = null)");
+      return; // لا يمكن الإضافة إلى Firebase بدون معرف
+    }
+
+    try {
+      // إرسال البيانات إلى Firebase
+      await firebasehelper.addRequest(fatherData);
+      print("تم إرسال بيانات ولي الأمر إلى Firebase بنجاح");
+    } catch (e) {
+      print("حدث خطأ أثناء إضافة ولي الأمر إلى Firebase: $e");
+    }
+  }
 }
 
-
-}
 UserController userController = UserController();

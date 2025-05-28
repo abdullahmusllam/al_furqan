@@ -1,5 +1,6 @@
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/controllers/users_controller.dart';
 
 class TeacherController {
   final SqlDb _sqlDb = SqlDb();
@@ -7,21 +8,18 @@ class TeacherController {
 
   Future<void> getTeachers() async {
     try {
+      print("TeacherController: Fetching all teachers...");
       List<Map> response =
           await _sqlDb.readData("SELECT * FROM Users WHERE roleID = 2");
+      print(
+          "TeacherController: Raw data received - ${response.length} records");
+
       teachers.clear();
-<<<<<<< HEAD
-      teachers.addAll(_mapResponseToUserModel(response));
-      print("Teachers fetched (Local): ${teachers.length} teachers");
-      teachers.forEach((e) {
-        print("Teacher: ${e.user_id}, RoleID: ${e.roleID}, Name: ${e.first_name}, schoolID: ${e.schoolID}");
-=======
       teachers.addAll(mapResponseToUserModel(response));
       print("Teachers fetched (Local): ${teachers.length} teachers");
       teachers.forEach((e) {
         print(
             "Teacher: ${e.user_id}, RoleID: ${e.roleID}, Name: ${e.first_name}, schoolID: ${e.schoolID}");
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
       });
     } catch (e) {
       print("Error fetching teachers: $e");
@@ -32,23 +30,26 @@ class TeacherController {
 
   Future<void> getTeachersBySchoolID(int schoolID) async {
     try {
+      print("TeacherController: Fetching teachers for schoolID $schoolID...");
       List<Map> response = await _sqlDb.readData(
           "SELECT * FROM Users WHERE roleID = 2 AND schoolID = $schoolID");
+      print(
+          "TeacherController: Raw response for schoolID $schoolID - ${response.length} records");
+
       teachers.clear();
-<<<<<<< HEAD
-      teachers.addAll(_mapResponseToUserModel(response));
-      print("Teachers fetched for schoolID $schoolID: ${teachers.length} teachers");
-      teachers.forEach((e) {
-        print("Teacher: ${e.user_id}, RoleID: ${e.roleID}, Name: ${e.first_name}, schoolID: ${e.schoolID}");
-=======
+
       teachers.addAll(mapResponseToUserModel(response));
       print(
           "Teachers fetched for schoolID $schoolID: ${teachers.length} teachers");
-      teachers.forEach((e) {
-        print(
-            "Teacher: ${e.user_id}, RoleID: ${e.roleID}, Name: ${e.first_name}, schoolID: ${e.schoolID}");
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
-      });
+
+      if (teachers.isEmpty) {
+        print("WARNING: No teachers found for schoolID $schoolID");
+      } else {
+        teachers.forEach((e) {
+          print(
+              "Teacher: ${e.user_id}, RoleID: ${e.roleID}, Name: ${e.first_name}, schoolID: ${e.schoolID}, ElhalagatID: ${e.elhalagatID}");
+        });
+      }
     } catch (e) {
       print("Error fetching teachers for schoolID $schoolID: $e");
       teachers.clear();
@@ -56,11 +57,14 @@ class TeacherController {
     }
   }
 
-<<<<<<< HEAD
-  List<UserModel> _mapResponseToUserModel(List<Map> response) {
-=======
   List<UserModel> mapResponseToUserModel(List<Map> response) {
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
+    print("TeacherController: Mapping ${response.length} records to UserModel");
+
+    if (response.isEmpty) {
+      print("TeacherController: Response is empty, returning empty list");
+      return [];
+    }
+
     return response.map((data) {
       return UserModel(
         user_id: data['user_id'] as int?,
@@ -69,25 +73,37 @@ class TeacherController {
         grandfather_name: data['grandfather_name']?.toString(),
         last_name: data['last_name']?.toString(),
         phone_number: int.tryParse(data['phone_number'].toString()) ?? 0,
-<<<<<<< HEAD
-        telephone_number: int.tryParse(data['telephone_number'].toString()) ?? 0,
-=======
         telephone_number:
             int.tryParse(data['telephone_number'].toString()) ?? 0,
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
         email: data['email']?.toString(),
-        password: int.tryParse(data['password'].toString()) ?? 0,
-        roleID: data['roleID'] as int?,
+        password: (data['password']) ?? 0,
+       roleID: data['roleID'] as int?,
         schoolID: data['schoolID'] as int?,
+        elhalagatID: data['ElhalagatID'] as int?,
         date: data['date']?.toString(),
         isActivate: data['isActivate'] as int?,
       );
     }).toList();
   }
+
+  // Method to add a new teacher
+  Future<void> addTeacher(UserModel teacherModel) async {
+    // Ensure the role is set to teacher (roleID = 2)
+    teacherModel.roleID = 2;
+
+    // Use the userController to add the user with teacher role
+    await userController.addUser(teacherModel,1);
+
+    // Refresh the teachers list after adding
+    if (teacherModel.schoolID != null) {
+      await getTeachersBySchoolID(teacherModel.schoolID!);
+    } else {
+      await getTeachers();
+    }
+
+    print(
+        "Teacher added successfully: ${teacherModel.first_name} ${teacherModel.last_name}");
+  }
 }
 
-<<<<<<< HEAD
 TeacherController teacherController = TeacherController();
-=======
-TeacherController teacherController = TeacherController();
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04

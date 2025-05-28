@@ -319,7 +319,7 @@ class _SignupScreenState extends State<SignupScreen> {
     if (_formKey.currentState!.validate()) {
       int phone = int.parse(_phone.text);
       int telephone = int.parse(_telephone.text);
-      int password = int.parse(_password.text);
+      String password = (_password.text);
       int? roleID;
 
       _userModel.first_name = _firstname.text;
@@ -329,7 +329,7 @@ class _SignupScreenState extends State<SignupScreen> {
       _userModel.phone_number = phone;
       _userModel.telephone_number = telephone;
       _userModel.email = _email.text;
-      _userModel.password = password;
+      _userModel.password = password.toString();
       _userModel.date = _date.text;
       _userModel.schoolID = _selectedSchoolId;
       _userModel.isActivate = 0;

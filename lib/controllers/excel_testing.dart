@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
+import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/controllers/validation_from_excelfile.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
@@ -69,161 +71,234 @@ class ExcelTesting {
     }
   }
 
-  readExcelFile(BuildContext context) async {
+  Future<void> readExcelFile(BuildContext context) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom, allowedExtensions: ['xlsx', 'xls', 'csv']);
-    var respone;
+      type: FileType.custom,
+      allowedExtensions: ['xlsx', 'xls', 'csv'],
+    );
+
     if (result == null || result.files.isEmpty) {
-      // التحقق من اختيار ملف
-      // إظهار رسالة خطأ إذا لم يتم اختيار ملف
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('لم يتم اختيار ملف'),
-          backgroundColor: Colors.orange,
-          duration: Duration(seconds: 2),
-        ),
+        const SnackBar(content: Text('لم يتم اختيار ملف')),
       );
-      _isProcessingExcel = false; // تحديث حالة المعالجة
       return;
     }
 
-    String? fileName = result.files.first.name; // اسم الملف
-    if (fileName == null ||
-        (!fileName.endsWith('.xlsx') &&
-            !fileName.endsWith('.xls') &&
-            !fileName.endsWith('.csv'))) {
-      // التحقق من نوع الملف
-      // إظهار رسالة خطأ إذا كان الملف ليس من نوع Excel
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('الملف المختار ليس ملف Excel (.xlsx أو .xls)'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
-      );
-      _isProcessingExcel = false;
-      return;
-    }
+    final errors = <Map<String, dynamic>>[];
+    final validStudents = <StudentModel>[];
+    final validFathers = <UserModel>[];
 
-    /// here started Read file excel
-    if (result != null) {
-      File file = File(result.files.single.path!);
-      print("Selected Path $file");
-      var byte = file.readAsBytesSync();
-      var excelRead = Excel.decodeBytes(byte);
+    try {
+      final file = File(result.files.single.path!);
+      final bytes = file.readAsBytesSync();
+      final excel = Excel.decodeBytes(bytes);
 
-      List<String> headers = []; // قائمة لحفظ أسماء الأعمدة
+      for (final table in excel.tables.keys) {
+        final sheet = excel.tables[table]!;
+        // التأكد من أسماء الأعمدة
+        final headers =
+            sheet.rows[0].map((cell) => cell!.value.toString().trim()).toList();
 
-      for (var table in excelRead.tables.keys) {
-        int i = 1;
-        var sheet = excelRead.tables[table];
-        if (sheet != null) {
-          int rowIndex = 0;
-          try {
-            for (var row in sheet.rows) {
-              if (rowIndex == 0) {
-                // حفظ أسماء الأعمدة من أول صف
-                headers =
-                    row.map((cell) => cell?.value.toString() ?? "").toList();
-              } else {
-                // إنشاء ماب لكل صف بناءً على أسماء الأعمدة
-                Map<String, dynamic> rowData = {};
-                for (int colIndex = 0; colIndex < row.length; colIndex++) {
-                  rowData[headers[colIndex]] = row[colIndex]?.value;
-                }
-                dataList.add(rowData);
+        // طباعة الأعمدة للتحقق
+        print("Headers: $headers");
 
-                if (rowData.isEmpty) {
-                  // إظهار رسالة خطأ إذا كان الصف فارغًا
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('الصف $rowIndex فارغ ولا يحتوي على بيانات'),
-                      backgroundColor: Colors.red,
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                  _isProcessingExcel = false; // تحديث حالة المعالجة
-                }
+        for (int rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
+          final row = sheet.rows[rowIndex];
+          final rowData = <String, dynamic>{};
 
-                /// Stednt Data
-                StudentModel student = StudentModel(
-                  firstName: rowData[headers[0]],
-                  middleName: rowData[headers[1]],
-                  grandfatherName: rowData[headers[2]],
-                  lastName: rowData[headers[4]],
-                  schoolId: schoolID,
-                );
-
-                /// Father Data
-                UserModel father = UserModel(
-                  first_name: rowData[headers[1]],
-                  middle_name: rowData[headers[2]],
-                  grandfather_name: rowData[headers[3]],
-                  last_name: rowData[headers[4]],
-                  email: rowData[headers[5]],
-                  phone_number: int.tryParse(rowData[headers[6]].toString()),
-                  telephone_number:
-                      int.tryParse(rowData[headers[7]].toString()),
-                  password: 12345678,
-                  roleID: 3,
-                  isActivate: 0,
-                );
-
-                // التحقق من صحة البيانات
-                if (student.firstName == null ||
-                    student.lastName == null ||
-                    father.first_name == null ||
-                    father.last_name == null ||
-                    father.email == null) {
-                  print("تخطي الصف بسبب بيانات غير صالحة");
-                  continue;
-                }
-
-                try {
-                  // إضافة الأب
-                  father.user_id = await fathersController.addFather(father);
-                  if (father.user_id != null) {
-                    student.userID = father.user_id;
-                    print("تم إضافة الأب بمعرف: ${father.user_id}");
-
-                    // إضافة الطالب
-                    int studentId = await studentController.addStudent(student);
-                    student.studentID = studentId;
-                    print(
-                        "تم إضافة الطالب بمعرف: $studentId، معرف الأب: ${father.user_id}, معرف المدرسة : ${student.schoolId}");
-                  } else {
-                    print("فشل إضافة الأب");
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('فشل في إضافة الأب'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  print("خطأ أثناء إضافة الأب أو الطالب: $e");
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('حصل خطأ أثناء إضافة البيانات: $e'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-
-                // طباعة التحقق النهائي
-                print(
-                    "student.userID = father.user_id ::::: ${student.userID},${student.studentID}");
-              }
-              rowIndex++;
-            }
-          } catch (e) {
-            print("=======================================================$e");
-            print("Error processing row: $rowIndex, Error: $e");
+          // التحقق من عدد الأعمدة
+          if (row.length != headers.length) {
+            errors.add({
+              'row': rowData,
+              'errors': {'general': 'عدد الأعمدة غير متطابق'},
+              'rowNumber': rowIndex + 1,
+            });
+            continue;
           }
+
+          // تعبئة rowData
+          for (int colIndex = 0; colIndex < headers.length; colIndex++) {
+            rowData[headers[colIndex]] =
+                row[colIndex]?.value?.toString().trim();
+            print("Column ${headers[colIndex]}: ${rowData[headers[colIndex]]}");
+          }
+
+          // التحقق من صحة الصف
+          final validation = ExcelDataValidator.validateRow(rowData);
+          if (!validation['isValid']) {
+            errors.add({
+              'row': rowData,
+              'errors': validation['errors'],
+              'rowNumber': rowIndex + 1,
+            });
+            continue;
+          }
+
+          // إنشاء موديلات البيانات الصالحة
+          final student = StudentModel(
+            firstName: rowData['الاسم الاول']?.toString() ?? '',
+            middleName: rowData['اسم الأب']?.toString() ?? '',
+            grandfatherName: rowData['اسم الجد']?.toString() ?? '',
+            lastName: rowData['اسم العائلة']?.toString() ?? '',
+            schoolId: schoolID,
+          );
+
+          final father = UserModel(
+            first_name: rowData['اسم الأب']?.toString() ?? '',
+            middle_name: rowData['اسم الجد']?.toString() ?? '',
+            grandfather_name: rowData['اسم جد الأب']?.toString() ?? '',
+            last_name: rowData['اسم العائلة']?.toString() ?? '',
+            email: validation['validated']['email'],
+            phone_number: validation['validated']['phone'],
+            telephone_number: validation['validated']['telephone'],
+            password: '12345678',
+            roleID: 3,
+            isActivate: 0,
+          );
+
+          validStudents.add(student);
+          validFathers.add(father);
         }
       }
+
+      // إدخال البيانات الصالحة إلى قاعدة البيانات
+      await _insertValidData(context, validStudents, validFathers);
+
+      // عرض الأخطاء إذا وجدت
+      if (errors.isNotEmpty) {
+        _showValidationErrors(context, errors);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('حدث خطأ: $e')),
+      );
+      print("-------------the error is $e");
     }
-    return respone;
+  }
+
+// دالة لعرض الأخطاء
+  void _showValidationErrors(
+      BuildContext context, List<Map<String, dynamic>> errors) {
+    final message = errors.map((error) {
+      return '➊ الصف ${error['rowNumber']}\n'
+          '➋ الأخطاء: ${(error['errors'] as Map).entries.join(', ')}';
+    }).join('\n\n');
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('أخطاء في البيانات'),
+        content: SingleChildScrollView(child: Text(message)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('تم'),
+          ),
+        ],
+      ),
+    );
+  }
+
+// إدخال البيانات الصالحة
+//   Future<void> _insertValidData(
+//     BuildContext context,
+//     List<StudentModel> students,
+//     List<UserModel> fathers,
+//   ) async {
+//     bool isExist;
+//     await fathersController.getFathersStudents(schoolID!);
+//     for (int i = 0; i < students.length; i++) {
+//       print("------------- i = $i");
+//       try {
+//         for (int f = 0; f < fathersController.fathers.length; f++) {
+//           print("------------- f = $f");
+//           int fatherID = fathersController.fathers[f].user_id!;
+//           isExist =
+//               await SqlDb().checkIfitemExists("Users", fatherID, "user_id");
+//           if (isExist) {
+//             for (int s = 0; s < studentController.students.length; s++) {
+//               print("------------- s = $s");
+//               isExist = await SqlDb().checkIfitemExists("Students",
+//                   studentController.students[s].studentID!, "StudentID");
+//               if (isExist) {
+//                 // throw Exception(
+//                 //     "the student is exist ${studentController.students[s].studentID}, s : $s");
+//                 print(
+//                     "the student is exist ${studentController.students[s].firstName}, s : $s,");
+//                 continue;
+//               } else {
+//                 print("is not exist: $isExist");
+//                 students[i].userID = fatherID;
+//                 await studentController.addStudent(students[i]);
+//                 print("ID : ${studentController.students.last.studentID}");
+//                 ScaffoldMessenger.of(context).showSnackBar(
+//                   SnackBar(
+//                     content: Text('تم إدخال ${students.length} طالب بنجاح'),
+//                     backgroundColor: Colors.green,
+//                   ),
+//                 );
+//               }
+//             }
+//           } else {
+//             print("father is not exist");
+//             final fatherId = await fathersController.addFather(fathers[i]);
+//             students[i].userID = fatherId;
+//             await studentController.addStudent(students[i]);
+//             print("ID : ${studentController.students.last.studentID}");
+//             ScaffoldMessenger.of(context).showSnackBar(
+//               SnackBar(
+//                 content: Text('تم إدخال ${students.length} طالب بنجاح'),
+//                 backgroundColor: Colors.green,
+//               ),
+//             );
+//           }
+//         }
+//       } catch (e) {
+//         // ScaffoldMessenger.of(context).showSnackBar(
+//         //   SnackBar(content: Text('فشل إدخال البيانات: $e')),
+//         // );
+//         print("-------- Error : $e");
+//       }
+//     }
+//   }
+  Future<void> _insertValidData(
+    BuildContext context,
+    List<StudentModel> students,
+      List<UserModel>fathers
+  ) async {
+    int successfulInserts = 0;
+
+    for (int i = 0; i < students.length; i++) {
+      // تنظيف الأسماء
+      String firstName = students[i].firstName?.trim() ?? '';
+      String lastName = students[i].lastName?.trim() ?? '';
+
+      // التحقق من وجود الطالب
+      bool studentExists = await SqlDb().checkIfitemExistsForExcel("Students", {
+        "firstName": firstName,
+        "lastName": lastName,
+      });
+      print("Student $firstName $lastName exists: $studentExists");
+
+      if (!studentExists) {
+        // إضافة الطالب إذا لم يكن موجودًا
+        final studentId = await studentController.addStudent(students[i]);
+        print("Added student with ID: $studentId");
+        successfulInserts++;
+      } else {
+        print("Student $firstName $lastName already exists, skipping...");
+      }
+    }
+
+    // عرض رسالة النجاح
+    if (successfulInserts > 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('تم إدخال $successfulInserts طالب بنجاح'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
   }
 }
 

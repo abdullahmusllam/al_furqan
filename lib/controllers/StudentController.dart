@@ -2,10 +2,15 @@ import 'package:al_furqan/controllers/some_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class StudentController {
   List<StudentModel> students = [];
   final SqlDb _sqldb = SqlDb();
+  Future<bool> isConnected() async {
+    var conn = InternetConnectionChecker.createInstance().hasConnection;
+    return conn;
+  }
 
   Future<List<StudentModel>> getStudents(int halagaID) async {
     List<Map> studentData = await _sqldb
@@ -25,70 +30,81 @@ class StudentController {
     return students;
   }
 
-<<<<<<< HEAD
-  Future<List<StudentModel>> getSchoolStudents(int id) async {
-    List<Map> studentData =
-        await _sqldb.readData("SELECT * FROM Students WHERE SchoolID = $id");
-    print("Response Get : ${studentData.isEmpty}");
+  Future<List<StudentModel>> getSchoolStudents(int schoolID) async {
+    // try {
+    // جلب الطلاب المرتبطين بالمدارس
+    List<Map<String, dynamic>> studentData = await _sqldb
+        .readData("SELECT * FROM Students WHERE SchoolID = $schoolID");
+
+    print("الطلاب الذين تم جلبهم من القاعدة المحلية: $studentData");
+
+    if (studentData.isEmpty) {
+      print("لا توجد بيانات للطلاب مع SchoolID: $schoolID");
+      return []; // إذا كانت البيانات فارغة، نرجع قائمة فارغة.
+    }
+
+    // تحويل البيانات المسترجعة إلى قائمة من StudentModel
     students = studentData.map((student) {
       return StudentModel(
-        studentID: student['StudentID'],
-        // elhalaqaID: student['ElhalagatID'], ///
-        schoolId: student['SchoolID'],
-        firstName: student['FirstName'],
-        middleName: student['MiddleName'],
-        grandfatherName: student['grandfatherName'],
-        lastName: student['LastName'],
+        studentID: student['StudentID'] is String
+            ? int.tryParse(student['StudentID'])
+            : student['StudentID'] as int?,
+        schoolId: student['SchoolID'] is String
+            ? int.tryParse(student['SchoolID'])
+            : student['SchoolID'] as int?,
+        firstName: student['FirstName'] as String?,
+        middleName: student['MiddleName'] as String?,
+        grandfatherName: student['grandfatherName'] as String?,
+        lastName: student['LastName'] as String?,
+        elhalaqaID: student['ElhalagatID'] != null
+            ? (student['ElhalagatID'] is String
+                ? int.tryParse(student['ElhalagatID'])
+                : student['ElhalagatID'] as int?)
+            : null,
+        attendanceDays: student['AttendanceDays'] is String
+            ? int.tryParse(student['AttendanceDays'])
+            : student['AttendanceDays'] as int?,
+        absenceDays: student['AbsenceDays'] is String
+            ? int.tryParse(student['AbsenceDays'])
+            : student['AbsenceDays'] as int?,
+        excuse: student['Excuse'] as String?,
+        reasonAbsence: student['ReasonAbsence'] as String?,
       );
     }).toList();
-    print("students.length : ${students.length}");
-    return students;
-=======
-  Future<List<StudentModel>> getSchoolStudents(int schoolID) async {
-    try {
-      // جلب الطلاب المرتبطين بالمدارس
-      List<Map<String, dynamic>> studentData = await _sqldb
-          .readData("SELECT * FROM Students WHERE SchoolID = '$schoolID'");
 
-      print("الطلاب الذين تم جلبهم من القاعدة المحلية: $studentData");
+    print("عدد الطلاب الذين تم جلبهم: ${students.length}");
 
-      if (studentData.isEmpty) {
-        print("لا توجد بيانات للطلاب مع SchoolID: $schoolID");
-        return []; // إذا كانت البيانات فارغة، نرجع قائمة فارغة.
-      }
-
-      // تحويل البيانات المسترجعة إلى قائمة من StudentModel
-      List<StudentModel> students = studentData.map((student) {
-        return StudentModel(
-          studentID: student['StudentID'],
-          schoolId: student['SchoolID'],
-          firstName: student['FirstName'],
-          middleName: student['MiddleName'],
-          grandfatherName: student['grandfatherName'],
-          lastName: student['LastName'],
-        );
-      }).toList();
-
-      print("عدد الطلاب الذين تم جلبهم: ${students.length}");
-
-      return students;
-    } catch (e) {
-      print("حدث خطأ أثناء جلب الطلاب: $e");
-      return [];
+    // طباعة معلومات الحلقات للطلاب للتصحيح
+    for (var student in students) {
+      print(
+          "الطالب: ${student.firstName} ${student.lastName}, معرف الحلقة: ${student.elhalaqaID}, نوع معرف الحلقة: ${student.elhalaqaID?.runtimeType}");
     }
+
+    return students;
+    // } catch (e) {
+    // print("حدث خطأ أثناء جلب الطلاب: $e");
+    // return [];
+    // }
   }
 
   addStudentToFirebase(StudentModel student, int schoolID) async {
-    print("id id id id id id id ${schoolID}");
-    int? schoolIDF = schoolID;
-    int add = await _sqldb.insertData(
-        "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) "
-        "VALUES ('${student.elhalaqaID}', ${schoolID}, "
-        "'${student.firstName}', '${student.middleName}', '${student.grandfatherName}', "
-        "'${student.lastName}', '${student.attendanceDays}', '${student.absenceDays}', "
-        "'${student.excuse}', '${student.reasonAbsence}')"); // تحويل إلى Map
-    firebasehelper.addStudent(add, student, schoolIDF);
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
+    print("جاري إضافة الطالب إلى Firebase - معرف المدرسة: ${schoolID}");
+    // التحقق أولاً من وجود اتصال بالإنترنت
+    bool hasConnection =
+        await InternetConnectionChecker.createInstance().hasConnection;
+    if (!hasConnection) {
+      print("لا يوجد اتصال بالإنترنت، لا يمكن إضافة الطالب إلى Firebase");
+      return;
+    }
+
+    if (student.studentID == null) {
+      print("تحذير: معرف الطالب غير موجود (studentID = null)");
+      return; // لا يمكن الإضافة إلى Firebase بدون معرف
+    }
+
+    // إرسال البيانات إلى Firebase فقط بدون إضافة محلية مرة أخرى
+    await firebasehelper.addStudent(student, schoolID);
+    print("تم إرسال بيانات الطالب إلى Firebase");
   }
 
   Future<int> getTotalStudents() async {
@@ -101,121 +117,30 @@ class StudentController {
       print("Error fetching total students: $e");
       return 0;
     }
-<<<<<<< HEAD
-  }
-
-  Future<void> addStudent(StudentModel studentData, int type) async {
-    try {
-      if (type == 1) {
-        studentData.studentID =
-            await someController.newId("Students", "studentID");
-        int response = await _sqldb.insertData(
-            "INSERT INTO Students (studentID, ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) VALUES (${studentData.studentID}, '${studentData.elhalaqaID}', '${studentData.schoolId}', '${studentData.firstName}', '${studentData.middleName}', '${studentData.grandfatherName}', '${studentData.lastName}', '${studentData.attendanceDays}', '${studentData.absenceDays}', '${studentData.excuse}', '${studentData.reasonAbsence}')");
-        print(
-            "Added student, response: $response, School ID: ${studentData.schoolId}");
-        await firebasehelper.addStudent(
-            studentData.studentID!, studentData, studentData.schoolId!);
-        if (response == 0) {
-          throw Exception("Failed to add student");
-        }
-      } else {
-        int response = await _sqldb.insertData(
-            "INSERT INTO Students (studentID, ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) VALUES (${studentData.studentID}, '${studentData.elhalaqaID}', '${studentData.schoolId}', '${studentData.firstName}', '${studentData.middleName}', '${studentData.grandfatherName}', '${studentData.lastName}', '${studentData.attendanceDays}', '${studentData.absenceDays}', '${studentData.excuse}', '${studentData.reasonAbsence}')");
-        print(
-            "Added student, response: $response, School ID: ${studentData.schoolId}");
-        await firebasehelper.addStudent(
-            studentData.studentID!, studentData, studentData.schoolId!);
-        if (response == 0) {
-          throw Exception("Failed to add student");
-        }
-      }
-    } catch (e) {
-      print("Error adding student: $e");
-      rethrow;
-    }
-  }
-
-  Future<void> updateStudent(StudentModel student, int id) async {
-    try {
-      print("Student in update : ${student.grandfatherName}");
-      int update = await _sqldb.updateData(
-          "UPDATE Students SET ElhalagatID = ${student.elhalaqaID ?? 'NULL'}, FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}' WHERE StudentID = $id");
-      print("Update response: $update");
-      await firebasehelper.updateStudentData(student, id);
-
-      if (update == 0) {
-        throw Exception("Failed to update student $id");
-      }
-    } catch (e) {
-      print("Error updating student: $e");
-      rethrow;
-    }
-  }
-
-  Future<void> delete(int id) async {
-    try {
-      int response =
-          await _sqldb.deleteData("DELETE FROM Students WHERE StudentID = $id");
-      print("Delete response: $response");
-      if (response == 0) {
-        throw Exception("Failed to delete student $id");
-      }
-    } catch (e) {
-      print("Error deleting student: $e");
-      rethrow;
-    }
-  }
-
-  Future<void> assignStudentToHalqa(int studentId, int halqaID) async {
-    try {
-      int response = await _sqldb.updateData(
-          "UPDATE Students SET ElhalagatID = $halqaID WHERE StudentID = $studentId");
-      print(
-          "Assigned student $studentId to halqa $halqaID, response: $response");
-      if (response == 0) {
-        throw Exception(
-            "Failed to assign student $studentId to halqa $halqaID");
-      }
-
-      final count = await _sqldb.readData(
-          "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = $halqaID");
-      final studentCount = count[0]['count'] as int;
-      int halagaResponse = await _sqldb.updateData(
-          "UPDATE Elhalagat SET NumberStudent = $studentCount WHERE halagaID = $halqaID");
-      print(
-          "Updated NumberStudent to $studentCount for halqa $halqaID, response: $halagaResponse");
-    } catch (e) {
-      print("Error assigning student to halqa: $e");
-      rethrow;
-    }
-  }
-
-  Future<void> removeStudentFromHalqa(int studentId) async {
-    try {
-      int response = await _sqldb.updateData(
-          "UPDATE Students SET ElhalagatID = NULL WHERE StudentID = $studentId");
-      print("Removed student $studentId from halqa, response: $response");
-      if (response == 0) {
-        throw Exception("Failed to remove student $studentId from halqa");
-      }
-    } catch (e) {
-      print("Error removing student from halqa: $e");
-      rethrow;
-    }
-  }
-
-=======
   }
 
   Future<int> addStudent(StudentModel studentData) async {
     try {
+      // إذا كان schoolId غير موجود، استخدم قيمة افتراضية
+      int schoolId = studentData.schoolId ?? 0;
+      // إذا كان userID غير موجود، استخدم NULL
+      String userIdStr =
+          studentData.userID != null ? "${studentData.userID}" : "NULL";
+
       int response = await _sqldb.insertData(
-          "INSERT INTO Students (userID ,SchoolID, FirstName, MiddleName, grandfatherName, LastName) VALUES (${studentData.userID},${studentData.schoolId}, '${studentData.firstName}', '${studentData.middleName}', '${studentData.grandfatherName}', '${studentData.lastName}')");
+          "INSERT INTO Students (userID, SchoolID, FirstName, MiddleName, grandfatherName, LastName) "
+          "VALUES ($userIdStr, $schoolId, '${studentData.firstName}', '${studentData.middleName}', "
+          "'${studentData.grandfatherName}', '${studentData.lastName}')");
+
       print(
           "Added student, response: $response, Father ID: ${studentData.userID}, Student ID : ${studentData.studentID}");
       if (response == 0) {
         throw Exception("Failed to add student");
       }
+
+      // تحديث قيمة StudentID في النموذج
+      studentData.studentID = response;
+
       return response;
     } catch (e) {
       print("Error adding student: $e");
@@ -223,17 +148,26 @@ class StudentController {
     }
   }
 
-  Future<void> updateStudent(StudentModel student, int id) async {
+  Future<void> updateStudent(StudentModel student, int type) async {
     try {
-      print("Student in update : ${student.grandfatherName}");
-      int update = await _sqldb.updateData(
-          "UPDATE Students SET ElhalagatID = ${student.elhalaqaID ?? 'NULL'}, FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}' WHERE StudentID = $id");
-      print("Update response: $update");
-      print("USer ID : ${student.userID}");
-      await firebasehelper.updateStudentData(student, id);
-
-      if (update == 0) {
-        throw Exception("Failed to update student $id");
+      if (type == 1) {
+        if (await isConnected()) {
+          student.isSync = 1;
+          int update = await _sqldb.updateData(
+              "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}', isSync = 1 WHERE StudentID = ${student.studentID}");
+          print("Update response: $update");
+          print("User ID : ${student.userID}");
+          await firebasehelper.updateStudentData(student);
+        } else {
+          await _sqldb.updateData(
+              "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}', isSync = 0 WHERE StudentID = ${student.studentID}");
+        }
+        print("Student in update : ${student.grandfatherName}");
+      } else {
+        int update = await _sqldb.updateData(
+            "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}' WHERE StudentID = ${student.studentID}");
+        print("Update response: $update");
+        print("User ID : ${student.userID}");
       }
     } catch (e) {
       print("Error updating student: $e");
@@ -241,11 +175,99 @@ class StudentController {
     }
   }
 
-  Future<void> addStudentToLocal(StudentModel student) async {
-    int add = await _sqldb.insertData(
-        "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) VALUES ('${student.elhalaqaID}', '${student.schoolId}', '${student.firstName}', '${student.middleName}', '${student.grandfatherName}', '${student.lastName}', '${student.attendanceDays}', '${student.absenceDays}', '${student.excuse}', '${student.reasonAbsence}')");
+  Future<void> updateAttendance(int studentID, bool isPresent, String absenceReasons) async {
+    // التحقق من حالة الاتصال بالإنترنت
+    bool hasConnection = await isConnected();
+    int syncValue = hasConnection ? 1 : 0;
+    
+    if (isPresent) {
+      print("تحديث الحضور للطالب: $studentID");
+      try {
+        // التحقق من القيمة الحالية لأيام الحضور
+        List<Map> currentData = await _sqldb.readData(
+            "SELECT AttendanceDays FROM Students WHERE StudentID = $studentID");
+        
+        if (currentData.isNotEmpty) {
+          var currentAttendance = currentData[0]['AttendanceDays'];
+          int newAttendance = (currentAttendance == null) ? 1 : currentAttendance + 1;
+          
+          int response = await _sqldb.updateData(
+              "UPDATE Students SET AttendanceDays = $newAttendance, isSync = $syncValue WHERE StudentID = $studentID");
+          if(syncValue==1){
+            await firebasehelper.updateAttendance(studentID, isPresent, absenceReasons);
+          }
+          print("استجابة تحديث الحضور: $response");
+          print("حالة المزامنة: ${hasConnection ? 'متصل' : 'غير متصل'}, isSync = $syncValue");
+        } else {
+          print("لم يتم العثور على الطالب برقم: $studentID");
+        }
+      } catch (e) {
+        print("خطأ في تحديث الحضور: $e");
+        rethrow;
+      }
+    } else {
+      try {
+        print("تحديث الغياب للطالب: $studentID مع سبب: $absenceReasons");
+        
+        // التحقق من القيمة الحالية لأيام الغياب
+        List<Map> currentData = await _sqldb.readData(
+            "SELECT AbsenceDays FROM Students WHERE StudentID = $studentID");
+        
+        if (currentData.isNotEmpty) {
+          var currentAbsence = currentData[0]['AbsenceDays'];
+          int newAbsence = (currentAbsence == null) ? 1 : currentAbsence + 1;
+          
+          int response = await _sqldb.updateData(
+              "UPDATE Students SET AbsenceDays = $newAbsence, ReasonAbsence = '$absenceReasons', isSync = $syncValue WHERE StudentID = $studentID");
+          if(syncValue==1){
+            await firebasehelper.updateAttendance(studentID, isPresent, absenceReasons);
+          }
+          print("استجابة تحديث الغياب: $response");
+          print("حالة المزامنة: ${hasConnection ? 'متصل' : 'غير متصل'}, isSync = $syncValue");
+        } else {
+          print("لم يتم العثور على الطالب برقم: $studentID");
+        }
+      } catch (e) {
+        print("خطأ في تحديث الغياب: $e");
+        rethrow;
+      }
+    }
+  }
 
-    print("تمت الإضافة بنجاح: $add");
+  Future<void> addStudentToLocal(StudentModel student) async {
+    // التحقق من وجود الطالب بنفس الرقم
+    bool exists = false;
+    if (student.studentID != null) {
+      exists = await _sqldb.checkIfitemExists(
+          "Students", student.studentID!, "StudentID");
+    }
+
+    if (exists) {
+      // إذا كان الطالب موجود بالفعل، قم بتحديث بياناته
+      print(
+          "الطالب موجود بالفعل بالرقم ${student.studentID}، سيتم تحديث بياناته.");
+      int update = await _sqldb.updateData("UPDATE Students SET "
+          "ElhalagatID = '${student.elhalaqaID}', "
+          "SchoolID = ${student.schoolId}, "
+          "FirstName = '${student.firstName}', "
+          "MiddleName = '${student.middleName}', "
+          "grandfatherName = '${student.grandfatherName}', "
+          "LastName = '${student.lastName}', "
+          "AttendanceDays = ${student.attendanceDays ?? 'NULL'}, "
+          "AbsenceDays = ${student.absenceDays ?? 'NULL'}, "
+          "Excuse = '${student.excuse ?? ''}', "
+          "ReasonAbsence = '${student.reasonAbsence ?? ''}' "
+          "WHERE StudentID = ${student.studentID}");
+      print("تم تحديث بيانات الطالب بنجاح: $update");
+    } else {
+      // إذا لم يكن الطالب موجوداً، قم بإضافته
+      int add = await _sqldb.insertData(
+          "INSERT INTO Students (StudentID, ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) "
+          "VALUES ('${student.studentID}', '${student.elhalaqaID}', ${student.schoolId}, '${student.firstName}', '${student.middleName}', "
+          "'${student.grandfatherName}', '${student.lastName}', ${student.attendanceDays ?? 'NULL'}, "
+          "${student.absenceDays ?? 'NULL'}, '${student.excuse ?? ''}', '${student.reasonAbsence ?? ''}')");
+      print("تمت إضافة الطالب بنجاح: $add");
+    }
   }
 
   Future<void> delete(int id) async {
@@ -264,20 +286,26 @@ class StudentController {
 
   Future<void> assignStudentToHalqa(int studentId, int halqaID) async {
     try {
-      int response = await _sqldb.updateData(
-          "UPDATE Students SET ElhalagatID = $halqaID WHERE StudentID = $studentId");
-      print(
-          "Assigned student $studentId to halqa $halqaID, response: $response");
-      if (response == 0) {
-        throw Exception(
-            "Failed to assign student $studentId to halqa $halqaID");
+      if (await isConnected()) {
+        await firebasehelper.assignStudentToHalqa(studentId, halqaID);
+        await _sqldb.updateData(
+            "UPDATE Students SET ElhalagatID = $halqaID ,isSync = 1 WHERE StudentID = $studentId");
+
+        final count = await _sqldb.readData(
+            "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = $halqaID");
+        final studentCount = count[0]['count'] as int;
+        await _sqldb.updateData(
+            "UPDATE Elhalagat SET NumberStudent = $studentCount, isSync = 1 WHERE halagaID = $halqaID");
       }
+
+      await _sqldb.updateData(
+          "UPDATE Students SET ElhalagatID = $halqaID, isSync = 0 WHERE StudentID = $studentId");
 
       final count = await _sqldb.readData(
           "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = $halqaID");
       final studentCount = count[0]['count'] as int;
       int halagaResponse = await _sqldb.updateData(
-          "UPDATE Elhalagat SET NumberStudent = $studentCount WHERE halagaID = $halqaID");
+          "UPDATE Elhalagat SET NumberStudent = $studentCount, isSync = 0 WHERE halagaID = $halqaID");
       print(
           "Updated NumberStudent to $studentCount for halqa $halqaID, response: $halagaResponse");
     } catch (e) {
@@ -300,13 +328,100 @@ class StudentController {
     }
   }
 
-  addStudentToFirebase2(StudentModel student, int schoolID) async {
-    print("id id id id id id id ${schoolID}");
-    int idStudent = await _sqldb.insertData(
-        "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) VALUES ('${student.elhalaqaID}', ${schoolID}, '${student.firstName}', '${student.middleName}', '${student.grandfatherName}', ${student.lastName}', '${student.attendanceDays}', '${student.absenceDays}', '${student.excuse}', '${student.reasonAbsence}')"); // تحويل إلى Map
-    await firebasehelper.addStudent(idStudent, student, schoolID);
+  Future<void> addToLocalOfFirebase(int schoolId) async {
+    if (await isConnected()) {
+      List<StudentModel> responseFirebase =
+          await firebasehelper.getStudentData(schoolId);
+      print("responseFirebase = $responseFirebase");
+
+      for (var student in responseFirebase) {
+        bool exists = await sqlDb.checkIfitemExists(
+            "Students", student.studentID!, "StudentID");
+        if (exists) {
+          await updateStudent(student, 0);
+          print('===== Find student (update) =====');
+        } else {
+          await addStudent(student);
+          print('===== Find student (add) =====');
+        }
+      }
+    } else {
+      print("لا يوجد اتصال بالانترنت");
+    }
   }
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
+
+  // addStudentToFirebase2(StudentModel student, int schoolID) async {
+  //   print("جاري إضافة الطالب إلى Firebase - معرف المدرسة: ${schoolID}");
+
+  //   // التحقق أولاً من وجود اتصال بالإنترنت
+  //   bool hasConnection = await InternetConnectionChecker().hasConnection;
+  //   if (!hasConnection) {
+  //     print("لا يوجد اتصال بالإنترنت، لا يمكن إضافة الطالب إلى Firebase");
+  //     return;
+  //   }
+
+  //   int idStudent = await _sqldb.insertData(
+  //       "INSERT INTO Students (ElhalagatID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, AttendanceDays, AbsenceDays, Excuse, ReasonAbsence) "
+  //       "VALUES ('${student.elhalaqaID}', ${schoolID}, '${student.firstName}', '${student.middleName}', "
+  //       "'${student.grandfatherName}', '${student.lastName}', ${student.attendanceDays ?? 'NULL'}, "
+  //       "${student.absenceDays ?? 'NULL'}, '${student.excuse ?? ''}', '${student.reasonAbsence ?? ''}')");
+
+  // //   await firebasehelper.addStudent(idStudent, student, schoolID);
+  // //   print("تم إرسال بيانات الطالب إلى Firebase");
+  // // }
+
+  Future<List<StudentModel>> getStudentsWithoutHalaga(int schoolID) async {
+    try {
+      List<Map<String, dynamic>> studentData = await _sqldb.readData(
+          "SELECT * FROM Students WHERE SchoolID = $schoolID AND (ElhalagatID IS NULL OR ElhalagatID = '' OR ElhalagatID = 'null')");
+
+      print(
+          "Students without halaga for schoolID $schoolID: ${studentData.length}");
+
+      if (studentData.isEmpty) {
+        print("No students without halaga for school: $schoolID");
+        return [];
+      }
+
+      List<StudentModel> studentsWithoutHalaga = studentData.map((student) {
+        return StudentModel(
+          studentID: student['StudentID'],
+          schoolId: student['SchoolID'],
+          firstName: student['FirstName'],
+          middleName: student['MiddleName'],
+          grandfatherName: student['grandfatherName'],
+          lastName: student['LastName'],
+          elhalaqaID: null, // نحدد بشكل صريح أن هؤلاء الطلاب ليس لديهم حلقة
+        );
+      }).toList();
+
+      return studentsWithoutHalaga;
+    } catch (e) {
+      print("Error fetching students without halaga: $e");
+      return [];
+    }
+  }
+
+  Future<void> assignStudentsToHalaga(
+      List<int> studentIds, int halagaID) async {
+    try {
+      for (int studentId in studentIds) {
+        await assignStudentToHalqa(studentId, halagaID);
+      }
+
+      // Update the student count for the halaga
+      final count = await _sqldb.readData(
+          "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = $halagaID");
+      final studentCount = count[0]['count'] as int;
+      int halagaResponse = await _sqldb.updateData(
+          "UPDATE Elhalagat SET NumberStudent = $studentCount WHERE halagaID = $halagaID");
+      print(
+          "Updated NumberStudent to $studentCount for halqa $halagaID, response: $halagaResponse");
+    } catch (e) {
+      print("Error assigning students to halaga: $e");
+      rethrow;
+    }
+  }
 }
 
 StudentController studentController = StudentController();

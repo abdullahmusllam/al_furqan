@@ -35,31 +35,26 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   fl_chart:
-  image_picker:
   firebase_core:
   cloud_firestore:
   firebase_auth:
   sqflite:
   path:
-  intl:
-#<<<<<<< HEAD
+  intl: ^0.20.2
   shared_preferences:
-    # اضفت ذي المكتبة علشان نتحقق من اتصال الشبكة وهل المستخدم متصل بالنت ولا لا
-  connectivity_plus:
-<<<<<<< HEAD
-  # firebase_auth:
-=======
+    # مكتبة للتحقق من اتصال الإنترنت الفعلي وليس فقط اتصال الشبكة
+  internet_connection_checker: 
+  # اضفت ذي المكتبة علشان نتحقق من اتصال الشبكة وهل المستخدم متصل بالنت ولا لا
   file_picker:
   flutter_excel:
   permission_handler:
-  path_provider: ^2.1.5
+  path_provider:
+  url_launcher:
+  pdf: 
+  printing: 
+  qr_flutter:
+  mobile_scanner:
 
-
-#=======
-#  shared_preferences:
-#  connectivity_plus:
-#>>>>>>> 1c396056c56e0c2d0c65ee44134a527f0e954ffa
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +66,12 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  image_path: "assets/pictures/al_furqan_icon.png"
+
 
 
 # For information on the generic Dart part of this file, see the
@@ -88,7 +89,7 @@ flutter:
   assets:
     - assets/pictures/
     - assets/database/
-  #   - images/a_dot_ham.jpeg
+    - assets/fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -115,3 +116,5 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+

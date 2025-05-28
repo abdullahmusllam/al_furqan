@@ -69,7 +69,7 @@ Future<bool> _handleFormSubmission({
   try {
     int phoneNumber = int.parse(phone.text);
     int telephoneNumber = int.parse(telephone.text);
-    int passwordNumber = int.parse(password.text);
+    String passwordNumber = (password.text);
     int? roleId = _getRoleId(selectedRole);
     int activate = isActivate ? 1 : 0;
 
@@ -80,17 +80,13 @@ Future<bool> _handleFormSubmission({
     user.phone_number = phoneNumber;
     user.telephone_number = telephoneNumber;
     user.email = email.text;
-    user.password = passwordNumber;
+    user.password = passwordNumber.toString();
     user.date = date.text;
     user.isActivate = activate;
     user.roleID = roleId;
     user.schoolID = selectedSchoolID;
 
-<<<<<<< HEAD
-    await userController.updateUser(user,0);
-=======
-    await userController.updateUser(user);
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
+    await userController.updateUser(user, 0);
     setEditable(false);
 
     ScaffoldMessenger.of(context).showSnackBar(

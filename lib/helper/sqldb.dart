@@ -17,7 +17,7 @@ class SqlDb {
     String path = join(databasePath, 'alforqanDB.db');
     Database mydb = await openDatabase(
       path,
-      version: 4,
+      version: 8, // زوّدنا الإصدار عشان التعديلات
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -27,7 +27,6 @@ class SqlDb {
   _onCreate(Database db, int version) async {
     String sqlScript = await loadSqlScript();
     List<String> queries = sqlScript.split(';');
-
     for (String query in queries) {
       if (query.trim().isNotEmpty) {
         await db.execute(query);
@@ -38,19 +37,55 @@ class SqlDb {
 
   _onUpgrade(Database db, int oldVersion, int newVersion) async {
     try {
-      await db.execute("ALTER TABLE Students ADD COLUMN userID INTEGER NULL");
-      print("Column added successfully!");
-    } catch (e) {
-      print("Error upgrading database: $e");
-    }
-    print("Database upgraded from $oldVersion to $newVersion");
+        // تعطيل قيود المفاتيح الأجنبية مؤقتًا
+        await db.execute('PRAGMA foreign_keys=off;');
+        
+        // بدء المعاملة
+        await db.execute('BEGIN TRANSACTION;');
+        
+        // إنشاء جدول مؤقت بالهيكل الجديد (بدون حقل StudentID أو بجعله اختياري)
+        await db.execute('''
+          CREATE TABLE IslamicStudies_temp (
+            "IslamicStudiesID" INTEGER NOT NULL PRIMARY KEY ,
+            "ElhalagatID" INTEGER NOT NULL,
+            "StudentID" INTEGER NOT NULL DEFAULT -1,
+            "Subject" TEXT NOT NULL,
+            "PlannedContent" TEXT,
+            "ExecutedContent" TEXT,
+            "PlanMonth" TEXT,
+            "isSync" BOOLEAN,
+            CONSTRAINT "elhalagatidfk" FOREIGN KEY("ElhalagatID") REFERENCES "Elhalagat"("halagaID")
+          );
+        ''');
+        
+        // نسخ البيانات من الجدول القديم إلى الجدول المؤقت
+        await db.execute('INSERT INTO IslamicStudies_temp SELECT * FROM IslamicStudies;');
+        
+        // حذف الجدول القديم
+        await db.execute('DROP TABLE IslamicStudies;');
+        
+        // إعادة تسمية الجدول المؤقت
+        await db.execute('ALTER TABLE IslamicStudies_temp RENAME TO IslamicStudies;');
+        
+        // إنهاء المعاملة
+        await db.execute('COMMIT;');
+        
+        // إعادة تفعيل قيود المفاتيح الأجنبية
+        await db.execute('PRAGMA foreign_keys=on;');
+        
+        print("---------------------------> Upgrade to version 7 completed successfully!");
+      } catch (e) {
+        // التراجع عن المعاملة في حالة حدوث خطأ
+        await db.execute('ROLLBACK;');
+        print("---------------------------> Error upgrading database: $e");
+      }
   }
+
 
   Future<String> loadSqlScript() async {
     return await rootBundle.loadString('assets/database/al_furqan.db');
   }
 
-  /// جلب مستخدم بناءً على رقم الهاتف وكلمة المرور
   Future<UserModel?> getUser(String phone, String password) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -58,16 +93,11 @@ class SqlDb {
       where: 'phone_number = ? AND password = ?',
       whereArgs: [phone, password],
     );
-
-    print(" phone: $phone, password: $password");
     if (maps.isNotEmpty) {
       return UserModel.fromMap(maps.first);
-    } else {
-      print("لم يتم العثور على مستخدم بـ phone: $phone و password: $password");
-      final allUsers = await db.query('users');
-      print("All Users: $allUsers");
-      return null;
     }
+    print("User not found for phone: $phone");
+    return null;
   }
 
   Future<List<Map<String, dynamic>>> readData(String sql) async {
@@ -75,9 +105,24 @@ class SqlDb {
     return await mydb.rawQuery(sql);
   }
 
-  insertData(String sql) async {
+  readDataID(String table, String column, int sync) async {
+    Database mydb = await database;
+    return await mydb.query(table, where: "$column = ?", whereArgs: [sync]);
+  }
+
+  Future<int> insertData(String sql) async {
     Database mydb = await database;
     return await mydb.rawInsert(sql);
+  }
+
+  Future<int> insertData2(String table, Map<String, dynamic> values) async {
+    Database mydb = await database;
+    try {
+      return await mydb.insert(table, values);
+    } catch (e) {
+      print("Error inserting into $table: $e");
+      return -1;
+    }
   }
 
   updateData(String sql) async {
@@ -85,11 +130,34 @@ class SqlDb {
     return await mydb.rawUpdate(sql);
   }
 
-  deleteData(String sql) async {
+  Future<int> updateData3(String table, Map<String, dynamic> values,
+      String where, List<dynamic> whereArgs) async {
+    try {
+      Database mydb = await database;
+      int result = await mydb.update(
+        table,
+        values,
+        where: where,
+        whereArgs: whereArgs,
+      );
+      print(
+          "------------------> Updated $table where $where: $result row(s) affected");
+      return result;
+    } catch (e) {
+      print("------------------> Error updating $table: $e");
+      return -1;
+    }
+  }
+
+  Future<int> deleteData(String sql) async {
     Database mydb = await database;
     return await mydb.rawDelete(sql);
   }
-<<<<<<< HEAD
+
+  Future<int> deleteData2(String table, String column, int id) async {
+    Database mydb = await database;
+    return await mydb.delete(table, where: "$column = ?", whereArgs: [id]);
+  }
 
   Future<bool> checkIfitemExists(String table, int id, String column) async {
     final db = await database;
@@ -100,19 +168,34 @@ class SqlDb {
     );
     return result.isNotEmpty;
   }
-}
-=======
 
-  Future<bool> checkIfitemExists(String table, int id, String column) async {
-    final db = await database;
-    final result = await db.query(
-      table,
-      where: '$column = ?',
-      whereArgs: [id],
-    );
-    return result.isNotEmpty;
+  Future<bool> checkIfitemExistsForExcel(
+      String table, Map<String, dynamic> values) async {
+    try {
+      final db = await database;
+      // بناء شرط الـ WHERE ديناميكيًا
+      String whereClause = values.keys.map((key) => '$key = ?').join(' AND ');
+      List<dynamic> whereArgs = values.values.toList();
+
+      final result = await db.query(
+        table,
+        where: whereClause,
+        whereArgs: whereArgs,
+      );
+
+      print(
+          "-----> Checking if item exists in $table with $values: ${result.isNotEmpty}");
+      return result.isNotEmpty;
+    } catch (e) {
+      print("Error checking item in $table: $e");
+      return false;
+    }
+  }
+
+  Future<T> transaction<T>(Future<T> Function(Transaction) action) async {
+    Database mydb = await database;
+    return await mydb.transaction(action);
   }
 }
 
 SqlDb sqlDb = SqlDb();
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04

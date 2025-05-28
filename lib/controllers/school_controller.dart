@@ -1,6 +1,8 @@
 import 'package:al_furqan/controllers/some_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/schools_model.dart';
+import 'package:al_furqan/services/firebase_service.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class SchoolController {
   final List<SchoolModel> _schools = [];
@@ -30,8 +32,8 @@ class SchoolController {
   /// جلب مدرسة بناءً على SchoolID
   Future<SchoolModel?> getSchoolBySchoolID(int schoolID) async {
     try {
-      final response = await _sqlDb.readData(
-          "SELECT * FROM Schools WHERE SchoolID = $schoolID");
+      final response = await _sqlDb
+          .readData("SELECT * FROM Schools WHERE SchoolID = $schoolID");
       if (response.isEmpty) {
         print("No school found for SchoolID: $schoolID");
         return null;
@@ -50,26 +52,54 @@ class SchoolController {
   }
 
   /// إضافة مدرسة جديدة
-  Future<void> addSchool(SchoolModel schoolModel) async {
-<<<<<<< HEAD
-    schoolModel.schoolID = await someController.newId("Schools", "schoolID");
+  Future<void> addSchool(SchoolModel schoolModel, int type) async {
     try {
-      int response = await _sqlDb.insertData('''
-        INSERT INTO Schools (schoolID, school_name, school_location)
+      schoolModel.schoolID = await someController.newId("Schools", "SchoolID");
+      if (type == 1) {
+        int response = await _sqlDb.insertData('''
+        INSERT INTO Schools (SchoolID, school_name, school_location)
         VALUES (${schoolModel.schoolID}, '${schoolModel.school_name}', '${schoolModel.school_location}')
-=======
-    try {
-      int response = await _sqlDb.insertData('''
-        INSERT INTO Schools (school_name, school_location)
-        VALUES ('${schoolModel.school_name}', '${schoolModel.school_location}')
->>>>>>> 376d5759104a29dbc0afd24f029d8122a050eb04
       ''');
-      print("Added school, response: $response");
-      if (response == 0) {
-        throw Exception("Failed to add school");
+      if(await InternetConnectionChecker.createInstance().hasConnection){
+        await firebasehelper.addSchool(schoolModel);
+      }else{
+        print("لا يوجد اتصال بالانترنت");
+      }
+        print("Added school, response: $response");
+        if (response == 0) {
+          throw Exception("Failed to add school");
+        }
+      } else {
+        int response = await _sqlDb.insertData('''
+        INSERT INTO Schools (SchoolID, school_name, school_location)
+        VALUES (${schoolModel.schoolID}, '${schoolModel.school_name}', '${schoolModel.school_location}')
+      ''');
+      print('تم اضافة مدرسه جديده بنجاح ${schoolModel.school_name}');
       }
     } catch (e) {
       print("Error adding school: $e");
+      rethrow;
+    }
+  }
+  updateSchool(SchoolModel schoolModel, int type) async {
+    try {
+      if (type == 1) {
+        int response = await _sqlDb.updateData('''
+        UPDATE Schools SET school_name = '${schoolModel.school_name}', school_location = '${schoolModel.school_location}' WHERE SchoolID = ${schoolModel.schoolID}
+      ''');
+      if(await InternetConnectionChecker.createInstance().hasConnection){
+        await firebasehelper.updateSchool(schoolModel);
+      }else{
+        print("لا يوجد اتصال بالانترنت");
+      }
+      print('تم تعديل المدرسه ${schoolModel.school_name} بنجاح');
+      } else {
+        int response = await _sqlDb.updateData('''
+        UPDATE Schools SET school_name = '${schoolModel.school_name}', school_location = '${schoolModel.school_location}' WHERE SchoolID = ${schoolModel.schoolID}
+      ''');
+      }
+    } catch (e) {
+      print("Error updating school: $e");
       rethrow;
     }
   }
@@ -77,8 +107,8 @@ class SchoolController {
   /// حذف مدرسة بناءً على SchoolID
   Future<void> deleteSchool(int schoolId) async {
     try {
-      int response = await _sqlDb.deleteData(
-          "DELETE FROM Schools WHERE SchoolID = $schoolId");
+      int response = await _sqlDb
+          .deleteData("DELETE FROM Schools WHERE SchoolID = $schoolId");
       print("Deleted school $schoolId, response: $response");
       if (response == 0) {
         throw Exception("Failed to delete school $schoolId");

@@ -375,7 +375,7 @@ class _AddUserState extends State<AddUser> {
   void _submitForm() {
     int phone = int.parse(_phone.text);
     int telephone = int.parse(_telephone.text);
-    int password = int.parse(_password.text);
+    String password = (_password.text);
     int? roleID;
     int activate = _isActivate ? 1 : 0;
 
@@ -386,7 +386,7 @@ class _AddUserState extends State<AddUser> {
     _userModel.phone_number = phone;
     _userModel.telephone_number = telephone;
     _userModel.email = _email.text;
-    _userModel.password = password;
+    _userModel.password = password.toString();
     _userModel.date = _date.text;
     _userModel.isActivate = activate;
     _userModel.schoolID = _selectedSchoolId;
@@ -403,7 +403,7 @@ class _AddUserState extends State<AddUser> {
         break;
     }
     _userModel.roleID = roleID;
-    userController.addUser(_userModel);
+    userController.addUser(_userModel,1);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("تمت إضافة مستخدم بنجاح"),

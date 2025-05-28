@@ -1,12 +1,11 @@
-import 'dart:ffi';
-
 class HalagaModel {
   int? halagaID;
   int? SchoolID;
   String? Name;
   int? NumberStudent;
-  Double? AttendanceRate;
-  String? TeacherName;
+  double? AttendanceRate;
+  String? teacherName;
+  int? isSync;
 
   HalagaModel(
       {this.halagaID,
@@ -14,5 +13,28 @@ class HalagaModel {
       this.Name,
       this.NumberStudent,
       this.AttendanceRate,
-      this.TeacherName});
+      this.teacherName,
+      this.isSync});
+
+  factory HalagaModel.fromJson(Map<String, dynamic> json) {
+    return HalagaModel(
+      halagaID: json['halagaID'],
+      SchoolID: json['SchoolID'],
+      Name: json['Name'],
+      NumberStudent: json['NumberStudent'],
+      AttendanceRate: json['AttendanceRate'],
+      isSync: json['isSync'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'halagaID': halagaID,
+      'SchoolID': SchoolID,
+      'Name': Name,
+      'NumberStudent': NumberStudent,
+      'AttendanceRate': AttendanceRate,
+      'isSync': isSync,
+    };
+  }
 }
