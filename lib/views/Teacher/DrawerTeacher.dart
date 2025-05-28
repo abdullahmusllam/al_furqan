@@ -322,10 +322,24 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                     icon: Icons.people,
                     title: 'تحضير الطلاب',
                     onTap: () {
+                      Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => StudentsAttendance(),
+                        ),
+                      );
+                    },
+                  ), _buildMenuItem(
+                    context,
+                    icon: Icons.qr_code,
+                    title: 'حضوري ',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AttendanceScannerPage(),
                         ),
                       );
                     },

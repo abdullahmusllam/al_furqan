@@ -52,6 +52,8 @@ dependencies:
   url_launcher:
   pdf: 
   printing: 
+  qr_flutter:
+  mobile_scanner:
 
 
 dev_dependencies:
@@ -65,6 +67,11 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  image_path: "assets/pictures/al_furqan_icon.png"
+
 
 
 # For information on the generic Dart part of this file, see the
@@ -83,7 +90,6 @@ flutter:
     - assets/pictures/
     - assets/database/
     - assets/fonts/
-  #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -111,9 +117,4 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
-flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "assets/pictures/al_furqan_icon.png"  # Updated to the actual icon file
-  adaptive_icon_background: "#FFFFFF"  # You can change this color
-  adaptive_icon_foreground: "assets/pictures/al_furqan_icon.png"  # Updated to the actual icon file
+
