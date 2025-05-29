@@ -54,6 +54,7 @@ dependencies:
   printing: 
   qr_flutter:
   mobile_scanner:
+  uuid:
 
 
 dev_dependencies:

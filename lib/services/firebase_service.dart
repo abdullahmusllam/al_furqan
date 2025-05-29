@@ -328,11 +328,11 @@ class FirebaseHelper {
 
 //   ================== Plans FireBase Method Start ====================
   Future<void> addConservationPlan(
-      ConservationPlanModel plan, int idDoc) async {
+      ConservationPlanModel plan, String idDoc) async {
     try {
       await _firestore
           .collection("ConservationPlans")
-          .doc(idDoc.toString())
+          .doc(idDoc)
           .set(plan.toMap());
       print(
           "---------------> The addConservationPlan in ((FirebaseService)) : Done");
@@ -342,11 +342,11 @@ class FirebaseHelper {
     }
   }
 
-  Future<void> addEltlawahPlan(EltlawahPlanModel plan, int idDoc) async {
+  Future<void> addEltlawahPlan(EltlawahPlanModel plan, String idDoc) async {
     try {
       await _firestore
           .collection("EltlawahPlans")
-          .doc(idDoc.toString())
+          .doc(idDoc)
           .set(plan.toMap());
       print(
           "---------------> The addEltlawahPlan in ((FirebaseService)) : Done");
@@ -356,11 +356,11 @@ class FirebaseHelper {
     }
   }
 
-  Future<void> addIslamicStudyplan(IslamicStudiesModel plan, int idDoc) async {
+  Future<void> addIslamicStudyplan(IslamicStudiesModel plan, String idDoc) async {
     try {
       await _firestore
           .collection("IslamicStudies")
-          .doc(idDoc.toString())
+          .doc(idDoc)
           .set(plan.toMap());
       print(
           "---------------> The addIslamicStudyplan in ((FirebaseService)) : Done");
@@ -372,11 +372,11 @@ class FirebaseHelper {
 
   //===================== Update ConservationPlan =================
   Future<void> updateConservationPlan(
-      ConservationPlanModel plan, int idDoc) async {
+      ConservationPlanModel plan, String idDoc) async {
     try {
       await _firestore
           .collection("ConservationPlans")
-          .doc(idDoc.toString())
+          .doc(idDoc)
           .update(plan.toMap());
       print(
           "---------------> The updateConservationPlan in ((FirebaseService)) : Done");
@@ -387,11 +387,11 @@ class FirebaseHelper {
   }
 
   //===================== Update EltlawahPlan =================
-  Future<void> updateEltlawahPlan(EltlawahPlanModel plan, int idDoc) async {
+  Future<void> updateEltlawahPlan(EltlawahPlanModel plan, String idDoc) async {
     try {
       await _firestore
           .collection("EltlawahPlans")
-          .doc(idDoc.toString())
+          .doc(idDoc)
           .update(plan.toMap());
       print(
           "---------------> The updateEltlawahPlan in ((FirebaseService)) : Done");
@@ -403,11 +403,11 @@ class FirebaseHelper {
 
   //===================== Update IslamicStudyplan =================
   Future<void> updateIslamicStudyplan(
-      IslamicStudiesModel plan, int idDoc) async {
+      IslamicStudiesModel plan, String idDoc) async {
     try {
       await _firestore
           .collection("IslamicStudies")
-          .doc(idDoc.toString())
+          .doc(idDoc)
           .update(plan.toMap());
       print(
           "---------------> The updateIslamicStudyplan in ((FirebaseService)) : Done");
@@ -418,11 +418,11 @@ class FirebaseHelper {
   }
 
   //===================== Delete ConservationPlan =================
-  Future<void> deleteConservationPlan(int idDoc) async {
+  Future<void> deleteConservationPlan(String idDoc) async {
     try {
       await _firestore
           .collection("ConservationPlans")
-          .doc(idDoc.toString())
+          .doc(idDoc)
           .delete();
       print(
           "---------------> The deleteConservationPlan in ((FirebaseService)) : Done");
@@ -433,11 +433,11 @@ class FirebaseHelper {
   }
 
   //===================== Delete EltlawahPlan =================
-  Future<void> deleteEltlawahPlan(int idDoc) async {
+  Future<void> deleteEltlawahPlan(String idDoc) async {
     try {
       await _firestore
           .collection("EltlawahPlans")
-          .doc(idDoc.toString())
+          .doc(idDoc)
           .delete();
       print(
           "---------------> The deleteEltlawahPlan in ((FirebaseService)) : Done");
@@ -448,11 +448,11 @@ class FirebaseHelper {
   }
 
   //===================== Delete IslamicStudyplan =================
-  Future<void> deleteIslamicStudyplan(int idDoc) async {
+  Future<void> deleteIslamicStudyplan(String idDoc) async {
     try {
       await _firestore
           .collection("IslamicStudies")
-          .doc(idDoc.toString())
+          .doc(idDoc)
           .delete();
       print(
           "---------------> The deleteIslamicStudyplan in ((FirebaseService)) : Done");
@@ -508,6 +508,126 @@ class FirebaseHelper {
       print("---------------> خطأ في تحديث بيانات الحضور في Firestore: $e");
     }
   }
+
+  Future<List<ConservationPlanModel>> getConservationPlans(int halagaId) async {
+    try {
+      print("-------------------> Fetching conservation plans from Firestore for halaga: $halagaId");
+      
+      // جلب الخطط من مجموعة ConservationPlans حيث elhalagatId يساوي halagaId
+      final QuerySnapshot querySnapshot = await _firestore
+          .collection('ConservationPlans')
+          .where('ElhalagatID', isEqualTo: halagaId)
+          .get();
+
+      print("-------------------> Found ${querySnapshot.docs.length} conservation plans");
+
+      // تحويل البيانات إلى نماذج ConservationPlanModel
+      List<ConservationPlanModel> plans = querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return ConservationPlanModel(
+          conservationPlanId: data['ConservationPlanID'],
+          elhalagatId: data['ElhalagatID'],
+          studentId: data['StudentID'],
+          plannedStartSurah: data['PlannedStartSurah'],
+          plannedStartAya: data['PlannedStartAya'],
+          plannedEndSurah: data['PlannedEndSurah'],
+          plannedEndAya: data['PlannedEndAya'],
+          executedStartSurah: data['ExecutedStartSurah'],
+          executedStartAya: data['ExecutedStartAya'],
+          executedEndSurah: data['ExecutedEndSurah'],
+          executedEndAya: data['ExecutedEndAya'],
+          executedRate: data['executedRate']?.toDouble(),
+          planMonth: data['planMonth'],
+          isSync: data['isSync'] ?? 1,
+        );
+      }).toList();
+
+      print("-------------------> Successfully converted plans to models");
+      return plans;
+    } catch (e) {
+      print("-------------------> Error fetching conservation plans: $e");
+      throw Exception('فشل في جلب خطط الحفظ: $e');
+    }
+  }
+
+    /// جلب خطط التلاوة من Firestore
+  Future<List<EltlawahPlanModel>> getEltlawahPlans(int halagaId) async {
+    try {
+      print("-------------------> جاري جلب خطط التلاوة من Firestore للحلقة: $halagaId");
+      
+      // جلب الخطط من مجموعة EltlawahPlans حيث elhalagatId يساوي halagaId
+      final QuerySnapshot querySnapshot = await _firestore
+          .collection('EltlawahPlans')
+          .where('ElhalagatID', isEqualTo: halagaId)
+          .get();
+
+      print("-------------------> تم العثور على ${querySnapshot.docs.length} خطة تلاوة");
+
+      // تحويل البيانات إلى نماذج EltlawahPlanModel
+      List<EltlawahPlanModel> plans = querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return EltlawahPlanModel(
+          eltlawahPlanId: data['EltlawahPlanID'],
+          elhalagatId: data['ElhalagatID'],
+          studentId: data['StudentID'],
+          plannedStartSurah: data['PlannedStartSurah'],
+          plannedStartAya: data['PlannedStartAya'],
+          plannedEndSurah: data['PlannedEndSurah'],
+          plannedEndAya: data['PlannedEndAya'],
+          executedStartSurah: data['ExecutedStartSurah'],
+          executedStartAya: data['ExecutedStartAya'],
+          executedEndSurah: data['ExecutedEndSurah'],
+          executedEndAya: data['ExecutedEndAya'],
+          executedRate: data['ExecutedRate']?.toDouble(),
+          planMonth: data['PlanMonth'],
+          isSync: data['isSync'] ?? 1,
+        );
+      }).toList();
+
+      print("-------------------> تم تحويل خطط التلاوة بنجاح");
+      return plans;
+    } catch (e) {
+      print("-------------------> خطأ في جلب خطط التلاوة: $e");
+      throw Exception('فشل في جلب خطط التلاوة: $e');
+    }
+  }
+    /// جلب خطط العلوم الشرعية من Firestore
+  Future<List<IslamicStudiesModel>> getIslamicStudyPlans(int halagaId) async {
+    try {
+      print("-------------------> جاري جلب خطط العلوم الشرعية من Firestore للحلقة: $halagaId");
+      
+      // جلب الخطط من مجموعة IslamicStudies حيث elhalagatId يساوي halagaId
+      final QuerySnapshot querySnapshot = await _firestore
+          .collection('IslamicStudies')
+          .where('ElhalagatID', isEqualTo: halagaId)
+          .get();
+
+      print("-------------------> تم العثور على ${querySnapshot.docs.length} خطة علوم شرعية");
+
+      // تحويل البيانات إلى نماذج IslamicStudiesModel
+      List<IslamicStudiesModel> plans = querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return IslamicStudiesModel(
+          islamicStudiesID: data['IslamicStudiesID'],
+          elhalagatID: data['ElhalagatID'],
+          studentID: data['StudentID'],
+          subject: data['Subject'],
+          plannedContent: data['PlannedContent'],
+          executedContent: data['ExecutedContent'],
+          planMonth: data['PlanMonth'],
+          isSync: data['isSync'] ?? 1,
+        );
+      }).toList();
+
+      print("-------------------> تم تحويل خطط العلوم الشرعية بنجاح");
+      return plans;
+    } catch (e) {
+      print("-------------------> خطأ في جلب خطط العلوم الشرعية: $e");
+      throw Exception('فشل في جلب خطط العلوم الشرعية: $e');
+    }
+  }
+
 } // End of FirebaseHelper class
+
 
 FirebaseHelper firebasehelper = FirebaseHelper();

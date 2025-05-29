@@ -2,6 +2,7 @@ import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/plan_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/views/Teacher/mainTeacher.dart';
 import 'package:al_furqan/views/shared/Conversation_list.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,18 +12,16 @@ import '../../helper/sqldb.dart';
 import '../../services/firebase_service.dart';
 import '../../services/message_sevice.dart';
 import '../../services/sync.dart';
-import 'SchoolDirectorHome.dart';
+  
+class MainScreenT extends StatefulWidget {
 
-class MainScreenD extends StatefulWidget {
-  final UserModel User;
-
-  const MainScreenD({Key? key, required this.User}) : super(key: key);
+  const MainScreenT({Key? key}) : super(key: key);
 
   @override
   _MainScreenState createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreenD> {
+class _MainScreenState extends State<MainScreenT> {
   bool isLoading = true;
 
   @override
@@ -121,6 +120,6 @@ class _MainScreenState extends State<MainScreenD> {
       );
     }
 
-    return SchoolManagerScreen();
+    return TeacherDashboard();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
 import 'package:al_furqan/views/SchoolDirector/SchoolDirectorHome.dart';
 import 'package:al_furqan/views/Teacher/mainTeacher.dart';
+import 'package:al_furqan/views/Teacher/main_screenT.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -90,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen> {
         break;
       case 2:
         Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => TeacherDashboard()));
+            MaterialPageRoute(builder: (context) => MainScreenT()));
         break;
       default:
         _showErrorDialog(context, "خطأ", "حسابك غير مفعل، تواصل مع الإدارة.");

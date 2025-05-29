@@ -1,5 +1,5 @@
 class IslamicStudiesModel {
-  int? islamicStudiesID;
+  String? islamicStudiesID;
   int? elhalagatID;
   int? studentID;
   String? subject;
