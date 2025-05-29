@@ -1,23 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ConservationPlanModel {
-   int? conservationPlanId;
-   int? elhalagatId;
-   int? studentId;
-   String? plannedStartSurah;
-   int? plannedStartAya;
-   String? plannedEndSurah;
-   int? plannedEndAya;
-   String? executedStartSurah;
-   int? executedStartAya;
-   String? executedEndSurah;
-   int? executedEndAya;
-   double? executedRate;
-   String? planMonth;
-   int? isSync;
+  String? conservationPlanId;
+  int? elhalagatId;
+  int? studentId;
+  String? plannedStartSurah;
+  int? plannedStartAya;
+  String? plannedEndSurah;
+  int? plannedEndAya;
+  String? executedStartSurah;
+  int? executedStartAya;
+  String? executedEndSurah;
+  int? executedEndAya;
+  double? executedRate;
+  String? planMonth;
+  int? isSync;
 
   /// إنشاء نموذج خطة حفظ جديد
-   ConservationPlanModel({
+  ConservationPlanModel({
     this.conservationPlanId,
     required this.elhalagatId,
     required this.studentId,

@@ -154,7 +154,7 @@ class SqlDb {
     return await mydb.rawDelete(sql);
   }
 
-  Future<int> deleteData2(String table, String column, int id) async {
+  Future<int> deleteData2(String table, String column, String id) async {
     Database mydb = await database;
     return await mydb.delete(table, where: "$column = ?", whereArgs: [id]);
   }

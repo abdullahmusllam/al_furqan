@@ -1,19 +1,19 @@
-import 'package:sqflite/sqflite.dart';
-import 'sqldb.dart';
+import 'package:uuid/uuid.dart';
 
-Future<int> newId2(String table, String column) async {
-  final SqlDb sqlDb = SqlDb();
+Future<String> getMaxValue(String table, String column) async {
   try {
-    return await sqlDb.transaction((txn) async {
-      // جلب أكبر معرف من الجدول
-      List<Map> response =
-          await txn.rawQuery("SELECT MAX($column) AS max_id FROM $table");
-      int maxId =
-          response[0]['max_id'] != null ? response[0]['max_id'] as int : 0;
-      return maxId + 1; // المعرف الجديد هو أكبر معرف + 1
-    });
+    // إنشاء UUID جديد
+    var uuid = Uuid();
+    String newId = uuid.v4(); // إنشاء UUID نسخة 4 (عشوائي)
+    
+    print("-------------------> جدول: $table");
+    print("-------------------> عمود: $column");
+    print("-------------------> UUID الجديد: $newId");
+    
+    return newId;
   } catch (e) {
-    print("Error generating new ID for $table.$column: $e");
-    return -1; // في حالة الخطأ
+    print('Error generating UUID: $e');
+    // إنشاء UUID في حالة الخطأ أيضاً
+    return Uuid().v4();
   }
 }
