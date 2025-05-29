@@ -1,3 +1,4 @@
+import 'package:father/views/home_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -126,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // التوجيه إلى شاشة قائمة الطلاب
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => StudentListScreen()),
+        MaterialPageRoute(builder: (context) => HomeScreen()),
       );
 
     } catch (e) {

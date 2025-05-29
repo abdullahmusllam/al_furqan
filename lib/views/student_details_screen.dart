@@ -77,7 +77,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('تفاصيل الطالب', style: TextStyle(fontFamily: 'RB', fontWeight: FontWeight.bold)),
+        title: Text('تفاصيل الطالب', style: TextStyle(fontFamily: 'RB', fontWeight: FontWeight.bold, color: Colors.white)),
         centerTitle: true,
         backgroundColor: Color(0xFF017546),
         elevation: 0,

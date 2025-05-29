@@ -83,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_parent?.first_name ?? '',
-            style: TextStyle(fontFamily: 'RB', fontWeight: FontWeight.bold)),
+            style: TextStyle(fontFamily: 'RB', fontWeight: FontWeight.bold, color: Colors.white)),
         centerTitle: true,
         backgroundColor: Color(0xFF017546),
         elevation: 0,

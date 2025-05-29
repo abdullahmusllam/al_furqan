@@ -81,7 +81,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('قائمة الأبناء', style: TextStyle(fontFamily: 'RB', fontWeight: FontWeight.bold)),
+        title: const Text('قائمة الأبناء', style: TextStyle(fontFamily: 'RB', fontWeight: FontWeight.bold, color: Colors.white)),
         centerTitle: true,
         backgroundColor: Color(0xFF017546),
         elevation: 0,
