@@ -8,6 +8,7 @@ import 'dart:math';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:al_furqan/views/SchoolDirector/teachers_attendance_list.dart';
 
 class AttendanceQRScreen extends StatefulWidget {
   const AttendanceQRScreen({Key? key}) : super(key: key);
@@ -279,25 +280,33 @@ class _AttendanceQRScreenState extends State<AttendanceQRScreen> {
                     //   ),
                     // ),
                     const SizedBox(height: 30),
-                    ElevatedButton.icon(
-                      onPressed: _generatePdf,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _generatePdf,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 3,
+                            ),
+                            icon: const Icon(Icons.print),
+                            label: const Text(
+                              'طباعة كود QR',
+                              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 3,
-                      ),
-                      icon: const Icon(Icons.print),
-                      label: const Text(
-                        'طباعة كود QR',
-                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
+                        
+                      ],
                     ),
                     const SizedBox(height: 30),
                     Center(
@@ -318,51 +327,17 @@ class _AttendanceQRScreenState extends State<AttendanceQRScreen> {
                         ),
                         child: Column(
                           children: [
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.2), width: 2),
-                              ),
-                              child: QrImageView(
-                                data: "$attendanceCode:$schoolId", // دمج الكود مع معرف المدرسة
-                                version: QrVersions.auto,
-                                size: 250.0,
-                                backgroundColor: Colors.white,
-                                eyeStyle: QrEyeStyle(
-                                  eyeShape: QrEyeShape.square,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                                dataModuleStyle: QrDataModuleStyle(
-                                  dataModuleShape: QrDataModuleShape.square,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                'كود الحضور: $attendanceCode',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                              ),
+                            QrImageView(
+                              data: "$attendanceCode:$schoolId", // دمج الكود مع معرف المدرسة
+                              version: QrVersions.auto,
+                              size: 250.0,
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'مدرسة: $schoolName',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey.shade700,
+                              'اسم المدرسة: $schoolName',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
                               ),
                             ),
                           ],

@@ -35,6 +35,17 @@ class _MainScreenState extends State<MainScreenD> {
     loadUsersFromFirebase();
     halagaController.getHalagatFromFirebase();
     loadPlans();
+
+    load();
+  }
+
+  Future<void> load() async {
+    await sync.syncUsers();
+    await sync.syncElhalagat();
+    await sync.syncStudents();
+    await loadDate();
+    await loadUsersFromFirebase();
+    await halagaController.getHalagatFromFirebase();
   }
   Future<void> loadUsersFromFirebase() async {
     List<UserModel> users = await firebasehelper.getUsers();
