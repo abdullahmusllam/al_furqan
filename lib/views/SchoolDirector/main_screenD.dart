@@ -13,9 +13,9 @@ import '../../services/sync.dart';
 import 'SchoolDirectorHome.dart';
 
 class MainScreenD extends StatefulWidget {
-  final UserModel User;
+  // final UserModel User;
 
-  const MainScreenD({Key? key, required this.User}) : super(key: key);
+  const MainScreenD({Key? key}) : super(key: key);
 
   @override
   _MainScreenState createState() => _MainScreenState();

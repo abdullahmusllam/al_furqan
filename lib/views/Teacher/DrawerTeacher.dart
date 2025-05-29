@@ -456,15 +456,15 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                   ),
                   _buildDivider(),
                   _buildMenuCategory('الإعدادات'),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.settings,
-                    title: 'الإعدادات',
-                    onTap: () {
-                      Navigator.pop(context);
-                      // الانتقال إلى شاشة الإعدادات
-                    },
-                  ),
+                  // _buildMenuItem(
+                  //   context,
+                  //   icon: Icons.settings,
+                  //   title: 'الإعدادات',
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //     // الانتقال إلى شاشة الإعدادات
+                  //   },
+                  // ),
                   _buildMenuItem(
                     context,
                     icon: Icons.refresh,

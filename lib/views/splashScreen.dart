@@ -1,3 +1,4 @@
+import 'package:al_furqan/views/SchoolDirector/main_screenD.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
 import 'package:al_furqan/views/SchoolDirector/SchoolDirectorHome.dart';
 import 'package:al_furqan/views/Teacher/mainTeacher.dart';
@@ -86,7 +87,7 @@ class _SplashScreenState extends State<SplashScreen> {
         break;
       case 1:
         Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => SchoolManagerScreen()));
+            MaterialPageRoute(builder: (context) => MainScreenD()));
         break;
       case 2:
         Navigator.pushReplacement(context,

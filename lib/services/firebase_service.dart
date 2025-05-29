@@ -22,6 +22,7 @@ class FirebaseHelper {
     StudentData.schoolId = schoolID;
     if (StudentData != null) {
       try {
+        StudentData.isSync = 1;
         await StudentRef.doc(StudentData.studentID.toString())
             .set(StudentData.toMap());
         print('تمت إضافة/تحديث الطالب بالرقم ${StudentData.studentID} بنجاح ');
@@ -57,6 +58,7 @@ class FirebaseHelper {
   }
 
   updateStudentData(StudentModel Student) async {
+    Student.isSync = 1;
     final docRef =
         _firestore.collection('Students').doc(Student.studentID.toString());
     await docRef.update(Student.toMap()).then((_) {
@@ -102,10 +104,11 @@ class FirebaseHelper {
   addSchool(SchoolModel school) async {
     final docRef = _firestore.collection('School');
     if (school != null) {
-      await docRef.doc(school.user_id.toString()).set({
+      await docRef.doc(school.schoolID.toString()).set({
         'SchoolID': school.schoolID,
         'school_name': school.school_name,
         'school_location': school.school_location,
+        'isSync': 1,
       });
       print('تم إضافة المدرسة ${school.schoolID} بنجاح');
     } else {
@@ -120,10 +123,23 @@ class FirebaseHelper {
       await docRef.update({
         'school_name': school.school_name,
         'school_location': school.school_location,
+        'isSync': 1,
       });
-      print('تم تعديل المدرسة ${school.schoolID} بنجاح');
+      print('تم تحديث المدرسة ${school.schoolID} بنجاح');
     } else {
-      print('خطأ في تعديل المدرسة');
+      print('خطأ في تحديث المدرسة');
+    }
+  }
+
+  /// حذف مدرسة من Firebase
+  Future<void> deleteSchool(int schoolId) async {
+    try {
+      final docRef = _firestore.collection('School').doc(schoolId.toString());
+      await docRef.delete();
+      print('تم حذف المدرسة $schoolId من Firebase بنجاح');
+    } catch (e) {
+      print('خطأ في حذف المدرسة من Firebase: $e');
+      rethrow;
     }
   }
 

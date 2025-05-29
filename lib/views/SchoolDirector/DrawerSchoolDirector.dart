@@ -224,26 +224,26 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                   ),
 
                   // Academic Section
-                  _buildSectionTitle('الشؤون الأكاديمية'),
-                  _buildMenuItem(
-                    icon: Icons.book,
-                    title: 'المناهج',
-                    onTap: () {
-                      Navigator.pop(context);
-                      // الانتقال إلى شاشة المناهج
-                    },
-                  ),
+                  // _buildSectionTitle('الشؤون الأكاديمية'),
+                  // _buildMenuItem(
+                  //   icon: Icons.book,
+                  //   title: 'المناهج',
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //     // الانتقال إلى شاشة المناهج
+                  //   },
+                  // ),
 
                   // System Section
-                  _buildSectionTitle('النظام'),
-                  _buildMenuItem(
-                    icon: Icons.settings,
-                    title: 'الإعدادات',
-                    onTap: () {
-                      Navigator.pop(context);
-                      // الانتقال إلى شاشة الإعدادات
-                    },
-                  ),
+                  // _buildSectionTitle('النظام'),
+                  // _buildMenuItem(
+                  //   icon: Icons.settings,
+                  //   title: 'الإعدادات',
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //     // الانتقال إلى شاشة الإعدادات
+                  //   },
+                  // ),
                 ],
               ),
             ),
