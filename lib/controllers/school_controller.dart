@@ -56,47 +56,77 @@ class SchoolController {
     try {
       schoolModel.schoolID = await someController.newId("Schools", "SchoolID");
       if (type == 1) {
+        // إضافة المدرسة مع وضع isSync = 0 للمزامنة لاحقًا
         int response = await _sqlDb.insertData('''
-        INSERT INTO Schools (SchoolID, school_name, school_location)
-        VALUES (${schoolModel.schoolID}, '${schoolModel.school_name}', '${schoolModel.school_location}')
+        INSERT INTO Schools (SchoolID, school_name, school_location, isSync)
+        VALUES (${schoolModel.schoolID}, '${schoolModel.school_name}', '${schoolModel.school_location}', 0)
       ''');
-      if(await InternetConnectionChecker.createInstance().hasConnection){
-        await firebasehelper.addSchool(schoolModel);
-      }else{
-        print("لا يوجد اتصال بالانترنت");
-      }
+        
+        // محاولة المزامنة مباشرة إذا كان هناك اتصال بالإنترنت
+        if(await InternetConnectionChecker.createInstance().hasConnection){
+          await firebasehelper.addSchool(schoolModel);
+          // تحديث حالة المزامنة بعد نجاح الإضافة إلى Firebase
+          await _sqlDb.updateData(
+            'UPDATE Schools SET isSync = 1 WHERE SchoolID = ${schoolModel.schoolID}'
+          );
+          print("تمت مزامنة المدرسة بنجاح");
+        } else {
+          print("لا يوجد اتصال بالانترنت - ستتم المزامنة لاحقًا");
+        }
+        
         print("Added school, response: $response");
         if (response == 0) {
           throw Exception("Failed to add school");
         }
       } else {
+        // إضافة محلية فقط بدون مزامنة
         int response = await _sqlDb.insertData('''
-        INSERT INTO Schools (SchoolID, school_name, school_location)
-        VALUES (${schoolModel.schoolID}, '${schoolModel.school_name}', '${schoolModel.school_location}')
+        INSERT INTO Schools (SchoolID, school_name, school_location, isSync)
+        VALUES (${schoolModel.schoolID}, '${schoolModel.school_name}', '${schoolModel.school_location}', ${schoolModel.isSync})
       ''');
-      print('تم اضافة مدرسه جديده بنجاح ${schoolModel.school_name}');
+        print('تم اضافة مدرسه جديده بنجاح ${schoolModel.school_name}');
       }
     } catch (e) {
       print("Error adding school: $e");
       rethrow;
     }
   }
-  updateSchool(SchoolModel schoolModel, int type) async {
+  /// تعديل مدرسة موجودة
+  Future<void> updateSchool(SchoolModel schoolModel, int type) async {
     try {
       if (type == 1) {
+        // تحديث المدرسة ووضع isSync = 0 للمزامنة لاحقًا
         int response = await _sqlDb.updateData('''
-        UPDATE Schools SET school_name = '${schoolModel.school_name}', school_location = '${schoolModel.school_location}' WHERE SchoolID = ${schoolModel.schoolID}
+        UPDATE Schools SET 
+          school_name = '${schoolModel.school_name}', 
+          school_location = '${schoolModel.school_location}', 
+          isSync = 0 
+        WHERE SchoolID = ${schoolModel.schoolID}
       ''');
-      if(await InternetConnectionChecker.createInstance().hasConnection){
-        await firebasehelper.updateSchool(schoolModel);
-      }else{
-        print("لا يوجد اتصال بالانترنت");
-      }
-      print('تم تعديل المدرسه ${schoolModel.school_name} بنجاح');
+        
+        // محاولة المزامنة مباشرة إذا كان هناك اتصال بالإنترنت
+        if(await InternetConnectionChecker.createInstance().hasConnection){
+          await firebasehelper.updateSchool(schoolModel);
+          // تحديث حالة المزامنة بعد نجاح التحديث في Firebase
+          await _sqlDb.updateData(
+            'UPDATE Schools SET isSync = 1 WHERE SchoolID = ${schoolModel.schoolID}'
+          );
+          print("تمت مزامنة تعديل المدرسة بنجاح");
+        } else {
+          print("لا يوجد اتصال بالانترنت - ستتم مزامنة التعديل لاحقًا");
+        }
+        
+        print('تم تعديل المدرسه ${schoolModel.school_name} بنجاح');
       } else {
+        // تحديث محلي فقط بدون مزامنة
         int response = await _sqlDb.updateData('''
-        UPDATE Schools SET school_name = '${schoolModel.school_name}', school_location = '${schoolModel.school_location}' WHERE SchoolID = ${schoolModel.schoolID}
+        UPDATE Schools SET 
+          school_name = '${schoolModel.school_name}', 
+          school_location = '${schoolModel.school_location}', 
+          isSync = ${schoolModel.isSync}
+        WHERE SchoolID = ${schoolModel.schoolID}
       ''');
+        print('تم تحديث المدرسة محليًا فقط');
       }
     } catch (e) {
       print("Error updating school: $e");
@@ -107,9 +137,24 @@ class SchoolController {
   /// حذف مدرسة بناءً على SchoolID
   Future<void> deleteSchool(int schoolId) async {
     try {
+      // محاولة حذف المدرسة من Firebase إذا كان هناك اتصال بالإنترنت
+      if(await InternetConnectionChecker.createInstance().hasConnection){
+        // الحصول على بيانات المدرسة قبل حذفها
+        SchoolModel? school = await getSchoolBySchoolID(schoolId);
+        if (school != null) {
+          // حذف المدرسة من Firebase
+          await firebasehelper.deleteSchool(schoolId);
+          print("تم حذف المدرسة من Firebase");
+        }
+      } else {
+        print("لا يوجد اتصال بالإنترنت - سيتم حذف المدرسة محليًا فقط");
+      }
+
+      // حذف المدرسة من قاعدة البيانات المحلية
       int response = await _sqlDb
           .deleteData("DELETE FROM Schools WHERE SchoolID = $schoolId");
       print("Deleted school $schoolId, response: $response");
+      
       if (response == 0) {
         throw Exception("Failed to delete school $schoolId");
       }
