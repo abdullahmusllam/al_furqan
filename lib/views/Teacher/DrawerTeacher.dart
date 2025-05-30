@@ -3,6 +3,7 @@
 import 'package:al_furqan/views/Teacher/HalagaPlansListScreen.dart';
 import 'package:al_furqan/views/Teacher/attendTeacherScreen.dart';
 import 'package:al_furqan/views/Teacher/islamic_studies_plans_list.dart';
+import 'package:al_furqan/views/Teacher/main_screenT.dart';
 import 'package:al_furqan/views/Teacher/monthly_report.dart';
 import 'package:al_furqan/views/shared/main_screen.dart';
 import 'package:al_furqan/views/Teacher/students_attendance.dart';
@@ -317,6 +318,20 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 physics: BouncingScrollPhysics(),
                 children: [
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.refresh,
+                    title: 'تحديث البيانات',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MainScreenT(),
+                        ),
+                      );
+                    },
+                  ),
                   _buildMenuCategory('الإدارة'),
                   _buildMenuItem(
                     context,
