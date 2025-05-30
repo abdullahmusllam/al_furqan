@@ -149,7 +149,9 @@ class _LoginScreenState extends State<LoginScreen> {
     await saveUserLogin(phone, user.roleID!, user.isActivate!);
     final per = await SharedPreferences.getInstance();
     await per.setInt('user_id', id);
-    await per.setInt('schoolId', user.schoolID!);
+    if(user.roleID == 1 || user.roleID == 2){
+      await per.setInt('schoolId', user.schoolID!);
+    }
     await per.setString('user_name', name);
     if(user.roleID == 2){
       await per.setInt('halagaID', user.elhalagatID!);

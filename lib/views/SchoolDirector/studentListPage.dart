@@ -76,77 +76,22 @@ class _StudentsListPageState extends State<StudentsListPage> {
     print("معرف المدرسة: $schoolID");
 
     if (schoolID != null) {
-      // Load halaqat names first
-      // print("جاري تحميل أسماء الحلقات...");
+      // تحميل أسماء الحلقات أولاً
       await _loadHalaqaNames(schoolID);
-      bool isConnected = await InternetConnectionChecker.createInstance().hasConnection;
-      print("حالة الاتصال: $isConnected");
+      
+      // تحميل البيانات من القاعدة المحلية فقط
+      print("جاري تحميل البيانات من قاعدة البيانات المحلية...");
+      List<StudentModel>? loadedStudent =
+          await studentController.getSchoolStudents(schoolID);
+      print(
+          "تم تحميل ${loadedStudent?.length ?? 0} طالب من قاعدة البيانات المحلية");
 
-      if (isConnected) {
-          // جلب بيانات الطلاب من Firebase
-          print("جاري جلب بيانات الطلاب من Firebase...");
-          List<StudentModel> studentsList =
-              await firebasehelper.getStudentData(schoolID);
-          print("تم جلب ${studentsList.length} طالب من Firebase");
-          print("بيانات الطلاب من Firebase: $studentsList");
-
-          for (var student in studentsList) {
-            // تحويل البيانات إلى StudentModel
-            print("جاري معالجة بيانات الطالب: $student");
-            // StudentModel student = StudentModel.fromJson(studentData);
-            print(
-                "تم تحويل البيانات إلى نموذج الطالب: ${student.firstName}, ID: ${student.studentID}, حلقة: ${student.elhalaqaID}");
-            // التحقق إذا كان الطالب موجودًا في قاعدة البيانات المحلية
-            if (student.studentID == null) {
-              print("تخطي الطالب لأن studentID هو null");
-              continue;
-            }
-
-            bool exists = await sqlDb.checkIfitemExists(
-                "Students", student.studentID!, 'StudentID');
-            print("هل الطالب موجود في قاعدة البيانات المحلية؟ $exists");
-
-            if (exists) {
-              // إذا كان موجودًا، يتم التحديث
-              await studentController.updateStudent(student, 0);
-              print("تم تحديث بيانات الطالب ${student.firstName}");
-            } else {
-              // إذا لم يكن موجودًا، يتم إضافته
-              await studentController.addStudentToLocal(student);
-              print(" : تم إضافة بيانات الطالب ${student.firstName}");
-            }
-          }
-        // تحميل البيانات من القاعدة المحلية
-        print("جاري تحميل البيانات من قاعدة البيانات المحلية...");
-        List<StudentModel>? loadedStudent =
-            await studentController.getSchoolStudents(schoolID);
-        print(
-            "تم تحميل ${loadedStudent?.length ?? 0} طالب من قاعدة البيانات المحلية");
-
-        if (mounted) {
-          setState(() {
-            students = loadedStudent ?? [];
-            isLoading = false;
-            print("تم تحديث واجهة المستخدم بـ ${students.length} طالب");
-          });
-        }
-
-      } else {
-        // إذا لم يكن هناك اتصال بالإنترنت، يتم تحميل البيانات من القاعدة المحلية فقط
-        print(
-            "لا يوجد اتصال بالإنترنت، جاري تحميل البيانات من قاعدة البيانات المحلية فقط...");
-        List<StudentModel>? loadedStudent =
-            await studentController.getSchoolStudents(schoolID);
-        print(
-            "تم تحميل ${loadedStudent?.length ?? 0} طالب من قاعدة البيانات المحلية");
-
-        if (mounted) {
-          setState(() {
-            students = loadedStudent ?? [];
-            isLoading = false;
-            print("تم تحديث واجهة المستخدم بـ ${students.length} طالب");
-          });
-        }
+      if (mounted) {
+        setState(() {
+          students = loadedStudent ?? [];
+          isLoading = false;
+          print("تم تحديث واجهة المستخدم بـ ${students.length} طالب");
+        });
       }
     } else {
       print("معرف المدرسة غير متوفر!");

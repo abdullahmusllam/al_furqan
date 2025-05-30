@@ -5,10 +5,12 @@ import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HalagaController {
   final SqlDb _sqlDb = SqlDb();
   final List<HalagaModel> halagaData = [];
+  final List<int> halagatId = [];
 
   Future<bool> isConnected() async {
     var conn = InternetConnectionChecker.createInstance().hasConnection;
@@ -305,9 +307,10 @@ class HalagaController {
     }
   }
 
-  getHalagatFromFirebase() async {
+  Future<void> getHalagatFromFirebase() async {
     try {
       if (await isConnected()) {
+        print('===== getHalagatFromFirebase =====');
         final snapshot =
             await FirebaseFirestore.instance.collection('Elhalaga').get();
         for (var doc in snapshot.docs) {
@@ -316,14 +319,42 @@ class HalagaController {
               'Elhalagat', halaga.halagaID!, 'halagaID');
           if (exists) {
             await updateHalaga(halaga, 0);
+            print('===== updateHalaga =====');
           } else {
             await addHalaga(halaga, 0);
+            print('===== addHalaga =====');
           }
         }
       }
     } catch (e) {
       print('خطأ في جلب الحلقات من Firebase: $e');
-      return [];
+      return;
+    }
+  }
+
+  Future<void> getHalagatFromFirebaseByID(int id, String name) async {
+    try {
+      if (await isConnected()) {
+        final snapshot =
+            await FirebaseFirestore.instance.collection('Elhalaga').where(name, isEqualTo: id).get();
+        for (var doc in snapshot.docs) {
+          HalagaModel halaga = HalagaModel.fromJson(doc.data());
+          bool exists = await _sqlDb.checkIfitemExists(
+              'Elhalagat', halaga.halagaID!, 'halagaID');
+          if (exists) {
+            await updateHalaga(halaga, 0);
+            halagatId.add(halaga.halagaID!);
+            print('===== updateHalaga =====');
+          } else {
+            await addHalaga(halaga, 0);
+            halagatId.add(halaga.halagaID!);
+            print('===== addHalaga =====');
+          }
+        }
+      }
+    } catch (e) {
+      print('خطأ في جلب الحلقات من Firebase: $e');
+      return;
     }
   }
 }

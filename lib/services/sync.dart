@@ -1,5 +1,8 @@
 import 'package:al_furqan/helper/sqldb.dart';
+import 'package:al_furqan/models/conservation_plan_model.dart';
+import 'package:al_furqan/models/eltlawah_plan_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
+import 'package:al_furqan/models/islamic_studies_model.dart';
 import 'package:al_furqan/models/messages_model.dart';
 import 'package:al_furqan/models/schools_model.dart';
 import 'package:al_furqan/models/student_model.dart';
@@ -100,6 +103,8 @@ Future<void> syncMessage() async {
       print('===== map.isEmpty =====');
     }
   }
+
+
 // Future<void> syncActivities() async {
 //     print('===== sync Activities =====');
 //     List<Map<String, dynamic>> map =
@@ -161,35 +166,95 @@ Future<void> syncElhalagat() async {
     }
   }
 
-  // Future<void> syncIslamicStudies() async {
-  //   print('===== sync IslamicStudies =====');
-  //   List<Map<String, dynamic>> map =
-  //       await sqlDb.readDataID("IslamicStudies", 'isSync', 0);
-  //   if (map.isNotEmpty) {
-  //     print('===== map.isNotEmpty =====');
-  //     // List<HalagaModel> halagas = map.map((map) => HalagaModel.fromJson(map)).toList();
-      // for (var halaga in halagas) {
-        // bool exists =
-            // await firebasehelper.checkDocumentExists('IslamicStudies', halaga.halagaID!);
-        // if (exists) {
-          // await firebaseHelper.updateMessage(message);
+  Future<void> syncIslamicStudies() async {
+    print('===== sync IslamicStudies =====');
+    List<Map<String, dynamic>> map =
+        await sqlDb.readDataID("IslamicStudies", 'isSync', 0);
+    if (map.isNotEmpty) {
+      print('===== map.isNotEmpty =====');
+      List<IslamicStudiesModel> IslamicStudies = map.map((map) => IslamicStudiesModel.fromMap(map)).toList();
+      for (var IslamicStudy in IslamicStudies) {
+        bool exists =
+            await firebasehelper.checkDocumentExists('IslamicStudies', int.parse(IslamicStudy.islamicStudiesID!));
+        if (exists) {
+          await firebasehelper.updateIslamicStudyplan(IslamicStudy, IslamicStudy.islamicStudiesID!);
 
-  //         await sqlDb.updateData(
-  //             'update IslamicStudies set isSync = 1 where IslamicStudiesID = ${halaga.halagaID}');
-  //         print('===== sync IslamicStudies (update) =====');
+          await sqlDb.updateData(
+              'update IslamicStudies set isSync = 1 where IslamicStudiesID = ${IslamicStudy.islamicStudiesID}');
+          print('===== sync IslamicStudies (update) =====');
 
-  //       } else {
-  //         // await firebaseHelper.saveMessage(message);
-  //         await sqlDb.updateData(
-  //             'update IslamicStudies set isSync = 1 where IslamicStudiesID = ${halaga.halagaID}');
+        } else {
+          await firebasehelper.addIslamicStudyplan(IslamicStudy, IslamicStudy.islamicStudiesID!);
+          await sqlDb.updateData(
+              'update IslamicStudies set isSync = 1 where IslamicStudiesID = ${IslamicStudy.islamicStudiesID}');
 
-  //         print('===== sync IslamicStudies (add) =====');
-  //       }
-  //     }
-  //   } else {
-  //     print('===== map.isEmpty =====');
-  //   }
-  // }
+          print('===== sync IslamicStudies (add) =====');
+        }
+      }
+    } else {
+      print('===== map.isEmpty =====');
+    }
+  }
+
+  Future<void> syncConservationPlan() async {
+    print('===== sync ConservationPlans =====');
+    List<Map<String, dynamic>> map =
+        await sqlDb.readDataID("ConservationPlans", 'isSync', 0);
+    if (map.isNotEmpty) {
+      print('===== map.isNotEmpty =====');
+      List<ConservationPlanModel> conservationPlans = map.map((map) => ConservationPlanModel.fromMap(map)).toList();
+      for (var conservationPlan in conservationPlans) {
+        bool exists =
+            await firebasehelper.checkDocumentExists('ConservationPlans', int.parse(conservationPlan.conservationPlanId!));
+        if (exists) {
+          await firebasehelper.updateConservationPlan(conservationPlan, conservationPlan.conservationPlanId!);
+
+          await sqlDb.updateData(
+              'update ConservationPlans set isSync = 1 where ConservationPlanID = ${conservationPlan.conservationPlanId}');
+          print('===== sync ConservationPlan (update) =====');
+
+        } else {
+          await firebasehelper.addConservationPlan(conservationPlan, conservationPlan.conservationPlanId!);
+          await sqlDb.updateData(
+              'update ConservationPlans set isSync = 1 where ConservationPlanID = ${conservationPlan.conservationPlanId}');
+
+          print('===== sync ConservationPlan (add) =====');
+        }
+      }
+    } else {
+      print('===== map.isEmpty =====');
+    }
+  }
+
+  Future<void> synsEltlawahPlan() async {
+    print('===== sync EltlawahPlan =====');
+    List<Map<String, dynamic>> map =
+        await sqlDb.readDataID("EltlawahPlans", 'isSync', 0);
+    if (map.isNotEmpty) {
+      print('===== map.isNotEmpty =====');
+      List<EltlawahPlanModel> eltlawahPlans = map.map((map) => EltlawahPlanModel.fromMap(map)).toList();
+      for (var eltlawahPlan in eltlawahPlans) {
+        bool exists =
+            await firebasehelper.checkDocumentExists('EltlawahPlans', int.parse(eltlawahPlan.eltlawahPlanId!));
+        if (exists) {
+          await firebasehelper.updateEltlawahPlan(eltlawahPlan, eltlawahPlan.eltlawahPlanId!);
+
+          await sqlDb.updateData(
+              'update EltlawahPlans set isSync = 1 where EltlawahPlanID = ${eltlawahPlan.eltlawahPlanId}');
+          print('===== sync EltlawahPlan (update) =====');
+
+        } else {
+          await firebasehelper.addEltlawahPlan(eltlawahPlan, eltlawahPlan.eltlawahPlanId!);
+          await sqlDb.updateData(
+              'update EltlawahPlans set isSync = 1 where EltlawahPlanID = ${eltlawahPlan.eltlawahPlanId}');
+
+          print('===== sync EltlawahPlan (add) =====');
+        }
+      }
+    } else {
+      print('===== map.isEmpty =====');
+    }
+  }
 
   Future<void> syncStudents() async {
     print('===== sync Students =====');
@@ -220,6 +285,66 @@ Future<void> syncElhalagat() async {
       print('===== map.isEmpty =====');
     }
   }
+
+  // Future<void> syncMonthlyReports() async {
+  //   print('===== sync MonthlyReports =====');
+  //   List<Map<String, dynamic>> map =
+  //       await sqlDb.readDataID("MonthlyReports", 'isSync', 0);
+  //   if (map.isNotEmpty) {
+  //     print('===== map.isNotEmpty =====');
+  //     List<MonthlyReportModel> monthlyReports = map.map((map) => MonthlyReportModel.fromJson(map)).toList();
+  //     for (var monthlyReport in monthlyReports) {
+  //       bool exists =
+  //           await firebasehelper.checkDocumentExists('MonthlyReports', monthlyReport.monthlyReportID!);
+  //       if (exists) {
+  //         await firebasehelper.updateMonthlyReport(monthlyReport, monthlyReport.monthlyReportID!);
+
+  //         await sqlDb.updateData(
+  //             'update MonthlyReports set isSync = 1 where MonthlyReportID = ${monthlyReport.monthlyReportID}');
+  //         print('===== sync MonthlyReport (update) =====');
+
+  //       } else {
+  //         await firebasehelper.addMonthlyReport(monthlyReport, monthlyReport.monthlyReportID!);
+  //         await sqlDb.updateData(
+  //             'update MonthlyReports set isSync = 1 where MonthlyReportID = ${monthlyReport.monthlyReportID}');
+
+  //         print('===== sync MonthlyReport (add) =====');
+  //       }
+  //     }
+  //   } else {
+  //     print('===== map.isEmpty =====');
+  //   }
+  // }
+
+  // Future<void> syncRecommendations() async {
+  //   print('===== sync Recommendations =====');
+  //   List<Map<String, dynamic>> map =
+  //       await sqlDb.readDataID("Recommendations", 'isSync', 0);
+  //   if (map.isNotEmpty) {
+  //     print('===== map.isNotEmpty =====');
+  //     List<RecommendationModel> recommendations = map.map((map) => RecommendationModel.fromJson(map)).toList();
+  //     for (var recommendation in recommendations) {
+  //       bool exists =
+  //           await firebasehelper.checkDocumentExists('Recommendations', recommendation.recommendationsID!);
+  //       if (exists) {
+  //         await firebasehelper.updateRecommendation(recommendation, recommendation.recommendationsID!);
+
+  //         await sqlDb.updateData(
+  //             'update Recommendations set isSync = 1 where RecommendationsID = ${recommendation.recommendationsID}');
+  //         print('===== sync Recommendation (update) =====');
+
+  //       } else {
+  //         await firebasehelper.addRecommendation(recommendation, recommendation.recommendationsID!);
+  //         await sqlDb.updateData(
+  //             'update Recommendations set isSync = 1 where RecommendationsID = ${recommendation.recommendationsID}');
+
+  //         print('===== sync Recommendation (add) =====');
+  //       }
+  //     }
+  //   } else {
+  //     print('===== map.isEmpty =====');
+  //   }
+  // }
 
   // Future<void> syncActivityTypes() async {
   //   print('===== sync ActivityTypes =====');
