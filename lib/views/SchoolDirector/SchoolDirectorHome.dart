@@ -1,16 +1,10 @@
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
-import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/controllers/message_controller.dart';
-import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/student_model.dart';
-import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
-import 'package:al_furqan/services/firebase_service.dart';
-import 'package:al_furqan/services/message_sevice.dart';
-import 'package:al_furqan/services/sync.dart';
 import 'package:al_furqan/views/SchoolDirector/DrawerSchoolDirector.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/cupertino.dart';
@@ -30,7 +24,7 @@ class SchoolManagerScreen extends StatefulWidget {
 class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     with UserDataMixin, WidgetsBindingObserver {
   final teachers = teacherController.teachers;
-  final students = studentController.students;
+  // final students = studentController.students;
   List<HalagaModel> _halaqatList = [];
   bool _isLoading = true;
   int _teacherCount = 0;
@@ -82,8 +76,9 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   }
 
   Future<void> _loadData() async {
+    if(mounted){
     setState(() => _isLoading = true);
-
+    }
     try {
       await fetchUserData();
       await _fetchCounts();
@@ -91,7 +86,9 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     } catch (e) {
       print('Error loading data: $e');
     } finally {
+      if(mounted){
       setState(() => _isLoading = false);
+      }
     }
   }
 

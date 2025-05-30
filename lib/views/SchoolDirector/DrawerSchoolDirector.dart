@@ -3,6 +3,7 @@ import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/ElhalagatList.dart';
 import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
 import 'package:al_furqan/views/SchoolDirector/attendanceQrScreen.dart';
+import 'package:al_furqan/views/SchoolDirector/main_screenD.dart';
 import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
 import 'package:al_furqan/views/SchoolDirector/teacher_management.dart';
 import 'package:al_furqan/views/SchoolDirector/teachers_attendance_list.dart';
@@ -156,6 +157,20 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                 padding: EdgeInsets.symmetric(vertical: 8),
                 children: [
                   // Staff Management Section
+                  _buildSectionTitle('إدارة البيانات'),
+                  _buildMenuItem(
+                    icon: Icons.update,
+                    title: 'تحديث البيانات ',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MainScreenD(),
+                        ),
+                      );
+                    },
+                  ),
                   _buildSectionTitle('إدارة الكادر'),
                   _buildMenuItem(
                     icon: Icons.people,

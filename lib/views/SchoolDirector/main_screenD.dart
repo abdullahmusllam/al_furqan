@@ -1,9 +1,11 @@
 import 'package:al_furqan/controllers/HalagaController.dart';
+import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/plan_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/shared/Conversation_list.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../controllers/users_controller.dart';
@@ -28,30 +30,39 @@ class _MainScreenState extends State<MainScreenD> {
   @override
   void initState() {
     super.initState();
-    sync.syncUsers();
-    sync.syncElhalagat();
-    sync.syncStudents();
-    loadDate();
-    loadUsersFromFirebase();
-    halagaController.getHalagatFromFirebase();
-    loadPlans();
-
     load();
   }
 
-  Future<void> load() async {
-    await sync.syncUsers();
-    await sync.syncElhalagat();
-    await sync.syncStudents();
-    await loadDate();
-    await loadUsersFromFirebase();
-    await halagaController.getHalagatFromFirebase();
+  Future<bool> isConnected() async {
+    var conn = InternetConnectionChecker.createInstance().hasConnection;
+    return conn;
   }
+
+  Future<void> load() async {
+    if (await isConnected()) {
+      await sync.syncUsers();
+      await sync.syncElhalagat();
+      await sync.syncStudents();
+      await loadStudents();
+      await loadHalagat();
+      await loadMessages();
+      await loadPlans();
+      await loadUsersFromFirebase();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('لا يوجد اتصال بالانترنت لتحديث البيانات'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Future<void> loadUsersFromFirebase() async {
     List<UserModel> users = await firebasehelper.getUsers();
     for (var user in users) {
       bool exists =
-      await sqlDb.checkIfitemExists("Users", user.user_id!, "user_id");
+          await sqlDb.checkIfitemExists("Users", user.user_id!, "user_id");
       if (exists) {
         await userController.updateUser(user, 0);
         print('===== Find user (update) =====');
@@ -61,7 +72,16 @@ class _MainScreenState extends State<MainScreenD> {
       }
     }
   }
-  Future<void> loadDate() async {
+
+  Future<void> loadStudents() async {
+    final perfs = await SharedPreferences.getInstance();
+    int? schoolId = perfs.getInt('schoolId');
+    print('===== schoolID ($schoolId) =====');
+    // تحميل الطلاب من فايربيس
+    await studentController.addToLocalOfFirebase(schoolId!); 
+  }
+
+  Future<void> loadMessages() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       int? Id = prefs.getInt('user_id');
@@ -80,15 +100,44 @@ class _MainScreenState extends State<MainScreenD> {
     setState(() {
       isLoading = false;
     });
-
   }
-  Future<void> loadPlans() async {
+
+  Future<void> loadHalagat() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      int? Id = prefs.getInt('halagaID');
-      print('===== halagaID ($Id) =====');
-      // تحميل الرسائل من فايربيس
-      await planController.getPlansFirebaseToLocal(Id!);
+      int? schoolId = prefs.getInt('schoolId');
+      print('===== schoolID ($schoolId) =====');
+      // تحميل الحلقات من فايربيس
+      await halagaController.getHalagatFromFirebaseByID(schoolId!, 'schoolID');
+
+    } catch (e) {
+      print('خطأ في تحميل الحلقات: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('خطأ في تحميل الحلقات'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+    setState(() {
+      isLoading = false;
+    });
+
+  }
+
+  Future<void> loadPlans() async {
+    try {  
+      List<int> halagaIds = halagaController.halagatId;
+      if(halagaIds.isEmpty){
+        print('===== halagatId is empty =====');
+        return;
+      }
+     for(int halagaId in halagaIds){
+      print('===== halagaID ($halagaId) =====');
+      print('=================================== loadPlans =====');
+      // تحميل الرسائل من فايربيس 
+      await planController.getPlansFirebaseToLocal(halagaId);
+     }
     } catch (e) {
       print('خطأ في تحميل البيانات: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -101,14 +150,15 @@ class _MainScreenState extends State<MainScreenD> {
     setState(() {
       isLoading = false;
     });
-
   }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('جاري التحميل...', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Text('جاري التحميل...',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           backgroundColor: Theme.of(context).primaryColor,
           foregroundColor: Colors.white,
           elevation: 0,
