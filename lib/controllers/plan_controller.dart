@@ -19,15 +19,17 @@ class PlanController {
   Future<int> addConservationPlan2(ConservationPlanModel plan) async {
     try {
       plan.planMonth = DateFormat('yyyy-MM').format(DateTime.now());
-      int newConservationPlanID =
-          await newId2('ConservationPlans', 'ConservationPlanID');
+      String newConservationPlanID =
+          await getMaxValue('ConservationPlans', 'ConservationPlanID');
       plan.conservationPlanId = newConservationPlanID;
 
       print(
-          "----------> studentId for ConservationPlans is :${plan.studentId}");
+          "----------> studentId for ConservationPlans is :${plan.studentId}, newConservationPlanID: $newConservationPlanID");
 
       bool hasConnection = await InternetConnectionChecker().hasConnection;
       final Map<String, dynamic> planMap = plan.toMap();
+      print("-------------------> Plan Map: $planMap");
+      print("-------------------> Inserting into table: ConservationPlans");
       int result = await sqlDb.insertData2('ConservationPlans', planMap);
       print(
           "------------------> Add ConservationPlan is : ${result > 0 ? 'Done' : 'Failed'}");
@@ -59,8 +61,8 @@ class PlanController {
       {bool isForWholeHalaga = true}) async {
     try {
       plan.planMonth = DateFormat('yyyy-MM').format(DateTime.now());
-      int newEltlawahPlanID = await newId2('EltlawahPlans', 'EltlawahPlanID');
-      plan.eltlawahPlanId = newEltlawahPlanID;
+      String newEltlawahPlanID = await getMaxValue('EltlawahPlans', 'EltlawahPlanID');
+    plan.eltlawahPlanId = newEltlawahPlanID;
 
       // إذا كانت الخطة للحلقة بأكملها، نضع قيمة خاصة لـ studentId
       if (isForWholeHalaga) {
@@ -103,8 +105,8 @@ class PlanController {
       {bool isForWholeHalaga = true}) async {
     try {
       plan.planMonth = DateFormat('yyyy-MM').format(DateTime.now());
-      int newIslamicStudiesID =
-          await newId2('IslamicStudies', 'IslamicStudiesID');
+      String newIslamicStudiesID =
+          await getMaxValue('IslamicStudies', 'IslamicStudiesID');
       plan.islamicStudiesID = newIslamicStudiesID;
 
       if (isForWholeHalaga) {
@@ -210,7 +212,65 @@ class PlanController {
     }
   }
 
-  Future<void> deletePlan(int planId, String table, String column) async {
+  /// جلب جميع الخطط من فايربيس وإضافتها إلى قاعدة البيانات المحلية
+  Future<void> getPlansFirebaseToLocal(int halagaId) async {
+    try {
+      print("-------------------> التحقق من اتصال الإنترنت");
+      bool hasConnection = await InternetConnectionChecker().hasConnection;
+      if (!hasConnection) {
+        print("-------------------> لا يوجد اتصال بالإنترنت");
+        return;
+      }
+
+      print("-------------------> بدء جلب الخطط من فايربيس للحلقة: $halagaId");
+      
+      // مسح البيانات القديمة
+      await sqlDb.deleteData2('ConservationPlans', 'ElhalagatID', halagaId.toString());
+      await sqlDb.deleteData2('EltlawahPlans', 'ElhalagatID', halagaId.toString());
+      await sqlDb.deleteData2('IslamicStudies', 'ElhalagatID', halagaId.toString());
+
+      // جلب البيانات الجديدة من فايربيس
+      print("-------------------> جلب خطط الحفظ");
+      var responseConservationPlan = await firebasehelper.getConservationPlans(halagaId);
+      print("-------------------> جلب خطط التلاوة");
+      var responseEltlawahPlan = await firebasehelper.getEltlawahPlans(halagaId);
+      print("-------------------> جلب خطط العلوم الشرعية");
+      var responseIslamicStudyPlan = await firebasehelper.getIslamicStudyPlans(halagaId);
+
+      // إضافة البيانات إلى قاعدة البيانات المحلية
+      if(responseConservationPlan.isNotEmpty){
+        print("-------------------> إضافة ${responseConservationPlan.length} خطة حفظ");
+        for (var plan in responseConservationPlan) {
+          await sqlDb.insertData2('ConservationPlans', plan.toMap());
+        }
+        conservationPlans = responseConservationPlan; // تحديث القائمة المحلية
+      }
+
+      if(responseEltlawahPlan.isNotEmpty){
+        print("-------------------> إضافة ${responseEltlawahPlan.length} خطة تلاوة");
+        for (var plan in responseEltlawahPlan) {
+          await sqlDb.insertData2('EltlawahPlans', plan.toMap());
+        }
+        eltlawahPlans = responseEltlawahPlan; // تحديث القائمة المحلية
+      }
+
+      if(responseIslamicStudyPlan.isNotEmpty){
+        print("-------------------> إضافة ${responseIslamicStudyPlan.length} خطة علوم شرعية");
+        for (var plan in responseIslamicStudyPlan) {
+          await sqlDb.insertData2('IslamicStudies', plan.toMap());
+        }
+        islamicStudyPlans = responseIslamicStudyPlan; // تحديث القائمة المحلية
+      }
+
+      print("-------------------> تم الانتهاء من مزامنة جميع الخطط بنجاح");
+      
+    } catch (e) {
+      print("-------------------> خطأ في جلب وتخزين الخطط: $e");
+      throw Exception('فشل في مزامنة الخطط: $e');
+    }
+  }
+
+  Future<void> deletePlan(String planId, String table, String column) async {
     try {
       int result = await sqlDb.deleteData2(table, column, planId);
       if (result > 0) {

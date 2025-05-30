@@ -10,9 +10,6 @@ import '../../widgets/build_text_field.dart';
 import '../../widgets/build_password_field.dart';
 import '../../widgets/build_date_field.dart';
 import '../../widgets/build_dropdown_field.dart';
-import '../../widgets/build_switch_list_tile.dart';
-import '../../widgets/build_edit_button.dart';
-import '../../widgets/build_save_button.dart';
 
 class UserDetails extends StatefulWidget {
   final UserModel user;
@@ -101,105 +98,197 @@ class _UserDetailsState extends State<UserDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("معلومات المستخدم"),
+        title: Text(
+          "معلومات المستخدم",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        actions: [
+          IconButton(
+            icon: Icon(_isEditable ? Icons.close : Icons.edit),
+            tooltip: _isEditable ? 'إلغاء التعديل' : 'تعديل البيانات',
+            onPressed: () {
+              setState(() {
+                _isEditable = !_isEditable;
+              });
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTextField(
-                    _firstname, 'الاسم الأول', TextInputType.text, 50),
-                SizedBox(height: 10),
-                _buildTextField(
-                    _fathername, 'اسم الأب', TextInputType.text, 50),
-                SizedBox(height: 10),
-                _buildTextField(
-                    _grandfathername, 'اسم الجد', TextInputType.text, 50),
-                SizedBox(height: 10),
-                _buildTextField(_lastname, 'القبيلة', TextInputType.text, 50),
-                SizedBox(height: 10),
-                _buildTextField(_phone, 'رقم الجوال', TextInputType.phone, 9),
-                SizedBox(height: 10),
-                _buildTextField(
-                    _telephone, 'رقم البيت', TextInputType.phone, 6),
-                SizedBox(height: 10),
-                _buildTextField(_email, 'البريد الإلكتروني',
-                    TextInputType.emailAddress, 50),
-                SizedBox(height: 10),
-                buildPasswordField(
-                  controller: _password,
-                  isPasswordVisible: _isPasswordVisible,
-                  isEditable: _isEditable,
-                  togglePasswordVisibility: () {
-                    setState(() {
-                      _isPasswordVisible = !_isPasswordVisible;
-                    });
-                  },
-                ),
-                SizedBox(height: 10),
-                buildDateField(
-                  controller: _date,
-                  isEditable: _isEditable,
-                  context: context,
-                ),
-                SizedBox(height: 10),
-                _buildSchoolDropdown(),
-                SizedBox(height: 10),
-                buildDropdownField(
-                  selectedRole: _selectedRole,
-                  isEditable: _isEditable,
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedRole = newValue;
-                    });
-                  },
-                ),
-                SizedBox(height: 10),
-                buildSwitchListTile(
-                  isActivate: _isActivate,
-                  isEditable: _isEditable,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _isActivate = value;
-                    });
-                  },
-                ),
-                SizedBox(height: 10),
-                buildEditButton(
-                  isEditable: _isEditable,
-                  onPressed: ()  {
-                    setState(() {
-                      _isEditable = !_isEditable;
-                    });
-                  },
-                ),
-                if (_isEditable)
-                  buildSaveButton(
-                    formKey: _formKey,
-                    user: widget.user,
-                    firstname: _firstname,
-                    fathername: _fathername,
-                    grandfathername: _grandfathername,
-                    lastname: _lastname,
-                    phone: _phone,
-                    telephone: _telephone,
-                    email: _email,
-                    password: _password,
-                    date: _date,
-                    selectedRole: _selectedRole,
-                    selectedSchoolID: _selectedSchoolId,
-                    isActivate: _isActivate,
-                    refreshData: _refreshData,
-                    context: context,
-                    setEditable: (bool value) {
-                      setState(() {
-                        _isEditable = value;
-                      });
-                    },
+                // User Profile Header
+                // _buildUserProfileHeader(),
+                // SizedBox(height: 24),
+                
+                // Section Title
+                _buildSectionTitle('المعلومات الشخصية', Icons.person),
+                SizedBox(height: 16),
+                
+                // Personal Information
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        _buildTextField(
+                            _firstname, 'الاسم الأول', TextInputType.text, 50),
+                        SizedBox(height: 16),
+                        _buildTextField(
+                            _fathername, 'اسم الأب', TextInputType.text, 50),
+                        SizedBox(height: 16),
+                        _buildTextField(
+                            _grandfathername, 'اسم الجد', TextInputType.text, 50),
+                        SizedBox(height: 16),
+                        _buildTextField(_lastname, 'القبيلة', TextInputType.text, 50),
+                      ],
+                    ),
                   ),
+                ),
+                SizedBox(height: 24),
+                
+                // Section Title
+                _buildSectionTitle('معلومات الاتصال', Icons.contact_phone),
+                SizedBox(height: 16),
+                
+                // Contact Information
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        _buildTextField(_phone, 'رقم الجوال', TextInputType.phone, 9),
+                        SizedBox(height: 16),
+                        _buildTextField(
+                            _telephone, 'رقم البيت', TextInputType.phone, 6),
+                        SizedBox(height: 16),
+                        _buildTextField(_email, 'البريد الإلكتروني',
+                            TextInputType.emailAddress, 50),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 24),
+                
+                // Section Title
+                _buildSectionTitle('معلومات الحساب', Icons.security),
+                SizedBox(height: 16),
+                
+                // Account Information
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        buildPasswordField(
+                          controller: _password,
+                          isPasswordVisible: _isPasswordVisible,
+                          isEditable: _isEditable,
+                          togglePasswordVisibility: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 16),
+                        buildDateField(
+                          controller: _date,
+                          isEditable: _isEditable,
+                          context: context,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 24),
+                
+                // Section Title
+                _buildSectionTitle('معلومات المدرسة والدور', Icons.school),
+                SizedBox(height: 16),
+                
+                // School and Role Information
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        _buildSchoolDropdown(),
+                        SizedBox(height: 16),
+                        buildDropdownField(
+                          selectedRole: _selectedRole,
+                          isEditable: _isEditable,
+                          onChanged: (newValue) {
+                            setState(() {
+                              _selectedRole = newValue;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 24),
+                
+                // Activation Switch
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: _buildCustomSwitchListTile(),
+                  ),
+                ),
+                SizedBox(height: 24),
+                
+                // Save Button (only shown in edit mode)
+                if (_isEditable)
+                  Container(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          await _handleFormSubmission();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 3,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.save),
+                          SizedBox(width: 8),
+                          Text(
+                            'حفظ التعديلات',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                SizedBox(height: 24),
               ],
             ),
           ),
@@ -243,6 +332,9 @@ class _UserDetailsState extends State<UserDetails> {
             decoration: InputDecoration(
               labelText: 'اختر المدرسة',
               border: OutlineInputBorder(),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
             items: _schoolItems,
             onChanged: _isEditable
@@ -255,7 +347,8 @@ class _UserDetailsState extends State<UserDetails> {
           ),
         ),
         IconButton(
-          icon: Icon(Icons.add),
+          icon: Icon(Icons.add, color: Theme.of(context).primaryColor),
+          tooltip: 'إضافة مدرسة جديدة',
           onPressed: () async {
             await Navigator.of(context)
                 .push(MaterialPageRoute(builder: (context) => AddSchool()));
@@ -264,5 +357,205 @@ class _UserDetailsState extends State<UserDetails> {
         ),
       ],
     );
+  }
+  
+  // Build user profile header with avatar and name
+  Widget _buildUserProfileHeader() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withOpacity(0.7)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 40,
+            backgroundColor: Colors.white,
+            child: Text(
+              '${widget.user.first_name?[0] ?? ''}',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+          ),
+          SizedBox(height: 16),
+          Text(
+            '${widget.user.first_name ?? ''} ${widget.user.middle_name ?? ''} ${widget.user.last_name ?? ''}',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 8),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              _selectedRole ?? '',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  // Build section title with icon
+  Widget _buildSectionTitle(String title, IconData icon) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          color: Theme.of(context).primaryColor,
+          size: 24,
+        ),
+        SizedBox(width: 8),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).primaryColor,
+          ),
+        ),
+      ],
+    );
+  }
+  
+  // Build custom switch list tile for user activation
+  Widget _buildCustomSwitchListTile() {
+    return SwitchListTile(
+      title: Row(
+        children: [
+          Icon(
+            _isActivate ? Icons.check_circle : Icons.cancel,
+            color: _isActivate ? Colors.green : Colors.red,
+          ),
+          SizedBox(width: 8),
+          Text(
+            'تفعيل المستخدم',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
+      subtitle: Text(
+        _isActivate
+            ? 'المستخدم نشط ويمكنه تسجيل الدخول'
+            : 'المستخدم غير نشط ولا يمكنه تسجيل الدخول',
+        style: TextStyle(
+          fontSize: 12,
+          color: Colors.grey[600],
+        ),
+      ),
+      value: _isActivate,
+      onChanged: _isEditable
+          ? (bool value) {
+              setState(() {
+                _isActivate = value;
+              });
+            }
+          : null,
+      activeColor: Theme.of(context).primaryColor,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    );
+  }
+  
+  // Handle form submission
+  Future<void> _handleFormSubmission() async {
+    try {
+      int phoneNumber = int.parse(_phone.text);
+      int telephoneNumber = int.parse(_telephone.text);
+      String passwordNumber = (_password.text);
+      int? roleId = _getRoleId(_selectedRole);
+      int activate = _isActivate ? 1 : 0;
+
+      widget.user.first_name = _firstname.text;
+      widget.user.middle_name = _fathername.text;
+      widget.user.grandfather_name = _grandfathername.text;
+      widget.user.last_name = _lastname.text;
+      widget.user.phone_number = phoneNumber;
+      widget.user.telephone_number = telephoneNumber;
+      widget.user.email = _email.text;
+      widget.user.password = passwordNumber.toString();
+      widget.user.date = _date.text;
+      widget.user.isActivate = activate;
+      widget.user.roleID = roleId;
+      widget.user.schoolID = _selectedSchoolId;
+
+      await userController.updateUser(widget.user, 0);
+      setState(() {
+        _isEditable = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 10),
+              Text('تم حفظ التعديلات بنجاح'),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    } catch (e) {
+      print("Error in _handleFormSubmission: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error, color: Colors.white),
+              SizedBox(width: 10),
+              Expanded(child: Text('حدث خطأ أثناء حفظ التعديلات: $e')),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    }
+  }
+  
+  // Get role ID from role name
+  int? _getRoleId(String? selectedRole) {
+    switch (selectedRole) {
+      case "مشرف":
+        return 0;
+      case "مدير":
+        return 1;
+      case "معلم":
+        return 2;
+      default:
+        return null;
+    }
   }
 }

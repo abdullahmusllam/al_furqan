@@ -417,6 +417,11 @@ class _AddUserState extends State<AddUser> {
         filled: true,
         fillColor: Colors.grey.shade50,
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        // Ajuste para evitar el overflow
+        errorStyle: TextStyle(
+          height: 0.8, // Reducir el espacio vertical del mensaje de error
+          fontSize: 12,
+        ),
       ),
       onTap: () async {
         DateTime? pickedDate = await showDatePicker(
@@ -468,6 +473,11 @@ class _AddUserState extends State<AddUser> {
               filled: true,
               fillColor: Colors.grey.shade50,
               contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              // Ajuste para evitar el overflow
+              errorStyle: TextStyle(
+                height: 0.8, // Reducir el espacio vertical del mensaje de error
+                fontSize: 12,
+              ),
             ),
             items: _schoolItems,
             onChanged: (newValue) {
@@ -475,6 +485,16 @@ class _AddUserState extends State<AddUser> {
                 _selectedSchoolId = newValue;
               });
             },
+            validator: (value) {
+              if (value == null) {
+                return 'الرجاء اختيار المدرسة';
+              }
+              return null;
+            },
+            // Ajuste para reducir el espacio interno del dropdown
+            isExpanded: true,
+            icon: Icon(Icons.arrow_drop_down, size: 24),
+            dropdownColor: Colors.grey.shade50,
           ),
         ),
         Container(

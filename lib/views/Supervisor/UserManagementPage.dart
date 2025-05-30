@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/requests_list.dart';
 import 'package:al_furqan/views/Supervisor/user_list.dart';
+import 'package:al_furqan/utils/app_theme.dart';
+import 'package:al_furqan/utils/constants.dart';
 
 class UserManagementPage extends StatefulWidget {
   const UserManagementPage({super.key});
@@ -40,27 +42,68 @@ class _UserManagementPageState extends State<UserManagementPage>
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: Text('إدارة المستخدمين'),
-      backgroundColor: CupertinoColors.activeGreen.withOpacity(0.5),
+      title: Text(
+        'إدارة المستخدمين',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      elevation: 0,
       actions: [
-        IconButton(
-          icon: Icon(Icons.refresh),
-          onPressed: _refreshData,
-          tooltip: 'تحديث البيانات',
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 12),
+          child: Tooltip(
+            message: 'تحديث البيانات',
+            child: IconButton(
+              icon: Icon(
+                Icons.refresh,
+                color: Colors.white,
+                size: 24,
+              ),
+              onPressed: _refreshData,
+            ),
+          ),
         ),
       ],
-      bottom: TabBar(
-        controller: _tabController,
-        tabs: [
-          Tab(text: 'المستخدمين'),
-          Tab(text: 'الطلبات'),
-        ],
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(48),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.outline,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: TabBar(
+            controller: _tabController,
+            indicatorColor: Colors.white,
+            indicatorWeight: 3,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            tabs: [
+              Tab(
+                text: 'المستخدمين',
+                icon: Icon(Icons.people_outline),
+              ),
+              Tab(
+                text: 'الطلبات',
+                icon: Icon(Icons.request_page_outlined),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   FloatingActionButton _buildFloatingActionButton() {
-    return FloatingActionButton(
+    return FloatingActionButton.extended(
       onPressed: () {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => AddUser()))
@@ -69,19 +112,34 @@ class _UserManagementPageState extends State<UserManagementPage>
         });
       },
       tooltip: 'إضافة مستخدم جديد',
-      child: Icon(Icons.add),
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      elevation: 4,
+      label: Row(
+        children: [
+          Icon(Icons.add, color: Colors.white),
+          SizedBox(width: 8),
+          Text('مستخدم جديد', style: TextStyle(color: Colors.white)),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: _buildAppBar(),
       body: TabBarView(
         controller: _tabController,
         children: [
-          UserList(),
-          RequestsList(),
+          Container(
+            padding: EdgeInsets.all(16),
+            child: UserList(),
+          ),
+          Container(
+            padding: EdgeInsets.all(16),
+            child: RequestsList(),
+          ),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

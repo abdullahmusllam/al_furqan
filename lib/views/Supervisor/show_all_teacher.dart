@@ -64,25 +64,50 @@ class _ShowAllTeacherState extends State<ShowAllTeacher> {
     final filteredTeachers = _filterTeachers();
 
     return Scaffold(
-      appBar: CupertinoNavigationBar(
-        middle: Text(
-          "المدارس",
-          style: TextStyle(fontFamily: 'RB'),
+      appBar: AppBar(
+        title: Text(
+          "المعلمين",
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: CupertinoColors.activeGreen.withOpacity(0.5),
-        automaticBackgroundVisibility: false,
-        enableBackgroundFilterBlur: true,
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            tooltip: 'تحديث البيانات',
+            onPressed: _refreshData,
+          ),
+        ],
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          Container(
+            margin: EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
             child: TextField(
               keyboardType: TextInputType.name,
-              decoration: const InputDecoration(
-                labelText: 'بحث',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
+              textAlign: TextAlign.right,
+              decoration: InputDecoration(
+                hintText: 'بحث عن معلم...',
+                prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               ),
               onChanged: (value) {
                 setState(() {
@@ -93,33 +118,90 @@ class _ShowAllTeacherState extends State<ShowAllTeacher> {
           ),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                  ))
                 : filteredTeachers.isEmpty
-                    ? const Center(child: Text('لا يوجد معلمين'))
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.person_off, size: 64, color: Colors.grey),
+                            SizedBox(height: 16),
+                            Text(
+                              'لا يوجد معلمين',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[700]),
+                            ),
+                          ],
+                        ),
+                      )
                     : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        padding: EdgeInsets.symmetric(horizontal: 16),
                         itemCount: filteredTeachers.length,
                         itemBuilder: (context, index) {
                           final teacher = filteredTeachers[index];
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor:
-                                  Theme.of(context).primaryColorLight,
-                              child: Text(
-                                '${index + 1}',
+                          final schoolName = _getSchoolName(teacher.schoolID);
+                          
+                          return Card(
+                            elevation: 2,
+                            margin: EdgeInsets.only(bottom: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            child: ListTile(
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              leading: CircleAvatar(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                foregroundColor: Colors.white,
+                                child: Text(
+                                  '${teacher.first_name?[0] ?? ''}',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
                               ),
+                              title: Text(
+                                '${teacher.first_name ?? ''} ${teacher.middle_name ?? ''} ${teacher.last_name ?? ''}',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.school, size: 16, color: Colors.grey),
+                                      SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          schoolName,
+                                          style: TextStyle(color: Colors.grey[700]),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                              onTap: () {
+                                // Handle teacher selection
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('تم اختيار ${teacher.first_name}'),
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  ),
+                                );
+                              },
                             ),
-                            title: Text(
-                              '${teacher.first_name ?? ''} ${teacher.middle_name ?? ''} ${teacher.last_name ?? ''}',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w600),
-                            ),
-                            subtitle: Text(_getSchoolName(teacher.schoolID)),
                           );
                         },
                       ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _refreshData,
+        tooltip: 'تحديث البيانات',
+        child: Icon(Icons.refresh),
+        backgroundColor: Theme.of(context).primaryColor,
       ),
     );
   }

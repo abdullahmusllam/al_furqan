@@ -428,6 +428,7 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
 
   Widget _buildSyncStatus(int? isSync) {
     final bool synced = isSync == 1;
+    print("------------------------------------------------synced: $synced");
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: Container(
@@ -462,7 +463,7 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
   }
 
   Future<void> _showDeleteConfirmationDialog(
-      int planID, String table, String column) async {
+      String planID, String table, String column) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(

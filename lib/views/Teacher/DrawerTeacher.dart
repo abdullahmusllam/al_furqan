@@ -1,16 +1,13 @@
 // ignore: file_names
 
-import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
 import 'package:al_furqan/views/Teacher/HalagaPlansListScreen.dart';
-import 'package:al_furqan/views/Teacher/HalagaPlansScreen.dart';
 import 'package:al_furqan/views/Teacher/attendTeacherScreen.dart';
 import 'package:al_furqan/views/Teacher/islamic_studies_plans_list.dart';
+import 'package:al_furqan/views/Teacher/main_screenT.dart';
+import 'package:al_furqan/views/Teacher/monthly_report.dart';
 import 'package:al_furqan/views/shared/main_screen.dart';
-// import 'package:al_furqan/views/Teacher/student_plans_list_screen.dart';
-import 'package:al_furqan/views/shared/message_screen.dart';
 import 'package:al_furqan/views/Teacher/students_attendance.dart';
 import 'package:flutter/material.dart';
-import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
@@ -321,6 +318,20 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 physics: BouncingScrollPhysics(),
                 children: [
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.refresh,
+                    title: 'تحديث البيانات',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MainScreenT(),
+                        ),
+                      );
+                    },
+                  ),
                   _buildMenuCategory('الإدارة'),
                   _buildMenuItem(
                     context,
@@ -345,6 +356,19 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                         context,
                         MaterialPageRoute(
                           builder: (context) => AttendanceScannerPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.assessment,
+                    title: 'التقرير الشهري',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MonthlyReportScreen(),
                         ),
                       );
                     },
@@ -447,15 +471,15 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                   ),
                   _buildDivider(),
                   _buildMenuCategory('الإعدادات'),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.settings,
-                    title: 'الإعدادات',
-                    onTap: () {
-                      Navigator.pop(context);
-                      // الانتقال إلى شاشة الإعدادات
-                    },
-                  ),
+                  // _buildMenuItem(
+                  //   context,
+                  //   icon: Icons.settings,
+                  //   title: 'الإعدادات',
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //     // الانتقال إلى شاشة الإعدادات
+                  //   },
+                  // ),
                   _buildMenuItem(
                     context,
                     icon: Icons.refresh,

@@ -1,9 +1,8 @@
 import 'package:al_furqan/controllers/HalagaController.dart';
-import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/plan_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
-import 'package:al_furqan/models/halaga_model.dart'; // إضافة استيراد نموذج الحلقة
+import 'package:al_furqan/views/Teacher/mainTeacher.dart';
 import 'package:al_furqan/views/shared/Conversation_list.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -14,18 +13,16 @@ import '../../helper/sqldb.dart';
 import '../../services/firebase_service.dart';
 import '../../services/message_sevice.dart';
 import '../../services/sync.dart';
-import 'SchoolDirectorHome.dart';
+  
+class MainScreenT extends StatefulWidget {
 
-class MainScreenD extends StatefulWidget {
-  // final UserModel User;
-
-  const MainScreenD({Key? key}) : super(key: key);
+  const MainScreenT({Key? key}) : super(key: key);
 
   @override
   _MainScreenState createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreenD> {
+class _MainScreenState extends State<MainScreenT> {
   bool isLoading = true;
 
   @override
@@ -34,21 +31,25 @@ class _MainScreenState extends State<MainScreenD> {
     load();
   }
 
+  @override
+  void dispose() {
+    // Clean up any controllers, streams, or other resources here
+    super.dispose();
+  }
+
   Future<bool> isConnected() async {
     var conn = InternetConnectionChecker.createInstance().hasConnection;
     return conn;
   }
 
   Future<void> load() async {
-    if (await isConnected()) {
-      await sync.syncUsers();
-      await sync.syncElhalagat();
-      await sync.syncStudents();
-      await loadStudents();
-      await loadHalagat();
-      await loadPlans();
-      await loadMessages();
-      await loadUsersFromFirebase();
+    if(await isConnected()){
+    await sync.syncUsers();
+    await sync.syncElhalagat();
+    await sync.syncStudents();
+    await loadMessages();
+    await loadHalagat();
+    await loadPlans();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -59,29 +60,6 @@ class _MainScreenState extends State<MainScreenD> {
     }
   }
 
-  Future<void> loadUsersFromFirebase() async {
-    List<UserModel> users = await firebasehelper.getUsers();
-    for (var user in users) {
-      bool exists =
-          await sqlDb.checkIfitemExists("Users", user.user_id!, "user_id");
-      if (exists) {
-        await userController.updateUser(user, 0);
-        print('===== Find user (update) =====');
-      } else {
-        await userController.addUser(user, 0);
-        print('===== Find user (add) =====');
-      }
-    }
-  }
-
-  Future<void> loadStudents() async {
-    final perfs = await SharedPreferences.getInstance();
-    int? schoolId = perfs.getInt('schoolId');
-    print('===== schoolID ($schoolId) =====');
-    // تحميل الطلاب من فايربيس
-    await studentController.addToLocalOfFirebase(schoolId!); 
-  }
-
   Future<void> loadMessages() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -90,10 +68,10 @@ class _MainScreenState extends State<MainScreenD> {
       // تحميل الرسائل من فايربيس
       await messageService.loadMessagesFromFirestore(Id!);
     } catch (e) {
-      print('خطأ في تحميل البيانات: $e');
+      print('خطأ في تحميل الرسائل: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('خطأ في تحميل البيانات'),
+          content: Text('خطأ في تحميل الرسائل'),
           backgroundColor: Colors.red,
         ),
       );
@@ -101,16 +79,16 @@ class _MainScreenState extends State<MainScreenD> {
     setState(() {
       isLoading = false;
     });
+
   }
 
   Future<void> loadHalagat() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      int? schoolId = prefs.getInt('schoolId');
-      print('===== schoolID ($schoolId) =====');
+      int? Id = prefs.getInt('halagaID');
+      print('===== halagaID ($Id) =====');
       // تحميل الحلقات من فايربيس
-      await halagaController.getHalagatFromFirebaseByID(schoolId!, 'schoolID');
-      
+      await halagaController.getHalagatFromFirebaseByID(Id!, 'halagaID');
     } catch (e) {
       print('خطأ في تحميل الحلقات: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -127,35 +105,17 @@ class _MainScreenState extends State<MainScreenD> {
   }
 
   Future<void> loadPlans() async {
-    try {  
-      halagaController.halagatId.clear();
-      
+    try {
       final prefs = await SharedPreferences.getInstance();
-      int? schoolId = prefs.getInt('schoolId');
-      if (schoolId != null) {
-        List<HalagaModel> halaqat = await halagaController.getData(schoolId);
-        
-        for (var halqa in halaqat) {
-          if (halqa.halagaID != null) {
-            halagaController.halagatId.add(halqa.halagaID!);
-          }
-        }
-      }
-      
-      List<int> halagaIds = halagaController.halagatId;
-      if(halagaIds.isEmpty){
-        print('===== قائمة معرفات الحلقات فارغة =====');
-        return;
-      }
-      
-      for(int halagaId in halagaIds){
-        await planController.getPlansFirebaseToLocal(halagaId);
-      }
+      int? Id = prefs.getInt('halagaID');
+      print('===== halagaID ($Id) =====');
+      // تحميل الرسائل من فايربيس
+      await planController.getPlansFirebaseToLocal(Id!);
     } catch (e) {
-      print('خطأ في تحميل الخطط: $e');
+      print('خطأ في تحميل البيانات: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('خطأ في تحميل الخطط'),
+          content: Text('خطأ في تحميل البيانات'),
           backgroundColor: Colors.red,
         ),
       );
@@ -163,15 +123,14 @@ class _MainScreenState extends State<MainScreenD> {
     setState(() {
       isLoading = false;
     });
-  }
 
+  }
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('جاري التحميل...',
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Text('جاري التحميل...', style: TextStyle(fontWeight: FontWeight.bold)),
           backgroundColor: Theme.of(context).primaryColor,
           foregroundColor: Colors.white,
           elevation: 0,
@@ -195,6 +154,6 @@ class _MainScreenState extends State<MainScreenD> {
       );
     }
 
-    return SchoolManagerScreen();
+    return TeacherDashboard();
   }
 }

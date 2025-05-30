@@ -117,6 +117,11 @@ class _UserListState extends State<UserList> {
                 case 2:
                   roleName = "معلم";
                   break;
+                case 3:
+                  roleName = "ولي أمر";
+                  break;
+                default:
+                  roleName = "غير معروف";
               }
 
               final school = schoolController.schools.firstWhere(

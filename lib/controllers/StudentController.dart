@@ -23,7 +23,10 @@ class StudentController {
         middleName: student['MiddleName'],
         grandfatherName: student['grandfatherName'],
         lastName: student['LastName'],
+        attendanceDays: student['AttendanceDays'],
+        absenceDays: student['AbsenceDays'],
         elhalaqaID: student['ElhalagatID'],
+        isSync: student['isSync'] ?? 0,
       );
     }).toList();
     print("Fetched students for halaga $halagaID: ${students.length}");
@@ -69,6 +72,7 @@ class StudentController {
             : student['AbsenceDays'] as int?,
         excuse: student['Excuse'] as String?,
         reasonAbsence: student['ReasonAbsence'] as String?,
+        isSync: student['isSync'] ?? 0,
       );
     }).toList();
 
@@ -127,10 +131,13 @@ class StudentController {
       String userIdStr =
           studentData.userID != null ? "${studentData.userID}" : "NULL";
 
+      bool hasConnection = await isConnected();
+      int syncValue = hasConnection ? 1 : 0;
+      
       int response = await _sqldb.insertData(
-          "INSERT INTO Students (userID, SchoolID, FirstName, MiddleName, grandfatherName, LastName) "
+          "INSERT INTO Students (userID, SchoolID, FirstName, MiddleName, grandfatherName, LastName, isSync) "
           "VALUES ($userIdStr, $schoolId, '${studentData.firstName}', '${studentData.middleName}', "
-          "'${studentData.grandfatherName}', '${studentData.lastName}')");
+          "'${studentData.grandfatherName}', '${studentData.lastName}', $syncValue)");
 
       print(
           "Added student, response: $response, Father ID: ${studentData.userID}, Student ID : ${studentData.studentID}");
@@ -341,7 +348,7 @@ class StudentController {
           await updateStudent(student, 0);
           print('===== Find student (update) =====');
         } else {
-          await addStudent(student);
+          await addStudentToLocal(student);
           print('===== Find student (add) =====');
         }
       }

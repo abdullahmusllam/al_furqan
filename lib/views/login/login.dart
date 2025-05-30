@@ -4,9 +4,11 @@ import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/schools_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
+import 'package:al_furqan/views/SchoolDirector/main_screenD.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
 import 'package:al_furqan/views/SchoolDirector/SchoolDirectorHome.dart';
 import 'package:al_furqan/views/Teacher/mainTeacher.dart';
+import 'package:al_furqan/views/Teacher/main_screenT.dart';
 import 'package:al_furqan/views/auth/forgot_password_screen.dart';
 import 'package:al_furqan/views/login/signup_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -147,8 +149,13 @@ class _LoginScreenState extends State<LoginScreen> {
     await saveUserLogin(phone, user.roleID!, user.isActivate!);
     final per = await SharedPreferences.getInstance();
     await per.setInt('user_id', id);
-    await per.setInt('schoolId', user.schoolID!);
+    if(user.roleID == 1 || user.roleID == 2){
+      await per.setInt('schoolId', user.schoolID!);
+    }
     await per.setString('user_name', name);
+    if(user.roleID == 2){
+      await per.setInt('halagaID', user.elhalagatID!);
+    }
     print('===== save id ($id) =====');
     await chooseScreen(context);
   }
@@ -174,11 +181,11 @@ class _LoginScreenState extends State<LoginScreen> {
         break;
       case 1:
         Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => SchoolManagerScreen()));
+            MaterialPageRoute(builder: (context) => MainScreenD()));
         break;
       case 2:
         Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => TeacherDashboard()));
+            MaterialPageRoute(builder: (context) => MainScreenT()));
         break;
       default:
         _showErrorDialog(context, "خطأ", "حسابك غير مفعل، تواصل مع الإدارة.");
