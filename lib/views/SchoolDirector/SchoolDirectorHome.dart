@@ -59,6 +59,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     }
   }
 
+
   // تحميل الرسائل
   Future<void> loadMessages() async {
     // تحديث عدد الإشعارات

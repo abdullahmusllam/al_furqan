@@ -348,7 +348,7 @@ class StudentController {
           await updateStudent(student, 0);
           print('===== Find student (update) =====');
         } else {
-          await addStudent(student);
+          await addStudentToLocal(student);
           print('===== Find student (add) =====');
         }
       }

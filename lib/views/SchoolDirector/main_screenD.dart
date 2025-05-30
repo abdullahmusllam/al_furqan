@@ -3,6 +3,7 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/plan_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/models/halaga_model.dart'; // إضافة استيراد نموذج الحلقة
 import 'package:al_furqan/views/shared/Conversation_list.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -45,8 +46,8 @@ class _MainScreenState extends State<MainScreenD> {
       await sync.syncStudents();
       await loadStudents();
       await loadHalagat();
-      await loadMessages();
       await loadPlans();
+      await loadMessages();
       await loadUsersFromFirebase();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -109,7 +110,7 @@ class _MainScreenState extends State<MainScreenD> {
       print('===== schoolID ($schoolId) =====');
       // تحميل الحلقات من فايربيس
       await halagaController.getHalagatFromFirebaseByID(schoolId!, 'schoolID');
-
+      
     } catch (e) {
       print('خطأ في تحميل الحلقات: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -127,22 +128,34 @@ class _MainScreenState extends State<MainScreenD> {
 
   Future<void> loadPlans() async {
     try {  
+      halagaController.halagatId.clear();
+      
+      final prefs = await SharedPreferences.getInstance();
+      int? schoolId = prefs.getInt('schoolId');
+      if (schoolId != null) {
+        List<HalagaModel> halaqat = await halagaController.getData(schoolId);
+        
+        for (var halqa in halaqat) {
+          if (halqa.halagaID != null) {
+            halagaController.halagatId.add(halqa.halagaID!);
+          }
+        }
+      }
+      
       List<int> halagaIds = halagaController.halagatId;
       if(halagaIds.isEmpty){
-        print('===== halagatId is empty =====');
+        print('===== قائمة معرفات الحلقات فارغة =====');
         return;
       }
-     for(int halagaId in halagaIds){
-      print('===== halagaID ($halagaId) =====');
-      print('=================================== loadPlans =====');
-      // تحميل الرسائل من فايربيس 
-      await planController.getPlansFirebaseToLocal(halagaId);
-     }
+      
+      for(int halagaId in halagaIds){
+        await planController.getPlansFirebaseToLocal(halagaId);
+      }
     } catch (e) {
-      print('خطأ في تحميل البيانات: $e');
+      print('خطأ في تحميل الخطط: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('خطأ في تحميل البيانات'),
+          content: Text('خطأ في تحميل الخطط'),
           backgroundColor: Colors.red,
         ),
       );

@@ -7,6 +7,7 @@ import 'package:al_furqan/views/SchoolDirector/main_screenD.dart';
 import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
 import 'package:al_furqan/views/SchoolDirector/teacher_management.dart';
 import 'package:al_furqan/views/SchoolDirector/teachers_attendance_list.dart';
+import 'package:al_furqan/views/checkDBlocal/database_viewer_entry.dart';
 import 'package:al_furqan/views/shared/main_screen.dart';
 import 'package:al_furqan/views/shared/message_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -239,15 +240,21 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                   ),
 
                   // Academic Section
-                  // _buildSectionTitle('الشؤون الأكاديمية'),
-                  // _buildMenuItem(
-                  //   icon: Icons.book,
-                  //   title: 'المناهج',
-                  //   onTap: () {
-                  //     Navigator.pop(context);
-                  //     // الانتقال إلى شاشة المناهج
-                  //   },
-                  // ),
+              //     _buildSectionTitle('الشؤون الأكاديمية'),
+              //     _buildMenuItem(
+              //       icon: Icons.book,
+              //       title: 'المناهج',
+              //       onTap: () {
+              //         Navigator.pop(context);
+              //      Navigator.of(context).pop();
+              // Navigator.push(
+              //   context,
+              //   CupertinoPageRoute(
+              //       builder: (context) => DatabaseViewerEntry()),
+              // );
+              //         // الانتقال إلى شاشة المناهج
+              //       },
+              //     ),
 
                   // System Section
                   // _buildSectionTitle('النظام'),
