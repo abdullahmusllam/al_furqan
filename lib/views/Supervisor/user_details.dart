@@ -47,7 +47,7 @@ class _UserDetailsState extends State<UserDetails> {
           .map((school) => DropdownMenuItem<int>(
                 value: school.schoolID,
                 child:
-                    Text("${school.school_name!}\n${school.school_location}"),
+                    Text("${school.school_name!} - ${school.school_location}"),
               ))
           .toList();
     });
@@ -128,15 +128,16 @@ class _UserDetailsState extends State<UserDetails> {
                 // User Profile Header
                 // _buildUserProfileHeader(),
                 // SizedBox(height: 24),
-                
+
                 // Section Title
                 _buildSectionTitle('المعلومات الشخصية', Icons.person),
                 SizedBox(height: 16),
-                
+
                 // Personal Information
                 Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -147,29 +148,32 @@ class _UserDetailsState extends State<UserDetails> {
                         _buildTextField(
                             _fathername, 'اسم الأب', TextInputType.text, 50),
                         SizedBox(height: 16),
-                        _buildTextField(
-                            _grandfathername, 'اسم الجد', TextInputType.text, 50),
+                        _buildTextField(_grandfathername, 'اسم الجد',
+                            TextInputType.text, 50),
                         SizedBox(height: 16),
-                        _buildTextField(_lastname, 'القبيلة', TextInputType.text, 50),
+                        _buildTextField(
+                            _lastname, 'القبيلة', TextInputType.text, 50),
                       ],
                     ),
                   ),
                 ),
                 SizedBox(height: 24),
-                
+
                 // Section Title
                 _buildSectionTitle('معلومات الاتصال', Icons.contact_phone),
                 SizedBox(height: 16),
-                
+
                 // Contact Information
                 Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       children: [
-                        _buildTextField(_phone, 'رقم الجوال', TextInputType.phone, 9),
+                        _buildTextField(
+                            _phone, 'رقم الجوال', TextInputType.phone, 9),
                         SizedBox(height: 16),
                         _buildTextField(
                             _telephone, 'رقم البيت', TextInputType.phone, 6),
@@ -181,15 +185,16 @@ class _UserDetailsState extends State<UserDetails> {
                   ),
                 ),
                 SizedBox(height: 24),
-                
+
                 // Section Title
                 _buildSectionTitle('معلومات الحساب', Icons.security),
                 SizedBox(height: 16),
-                
+
                 // Account Information
                 Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -215,15 +220,16 @@ class _UserDetailsState extends State<UserDetails> {
                   ),
                 ),
                 SizedBox(height: 24),
-                
+
                 // Section Title
                 _buildSectionTitle('معلومات المدرسة والدور', Icons.school),
                 SizedBox(height: 16),
-                
+
                 // School and Role Information
                 Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -244,18 +250,19 @@ class _UserDetailsState extends State<UserDetails> {
                   ),
                 ),
                 SizedBox(height: 24),
-                
+
                 // Activation Switch
                 Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: _buildCustomSwitchListTile(),
                   ),
                 ),
                 SizedBox(height: 24),
-                
+
                 // Save Button (only shown in edit mode)
                 if (_isEditable)
                   Container(
@@ -282,7 +289,8 @@ class _UserDetailsState extends State<UserDetails> {
                           SizedBox(width: 8),
                           Text(
                             'حفظ التعديلات',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -334,7 +342,8 @@ class _UserDetailsState extends State<UserDetails> {
               border: OutlineInputBorder(),
               filled: true,
               fillColor: Colors.white,
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
             items: _schoolItems,
             onChanged: _isEditable
@@ -358,14 +367,17 @@ class _UserDetailsState extends State<UserDetails> {
       ],
     );
   }
-  
+
   // Build user profile header with avatar and name
   Widget _buildUserProfileHeader() {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withOpacity(0.7)],
+          colors: [
+            Theme.of(context).primaryColor,
+            Theme.of(context).primaryColor.withOpacity(0.7)
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -421,7 +433,7 @@ class _UserDetailsState extends State<UserDetails> {
       ),
     );
   }
-  
+
   // Build section title with icon
   Widget _buildSectionTitle(String title, IconData icon) {
     return Row(
@@ -443,7 +455,7 @@ class _UserDetailsState extends State<UserDetails> {
       ],
     );
   }
-  
+
   // Build custom switch list tile for user activation
   Widget _buildCustomSwitchListTile() {
     return SwitchListTile(
@@ -484,7 +496,7 @@ class _UserDetailsState extends State<UserDetails> {
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     );
   }
-  
+
   // Handle form submission
   Future<void> _handleFormSubmission() async {
     try {
@@ -523,7 +535,8 @@ class _UserDetailsState extends State<UserDetails> {
           ),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
     } catch (e) {
@@ -539,12 +552,13 @@ class _UserDetailsState extends State<UserDetails> {
           ),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
     }
   }
-  
+
   // Get role ID from role name
   int? _getRoleId(String? selectedRole) {
     switch (selectedRole) {
