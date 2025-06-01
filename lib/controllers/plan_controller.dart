@@ -20,7 +20,7 @@ class PlanController {
     try {
       plan.planMonth = DateFormat('yyyy-MM').format(DateTime.now());
       String newConservationPlanID =
-          await getMaxValue('ConservationPlans', 'ConservationPlanID');
+          await getMaxValue();
       plan.conservationPlanId = newConservationPlanID;
 
       print(
@@ -61,7 +61,7 @@ class PlanController {
       {bool isForWholeHalaga = true}) async {
     try {
       plan.planMonth = DateFormat('yyyy-MM').format(DateTime.now());
-      String newEltlawahPlanID = await getMaxValue('EltlawahPlans', 'EltlawahPlanID');
+      String newEltlawahPlanID = await getMaxValue();
     plan.eltlawahPlanId = newEltlawahPlanID;
 
       // إذا كانت الخطة للحلقة بأكملها، نضع قيمة خاصة لـ studentId
@@ -106,7 +106,7 @@ class PlanController {
     try {
       plan.planMonth = DateFormat('yyyy-MM').format(DateTime.now());
       String newIslamicStudiesID =
-          await getMaxValue('IslamicStudies', 'IslamicStudiesID');
+          await getMaxValue();
       plan.islamicStudiesID = newIslamicStudiesID;
 
       if (isForWholeHalaga) {

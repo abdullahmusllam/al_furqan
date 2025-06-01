@@ -89,6 +89,11 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
             plannedStartAya: int.tryParse(conservationStartVerseController.text),
             plannedEndSurah: conservationEndSurahController.text,
             plannedEndAya: int.tryParse(conservationEndVerseController.text),
+            executedStartSurah: "لا يوجد",
+            executedStartAya: 0,
+            executedEndSurah: "لا يوجد",
+            executedEndAya: 0,
+            executedRate: 0,
             isSync: 0,
           ),
         );
@@ -110,6 +115,11 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
             plannedStartAya: int.tryParse(recitationStartVerseController.text),
             plannedEndSurah: recitationEndSurahController.text,
             plannedEndAya: int.tryParse(recitationEndVerseController.text),
+            executedStartSurah: "لا يوجد",
+            executedStartAya: 0,
+            executedEndSurah: "لا يوجد",
+            executedEndAya: 0,
+            executedRate: 0,
             isSync: 0,
           ),
         );
@@ -128,6 +138,7 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
             plannedContent: islamicStudiesContentController.text,
             planMonth: "2025-05",
             isSync: 0,
+            executedContent: "لا يوجد"
           ),
         );
         if(islamicResult <= 0){

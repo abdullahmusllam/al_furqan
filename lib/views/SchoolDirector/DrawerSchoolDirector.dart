@@ -174,6 +174,16 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                   ),
                   _buildSectionTitle('إدارة الكادر'),
                   _buildMenuItem(
+                    icon: Icons.manage_accounts,
+                    title: "إدارة المعلمين",
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).push(CupertinoPageRoute(
+                          builder: (context) =>
+                          TeacherManagement()));
+                    },
+                  ),
+                  _buildMenuItem(
                     icon: Icons.people,
                     title: 'تحضير المعلمين',
                     onTap: () {
@@ -199,14 +209,15 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     },
                   ),
                   _buildMenuItem(
-                      icon: Icons.message,
-                      title: "الرسائل",
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.of(context).push(CupertinoPageRoute(
-                            builder: (context) =>
-                                MainScreen(currentUser: widget.user!)));
-                      }),
+                    icon: Icons.message,
+                    title: "الرسائل",
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).push(CupertinoPageRoute(
+                          builder: (context) =>
+                              MainScreen(currentUser: widget.user!)));
+                    },
+                  ),
 
                   // Student Management Section
                   _buildSectionTitle('إدارة الطلاب والحلقات'),
@@ -240,21 +251,21 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                   ),
 
                   // Academic Section
-              //     _buildSectionTitle('الشؤون الأكاديمية'),
-              //     _buildMenuItem(
-              //       icon: Icons.book,
-              //       title: 'المناهج',
-              //       onTap: () {
-              //         Navigator.pop(context);
-              //      Navigator.of(context).pop();
-              // Navigator.push(
-              //   context,
-              //   CupertinoPageRoute(
-              //       builder: (context) => DatabaseViewerEntry()),
-              // );
-              //         // الانتقال إلى شاشة المناهج
-              //       },
-              //     ),
+                  //     _buildSectionTitle('الشؤون الأكاديمية'),
+                  //     _buildMenuItem(
+                  //       icon: Icons.book,
+                  //       title: 'المناهج',
+                  //       onTap: () {
+                  //         Navigator.pop(context);
+                  //      Navigator.of(context).pop();
+                  // Navigator.push(
+                  //   context,
+                  //   CupertinoPageRoute(
+                  //       builder: (context) => DatabaseViewerEntry()),
+                  // );
+                  //         // الانتقال إلى شاشة المناهج
+                  //       },
+                  //     ),
 
                   // System Section
                   // _buildSectionTitle('النظام'),
@@ -271,35 +282,35 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
             ),
 
             // Logout at the bottom
-            Divider(thickness: 1),
-            _buildMenuItem(
-              icon: Icons.logout,
-              title: 'تسجيل الخروج',
-              color: Colors.red.shade300,
-              onTap: () {
-                // Show confirmation dialog
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: Text('تسجيل الخروج'),
-                    content: Text('هل أنت متأكد من رغبتك في تسجيل الخروج؟'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text('إلغاء'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Implement logout logic here
-                          Navigator.pop(context);
-                        },
-                        child: Text('تسجيل الخروج'),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+            // Divider(thickness: 1),
+            // _buildMenuItem(
+            //   icon: Icons.logout,
+            //   title: 'تسجيل الخروج',
+            //   color: Colors.red.shade300,
+            //   onTap: () {
+            //     // Show confirmation dialog
+            //     showDialog(
+            //       context: context,
+            //       builder: (context) => AlertDialog(
+            //         title: Text('تسجيل الخروج'),
+            //         content: Text('هل أنت متأكد من رغبتك في تسجيل الخروج؟'),
+            //         actions: [
+            //           TextButton(
+            //             onPressed: () => Navigator.pop(context),
+            //             child: Text('إلغاء'),
+            //           ),
+            //           TextButton(
+            //             onPressed: () {
+            //               // Implement logout logic here
+            //               Navigator.pop(context);
+            //             },
+            //             child: Text('تسجيل الخروج'),
+            //           ),
+            //         ],
+            //       ),
+            //     );
+            //   },
+            // ),
             SizedBox(height: 10),
           ],
         ),

@@ -154,6 +154,9 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     await per.setString('user_name', name);
     if(user.roleID == 2){
+      if(user.elhalagatID == null){
+        return;
+      }
       await per.setInt('halagaID', user.elhalagatID!);
     }
     print('===== save id ($id) =====');

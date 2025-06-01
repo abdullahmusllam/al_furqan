@@ -94,7 +94,7 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
       DocumentSnapshot snapshot =
           await FirebaseFirestore.instance
               .collection('attendanceCodes') //  الكولكشن اللي طلبته
-              .doc(schoolId.toString()) // ✅ الدوكمنت اللي طلبته
+              .doc(schoolId.toString()) //  الدوكمنت اللي طلبته
               .get();
 
       if (snapshot.exists) {
@@ -340,7 +340,7 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('تحضير المعلمين'),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color.fromARGB(255, 1, 117, 70),
         elevation: 0,
       ),
       body:

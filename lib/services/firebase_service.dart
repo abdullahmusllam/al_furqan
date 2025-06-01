@@ -220,6 +220,7 @@ class FirebaseHelper {
 
   newTeacher(int halagaId, int teacherId) async {
     try {
+
       final docRef = _firestore.collection('Users');
       await docRef.doc(teacherId.toString()).update({'ElhalagatID': halagaId});
     } catch (e) {
@@ -232,6 +233,7 @@ class FirebaseHelper {
 // =========================== Start User ===============================
 
   addUser(UserModel user) async {
+    print("addUser(UserModel user)");
     final docRef = _firestore.collection('Users');
     // user.user_id = id;
     if (user != null) {
@@ -265,6 +267,7 @@ class FirebaseHelper {
   activateUser(int id) async {
     try {
       final docRef = _firestore.collection('Users').doc(id.toString());
+      await docRef.update({'isSync': 1});
       await docRef.update({'isActivate': 1});
       print('تم تفعيل المستخدم $id بنجاح');
     } catch (e) {
@@ -360,10 +363,7 @@ class FirebaseHelper {
 
   Future<void> addEltlawahPlan(EltlawahPlanModel plan, String idDoc) async {
     try {
-      await _firestore
-          .collection("EltlawahPlans")
-          .doc(idDoc)
-          .set(plan.toMap());
+      await _firestore.collection("EltlawahPlans").doc(idDoc).set(plan.toMap());
       print(
           "---------------> The addEltlawahPlan in ((FirebaseService)) : Done");
     } catch (e) {
@@ -372,7 +372,8 @@ class FirebaseHelper {
     }
   }
 
-  Future<void> addIslamicStudyplan(IslamicStudiesModel plan, String idDoc) async {
+  Future<void> addIslamicStudyplan(
+      IslamicStudiesModel plan, String idDoc) async {
     try {
       await _firestore
           .collection("IslamicStudies")
@@ -436,10 +437,7 @@ class FirebaseHelper {
   //===================== Delete ConservationPlan =================
   Future<void> deleteConservationPlan(String idDoc) async {
     try {
-      await _firestore
-          .collection("ConservationPlans")
-          .doc(idDoc)
-          .delete();
+      await _firestore.collection("ConservationPlans").doc(idDoc).delete();
       print(
           "---------------> The deleteConservationPlan in ((FirebaseService)) : Done");
     } catch (e) {
@@ -451,10 +449,7 @@ class FirebaseHelper {
   //===================== Delete EltlawahPlan =================
   Future<void> deleteEltlawahPlan(String idDoc) async {
     try {
-      await _firestore
-          .collection("EltlawahPlans")
-          .doc(idDoc)
-          .delete();
+      await _firestore.collection("EltlawahPlans").doc(idDoc).delete();
       print(
           "---------------> The deleteEltlawahPlan in ((FirebaseService)) : Done");
     } catch (e) {
@@ -466,10 +461,7 @@ class FirebaseHelper {
   //===================== Delete IslamicStudyplan =================
   Future<void> deleteIslamicStudyplan(String idDoc) async {
     try {
-      await _firestore
-          .collection("IslamicStudies")
-          .doc(idDoc)
-          .delete();
+      await _firestore.collection("IslamicStudies").doc(idDoc).delete();
       print(
           "---------------> The deleteIslamicStudyplan in ((FirebaseService)) : Done");
     } catch (e) {
@@ -527,15 +519,17 @@ class FirebaseHelper {
 
   Future<List<ConservationPlanModel>> getConservationPlans(int halagaId) async {
     try {
-      print("-------------------> Fetching conservation plans from Firestore for halaga: $halagaId");
-      
+      print(
+          "-------------------> Fetching conservation plans from Firestore for halaga: $halagaId");
+
       // جلب الخطط من مجموعة ConservationPlans حيث elhalagatId يساوي halagaId
       final QuerySnapshot querySnapshot = await _firestore
           .collection('ConservationPlans')
           .where('ElhalagatID', isEqualTo: halagaId)
           .get();
 
-      print("-------------------> Found ${querySnapshot.docs.length} conservation plans");
+      print(
+          "-------------------> Found ${querySnapshot.docs.length} conservation plans");
 
       // تحويل البيانات إلى نماذج ConservationPlanModel
       List<ConservationPlanModel> plans = querySnapshot.docs.map((doc) {
@@ -566,18 +560,20 @@ class FirebaseHelper {
     }
   }
 
-    /// جلب خطط التلاوة من Firestore
+  /// جلب خطط التلاوة من Firestore
   Future<List<EltlawahPlanModel>> getEltlawahPlans(int halagaId) async {
     try {
-      print("-------------------> جاري جلب خطط التلاوة من Firestore للحلقة: $halagaId");
-      
+      print(
+          "-------------------> جاري جلب خطط التلاوة من Firestore للحلقة: $halagaId");
+
       // جلب الخطط من مجموعة EltlawahPlans حيث elhalagatId يساوي halagaId
       final QuerySnapshot querySnapshot = await _firestore
           .collection('EltlawahPlans')
           .where('ElhalagatID', isEqualTo: halagaId)
           .get();
 
-      print("-------------------> تم العثور على ${querySnapshot.docs.length} خطة تلاوة");
+      print(
+          "-------------------> تم العثور على ${querySnapshot.docs.length} خطة تلاوة");
 
       // تحويل البيانات إلى نماذج EltlawahPlanModel
       List<EltlawahPlanModel> plans = querySnapshot.docs.map((doc) {
@@ -607,18 +603,21 @@ class FirebaseHelper {
       throw Exception('فشل في جلب خطط التلاوة: $e');
     }
   }
-    /// جلب خطط العلوم الشرعية من Firestore
+
+  /// جلب خطط العلوم الشرعية من Firestore
   Future<List<IslamicStudiesModel>> getIslamicStudyPlans(int halagaId) async {
     try {
-      print("-------------------> جاري جلب خطط العلوم الشرعية من Firestore للحلقة: $halagaId");
-      
+      print(
+          "-------------------> جاري جلب خطط العلوم الشرعية من Firestore للحلقة: $halagaId");
+
       // جلب الخطط من مجموعة IslamicStudies حيث elhalagatId يساوي halagaId
       final QuerySnapshot querySnapshot = await _firestore
           .collection('IslamicStudies')
           .where('ElhalagatID', isEqualTo: halagaId)
           .get();
 
-      print("-------------------> تم العثور على ${querySnapshot.docs.length} خطة علوم شرعية");
+      print(
+          "-------------------> تم العثور على ${querySnapshot.docs.length} خطة علوم شرعية");
 
       // تحويل البيانات إلى نماذج IslamicStudiesModel
       List<IslamicStudiesModel> plans = querySnapshot.docs.map((doc) {
@@ -642,8 +641,6 @@ class FirebaseHelper {
       throw Exception('فشل في جلب خطط العلوم الشرعية: $e');
     }
   }
-
 } // End of FirebaseHelper class
-
 
 FirebaseHelper firebasehelper = FirebaseHelper();

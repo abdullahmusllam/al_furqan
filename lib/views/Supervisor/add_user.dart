@@ -54,7 +54,7 @@ class _AddUserState extends State<AddUser> {
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -101,7 +101,7 @@ class _AddUserState extends State<AddUser> {
                       ),
                     ),
                   ),
-                  
+
                   // Form card
                   Card(
                     elevation: 4,
@@ -127,96 +127,97 @@ class _AddUserState extends State<AddUser> {
                           ),
                           Divider(height: 1, color: Colors.grey.shade300),
                           SizedBox(height: 16),
-                _buildTextFormField(
-                  controller: _firstname,
-                  label: 'الاسم الأول',
-                  maxLength: 20,
-                  inputType: TextInputType.name,
-                  validatorMsg: 'الرجاء إدخال الاسم الأول',
-                ),
-                SizedBox(height: 10),
-                _buildTextFormField(
-                  controller: _fathername,
-                  label: 'اسم الأب',
-                  maxLength: 20,
-                  inputType: TextInputType.name,
-                  validatorMsg: 'الرجاء إدخال اسم الأب',
-                ),
-                SizedBox(height: 10),
-                _buildTextFormField(
-                  controller: _grandfathername,
-                  label: 'اسم الجد',
-                  maxLength: 20,
-                  inputType: TextInputType.name,
-                  validatorMsg: 'الرجاء إدخال اسم الجد',
-                ),
-                SizedBox(height: 10),
-                _buildTextFormField(
-                  controller: _lastname,
-                  label: 'القبيلة',
-                  maxLength: 20,
-                  inputType: TextInputType.name,
-                  validatorMsg: 'الرجاء إدخال القبيلة',
-                ),
-                SizedBox(height: 10),
-                _buildNumberFormField(
-                    controller: _phone,
-                    label: 'رقم الجوال',
-                    maxLength: 9,
-                    inputType: TextInputType.phone,
-                    validatorMsg: 'الرجاء إدخال رقم الجوال',
-                    additionalValidator: (value) {
-                      if (value!.length < 9) {
-                        return 'رقم الجوال يجب أن يكون 9 أرقام';
-                      } else if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-                        return 'ادخل ارقاماً';
-                      }
-                      return null;
-                    }),
-                SizedBox(height: 10),
-                _buildNumberFormField(
-                  controller: _telephone,
-                  label: 'رقم البيت',
-                  maxLength: 6,
-                  inputType: TextInputType.phone,
-                  validatorMsg: 'الرجاء إدخال رقم البيت',
-                  additionalValidator: (value) {
-                    if (value!.length < 6) {
-                      return 'رقم البيت يجب أن يكون 6 أرقام';
-                    } else if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-                      return 'ادخل ارقاماً';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                _buildTextFormField(
-                  controller: _email,
-                  label: 'البريد الإلكتروني',
-                  maxLength: 50,
-                  inputType: TextInputType.emailAddress,
-                  validatorMsg: 'الرجاء إدخال بريد إلكتروني',
-                  additionalValidator: (value) {
-                    final emailRegex =
-                        RegExp(r'^[a-zA-Z0-9@._\-]+@[gmail]+\.[com]');
-                    if (!emailRegex.hasMatch(value!)) {
-                      return 'البريد الإلكتروني غير صالح';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                _buildPasswordFormField(),
-                SizedBox(height: 10),
-                _buildDateFormField(),
-                SizedBox(height: 10),
-                _buildSchoolDropdown(),
-                SizedBox(height: 10),
-                _buildRoleDropdown(),
-                SizedBox(height: 10),
-                _buildActivateSwitch(),
-                SizedBox(height: 10),
-                _buildSubmitButton(),
+                          _buildTextFormField(
+                            controller: _firstname,
+                            label: 'الاسم الأول',
+                            maxLength: 20,
+                            inputType: TextInputType.name,
+                            validatorMsg: 'الرجاء إدخال الاسم الأول',
+                          ),
+                          SizedBox(height: 10),
+                          _buildTextFormField(
+                            controller: _fathername,
+                            label: 'اسم الأب',
+                            maxLength: 20,
+                            inputType: TextInputType.name,
+                            validatorMsg: 'الرجاء إدخال اسم الأب',
+                          ),
+                          SizedBox(height: 10),
+                          _buildTextFormField(
+                            controller: _grandfathername,
+                            label: 'اسم الجد',
+                            maxLength: 20,
+                            inputType: TextInputType.name,
+                            validatorMsg: 'الرجاء إدخال اسم الجد',
+                          ),
+                          SizedBox(height: 10),
+                          _buildTextFormField(
+                            controller: _lastname,
+                            label: 'القبيلة',
+                            maxLength: 20,
+                            inputType: TextInputType.name,
+                            validatorMsg: 'الرجاء إدخال القبيلة',
+                          ),
+                          SizedBox(height: 10),
+                          _buildNumberFormField(
+                              controller: _phone,
+                              label: 'رقم الجوال',
+                              maxLength: 9,
+                              inputType: TextInputType.phone,
+                              validatorMsg: 'الرجاء إدخال رقم الجوال',
+                              additionalValidator: (value) {
+                                if (value!.length < 9) {
+                                  return 'رقم الجوال يجب أن يكون 9 أرقام';
+                                } else if (!RegExp(r'^[0-9]+$')
+                                    .hasMatch(value)) {
+                                  return 'ادخل ارقاماً';
+                                }
+                                return null;
+                              }),
+                          SizedBox(height: 10),
+                          _buildNumberFormField(
+                            controller: _telephone,
+                            label: 'رقم البيت',
+                            maxLength: 6,
+                            inputType: TextInputType.phone,
+                            validatorMsg: 'الرجاء إدخال رقم البيت',
+                            additionalValidator: (value) {
+                              if (value!.length < 6) {
+                                return 'رقم البيت يجب أن يكون 6 أرقام';
+                              } else if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                                return 'ادخل ارقاماً';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 10),
+                          _buildTextFormField(
+                            controller: _email,
+                            label: 'البريد الإلكتروني',
+                            maxLength: 50,
+                            inputType: TextInputType.emailAddress,
+                            validatorMsg: 'الرجاء إدخال بريد إلكتروني',
+                            additionalValidator: (value) {
+                              final emailRegex =
+                                  RegExp(r'^[a-zA-Z0-9@._\-]+@[gmail]+\.[com]');
+                              if (!emailRegex.hasMatch(value!)) {
+                                return 'البريد الإلكتروني غير صالح';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 10),
+                          _buildPasswordFormField(),
+                          SizedBox(height: 10),
+                          _buildDateFormField(),
+                          SizedBox(height: 10),
+                          _buildSchoolDropdown(),
+                          SizedBox(height: 10),
+                          _buildRoleDropdown(),
+                          SizedBox(height: 10),
+                          _buildActivateSwitch(),
+                          SizedBox(height: 10),
+                          _buildSubmitButton(),
                         ],
                       ),
                     ),
@@ -239,7 +240,7 @@ class _AddUserState extends State<AddUser> {
     String? Function(String?)? additionalValidator,
   }) {
     final primaryColor = Theme.of(context).primaryColor;
-    
+
     return TextFormField(
       controller: controller,
       keyboardType: inputType,
@@ -253,8 +254,8 @@ class _AddUserState extends State<AddUser> {
         labelText: label,
         counterText: '',
         prefixIcon: Icon(
-          inputType == TextInputType.emailAddress 
-              ? Icons.email_outlined 
+          inputType == TextInputType.emailAddress
+              ? Icons.email_outlined
               : Icons.person_outline,
           color: primaryColor,
         ),
@@ -295,7 +296,7 @@ class _AddUserState extends State<AddUser> {
     String? Function(String?)? additionalValidator,
   }) {
     final primaryColor = Theme.of(context).primaryColor;
-    
+
     return TextFormField(
       controller: controller,
       keyboardType: inputType,
@@ -340,7 +341,7 @@ class _AddUserState extends State<AddUser> {
 
   TextFormField _buildPasswordFormField() {
     final primaryColor = Theme.of(context).primaryColor;
-    
+
     return TextFormField(
       controller: _password,
       obscureText: !_isPasswordVisible,
@@ -393,7 +394,7 @@ class _AddUserState extends State<AddUser> {
 
   TextFormField _buildDateFormField() {
     final primaryColor = Theme.of(context).primaryColor;
-    
+
     return TextFormField(
       textInputAction: TextInputAction.next,
       controller: _date,
@@ -448,7 +449,7 @@ class _AddUserState extends State<AddUser> {
 
   Row _buildSchoolDropdown() {
     final primaryColor = Theme.of(context).primaryColor;
-    
+
     return Row(
       children: [
         Expanded(
@@ -472,7 +473,8 @@ class _AddUserState extends State<AddUser> {
               ),
               filled: true,
               fillColor: Colors.grey.shade50,
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               // Ajuste para evitar el overflow
               errorStyle: TextStyle(
                 height: 0.8, // Reducir el espacio vertical del mensaje de error
@@ -519,7 +521,7 @@ class _AddUserState extends State<AddUser> {
 
   DropdownButtonFormField<String> _buildRoleDropdown() {
     final primaryColor = Theme.of(context).primaryColor;
-    
+
     return DropdownButtonFormField<String>(
       value: _selectedRole,
       style: TextStyle(fontSize: 16, color: Colors.black87),
@@ -564,11 +566,11 @@ class _AddUserState extends State<AddUser> {
 
   SwitchListTile _buildActivateSwitch() {
     final primaryColor = Theme.of(context).primaryColor;
-    
+
     return SwitchListTile(
       title: Text('تفعيل المستخدم', style: TextStyle(fontSize: 16)),
-      subtitle: Text(_isActivate ? 'المستخدم مفعل' : 'المستخدم غير مفعل', 
-        style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+      subtitle: Text(_isActivate ? 'المستخدم مفعل' : 'المستخدم غير مفعل',
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
       value: _isActivate,
       activeColor: primaryColor,
       secondary: Icon(
@@ -591,7 +593,7 @@ class _AddUserState extends State<AddUser> {
 
   ElevatedButton _buildSubmitButton() {
     final primaryColor = Theme.of(context).primaryColor;
-    
+
     return ElevatedButton(
       onPressed: () {
         if (_formKey.currentState!.validate()) {
@@ -622,6 +624,7 @@ class _AddUserState extends State<AddUser> {
   }
 
   void _submitForm() {
+    print("here save user");
     int phone = int.parse(_phone.text);
     int telephone = int.parse(_telephone.text);
     String password = (_password.text);
@@ -652,7 +655,7 @@ class _AddUserState extends State<AddUser> {
         break;
     }
     _userModel.roleID = roleID;
-    userController.addUser(_userModel,1);
+    userController.addUser(_userModel, 1);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("تمت إضافة مستخدم بنجاح"),
