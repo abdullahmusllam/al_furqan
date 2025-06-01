@@ -340,7 +340,7 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('تحضير المعلمين'),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color.fromARGB(255, 1, 117, 70),
         elevation: 0,
       ),
       body:
