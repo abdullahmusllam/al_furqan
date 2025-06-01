@@ -91,7 +91,7 @@ class FathersController {
       // نحاول الحصول على آباء الطلاب في الحلقة المحددة
       List<Map<String, dynamic>> response = await _sqlDb.readData(
         """SELECT DISTINCT Users.* FROM Users 
-           JOIN Students ON Users.user_id = Students.fatherID 
+           JOIN Students ON Users.user_id = Students.userID 
            WHERE Students.ElhalagatID = $elhalagatID AND Users.roleID = 3"""
       );
 

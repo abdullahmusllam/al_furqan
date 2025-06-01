@@ -11,7 +11,8 @@ import 'package:flutter/material.dart';
 class EditHalagaScreen extends StatefulWidget {
   final HalagaModel halga;
   final String teacher;
-  const EditHalagaScreen({super.key, required this.halga, required this.teacher});
+  const EditHalagaScreen(
+      {super.key, required this.halga, required this.teacher});
 
   @override
   _EditHalagaScreenState createState() => _EditHalagaScreenState();
@@ -197,6 +198,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
         // تسجيل للتشخيص
         print("بدء عملية تحديث الحلقة...");
         print("معرف المعلم المحدد: $selectedTeacherId");
+        int idTeacher = selectedTeacherId!;
 
         // بناء نموذج الحلقة المحدثة
         final updatedHalaga = HalagaModel(
@@ -211,8 +213,9 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
             "الحلقة المحدثة - الاسم: ${updatedHalaga.Name}, ID: ${updatedHalaga.halagaID}");
 
         // استدعاء دالة تحديث الحلقة مع تمرير معرف المعلم المحدد
-        await halagaController.updateHalaga(updatedHalaga,1);
-        await halagaController.updateTeacherAssignment(updatedHalaga.halagaID!, selectedTeacherId!);
+        await halagaController.updateHalaga(updatedHalaga, 1);
+        await halagaController.updateTeacherAssignment(
+            updatedHalaga.halagaID!, idTeacher);
         print("تم تحديث الحلقة بنجاح");
 
         setState(() => _isLoading = false);

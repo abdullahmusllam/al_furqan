@@ -83,8 +83,12 @@ class _UserDetailsState extends State<UserDetails> {
         return "مشرف";
       case 1:
         return "مدير";
-      default:
+      case 2:
         return "معلم";
+      case 3:
+        return "ولي أمر";
+      default:
+        return "غير معروف";
     }
   }
 
@@ -519,7 +523,7 @@ class _UserDetailsState extends State<UserDetails> {
       widget.user.roleID = roleId;
       widget.user.schoolID = _selectedSchoolId;
 
-      await userController.updateUser(widget.user, 0);
+      await userController.updateUser(widget.user, 1);
       setState(() {
         _isEditable = false;
       });

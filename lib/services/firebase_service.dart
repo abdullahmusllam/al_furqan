@@ -220,6 +220,7 @@ class FirebaseHelper {
 
   newTeacher(int halagaId, int teacherId) async {
     try {
+
       final docRef = _firestore.collection('Users');
       await docRef.doc(teacherId.toString()).update({'ElhalagatID': halagaId});
     } catch (e) {

@@ -1,5 +1,6 @@
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
+import 'package:al_furqan/helper/new_id2.dart';
 import 'package:al_furqan/models/users_model.dart';
 
 // import 'package:al_furqan/views/SchoolDirector/handling_excel_file.dart';
@@ -92,7 +93,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       studentModel.userID = fatherModel.user_id;
 
       // ثالثًا: إضافة الطالب إلى قاعدة البيانات المحلية
-
+      // int studentID =getMaxValue();
       int studentID = await studentController.addStudent(studentModel);
       print("تم إضافة الطالب محليًا بمعرف: $studentID");
 

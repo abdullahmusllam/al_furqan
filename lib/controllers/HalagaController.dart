@@ -156,10 +156,11 @@ class HalagaController {
     }
   }
 
-  updateTeacherAssignment(int teacherId, int halagaId) async {
+  updateTeacherAssignment(int halagaId, int teacherId) async {
     try {
       if (await isConnected()) {
         ///الغاء ارتباط المعلم
+
         await firebasehelper.teacherCancel(halagaId);
         await _sqlDb.updateData(
             "UPDATE Users SET ElhalagatID = NULL, isSync = 1 WHERE ElhalagatID = $halagaId AND roleID = 2");
@@ -169,6 +170,7 @@ class HalagaController {
         await _sqlDb.updateData(
           "UPDATE Users SET ElhalagatID = $halagaId, isSync = 1 WHERE user_id = $teacherId AND roleID = 2",
         );
+        print("---------------->> here");
       } else {
         ///الغاء ارتباط المعلم
         await _sqlDb.updateData(
@@ -335,8 +337,10 @@ class HalagaController {
   Future<void> getHalagatFromFirebaseByID(int id, String name) async {
     try {
       if (await isConnected()) {
-        final snapshot =
-            await FirebaseFirestore.instance.collection('Elhalaga').where(name, isEqualTo: id).get();
+        final snapshot = await FirebaseFirestore.instance
+            .collection('Elhalaga')
+            .where(name, isEqualTo: id)
+            .get();
         for (var doc in snapshot.docs) {
           HalagaModel halaga = HalagaModel.fromJson(doc.data());
           bool exists = await _sqlDb.checkIfitemExists(

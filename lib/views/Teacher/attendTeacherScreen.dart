@@ -94,7 +94,7 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
       DocumentSnapshot snapshot =
           await FirebaseFirestore.instance
               .collection('attendanceCodes') //  الكولكشن اللي طلبته
-              .doc(schoolId.toString()) // ✅ الدوكمنت اللي طلبته
+              .doc(schoolId.toString()) //  الدوكمنت اللي طلبته
               .get();
 
       if (snapshot.exists) {
