@@ -4,11 +4,16 @@ import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
+import 'package:al_furqan/models/eltlawah_plan_model.dart';
+import 'package:al_furqan/models/islamic_studies_model.dart';
 import 'package:al_furqan/services/message_sevice.dart';
 import 'package:al_furqan/views/Teacher/DrawerTeacher.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../controllers/plan_controller.dart';
+import '../../models/halaga_model.dart';
 
 class TeacherDashboard extends StatefulWidget {
   const TeacherDashboard({super.key});
@@ -19,8 +24,107 @@ class TeacherDashboard extends StatefulWidget {
 
 class _TeacherDashboardState extends State<TeacherDashboard>
     with UserDataMixin, WidgetsBindingObserver {
+  final HalagaController _halagaController = HalagaController();
   int _unreadMessagesCount = 0;
-  
+  bool _isLoadingHalaga = false;
+  String? _errorMessage;
+  HalagaModel? _teacherHalaga;
+  bool _isLoading = true;
+  List<EltlawahPlanModel>? eltlawahPlan;
+  List<IslamicStudiesModel>? islamicPlan;
+
+  Future<void> _loadPlans() async {
+    setState(() => _isLoading = true);
+    try {
+
+      await planController.getPlans(_teacherHalaga!.halagaID!);
+      await studentController.getStudents(_teacherHalaga!.halagaID!);
+      print("------------------------->> planController.eltlawahPlans : ${ planController.eltlawahPlans.isEmpty}");
+      eltlawahPlan = await planController.eltlawahPlans;
+      islamicPlan = await planController.islamicStudyPlans;
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('حدث خطأ في تحميل الخطط: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _loadTeacherHalaga() async {
+    print("MainTeacher - _loadTeacherHalaga started");
+    print(
+        "MainTeacher - User data: ${user != null ? 'Available' : 'Not available'}");
+
+    if (_isLoadingHalaga) {
+      print("MainTeacher - Already loading halaga data, skipping");
+      return;
+    }
+
+    if (user == null) {
+      print("MainTeacher - User is null, trying to load user data first");
+      await fetchUserData(); // استدعاء دالة تحميل بيانات المستخدم أولاً
+      if (user == null) {
+        print("MainTeacher - Still couldn't load user data");
+        setState(() {
+          _errorMessage = "فشل في تحميل بيانات المستخدم";
+        });
+        return;
+      }
+    }
+
+    print("MainTeacher - User elhalagatID: ${user?.elhalagatID}");
+
+    if (user!.elhalagatID == null || user!.elhalagatID == 0) {
+      print("MainTeacher - User has no halaga assigned");
+      setState(() {
+        _errorMessage = "لم يتم تعيين حلقة للمعلم";
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoadingHalaga = true;
+    });
+
+    try {
+      print(
+          "MainTeacher - Fetching halaga details for ID: ${user!.elhalagatID}");
+      // Get the teacher's halaga details using the halagaID (elhalagatID) from user data
+      _teacherHalaga =
+          await _halagaController.getHalqaDetails(user!.elhalagatID!);
+
+      print(
+          "MainTeacher - Halaga response: ${_teacherHalaga != null ? 'Found' : 'Not found'}");
+
+      if (_teacherHalaga != null) {
+        print(
+            "MainTeacher - Fetched teacher's halaga: ${_teacherHalaga?.Name}, ID: ${_teacherHalaga?.halagaID}");
+      } else {
+        print("MainTeacher - Halaga not found for ID: ${user!.elhalagatID}");
+        setState(() {
+          _errorMessage =
+              "لم يتم العثور على بيانات الحلقة رقم ${user!.elhalagatID}";
+        });
+      }
+    } catch (e) {
+      print("MainTeacher - Error fetching teacher's halaga: $e");
+      setState(() {
+        _errorMessage = "خطأ أثناء جلب بيانات الحلقة: $e";
+      });
+    } finally {
+      if (mounted) {
+        // نتحقق من أن الكائن لا يزال موجوداً
+        setState(() {
+          _isLoadingHalaga = false;
+        });
+      }
+    }
+  }
+
   // Helper method to build stat cards in the header
   Widget _buildStatCard({
     required String title,
@@ -82,7 +186,8 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                     ),
                     if (badgeCount != null && badgeCount > 0)
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.red,
                           borderRadius: BorderRadius.circular(10),
@@ -159,7 +264,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
       ),
     );
   }
-  
+
   // Helper method to build info cards
   Widget _buildInfoCard({
     required String title,
@@ -225,27 +330,28 @@ class _TeacherDashboardState extends State<TeacherDashboard>
       ),
     );
   }
-  
-  
+
   @override
   void initState() {
     super.initState();
     // إضافة مراقب دورة حياة التطبيق
     WidgetsBinding.instance.addObserver(this);
-    
+
     // Initial data loading
     fetchUserData();
+    _loadPlans();
     loadMessagesAndStudent();
     halagaController.getHalagatFromFirebase();
+    _loadTeacherHalaga();
   }
-  
+
   @override
   void dispose() {
     // إزالة مراقب دورة حياة التطبيق
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
-  
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // تحديث عدد الإشعارات عند العودة للتطبيق
@@ -253,6 +359,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
       updateNotificationCount();
     }
   }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -263,19 +370,19 @@ class _TeacherDashboardState extends State<TeacherDashboard>
     final prefs = await SharedPreferences.getInstance();
     int? Id = prefs.getInt('user_id');
     print('===== ($Id) =====');
-    
+
     // تحميل الرسائل من فايربيس
     await messageService.loadMessagesFromFirestore(Id!);
-    
+
     // تحديث عدد الإشعارات
     await updateNotificationCount();
-    
+
     // تحميل بيانات الطلاب والمعلمين
     await studentController.addToLocalOfFirebase(schoolID!);
     await halagaController.getTeachers(schoolID!);
     await fathersController.getFathersBySchoolId(schoolID!);
   }
-  
+
   // تحديث عدد الإشعارات
   Future<void> updateNotificationCount() async {
     final prefs = await SharedPreferences.getInstance();
@@ -305,6 +412,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
             ),
             child: IconButton(
               onPressed: () {
+                _loadTeacherHalaga();
                 updateNotificationCount();
                 // استدعاء دالة تحديث البيانات مباشرة (ستقوم بتحديث حالة التحميل داخلياً)
                 fetchUserData().then((_) {
@@ -356,8 +464,10 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                         onPressed: () async {
                           final prefs = await SharedPreferences.getInstance();
                           await prefs.clear();
-                          Navigator.pushReplacement(context,
-                              MaterialPageRoute(builder: (context) => LoginScreen()));
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginScreen()));
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
@@ -377,7 +487,11 @@ class _TeacherDashboardState extends State<TeacherDashboard>
         title: isLoading || user == null
             ? Row(
                 children: [
-                  SizedBox(width: 15, height: 15, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)),
+                  SizedBox(
+                      width: 15,
+                      height: 15,
+                      child: CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2)),
                   SizedBox(width: 10),
                   Text("جاري التحميل..."),
                 ],
@@ -389,13 +503,16 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                     radius: 18,
                     child: Text(
                       '${user!.first_name != null && user!.first_name!.isNotEmpty ? user!.first_name![0] : ''}${user!.last_name != null && user!.last_name!.isNotEmpty ? user!.last_name![0] : ''}',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryColor),
                     ),
                   ),
                   SizedBox(width: 10),
                   Text(
                     '${user!.first_name} ${user!.last_name}',
-                    style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ],
               ),
@@ -408,7 +525,8 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 20),
-                  Text("جاري تحميل البيانات...", style: TextStyle(color: Colors.grey[700])),
+                  Text("جاري تحميل البيانات...",
+                      style: TextStyle(color: Colors.grey[700])),
                 ],
               ),
             )
@@ -421,7 +539,8 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                       SizedBox(height: 20),
                       Text(
                         "فشل في جلب بيانات المستخدم",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 10),
                       ElevatedButton.icon(
@@ -429,8 +548,10 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                         icon: Icon(Icons.refresh),
                         label: Text("إعادة المحاولة"),
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
                         ),
                       ),
                     ],
@@ -477,10 +598,12 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                               icon: Icon(Icons.refresh),
                               label: Text("تحديث البيانات"),
                               style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
                                 backgroundColor: Colors.amber,
                                 foregroundColor: Colors.black,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8)),
                               ),
                             ),
                           ],
@@ -500,7 +623,12 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                               padding: EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withOpacity(0.7)],
+                                  colors: [
+                                    Theme.of(context).primaryColor,
+                                    Theme.of(context)
+                                        .primaryColor
+                                        .withOpacity(0.7)
+                                  ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
@@ -539,20 +667,23 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                       Expanded(
                                         child: _buildStatCard(
                                           title: 'اسم الحلقة',
-                                          value: 'حلقة الفرقان',
+                                          value: '${_teacherHalaga!.Name}',
                                           icon: Icons.class_,
                                           color: Colors.white,
-                                          textColor: Theme.of(context).primaryColor,
+                                          textColor:
+                                              Theme.of(context).primaryColor,
                                         ),
                                       ),
                                       SizedBox(width: 12),
                                       Expanded(
                                         child: _buildStatCard(
                                           title: 'الإشعارات',
-                                          value: '$_unreadMessagesCount رسائل جديدة',
+                                          value:
+                                              '$_unreadMessagesCount رسائل جديدة',
                                           icon: Icons.notifications_active,
                                           color: Colors.white,
-                                          textColor: Theme.of(context).primaryColor,
+                                          textColor:
+                                              Theme.of(context).primaryColor,
                                           badgeCount: _unreadMessagesCount,
                                         ),
                                       ),
@@ -562,7 +693,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                               ),
                             ),
                             SizedBox(height: 20),
-                            
+
                             // أول صف يحتوي على كاردين
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -571,7 +702,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                 Expanded(
                                   child: _buildInfoCard(
                                     title: 'عدد الطلاب',
-                                    value: '12',
+                                    value: '${_teacherHalaga!.NumberStudent}',
                                     icon: Icons.people,
                                     color: Colors.blue,
                                     context: context,
@@ -582,7 +713,8 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                 Expanded(
                                   child: _buildInfoCard(
                                     title: 'نسبة الحضور',
-                                    value: '85%',
+                                    value:
+                                        '${_teacherHalaga!.AttendanceRate ?? 0}',
                                     icon: Icons.check_circle,
                                     color: Colors.green,
                                     context: context,
@@ -591,7 +723,6 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                               ],
                             ),
                             SizedBox(height: 20),
-                            
 
                             // خطة التلاوة
                             Card(
@@ -605,7 +736,8 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -613,37 +745,48 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                             Container(
                                               padding: EdgeInsets.all(8),
                                               decoration: BoxDecoration(
-                                                color: Colors.green.withOpacity(0.1),
-                                                borderRadius: BorderRadius.circular(8),
+                                                color: Colors.green
+                                                    .withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
                                               ),
-                                              child: Icon(Icons.menu_book, color: Colors.green),
+                                              child: Icon(Icons.menu_book,
+                                                  color: Colors.green),
                                             ),
                                             SizedBox(width: 10),
                                             Flexible(
                                               child: Text('خطة التلاوة',
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                       fontSize: 18,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       color: Colors.grey[800])),
                                             ),
                                           ],
                                         ),
                                         Container(
-                                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 6),
                                           decoration: BoxDecoration(
-                                            color: Colors.green.withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(20),
+                                            color:
+                                                Colors.green.withOpacity(0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
                                           ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Icon(Icons.trending_up, color: Colors.green, size: 16),
+                                              Icon(Icons.trending_up,
+                                                  color: Colors.green,
+                                                  size: 16),
                                               SizedBox(width: 4),
                                               Flexible(
                                                 child: Text(
-                                                  'نسبة التنفيذ: 80%',
-                                                  overflow: TextOverflow.ellipsis,
+                                                  'نسبة التنفيذ: %',
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                     color: Colors.green,
                                                     fontWeight: FontWeight.bold,
@@ -664,7 +807,8 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                       ),
                                       padding: EdgeInsets.all(16),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text('المخطط',
                                               style: TextStyle(
@@ -677,7 +821,8 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                               Expanded(
                                                 child: _buildPlanField(
                                                   label: 'من',
-                                                  value: 'سورة البقرة - الآية 1',
+                                                  value:
+                                                      'سورة البقرة - الآية 1',
                                                   icon: Icons.arrow_right,
                                                   color: Colors.blue,
                                                 ),
@@ -686,7 +831,8 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                               Expanded(
                                                 child: _buildPlanField(
                                                   label: 'إلى',
-                                                  value: 'سورة البقرة - الآية 20',
+                                                  value:
+                                                      'سورة البقرة - الآية 20',
                                                   icon: Icons.arrow_left,
                                                   color: Colors.red,
                                                 ),
@@ -704,7 +850,8 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                       ),
                                       padding: EdgeInsets.all(16),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text('المنفذ',
                                               style: TextStyle(
@@ -717,7 +864,8 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                               Expanded(
                                                 child: _buildPlanField(
                                                   label: 'من',
-                                                  value: 'سورة البقرة - الآية 1',
+                                                  value:
+                                                      'سورة البقرة - الآية 1',
                                                   icon: Icons.arrow_right,
                                                   color: Colors.blue,
                                                 ),
@@ -726,7 +874,8 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                               Expanded(
                                                 child: _buildPlanField(
                                                   label: 'إلى',
-                                                  value: 'سورة البقرة - الآية 16',
+                                                  value:
+                                                      'سورة البقرة - الآية 16',
                                                   icon: Icons.arrow_left,
                                                   color: Colors.red,
                                                 ),
@@ -748,9 +897,11 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                             backgroundColor: Colors.blue,
                                             foregroundColor: Colors.white,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
-                                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 10),
                                           ),
                                         ),
                                       ],
@@ -773,7 +924,8 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -781,37 +933,48 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                             Container(
                                               padding: EdgeInsets.all(8),
                                               decoration: BoxDecoration(
-                                                color: Colors.purple.withOpacity(0.1),
-                                                borderRadius: BorderRadius.circular(8),
+                                                color: Colors.purple
+                                                    .withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
                                               ),
-                                              child: Icon(Icons.school, color: Colors.purple),
+                                              child: Icon(Icons.school,
+                                                  color: Colors.purple),
                                             ),
                                             SizedBox(width: 10),
                                             Flexible(
                                               child: Text('خطة العلوم الشرعية',
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: TextStyle(
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontSize: 18)),
                                             ),
                                           ],
                                         ),
                                         SizedBox(height: 8),
                                         Container(
-                                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 6),
                                           decoration: BoxDecoration(
-                                            color: Colors.purple.withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(20),
+                                            color:
+                                                Colors.purple.withOpacity(0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
                                           ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Icon(Icons.trending_up, color: Colors.purple, size: 16),
+                                              Icon(Icons.trending_up,
+                                                  color: Colors.purple,
+                                                  size: 16),
                                               SizedBox(width: 4),
                                               Flexible(
                                                 child: Text(
                                                   'نسبة التنفيذ: 75%',
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                     color: Colors.purple,
                                                     fontWeight: FontWeight.bold,
@@ -825,7 +988,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                       ],
                                     ),
                                     SizedBox(height: 16),
-                                    
+
                                     // المقرر - Dropdown
                                     Container(
                                       decoration: BoxDecoration(
@@ -834,20 +997,26 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                       ),
                                       padding: EdgeInsets.all(16),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Icon(Icons.book, size: 18, color: Colors.purple),
+                                              Icon(Icons.book,
+                                                  size: 18,
+                                                  color: Colors.purple),
                                               SizedBox(width: 8),
                                               Flexible(
                                                 child: Text('المقرر',
-                                                    overflow: TextOverflow.ellipsis,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                     style: TextStyle(
-                                                        fontWeight: FontWeight.bold,
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                         fontSize: 16,
-                                                        color: Colors.grey[800])),
+                                                        color:
+                                                            Colors.grey[800])),
                                               ),
                                             ],
                                           ),
@@ -855,12 +1024,19 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                           Container(
                                             decoration: BoxDecoration(
                                               color: Colors.white,
-                                              borderRadius: BorderRadius.circular(8),
-                                              border: Border.all(color: Colors.purple.withOpacity(0.3)),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              border: Border.all(
+                                                  color: Colors.purple
+                                                      .withOpacity(0.3)),
                                             ),
-                                            child: DropdownButtonFormField<String>(
+                                            child:
+                                                DropdownButtonFormField<String>(
                                               decoration: InputDecoration(
-                                                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                                contentPadding:
+                                                    EdgeInsets.symmetric(
+                                                        horizontal: 16,
+                                                        vertical: 8),
                                                 border: InputBorder.none,
                                                 hintText: 'اختر المقرر',
                                               ),
@@ -871,13 +1047,15 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                                 'مقرر 2',
                                                 'مقرر 3',
                                                 'مقرر 4',
-                                              ].map<DropdownMenuItem<String>>((String value) {
+                                              ].map<DropdownMenuItem<String>>(
+                                                  (String value) {
                                                 return DropdownMenuItem<String>(
                                                   value: value,
                                                   child: Text(value),
                                                 );
                                               }).toList(),
-                                              icon: Icon(Icons.arrow_drop_down, color: Colors.purple),
+                                              icon: Icon(Icons.arrow_drop_down,
+                                                  color: Colors.purple),
                                               isExpanded: true,
                                             ),
                                           ),
@@ -885,32 +1063,42 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                       ),
                                     ),
                                     SizedBox(height: 16),
-                                    
+
                                     // المخطط والمنفذ
                                     Row(
                                       children: [
                                         Expanded(
                                           child: Container(
                                             decoration: BoxDecoration(
-                                              color: Colors.grey.withOpacity(0.05),
-                                              borderRadius: BorderRadius.circular(12),
+                                              color:
+                                                  Colors.grey.withOpacity(0.05),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
                                             padding: EdgeInsets.all(16),
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Row(
-                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   children: [
-                                                    Icon(Icons.assignment, size: 18, color: Colors.blue),
+                                                    Icon(Icons.assignment,
+                                                        size: 18,
+                                                        color: Colors.blue),
                                                     SizedBox(width: 8),
                                                     Flexible(
                                                       child: Text('المخطط',
-                                                          overflow: TextOverflow.ellipsis,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
                                                           style: TextStyle(
-                                                              fontWeight: FontWeight.bold,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
                                                               fontSize: 16,
-                                                              color: Colors.grey[800])),
+                                                              color: Colors
+                                                                  .grey[800])),
                                                     ),
                                                   ],
                                                 ),
@@ -920,14 +1108,19 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                                   padding: EdgeInsets.all(12),
                                                   decoration: BoxDecoration(
                                                     color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(8),
-                                                    border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    border: Border.all(
+                                                        color: Colors.blue
+                                                            .withOpacity(0.3)),
                                                   ),
                                                   child: Text(
                                                     'الفصل الأول - الدرس الثالث',
                                                     style: TextStyle(
                                                       fontSize: 14,
-                                                      fontWeight: FontWeight.w500,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                     ),
                                                   ),
                                                 ),
@@ -939,25 +1132,35 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                         Expanded(
                                           child: Container(
                                             decoration: BoxDecoration(
-                                              color: Colors.green.withOpacity(0.05),
-                                              borderRadius: BorderRadius.circular(12),
+                                              color: Colors.green
+                                                  .withOpacity(0.05),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
                                             padding: EdgeInsets.all(16),
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Row(
-                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   children: [
-                                                    Icon(Icons.check_circle, size: 18, color: Colors.green),
+                                                    Icon(Icons.check_circle,
+                                                        size: 18,
+                                                        color: Colors.green),
                                                     SizedBox(width: 8),
                                                     Flexible(
                                                       child: Text('المنفذ',
-                                                          overflow: TextOverflow.ellipsis,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
                                                           style: TextStyle(
-                                                              fontWeight: FontWeight.bold,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
                                                               fontSize: 16,
-                                                              color: Colors.grey[800])),
+                                                              color: Colors
+                                                                  .grey[800])),
                                                     ),
                                                   ],
                                                 ),
@@ -967,14 +1170,19 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                                   padding: EdgeInsets.all(12),
                                                   decoration: BoxDecoration(
                                                     color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(8),
-                                                    border: Border.all(color: Colors.green.withOpacity(0.3)),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    border: Border.all(
+                                                        color: Colors.green
+                                                            .withOpacity(0.3)),
                                                   ),
                                                   child: Text(
                                                     'الفصل الأول - الدرس الثاني',
                                                     style: TextStyle(
                                                       fontSize: 14,
-                                                      fontWeight: FontWeight.w500,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                     ),
                                                   ),
                                                 ),
@@ -985,13 +1193,15 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                       ],
                                     ),
                                     SizedBox(height: 16),
-                                    
+
                                     // شريط التقدم
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text('نسبة التقدم',
                                                 style: TextStyle(
@@ -1005,18 +1215,21 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                         ),
                                         SizedBox(height: 8),
                                         ClipRRect(
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
                                           child: LinearProgressIndicator(
                                             value: 0.75,
                                             backgroundColor: Colors.grey[200],
-                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.purple),
                                             minHeight: 8,
                                           ),
                                         ),
                                       ],
                                     ),
                                     SizedBox(height: 16),
-                                    
+
                                     // أزرار الإجراءات
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
@@ -1027,11 +1240,15 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                           label: Text('حذف'),
                                           style: OutlinedButton.styleFrom(
                                             foregroundColor: Colors.red,
-                                            side: BorderSide(color: Colors.red.withOpacity(0.5)),
+                                            side: BorderSide(
+                                                color: Colors.red
+                                                    .withOpacity(0.5)),
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
-                                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 10),
                                           ),
                                         ),
                                         SizedBox(width: 12),
@@ -1043,9 +1260,11 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                             backgroundColor: Colors.purple,
                                             foregroundColor: Colors.white,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
-                                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 10),
                                           ),
                                         ),
                                       ],
@@ -1072,10 +1291,13 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                         Container(
                                           padding: EdgeInsets.all(8),
                                           decoration: BoxDecoration(
-                                            color: Colors.amber.withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(8),
+                                            color:
+                                                Colors.amber.withOpacity(0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                           ),
-                                          child: Icon(Icons.lightbulb, color: Colors.amber),
+                                          child: Icon(Icons.lightbulb,
+                                              color: Colors.amber),
                                         ),
                                         SizedBox(width: 10),
                                         Text('أبرز الملاحظات والتوصيات',
@@ -1089,15 +1311,19 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                       decoration: BoxDecoration(
                                         color: Colors.grey.withOpacity(0.05),
                                         borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                                        border: Border.all(
+                                            color:
+                                                Colors.grey.withOpacity(0.2)),
                                       ),
                                       child: TextField(
                                         maxLines: 5,
                                         decoration: InputDecoration(
-                                          hintText: 'اكتب الملاحظات والتوصيات هنا...',
+                                          hintText:
+                                              'اكتب الملاحظات والتوصيات هنا...',
                                           border: InputBorder.none,
                                           contentPadding: EdgeInsets.all(16),
-                                          hintStyle: TextStyle(color: Colors.grey[400]),
+                                          hintStyle: TextStyle(
+                                              color: Colors.grey[400]),
                                         ),
                                       ),
                                     ),
@@ -1113,9 +1339,11 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                             backgroundColor: Colors.amber,
                                             foregroundColor: Colors.black87,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
-                                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 12),
                                           ),
                                         ),
                                       ],
@@ -1124,7 +1352,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                 ),
                               ),
                             ),
-                            
+
                             // الطلاب المتميزون
                             Container(
                               margin: EdgeInsets.only(top: 20, bottom: 10),
@@ -1132,19 +1360,24 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0, horizontal: 4.0),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Row(
                                           children: [
                                             Container(
                                               padding: EdgeInsets.all(8),
                                               decoration: BoxDecoration(
-                                                color: Colors.orange.withOpacity(0.1),
-                                                borderRadius: BorderRadius.circular(8),
+                                                color: Colors.orange
+                                                    .withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
                                               ),
-                                              child: Icon(Icons.star, color: Colors.orange),
+                                              child: Icon(Icons.star,
+                                                  color: Colors.orange),
                                             ),
                                             SizedBox(width: 10),
                                             Text('الطلاب المتميزون',
@@ -1176,10 +1409,12 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                           margin: EdgeInsets.only(right: 12),
                                           decoration: BoxDecoration(
                                             color: Colors.white,
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.grey.withOpacity(0.1),
+                                                color: Colors.grey
+                                                    .withOpacity(0.1),
                                                 spreadRadius: 1,
                                                 blurRadius: 4,
                                                 offset: Offset(0, 2),
@@ -1187,11 +1422,13 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                             ],
                                           ),
                                           child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               CircleAvatar(
                                                 radius: 30,
-                                                backgroundColor: Colors.orange.withOpacity(0.1),
+                                                backgroundColor: Colors.orange
+                                                    .withOpacity(0.1),
                                                 child: Text(
                                                   'ط${index + 1}',
                                                   style: TextStyle(
@@ -1203,8 +1440,13 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                               ),
                                               SizedBox(height: 8),
                                               Text('الطالب ${index + 1}',
-                                                  style: TextStyle(fontWeight: FontWeight.bold)),
-                                              Text('95%', style: TextStyle(color: Colors.green, fontSize: 12)),
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                              Text('95%',
+                                                  style: TextStyle(
+                                                      color: Colors.green,
+                                                      fontSize: 12)),
                                             ],
                                           ),
                                         );
