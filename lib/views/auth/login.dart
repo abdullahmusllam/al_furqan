@@ -202,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         children: [
                           Text(
-                            "مرحباً بك",
+                            "منصة الطالب",
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -316,41 +316,41 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                     ),
                     SizedBox(height: 15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "ليس لديك حساب؟",
-                          style: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontSize: 14,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SignupScreen(),
-                              ),
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: Color(0xFF017546),
-                            padding: EdgeInsets.symmetric(horizontal: 5),
-                            minimumSize: Size(50, 30),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: Text(
-                            "إنشاء حساب",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.center,
+                    //   children: [
+                    //     Text(
+                    //       "ليس لديك حساب؟",
+                    //       style: TextStyle(
+                    //         color: Colors.grey.shade700,
+                    //         fontSize: 14,
+                    //       ),
+                    //     ),
+                    //     TextButton(
+                    //       onPressed: () {
+                    //         Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //             builder: (context) => SignupScreen(),
+                    //           ),
+                    //         );
+                    //       },
+                    //       style: TextButton.styleFrom(
+                    //         foregroundColor: Color(0xFF017546),
+                    //         padding: EdgeInsets.symmetric(horizontal: 5),
+                    //         minimumSize: Size(50, 30),
+                    //         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    //       ),
+                    //       child: Text(
+                    //         "إنشاء حساب",
+                    //         style: TextStyle(
+                    //           fontWeight: FontWeight.bold,
+                    //           fontSize: 14,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                     const Spacer(flex: 1),
                   ],
                 ),
