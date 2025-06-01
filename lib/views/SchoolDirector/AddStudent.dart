@@ -80,9 +80,11 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     fatherModel.schoolID = widget.user!.schoolID;
     print("معرف المدرسة لولي الأمر: ${fatherModel.schoolID}");
     fatherModel.isActivate = 0; // not actinates
+    // fatherModel.isSync = 1;
 
     try {
       // أولاً: إضافة ولي الأمر
+      fatherModel.isSync = 0;
       fatherModel.user_id = await fathersController.addFather(fatherModel);
       print("تم إضافة ولي الأمر بمعرف: ${fatherModel.user_id}");
 
@@ -90,6 +92,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       studentModel.userID = fatherModel.user_id;
 
       // ثالثًا: إضافة الطالب إلى قاعدة البيانات المحلية
+
       int studentID = await studentController.addStudent(studentModel);
       print("تم إضافة الطالب محليًا بمعرف: $studentID");
 
@@ -98,7 +101,8 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
       // خامسًا: إضافة الطالب إلى Firebase
       // التحقق من وجود اتصال بالإنترنت باستخدام المكتبة الجديدة
-      bool hasConnection = await InternetConnectionChecker.createInstance().hasConnection;
+      bool hasConnection =
+          await InternetConnectionChecker.createInstance().hasConnection;
       print("حالة الاتصال بالإنترنت: $hasConnection");
 
       if (!hasConnection) {
@@ -128,10 +132,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                 studentModel, SchoolID);
             print("تم إضافة الطالب إلى Firebase");
             // أيضاً: إضافة ولي الأمر إلى Firebase
+            fatherModel.isSync = 1;
             await userController.addFatherToFirebase(fatherModel, SchoolID);
             print("تم إضافة ولي الأمر إلى Firebase");
-            
-
           } catch (firebaseError) {
             print("خطأ في إضافة الطالب إلى Firebase: $firebaseError");
             if (mounted) {

@@ -271,35 +271,35 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
             ),
 
             // Logout at the bottom
-            Divider(thickness: 1),
-            _buildMenuItem(
-              icon: Icons.logout,
-              title: 'تسجيل الخروج',
-              color: Colors.red.shade300,
-              onTap: () {
-                // Show confirmation dialog
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: Text('تسجيل الخروج'),
-                    content: Text('هل أنت متأكد من رغبتك في تسجيل الخروج؟'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text('إلغاء'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Implement logout logic here
-                          Navigator.pop(context);
-                        },
-                        child: Text('تسجيل الخروج'),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+            // Divider(thickness: 1),
+            // _buildMenuItem(
+            //   icon: Icons.logout,
+            //   title: 'تسجيل الخروج',
+            //   color: Colors.red.shade300,
+            //   onTap: () {
+            //     // Show confirmation dialog
+            //     showDialog(
+            //       context: context,
+            //       builder: (context) => AlertDialog(
+            //         title: Text('تسجيل الخروج'),
+            //         content: Text('هل أنت متأكد من رغبتك في تسجيل الخروج؟'),
+            //         actions: [
+            //           TextButton(
+            //             onPressed: () => Navigator.pop(context),
+            //             child: Text('إلغاء'),
+            //           ),
+            //           TextButton(
+            //             onPressed: () {
+            //               // Implement logout logic here
+            //               Navigator.pop(context);
+            //             },
+            //             child: Text('تسجيل الخروج'),
+            //           ),
+            //         ],
+            //       ),
+            //     );
+            //   },
+            // ),
             SizedBox(height: 10),
           ],
         ),

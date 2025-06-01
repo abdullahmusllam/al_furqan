@@ -38,12 +38,13 @@ class _RequestsListState extends State<RequestsList> {
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'طلبات التفعيل',
-          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style:
+              const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         backgroundColor: primaryColor,
         elevation: 2,
@@ -62,7 +63,8 @@ class _RequestsListState extends State<RequestsList> {
                   content: const Text('تم تحديث البيانات'),
                   duration: const Duration(seconds: 1),
                   behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
               );
             },
@@ -85,7 +87,7 @@ class _RequestsListState extends State<RequestsList> {
                   String? roleName;
                   Color roleColor;
                   IconData roleIcon;
-                  
+
                   switch (userController.requests[index].roleID) {
                     case 0:
                       roleName = 'مشرف';
@@ -99,6 +101,11 @@ class _RequestsListState extends State<RequestsList> {
                       break;
                     case 2:
                       roleName = 'معلم';
+                      roleColor = Colors.green;
+                      roleIcon = Icons.person;
+                      break;
+                    case 3:
+                      roleName = 'ولي أمر';
                       roleColor = Colors.green;
                       roleIcon = Icons.person;
                       break;
@@ -134,12 +141,14 @@ class _RequestsListState extends State<RequestsList> {
                               children: [
                                 CircleAvatar(
                                   backgroundColor: roleColor.withOpacity(0.2),
-                                  child: Icon(roleIcon, color: roleColor, size: 20),
+                                  child: Icon(roleIcon,
+                                      color: roleColor, size: 20),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         '${userController.requests[index].first_name!} ${userController.requests[index].middle_name!} ${userController.requests[index].last_name!}',
@@ -151,7 +160,8 @@ class _RequestsListState extends State<RequestsList> {
                                       const SizedBox(height: 4),
                                       Row(
                                         children: [
-                                          Icon(Icons.phone, size: 14, color: Colors.grey),
+                                          Icon(Icons.phone,
+                                              size: 14, color: Colors.grey),
                                           const SizedBox(width: 4),
                                           Text(
                                             '${userController.requests[index].phone_number}',
@@ -174,7 +184,8 @@ class _RequestsListState extends State<RequestsList> {
                                     PopupMenuItem(
                                       child: Row(
                                         children: [
-                                          Icon(Icons.check_circle, color: Colors.green),
+                                          Icon(Icons.check_circle,
+                                              color: Colors.green),
                                           const SizedBox(width: 8),
                                           Text('قبول الطلب'),
                                         ],
@@ -194,7 +205,8 @@ class _RequestsListState extends State<RequestsList> {
                                       ),
                                       onTap: () => Future.delayed(
                                         Duration.zero,
-                                        () => showDialogDetailsRequest(context, index),
+                                        () => showDialogDetailsRequest(
+                                            context, index),
                                       ),
                                     ),
                                     PopupMenuItem(
@@ -207,7 +219,8 @@ class _RequestsListState extends State<RequestsList> {
                                       ),
                                       onTap: () => Future.delayed(
                                         Duration.zero,
-                                        () => showDialogDeleteRequest(context, index),
+                                        () => showDialogDeleteRequest(
+                                            context, index),
                                       ),
                                     ),
                                   ],
@@ -243,13 +256,15 @@ class _RequestsListState extends State<RequestsList> {
                                   label: 'قبول',
                                   icon: Icons.check_circle,
                                   color: Colors.green,
-                                  onPressed: () => acceptRequest(index, context),
+                                  onPressed: () =>
+                                      acceptRequest(index, context),
                                 ),
                                 _buildActionButton(
                                   label: 'حذف',
                                   icon: Icons.delete,
                                   color: Colors.red,
-                                  onPressed: () => showDialogDeleteRequest(context, index),
+                                  onPressed: () =>
+                                      showDialogDeleteRequest(context, index),
                                 ),
                               ],
                             ),
@@ -263,7 +278,7 @@ class _RequestsListState extends State<RequestsList> {
             ),
     );
   }
-  
+
   Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Column(
@@ -306,7 +321,7 @@ class _RequestsListState extends State<RequestsList> {
       ),
     );
   }
-  
+
   Widget _buildInfoChip({
     required String label,
     required IconData icon,
@@ -332,7 +347,7 @@ class _RequestsListState extends State<RequestsList> {
       ),
     );
   }
-  
+
   Widget _buildActionButton({
     required String label,
     required IconData icon,
@@ -377,7 +392,8 @@ class _RequestsListState extends State<RequestsList> {
             children: [
               const Icon(Icons.delete_forever, color: Colors.red),
               const SizedBox(width: 8),
-              Text('تأكيد الحذف', style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text('تأكيد الحذف',
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),
           content: Container(
@@ -413,7 +429,8 @@ class _RequestsListState extends State<RequestsList> {
               icon: const Icon(Icons.delete_forever, color: Colors.red),
               label: const Text('حذف', style: TextStyle(color: Colors.red)),
               onPressed: () {
-                userController.deleteRequest(userController.requests[index].user_id!);
+                userController
+                    .deleteRequest(userController.requests[index].user_id!);
                 _refreshData();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -421,7 +438,8 @@ class _RequestsListState extends State<RequestsList> {
                     duration: const Duration(seconds: 1),
                     backgroundColor: Colors.red,
                     behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                 );
                 Navigator.of(context).pop();
@@ -439,7 +457,7 @@ class _RequestsListState extends State<RequestsList> {
     final school = schoolController.schools.firstWhere(
         (school) => school.schoolID == request.schoolID,
         orElse: () => SchoolModel(school_name: 'المكتب'));
-    
+
     // Determine role name based on roleID
     String roleName;
     switch (request.roleID) {
@@ -452,10 +470,12 @@ class _RequestsListState extends State<RequestsList> {
       case 2:
         roleName = 'معلم';
         break;
+      case 3:
+        roleName = 'ولي أمر';
       default:
         roleName = 'غير محدد';
     }
-    
+
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -464,7 +484,8 @@ class _RequestsListState extends State<RequestsList> {
             children: [
               Icon(Icons.info, color: Theme.of(context).primaryColor),
               const SizedBox(width: 8),
-              Text('تفاصيل الطلب', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('تفاصيل الطلب',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),
           content: Container(
@@ -473,13 +494,20 @@ class _RequestsListState extends State<RequestsList> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildDetailItem(context, 'الاسم الكامل', '${request.first_name} ${request.middle_name} ${request.last_name}', Icons.person),
+                _buildDetailItem(
+                    context,
+                    'الاسم الكامل',
+                    '${request.first_name} ${request.middle_name} ${request.last_name}',
+                    Icons.person),
                 Divider(),
-                _buildDetailItem(context, 'رقم الجوال', '${request.phone_number}', Icons.phone),
+                _buildDetailItem(context, 'رقم الجوال',
+                    '${request.phone_number}', Icons.phone),
                 Divider(),
-                _buildDetailItem(context, 'البريد الإلكتروني', '${request.email}', Icons.email),
+                _buildDetailItem(context, 'البريد الإلكتروني',
+                    '${request.email}', Icons.email),
                 Divider(),
-                _buildDetailItem(context, 'المدرسة', '${school.school_name}', Icons.location_on),
+                _buildDetailItem(context, 'المدرسة', '${school.school_name}',
+                    Icons.location_on),
                 Divider(),
                 _buildDetailItem(context, 'الدور', roleName, Icons.badge),
               ],
@@ -517,9 +545,10 @@ class _RequestsListState extends State<RequestsList> {
       },
     );
   }
-  
+
   // Helper method to build detail items in the dialog
-  Widget _buildDetailItem(BuildContext context, String label, String value, IconData icon) {
+  Widget _buildDetailItem(
+      BuildContext context, String label, String value, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(

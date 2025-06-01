@@ -82,19 +82,26 @@ class UserController {
 
   // Method to add a new user
   Future<void> addUser(UserModel userModel, int type) async {
+    print("-------------> here add user");
     final db = await sqlDb.database;
     if (type == 1) {
       userModel.user_id = await someController.newId("Users", "user_id");
       if (await isConnected()) {
         userModel.isSync = 1;
         await firebasehelper.addUser(userModel);
-        await db.insert('Users', userModel.toMap());
+        int response = await db.insert('Users', userModel.toMap());
+        print(
+            "------------>Add & Sync is : ${response == 1 && userModel.isSync == 1 ? 'Done Added & Sync' : 'Failed Added & Sync'}");
       } else {
         userModel.isSync = 0;
-        await db.insert('Users', userModel.toMap());
+        int response = await db.insert('Users', userModel.toMap());
+        print(
+            "------------> add to local is ${response == 1 ? 'Done Added To Local' : 'Failed Added To local'}\n"
+            "------------> Sync is ${userModel.isSync == 0 ? 'Failed Sync' : 'Done'}");
       }
     } else {
-      await db.insert('Users', userModel.toMap());
+      int response = await db.insert('Users', userModel.toMap());
+      print("------------$response---------------");
     }
   }
 
@@ -113,7 +120,7 @@ class UserController {
       if (await isConnected()) {
         await firebasehelper.activateUser(userId);
         await _sqlDb.updateData('''
-    UPDATE USERS SET isActivate = 1 WHERE user_id = $userId
+    UPDATE USERS SET isActivate = 1, isSync = 1 WHERE user_id = $userId
     ''');
         await getData();
       }
@@ -121,7 +128,7 @@ class UserController {
     UPDATE USERS SET isActivate = 1, isSync = 0 WHERE user_id = $userId
     ''');
     } catch (e) {
-      print('========$e=======');
+      print('========> Error in users controller activate user : $e');
     }
   }
 
@@ -183,8 +190,8 @@ class UserController {
       print("responseFirebase = $responseFirebase");
 
       for (var user in responseFirebase) {
-        bool exists = await _sqlDb.checkIfitemExists(
-            "Users", user.user_id!, "user_id");
+        bool exists =
+            await _sqlDb.checkIfitemExists("Users", user.user_id!, "user_id");
         if (exists) {
           await updateUser(user, 0);
         } else {
