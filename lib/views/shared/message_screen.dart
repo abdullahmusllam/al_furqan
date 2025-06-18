@@ -32,7 +32,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       loadReceivedMessages();
     }
-    
+
     // Mark messages as read when the chat is opened
     if (widget.currentUser.user_id != null) {
       markMessagesAsRead();
@@ -56,7 +56,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   msg.receiverId == widget.currentUser.user_id))
           .toList();
     });
-    
+
     // Mark messages as read after loading
     markMessagesAsRead();
   }
@@ -74,7 +74,7 @@ class _ChatScreenState extends State<ChatScreen> {
           .where((msg) => msg.receiverId == widget.currentUser.user_id)
           .toList();
     });
-    
+
     // Mark messages as read after loading
     markMessagesAsRead();
   }
@@ -145,7 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
       print('خطأ: معرف المستخدم الحالي غير موجود');
       return;
     }
-    
+
     try {
       // تعليم جميع الرسائل الخاصة بالمستخدم الحالي كمقروءة
       await messageController.markMessagesAsRead(widget.currentUser.user_id!);
@@ -154,7 +154,7 @@ class _ChatScreenState extends State<ChatScreen> {
       print('خطأ في تعليم الرسائل كمقروءة: $e');
     }
   }
-  
+
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -167,7 +167,7 @@ class _ChatScreenState extends State<ChatScreen> {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
       final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
-      
+
       if (messageDate == today) {
         // إذا كانت الرسالة اليوم، أظهر الوقت فقط
         return DateFormat('HH:mm').format(dateTime);
@@ -186,19 +186,48 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     bool showReceivedMessages = widget.selectedUser == null;
-    List<Message> displayMessages = showReceivedMessages ? receivedMessages : messages;
-    
+    List<Message> displayMessages =
+        showReceivedMessages ? receivedMessages : messages;
+
     // ترتيب الرسائل حسب الوقت (الأحدث أولاً)
-    displayMessages.sort((a, b) => 
-      DateTime.parse(b.timestamp).compareTo(DateTime.parse(a.timestamp)));
+    displayMessages.sort((a, b) =>
+        DateTime.parse(b.timestamp).compareTo(DateTime.parse(a.timestamp)));
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          showReceivedMessages
-              ? 'الرسائل المستلمة'
-              : 'محادثة مع ${widget.selectedUser!.first_name}',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: ListTile(
+          title: Text(
+            showReceivedMessages
+                ? 'الرسائل المستلمة'
+                : '${widget.selectedUser!.first_name} ${widget.selectedUser!.middle_name} ${widget.selectedUser!.last_name}',
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
+          ),
+          subtitle: Container(
+            width: 100,
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: widget.selectedUser!.roleID == 2
+                  ? Colors.blue.shade50
+                  : Colors.green.shade50,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Text(
+                widget.selectedUser!.roleID == 1
+                    ? 'مدير'
+                    : widget.selectedUser!.roleID == 2
+                        ? 'معلم'
+                        : 'ولي أمر',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: widget.selectedUser!.roleID == 2
+                      ? Colors.blue.shade700
+                      : Colors.green.shade700,
+                ),
+              ),
+            ),
+          ),
         ),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
@@ -209,14 +238,14 @@ class _ChatScreenState extends State<ChatScreen> {
             onPressed: () {
               // يمكن إضافة وظيفة البحث في المستقبل
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('سيتم إضافة البحث قريباً'))
-              );
+                  SnackBar(content: Text('سيتم إضافة البحث قريباً')));
             },
             tooltip: 'بحث في الرسائل',
           ),
           IconButton(
             icon: Icon(Icons.refresh),
-            onPressed: showReceivedMessages ? loadReceivedMessages : loadMessages,
+            onPressed:
+                showReceivedMessages ? loadReceivedMessages : loadMessages,
             tooltip: 'تحديث الرسائل',
           ),
         ],
@@ -224,70 +253,73 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           // معلومات المستخدم في أعلى المحادثة
-          if (!showReceivedMessages)
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              color: Theme.of(context).primaryColor.withOpacity(0.1),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: widget.selectedUser!.roleID == 2
-                        ? Colors.blue.shade100
-                        : Colors.green.shade100,
-                    child: Text(
-                      widget.selectedUser!.first_name?[0] ?? '?',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: widget.selectedUser!.roleID == 2
-                            ? Colors.blue.shade700
-                            : Colors.green.shade700,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.selectedUser!.first_name ?? 'غير معروف',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 4),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: widget.selectedUser!.roleID == 2
-                                ? Colors.blue.shade50
-                                : Colors.green.shade50,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            widget.selectedUser!.roleID == 1
-                                ? 'مدير'
-                                : widget.selectedUser!.roleID == 2
-                                    ? 'معلم'
-                                    : 'ولي أمر',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: widget.selectedUser!.roleID == 2
-                                  ? Colors.blue.shade700
-                                  : Colors.green.shade700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          // if (!showReceivedMessages)
+          // Container(
+          //   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          //   color: Theme.of(context).primaryColor.withOpacity(0.1),
+          //   child: Row(
+          //     children: [
+          //       CircleAvatar(
+          //         radius: 24,
+          //         backgroundColor: widget.selectedUser!.roleID == 2
+          //             ? Colors.blue.shade100
+          //             : Colors.green.shade100,
+          //         child: Text(
+          //           widget.selectedUser!.first_name?[0] ?? '?',
+          //           style: TextStyle(
+          //             fontSize: 20,
+          //             fontWeight: FontWeight.bold,
+          //             color: widget.selectedUser!.roleID == 2
+          //                 ? Colors.blue.shade700
+          //                 : Colors.green.shade700,
+          //           ),
+          //         ),
+          //       ),
+          //       SizedBox(width: 16),
+          //       Expanded(
+          //         child: Column(
+          //           crossAxisAlignment: CrossAxisAlignment.start,
+          //           children: [
+          //             Text(
+          //               widget.selectedUser!.first_name ?? 'غير معروف',
+          //               style: TextStyle(
+          //                   fontSize: 18, fontWeight: FontWeight.bold),
+          //             ),
+          //             SizedBox(height: 4),
+          //             Container(
+          //               padding:
+          //                   EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          //               decoration: BoxDecoration(
+          //                 color: widget.selectedUser!.roleID == 2
+          //                     ? Colors.blue.shade50
+          //                     : Colors.green.shade50,
+          //                 borderRadius: BorderRadius.circular(12),
+          //               ),
+          //               child: Text(
+          //                 widget.selectedUser!.roleID == 1
+          //                     ? 'مدير'
+          //                     : widget.selectedUser!.roleID == 2
+          //                         ? 'معلم'
+          //                         : 'ولي أمر',
+          //                 style: TextStyle(
+          //                   fontSize: 12,
+          //                   color: widget.selectedUser!.roleID == 2
+          //                       ? Colors.blue.shade700
+          //                       : Colors.green.shade700,
+          //                 ),
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
           // قائمة الرسائل
           Expanded(
             child: RefreshIndicator(
-              onRefresh: showReceivedMessages ? loadReceivedMessages : loadMessages,
+              onRefresh:
+                  showReceivedMessages ? loadReceivedMessages : loadMessages,
               child: displayMessages.isEmpty
                   ? Center(
                       child: Column(
@@ -301,25 +333,30 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ? 'لا توجد رسائل مستلمة'
                                 : 'لا توجد رسائل، ابدأ المحادثة!',
                             style: TextStyle(
-                                fontSize: 18, color: Theme.of(context).textTheme.bodyLarge?.color),
+                                fontSize: 18,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color),
                           ),
                         ],
                       ),
                     )
                   : ListView.builder(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       reverse: false, // Keep messages in chronological order
                       itemCount: displayMessages.length,
                       itemBuilder: (context, index) {
                         final message = displayMessages[index];
                         final isSender =
                             message.senderId == widget.currentUser.user_id;
-                        
+
                         return Padding(
                           padding: EdgeInsets.symmetric(vertical: 4),
                           child: Row(
-                            mainAxisAlignment: isSender 
-                                ? MainAxisAlignment.end 
+                            mainAxisAlignment: isSender
+                                ? MainAxisAlignment.end
                                 : MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -333,8 +370,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                           : Colors.green.shade100,
                                   child: Text(
                                     showReceivedMessages
-                                        ? (message.senderType == '2' ? 'م' : 'و')
-                                        : widget.selectedUser!.first_name?[0] ?? '?',
+                                        ? (message.senderType == '2'
+                                            ? 'م'
+                                            : 'و')
+                                        : widget.selectedUser!.first_name?[0] ??
+                                            '?',
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
@@ -349,7 +389,8 @@ class _ChatScreenState extends State<ChatScreen> {
                               SizedBox(width: 8),
                               Flexible(
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 10),
                                   decoration: BoxDecoration(
                                     color: isSender
                                         ? Colors.blue.shade100
@@ -364,7 +405,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                     ],
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         message.content,
@@ -374,7 +416,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       Text(
                                         _formatTimestamp(message.timestamp),
                                         style: TextStyle(
-                                          fontSize: 11, 
+                                          fontSize: 11,
                                           color: Theme.of(context).primaryColor,
                                         ),
                                       ),
@@ -385,8 +427,10 @@ class _ChatScreenState extends State<ChatScreen> {
                               SizedBox(width: 8),
                               if (isSender)
                                 IconButton(
-                                  icon: Icon(Icons.delete_outline, size: 18, color: Colors.red.shade300),
-                                  constraints: BoxConstraints(maxWidth: 24, maxHeight: 24),
+                                  icon: Icon(Icons.delete_outline,
+                                      size: 18, color: Colors.red.shade300),
+                                  constraints: BoxConstraints(
+                                      maxWidth: 24, maxHeight: 24),
                                   padding: EdgeInsets.zero,
                                   onPressed: () => deleteMessage(message.id!),
                                 ),
@@ -410,15 +454,20 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ],
               ),
-              padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: MediaQuery.of(context).viewInsets.bottom > 0 ? 8 : 8 + MediaQuery.of(context).padding.bottom),
+              padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 8,
+                  bottom: MediaQuery.of(context).viewInsets.bottom > 0
+                      ? 8
+                      : 8 + MediaQuery.of(context).padding.bottom),
               child: Row(
                 children: [
                   IconButton(
                     icon: Icon(Icons.attach_file, color: Colors.grey.shade600),
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('سيتم إضافة إرفاق الملفات قريباً'))
-                      );
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text('سيتم إضافة إرفاق الملفات قريباً')));
                     },
                     tooltip: 'إرفاق ملف',
                   ),
@@ -433,7 +482,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                         filled: true,
                         fillColor: Colors.grey.shade100,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       ),
                       maxLines: null,
                       textInputAction: TextInputAction.newline,
