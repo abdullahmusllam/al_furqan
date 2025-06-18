@@ -457,7 +457,10 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                     content: Text('هل أنت متأكد من رغبتك في تسجيل الخروج؟'),
                     actions: [
                       TextButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () => Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginScreen())),
                         child: Text('إلغاء'),
                       ),
                       ElevatedButton(
