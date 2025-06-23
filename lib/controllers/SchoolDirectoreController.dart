@@ -13,7 +13,7 @@ class SchoolDirectorController {
 
     for (var i = 0; i < Data.length; i++) {
       userData.add(UserModel(
-        user_id: Data[i]['user_id'] as int?, // تأكد من أن user_id هو int
+        user_id: Data[i]['user_id'] as String?, // تأكد من أن user_id هو int
         first_name: Data[i]['first_name'],
         middle_name: Data[i]['middle_name'],
         grandfather_name: Data[i]['grandfather_name'],
@@ -38,7 +38,8 @@ class SchoolDirectorController {
   }
 
   Future<String> getSchoolName(int schoolId) async {
-    List<Map> Data = await _sqlDb.readData("SELECT * FROM 'SCHOOLS' WHERE SchoolID = '$schoolId'");
+    List<Map> Data = await _sqlDb
+        .readData("SELECT * FROM 'SCHOOLS' WHERE SchoolID = '$schoolId'");
     String schoolName = "";
     for (var i = 0; i < Data.length; i++) {
       schoolName = Data[i]['school_name'];
@@ -46,7 +47,6 @@ class SchoolDirectorController {
     print("school name: $schoolName");
     return schoolName;
   }
-  
 }
 
 SchoolDirectorController schoolDirectorController = SchoolDirectorController();

@@ -8,7 +8,7 @@ import '../SchoolDirector/SchoolDirectorHome.dart';
 import '../Teacher/mainTeacher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-int id = 0;
+String id = "";
 
 class LoginScreen1 extends StatefulWidget {
   const LoginScreen1({super.key});
@@ -174,8 +174,9 @@ class _LoginScreenState extends State<LoginScreen1> {
             MaterialPageRoute(builder: (context) => TeacherDashboard()));
         break;
       default:
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
-        // _showErrorDialog(context, "خطأ", "حسابك غير مفعل، تواصل مع الإدارة.");
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => LoginScreen()));
+      // _showErrorDialog(context, "خطأ", "حسابك غير مفعل، تواصل مع الإدارة.");
     }
   }
 
@@ -195,6 +196,7 @@ class _LoginScreenState extends State<LoginScreen1> {
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return const Scaffold(

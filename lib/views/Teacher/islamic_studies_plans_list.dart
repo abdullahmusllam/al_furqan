@@ -8,20 +8,23 @@ import 'EditHalagaPlanScreen.dart';
 
 class IslamicStudiesPlansListScreen extends StatefulWidget {
   final HalagaModel halaga;
-  
-  const IslamicStudiesPlansListScreen({Key? key, required this.halaga}) : super(key: key);
+
+  const IslamicStudiesPlansListScreen({Key? key, required this.halaga})
+      : super(key: key);
 
   @override
-  _IslamicStudiesPlansListScreenState createState() => _IslamicStudiesPlansListScreenState();
+  _IslamicStudiesPlansListScreenState createState() =>
+      _IslamicStudiesPlansListScreenState();
 }
 
-class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListScreen> {
+class _IslamicStudiesPlansListScreenState
+    extends State<IslamicStudiesPlansListScreen> {
   bool _isLoading = true;
   List<IslamicStudiesModel> _islamicPlans = [];
   List<StudentModel> _students = [];
   String? _filterSubject;
   String? _filterMonth;
-  
+
   // قائمة بالمواد الشرعية للتصفية
   final List<String> _subjects = [
     'القرآن الكريم',
@@ -33,11 +36,21 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
     'التجويد',
     'العقيدة',
   ];
-  
+
   // قائمة بالأشهر للتصفية
   final List<String> _months = [
-    'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-    'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    'يناير',
+    'فبراير',
+    'مارس',
+    'أبريل',
+    'مايو',
+    'يونيو',
+    'يوليو',
+    'أغسطس',
+    'سبتمبر',
+    'أكتوبر',
+    'نوفمبر',
+    'ديسمبر'
   ];
 
   @override
@@ -51,7 +64,7 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
     try {
       await planController.getPlans(widget.halaga.halagaID!);
       await studentController.getStudents(widget.halaga.halagaID!);
-      
+
       setState(() {
         _islamicPlans = planController.islamicStudyPlans;
         _students = studentController.students;
@@ -100,8 +113,10 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
 
   List<IslamicStudiesModel> get _filteredPlans {
     return _islamicPlans.where((plan) {
-      bool matchesSubject = _filterSubject == null || plan.subject == _filterSubject;
-      bool matchesMonth = _filterMonth == null || plan.planMonth == _filterMonth;
+      bool matchesSubject =
+          _filterSubject == null || plan.subject == _filterSubject;
+      bool matchesMonth =
+          _filterMonth == null || plan.planMonth == _filterMonth;
       return matchesSubject && matchesMonth;
     }).toList();
   }
@@ -217,7 +232,8 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
                     label: const Text('مسح التصفية'),
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.red,
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                     ),
                   ),
                 ],
@@ -280,7 +296,7 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
     // حساب معدل التنفيذ بناءً على محتوى المخطط والمنفذ
     final double executionRate = _calculateExecutionRate(plan);
     final String executionRateText = (executionRate * 100).toStringAsFixed(0);
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
@@ -322,7 +338,7 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
               ],
             ),
           ),
-          
+
           // قسم الشهر
           Container(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -346,7 +362,7 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
               ],
             ),
           ),
-          
+
           // محتوى البطاقة
           Padding(
             padding: const EdgeInsets.all(16),
@@ -358,15 +374,16 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
                 const SizedBox(height: 8),
                 _buildInfoRow('المادة', plan.subject ?? 'غير محدد'),
                 _buildInfoRow('المحتوى', plan.plannedContent ?? 'غير محدد'),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // قسم المنفذ
                 _buildSectionHeader('المنفذ', Colors.orange),
                 const SizedBox(height: 8),
-                _buildInfoRow('المحتوى المنفذ', plan.executedContent ?? 'غير محدد'),
+                _buildInfoRow(
+                    'المحتوى المنفذ', plan.executedContent ?? 'غير محدد'),
                 _buildInfoRow('معدل التنفيذ', '$executionRateText%'),
-                
+
                 // مؤشر التقدم
                 const SizedBox(height: 8),
                 LinearProgressIndicator(
@@ -381,7 +398,7 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
               ],
             ),
           ),
-          
+
           // أزرار الإجراءات
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
@@ -425,8 +442,12 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(title == 'المخطط' ? Icons.check_circle : Icons.assignment_turned_in, 
-                  color: color, size: 16),
+              Icon(
+                  title == 'المخطط'
+                      ? Icons.check_circle
+                      : Icons.assignment_turned_in,
+                  color: color,
+                  size: 16),
               const SizedBox(width: 4),
               Text(
                 title,
@@ -508,26 +529,26 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
     if (value < 0.7) return Colors.orange;
     return Colors.green;
   }
-  
+
   // حساب معدل التنفيذ بناءً على محتوى المخطط والمنفذ
   double _calculateExecutionRate(IslamicStudiesModel plan) {
     // إذا لم يكن هناك محتوى مخطط أو منفذ، فالمعدل صفر
     if (plan.plannedContent == null || plan.plannedContent!.isEmpty) {
       return 0.0;
     }
-    
+
     if (plan.executedContent == null || plan.executedContent!.isEmpty) {
       return 0.0;
     }
-    
+
     // حساب بسيط للمعدل بناءً على طول المحتوى المنفذ مقارنة بالمخطط
     // يمكن تحسين هذه الطريقة بناءً على متطلبات العمل الفعلية
     double plannedLength = plan.plannedContent!.length.toDouble();
     double executedLength = plan.executedContent!.length.toDouble();
-    
+
     // لا نريد أن يتجاوز المعدل 100%
     double rate = (executedLength / plannedLength).clamp(0.0, 1.0);
-    
+
     return rate;
   }
 
@@ -560,8 +581,10 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
               icon: const Icon(Icons.add),
               label: const Text('إضافة خطة جديدة'),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
             ),
         ],
@@ -572,9 +595,11 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
   void _navigateToAddPlan(BuildContext context) {
     // التنقل إلى شاشة إضافة خطة جديدة
     // نستخدم طالب افتراضي لأن الخطة للحلقة بأكملها
-    StudentModel dummyStudent = StudentModel(firstName: "الحلقة", lastName: "بأكملها", studentID: -1);
-    
-    Navigator.of(context).push(
+    StudentModel dummyStudent = StudentModel(
+        firstName: "الحلقة", lastName: "بأكملها", studentID: -1 as String);
+
+    Navigator.of(context)
+        .push(
       MaterialPageRoute(
         builder: (context) => EditHalagaPlanScreen(
           halaga: widget.halaga,
@@ -583,7 +608,8 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
           plan: null,
         ),
       ),
-    ).then((result) {
+    )
+        .then((result) {
       if (result == true) {
         _loadData(); // تحديث القوائم بعد الإضافة
       }
@@ -593,9 +619,11 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
   void _editPlan(IslamicStudiesModel plan) {
     // الانتقال إلى شاشة تعديل الخطة
     // نستخدم طالب افتراضي لأن الخطة للحلقة بأكملها
-    StudentModel dummyStudent = StudentModel(firstName: "الحلقة", lastName: "بأكملها", studentID: -1);
-    
-    Navigator.of(context).push(
+    StudentModel dummyStudent = StudentModel(
+        firstName: "الحلقة", lastName: "بأكملها", studentID: -1 as String);
+
+    Navigator.of(context)
+        .push(
       MaterialPageRoute(
         builder: (context) => EditHalagaPlanScreen(
           halaga: widget.halaga,
@@ -604,7 +632,8 @@ class _IslamicStudiesPlansListScreenState extends State<IslamicStudiesPlansListS
           student: dummyStudent,
         ),
       ),
-    ).then((result) {
+    )
+        .then((result) {
       if (result == true) {
         _loadData(); // تحديث القوائم بعد التعديل
       }

@@ -12,7 +12,7 @@ import 'package:al_furqan/models/islamic_studies_model.dart';
 
 class MonthlyReportPDF {
   final List<StudentModel> students;
-  final Map<int?, Map<String, dynamic>> reportData;
+  final Map<String?, Map<String, dynamic>> reportData;
   final EltlawahPlanModel? eltlawahPlan;
   final IslamicStudiesModel? islamicStudyPlan;
   final DateTime selectedMonth;
@@ -358,7 +358,7 @@ class MonthlyReportPDF {
 
 class MonthlyReportPDFScreen extends StatelessWidget {
   final List<StudentModel> students;
-  final Map<int?, Map<String, dynamic>> reportData;
+  final Map<String?, Map<String, dynamic>> reportData;
   final EltlawahPlanModel? eltlawahPlan;
   final IslamicStudiesModel? islamicStudyPlan;
   final DateTime selectedMonth;

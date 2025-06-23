@@ -13,9 +13,8 @@ import '../../helper/sqldb.dart';
 import '../../services/firebase_service.dart';
 import '../../services/message_sevice.dart';
 import '../../services/sync.dart';
-  
-class MainScreenT extends StatefulWidget {
 
+class MainScreenT extends StatefulWidget {
   const MainScreenT({Key? key}) : super(key: key);
 
   @override
@@ -43,13 +42,13 @@ class _MainScreenState extends State<MainScreenT> {
   }
 
   Future<void> load() async {
-    if(await isConnected()){
-    await sync.syncUsers();
-    await sync.syncElhalagat();
-    await sync.syncStudents();
-    await loadMessages();
-    await loadHalagat();
-    await loadPlans();
+    if (await isConnected()) {
+      await sync.syncUsers();
+      await sync.syncElhalagat();
+      await sync.syncStudents();
+      await loadMessages();
+      await loadHalagat();
+      await loadPlans();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -63,7 +62,7 @@ class _MainScreenState extends State<MainScreenT> {
   Future<void> loadMessages() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      int? Id = prefs.getInt('user_id');
+      String? Id = prefs.getString('user_id');
       print('===== ($Id) =====');
       // تحميل الرسائل من فايربيس
       await messageService.loadMessagesFromFirestore(Id!);
@@ -79,7 +78,6 @@ class _MainScreenState extends State<MainScreenT> {
     setState(() {
       isLoading = false;
     });
-
   }
 
   Future<void> loadHalagat() async {
@@ -101,7 +99,6 @@ class _MainScreenState extends State<MainScreenT> {
     setState(() {
       isLoading = false;
     });
-
   }
 
   Future<void> loadPlans() async {
@@ -123,14 +120,15 @@ class _MainScreenState extends State<MainScreenT> {
     setState(() {
       isLoading = false;
     });
-
   }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('جاري التحميل...', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Text('جاري التحميل...',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           backgroundColor: Theme.of(context).primaryColor,
           foregroundColor: Colors.white,
           elevation: 0,

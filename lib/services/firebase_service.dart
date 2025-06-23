@@ -16,10 +16,10 @@ class FirebaseHelper {
   //  UserColl = _firestore.collection('Users');
 
   // ======================= Start Student ==============
-  Future<void> addStudent(StudentModel StudentData, int schoolID) async {
+  Future<void> addStudent(StudentModel StudentData) async {
     final StudentRef = await _firestore.collection('Students');
 
-    StudentData.schoolId = schoolID;
+    // StudentData.schoolId = schoolID;
     if (StudentData != null) {
       try {
         StudentData.isSync = 1;
@@ -68,10 +68,9 @@ class FirebaseHelper {
     });
   }
 
-  assignStudentToHalqa(int studentId, int halqaID) async {
+  assignStudentToHalqa(String studentId, int halqaID) async {
     try {
-      final docRef =
-          _firestore.collection('Students').doc(studentId.toString());
+      final docRef = _firestore.collection('Students').doc(studentId);
       await docRef.update({'ElhalagatID': halqaID});
     } catch (e) {
       print('error=== $e');
@@ -220,7 +219,6 @@ class FirebaseHelper {
 
   newTeacher(int halagaId, int teacherId) async {
     try {
-
       final docRef = _firestore.collection('Users');
       await docRef.doc(teacherId.toString()).update({'ElhalagatID': halagaId});
     } catch (e) {
@@ -264,9 +262,9 @@ class FirebaseHelper {
     }
   }
 
-  activateUser(int id) async {
+  activateUser(String id) async {
     try {
-      final docRef = _firestore.collection('Users').doc(id.toString());
+      final docRef = _firestore.collection('Users').doc(id);
       await docRef.update({'isSync': 1});
       await docRef.update({'isActivate': 1});
       print('تم تفعيل المستخدم $id بنجاح');
@@ -287,8 +285,7 @@ class FirebaseHelper {
 
   addRequest(UserModel user) async {
     try {
-      final docRef =
-          _firestore.collection('Users').doc(user.user_id.toString());
+      final docRef = _firestore.collection('Users').doc(user.user_id);
       docRef.set(user.toMap());
       print("تمت اضافة الطلب ${user.user_id} بنجاح");
     } catch (e) {
@@ -472,7 +469,7 @@ class FirebaseHelper {
 
   //===================== Update Attendance =================
   Future<void> updateAttendance(
-      int studentID, bool isPresent, String absenceReasons) async {
+      String studentID, bool isPresent, String absenceReasons) async {
     try {
       // الحصول على بيانات الطالب الحالية من Firestore
       var studentDoc = await _firestore

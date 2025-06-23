@@ -12,7 +12,8 @@ class AddHalagaPlansScreen extends StatefulWidget {
   AddHalagaPlansScreen({super.key, required this.halaga});
 
   @override
-  _HalagaPlansScreenState createState() => _HalagaPlansScreenState(halaga: halaga);
+  _HalagaPlansScreenState createState() =>
+      _HalagaPlansScreenState(halaga: halaga);
 }
 
 class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
@@ -32,17 +33,26 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
 
   String? selectedIslamicSubject;
 
-  final TextEditingController conservationStartSurahController = TextEditingController();
-  final TextEditingController conservationEndSurahController = TextEditingController();
-  final TextEditingController conservationStartVerseController = TextEditingController();
-  final TextEditingController conservationEndVerseController = TextEditingController();
+  final TextEditingController conservationStartSurahController =
+      TextEditingController();
+  final TextEditingController conservationEndSurahController =
+      TextEditingController();
+  final TextEditingController conservationStartVerseController =
+      TextEditingController();
+  final TextEditingController conservationEndVerseController =
+      TextEditingController();
 
-  final TextEditingController recitationStartSurahController = TextEditingController();
-  final TextEditingController recitationEndSurahController = TextEditingController();
-  final TextEditingController recitationStartVerseController = TextEditingController();
-  final TextEditingController recitationEndVerseController = TextEditingController();
+  final TextEditingController recitationStartSurahController =
+      TextEditingController();
+  final TextEditingController recitationEndSurahController =
+      TextEditingController();
+  final TextEditingController recitationStartVerseController =
+      TextEditingController();
+  final TextEditingController recitationEndVerseController =
+      TextEditingController();
 
-  final TextEditingController islamicStudiesContentController = TextEditingController();
+  final TextEditingController islamicStudiesContentController =
+      TextEditingController();
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -62,10 +72,11 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('halagaID', halaga.halagaID!);
       print("-----------------Add------------------------");
-      List<int> studentsID = await planController.getAllStudentsHalaga(halaga.halagaID!);
+      List<String> studentsID =
+          await planController.getAllStudentsHalaga(halaga.halagaID!);
       print("-----> studentsID = $studentsID");
 
-      for (int item in studentsID) {
+      for (String item in studentsID) {
         print("----------> Processing studentId: $item");
 
         // التحقق من صحة السور
@@ -86,7 +97,8 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
             elhalagatId: halaga.halagaID,
             studentId: item,
             plannedStartSurah: conservationStartSurahController.text,
-            plannedStartAya: int.tryParse(conservationStartVerseController.text),
+            plannedStartAya:
+                int.tryParse(conservationStartVerseController.text),
             plannedEndSurah: conservationEndSurahController.text,
             plannedEndAya: int.tryParse(conservationEndVerseController.text),
             executedStartSurah: "لا يوجد",
@@ -111,43 +123,42 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
       int eltlawahResult = await planController.addEltlawahPlan2(
         EltlawahPlanModel(
           elhalagatId: halaga.halagaID,
-            plannedStartSurah: recitationStartSurahController.text,
-            plannedStartAya: int.tryParse(recitationStartVerseController.text),
-            plannedEndSurah: recitationEndSurahController.text,
-            plannedEndAya: int.tryParse(recitationEndVerseController.text),
-            executedStartSurah: "لا يوجد",
-            executedStartAya: 0,
-            executedEndSurah: "لا يوجد",
-            executedEndAya: 0,
-            executedRate: 0,
-            isSync: 0,
-          ),
-        );
-        if(eltlawahResult <= 0){
-          setState(() {
-            _isLoading = false;
-            _errorMessage = 'فشل في إضافة خطط التلاوة';
-          });
-          return;
-        }
-         // إضافة خطة العلوم الشرعية
-        int islamicResult = await planController.addIslamicStudies2(
-          IslamicStudiesModel(
+          plannedStartSurah: recitationStartSurahController.text,
+          plannedStartAya: int.tryParse(recitationStartVerseController.text),
+          plannedEndSurah: recitationEndSurahController.text,
+          plannedEndAya: int.tryParse(recitationEndVerseController.text),
+          executedStartSurah: "لا يوجد",
+          executedStartAya: 0,
+          executedEndSurah: "لا يوجد",
+          executedEndAya: 0,
+          executedRate: 0,
+          isSync: 0,
+        ),
+      );
+      if (eltlawahResult <= 0) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'فشل في إضافة خطط التلاوة';
+        });
+        return;
+      }
+      // إضافة خطة العلوم الشرعية
+      int islamicResult = await planController.addIslamicStudies2(
+        IslamicStudiesModel(
             elhalagatID: halaga.halagaID,
             subject: selectedIslamicSubject,
             plannedContent: islamicStudiesContentController.text,
             planMonth: "2025-05",
             isSync: 0,
-            executedContent: "لا يوجد"
-          ),
-        );
-        if(islamicResult <= 0){
-          setState(() {
-            _isLoading = false;
-            _errorMessage = 'فشل في إضافة خطط العلوم الشرعية';
-          });
-          return;
-        }
+            executedContent: "لا يوجد"),
+      );
+      if (islamicResult <= 0) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'فشل في إضافة خطط العلوم الشرعية';
+        });
+        return;
+      }
 
       setState(() {
         _isLoading = false;
@@ -511,7 +522,8 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
     );
   }
 
-  Widget _buildCard({required String title, required IconData icon, required Widget child}) {
+  Widget _buildCard(
+      {required String title, required IconData icon, required Widget child}) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -589,7 +601,8 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
-              contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             ),
             validator: (value) {
               if (isRequired && (value == null || value.isEmpty)) {

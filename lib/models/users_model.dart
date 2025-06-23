@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 class UserModel {
-  int? user_id;
+  String? user_id;
   int? activityID;
   int? elhalagatID;
   String? first_name;
@@ -62,43 +62,41 @@ class UserModel {
   // تحويل Map إلى كائن UserModel
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      user_id: map['user_id'] as int?,
-      activityID: map['ActivityID'] as int?,
-      elhalagatID: map['ElhalagatID'] as int?,
-      first_name: map['first_name'] as String?,
-      middle_name: map['middle_name'] as String?,
-      grandfather_name: map['grandfather_name'] as String?,
-      last_name: map['last_name'] as String?,
-      phone_number: map['phone_number'] as int?,
-      telephone_number: map['telephone_number'] as int?,
-      email: map['email'] as String?,
-      password: map['password']as String?,
-      roleID: map['roleID'] as int?,
-      schoolID: map['schoolID'] as int?,
-      date: map['date'] as String?,
-      isActivate: map['isActivate'] as int?,
-      isSync: map['isSync']
-    );
+        user_id: map['user_id'] as String?,
+        activityID: map['ActivityID'] as int?,
+        elhalagatID: map['ElhalagatID'] as int?,
+        first_name: map['first_name'] as String?,
+        middle_name: map['middle_name'] as String?,
+        grandfather_name: map['grandfather_name'] as String?,
+        last_name: map['last_name'] as String?,
+        phone_number: map['phone_number'] as int?,
+        telephone_number: map['telephone_number'] as int?,
+        email: map['email'] as String?,
+        password: map['password'] as String?,
+        roleID: map['roleID'] as int?,
+        schoolID: map['schoolID'] as int?,
+        date: map['date'] as String?,
+        isActivate: map['isActivate'] as int?,
+        isSync: map['isSync']);
   }
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      user_id: json['user_id'] as int?,
-      activityID: json['ActivityID'] as int?,
-      elhalagatID: json['ElhalagatID'] as int?,
-      first_name: json['first_name'] as String?,
-      middle_name: json['middle_name'] as String?,
-      grandfather_name: json['grandfather_name'] as String?,
-      last_name: json['last_name'] as String?,
-      phone_number: json['phone_number'] as int?,
-      telephone_number: json['telephone_number'] as int?,
-      email: json['email'] as String?,
-      password: json['password'] as String?,
-      roleID: json['roleID'] as int?,
-      schoolID: json['schoolID'] as int?,
-      date: json['date'] as String?,
-      isActivate: json['isActivate'] as int?,
-      isSync: json['isSync'] 
-    );
+        user_id: json['user_id'] as String?,
+        activityID: json['ActivityID'] as int?,
+        elhalagatID: json['ElhalagatID'] as int?,
+        first_name: json['first_name'] as String?,
+        middle_name: json['middle_name'] as String?,
+        grandfather_name: json['grandfather_name'] as String?,
+        last_name: json['last_name'] as String?,
+        phone_number: json['phone_number'] as int?,
+        telephone_number: json['telephone_number'] as int?,
+        email: json['email'] as String?,
+        password: json['password'] as String?,
+        roleID: json['roleID'] as int?,
+        schoolID: json['schoolID'] as int?,
+        date: json['date'] as String?,
+        isActivate: json['isActivate'] as int?,
+        isSync: json['isSync']);
   }
 }
 
