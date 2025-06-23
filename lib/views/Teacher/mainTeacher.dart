@@ -33,6 +33,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
   List<EltlawahPlanModel>? eltlawahPlan;
   List<IslamicStudiesModel>? islamicPlan;
 
+
   // Future<void> _loadPlans() async {
   //   setState(() => _isLoading = true);
   //   try {
@@ -456,7 +457,10 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                     content: Text('هل أنت متأكد من رغبتك في تسجيل الخروج؟'),
                     actions: [
                       TextButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () => Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginScreen())),
                         child: Text('إلغاء'),
                       ),
                       ElevatedButton(

@@ -284,7 +284,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            user.first_name ?? 'غير معروف',
+                                            '${user.first_name!} ${user.middle_name ?? ''} ${user.last_name ?? ''}',
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: hasUnreadMessage
