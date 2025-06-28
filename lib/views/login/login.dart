@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-int id = 0;
+String id = "";
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -42,8 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> loadUsersFromFirebase() async {
     List<UserModel> users = await firebasehelper.getUsers();
     for (var user in users) {
-      bool exists =
-          await sqlDb.checkIfitemExists("Users", user.user_id!, "user_id");
+      bool exists = await sqlDb.checkIfitemExists(
+          "Users", user.user_id! as int, "user_id");
       if (exists) {
         await userController.updateUser(user, 0);
         print('===== Find user (update) =====');
@@ -58,8 +58,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> loadSchoolsFromFirebase() async {
     List<SchoolModel> schools = await firebasehelper.getSchool();
     for (var school in schools) {
-      bool exists =
-          await sqlDb.checkIfitemExists("Schools", school.schoolID!, "schoolID");
+      bool exists = await sqlDb.checkIfitemExists(
+          "Schools", school.schoolID!, "schoolID");
       if (exists) {
         await schoolController.updateSchool(school, 0);
       } else {
@@ -120,7 +120,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
-      Future<bool> conn = InternetConnectionChecker.createInstance().hasConnection;
+      Future<bool> conn =
+          InternetConnectionChecker.createInstance().hasConnection;
       if (await conn) {
         _showErrorDialog(context, "خطأ", "بيانات تسجيل الدخول غير صحيحة.");
         return;
@@ -148,13 +149,13 @@ class _LoginScreenState extends State<LoginScreen> {
     String name = "${user.first_name!} ${user.last_name!}";
     await saveUserLogin(phone, user.roleID!, user.isActivate!);
     final per = await SharedPreferences.getInstance();
-    await per.setInt('user_id', id);
-    if(user.roleID == 1 || user.roleID == 2){
+    await per.setString('user_id', id);
+    if (user.roleID == 1 || user.roleID == 2) {
       await per.setInt('schoolId', user.schoolID!);
     }
     await per.setString('user_name', name);
-    if(user.roleID == 2){
-      if(user.elhalagatID == null){
+    if (user.roleID == 2) {
+      if (user.elhalagatID == null) {
         return;
       }
       await per.setInt('halagaID', user.elhalagatID!);
@@ -183,12 +184,12 @@ class _LoginScreenState extends State<LoginScreen> {
             MaterialPageRoute(builder: (context) => DashboardScreen()));
         break;
       case 1:
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => MainScreenD()));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => MainScreenD()));
         break;
       case 2:
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => MainScreenT()));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => MainScreenT()));
         break;
       default:
         _showErrorDialog(context, "خطأ", "حسابك غير مفعل، تواصل مع الإدارة.");
@@ -310,13 +311,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
-                          borderSide:
-                              BorderSide(color: Colors.green.shade200, width: 1),
+                          borderSide: BorderSide(
+                              color: Colors.green.shade200, width: 1),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
-                          borderSide:
-                              BorderSide(color: Colors.green, width: 2),
+                          borderSide: BorderSide(color: Colors.green, width: 2),
                         ),
                         contentPadding: EdgeInsets.symmetric(vertical: 16),
                       ),

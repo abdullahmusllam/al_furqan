@@ -33,26 +33,26 @@ class _TeacherDashboardState extends State<TeacherDashboard>
   List<EltlawahPlanModel>? eltlawahPlan;
   List<IslamicStudiesModel>? islamicPlan;
 
-  Future<void> _loadPlans() async {
-    setState(() => _isLoading = true);
-    try {
-      await planController.getPlans(_teacherHalaga!.halagaID!);
-      await studentController.getStudents(_teacherHalaga!.halagaID!);
-      print(
-          "------------------------->> planController.eltlawahPlans : ${planController.eltlawahPlans.isEmpty}");
-      eltlawahPlan = await planController.eltlawahPlans;
-      islamicPlan = await planController.islamicStudyPlans;
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('حدث خطأ في تحميل الخطط: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
+
+  // Future<void> _loadPlans() async {
+  //   setState(() => _isLoading = true);
+  //   try {
+  //     await planController.getPlans(_teacherHalaga!.halagaID!);
+  //     await studentController.getStudents(_teacherHalaga!.halagaID!);
+  //     print("------------------------->> planController.eltlawahPlans : ${ planController.eltlawahPlans.isEmpty}");
+  //     eltlawahPlan = await planController.eltlawahPlans;
+  //     islamicPlan = await planController.islamicStudyPlans;
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('حدث خطأ في تحميل الخطط: $e'),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //   } finally {
+  //     setState(() => _isLoading = false);
+  //   }
+  // }
 
   Future<void> _loadTeacherHalaga() async {
     print("MainTeacher - _loadTeacherHalaga started");
@@ -339,7 +339,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
 
     // Initial data loading
     fetchUserData();
-    _loadPlans();
+    // _loadPlans();
     loadMessagesAndStudent();
     halagaController.getHalagatFromFirebase();
     _loadTeacherHalaga();
@@ -368,7 +368,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
   // تحميل الرسائل وبيانات الطلاب
   Future<void> loadMessagesAndStudent() async {
     final prefs = await SharedPreferences.getInstance();
-    int? Id = prefs.getInt('user_id');
+    String? Id = prefs.getString('user_id');
     print('===== ($Id) =====');
 
     // تحميل الرسائل من فايربيس
@@ -670,7 +670,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                       Expanded(
                                         child: _buildStatCard(
                                           title: 'اسم الحلقة',
-                                          value: '${_teacherHalaga!.Name}',
+                                          value: 'الأول',
                                           icon: Icons.class_,
                                           color: Colors.white,
                                           textColor:
@@ -705,7 +705,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                 Expanded(
                                   child: _buildInfoCard(
                                     title: 'عدد الطلاب',
-                                    value: '${_teacherHalaga!.NumberStudent}',
+                                    value: '5',
                                     icon: Icons.people,
                                     color: Colors.blue,
                                     context: context,
@@ -716,8 +716,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                 Expanded(
                                   child: _buildInfoCard(
                                     title: 'نسبة الحضور',
-                                    value:
-                                        '${_teacherHalaga!.AttendanceRate ?? 0}',
+                                    value: '0',
                                     icon: Icons.check_circle,
                                     color: Colors.green,
                                     context: context,

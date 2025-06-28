@@ -23,7 +23,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
   final TextEditingController nameController = TextEditingController();
   List<StudentModel> students = [];
   List<UserModel> teachers = [];
-  int? selectedTeacherId;
+  String? selectedTeacherId;
   bool _isLoading = false;
   bool _isLoadingTeachers = false;
   final _sqlDb = SqlDb();
@@ -198,7 +198,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
         // تسجيل للتشخيص
         print("بدء عملية تحديث الحلقة...");
         print("معرف المعلم المحدد: $selectedTeacherId");
-        int idTeacher = selectedTeacherId!;
+        String idTeacher = selectedTeacherId!;
 
         // بناء نموذج الحلقة المحدثة
         final updatedHalaga = HalagaModel(

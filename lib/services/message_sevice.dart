@@ -14,38 +14,38 @@ class FirebaseHelper {
     return conn;
   }
 
-  Future<void> loadMessagesFromFirestore(int receiverId) async {
-  try {
-    // جلب الرسائل من Firestore بناءً على receiverId
-    QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collection('messages')
-        .where('receiverId', isEqualTo: receiverId)
-        .get();
+  Future<void> loadMessagesFromFirestore(String receiverId) async {
+    try {
+      // جلب الرسائل من Firestore بناءً على receiverId
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('messages')
+          .where('receiverId', isEqualTo: receiverId)
+          .get();
 
-    if (snapshot.docs.isEmpty) {
-      print('============ فااااااارغ ============');
-    }
-
-    // حفظ الرسائل في قاعدة البيانات المحلية وتحويلها
-    for (var doc in snapshot.docs) {
-      Message message = Message.fromMap(doc.data() as Map<String, dynamic>);
-
-      bool exists =   
-          await sqlDb.checkIfitemExists('messages', message.id!, 'id');
-                print('================== 1');
-
-      if (exists) {
-        await messageService.updateMessage(message, 0);
-        print('===== Find message (update) =====');
-      } else {
-        await messageService.saveMessage(message, 0);
-        print('===== Find message (add) =====');
+      if (snapshot.docs.isEmpty) {
+        print('============ فااااااارغ ============');
       }
+
+      // حفظ الرسائل في قاعدة البيانات المحلية وتحويلها
+      for (var doc in snapshot.docs) {
+        Message message = Message.fromMap(doc.data() as Map<String, dynamic>);
+
+        bool exists =
+            await sqlDb.checkIfitemExists('messages', message.id!, 'id');
+        print('================== 1');
+
+        if (exists) {
+          await messageService.updateMessage(message, 0);
+          print('===== Find message (update) =====');
+        } else {
+          await messageService.saveMessage(message, 0);
+          print('===== Find message (add) =====');
+        }
+      }
+    } catch (e) {
+      print('خطأ في جلب الرسائل من Firestore: $e');
     }
-  } catch (e) {
-    print('خطأ في جلب الرسائل من Firestore: $e');
   }
-}
 
   // Save message to Firebase and local if online, otherwise only local
   Future<void> saveMessage(Message message, int type) async {
@@ -53,7 +53,10 @@ class FirebaseHelper {
       message.id = await someController.newId('messages', 'id');
       if (await isConnected()) {
         message.sync = 1;
-        await _firestore.collection('messages').doc(message.id.toString()).set(message.toJson());
+        await _firestore
+            .collection('messages')
+            .doc(message.id.toString())
+            .set(message.toJson());
         await messageController.saveMessage(message);
       } else {
         // Save to local with sync = 0
@@ -93,9 +96,9 @@ class FirebaseHelper {
       await messageController.updateMessage(message);
     }
   }
-  
+
   // تحديث حالة قراءة الرسائل في الفايربيس
-  Future<void> updateMessagesReadStatus(int receiverId) async {
+  Future<void> updateMessagesReadStatus(String receiverId) async {
     try {
       if (await isConnected()) {
         // جلب الرسائل غير المقروءة مباشرة من فايربيس
@@ -104,7 +107,7 @@ class FirebaseHelper {
             .where('receiverId', isEqualTo: receiverId)
             .where('isRead', isEqualTo: 0)
             .get();
-        
+
         // تحديث كل رسالة في الفايربيس
         int updatedCount = 0;
         for (var doc in snapshot.docs) {
@@ -114,7 +117,7 @@ class FirebaseHelper {
               .update({'isRead': 1});
           updatedCount++;
         }
-        
+
         print('تم تحديث حالة قراءة $updatedCount رسالة في الفايربيس');
       }
     } catch (e) {

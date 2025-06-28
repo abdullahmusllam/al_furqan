@@ -1,8 +1,7 @@
-
 class EltlawahPlanModel {
   String? eltlawahPlanId;
   int? elhalagatId;
-  int? studentId;
+  String? studentId;
   String? plannedStartSurah;
   int? plannedStartAya;
   String? plannedEndSurah;

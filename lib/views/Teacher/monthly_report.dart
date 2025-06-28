@@ -30,7 +30,7 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
   DateTime _selectedMonth = DateTime.now();
 
   // بيانات التقرير
-  Map<int?, Map<String, dynamic>> _reportData = {};
+  Map<String?, Map<String, dynamic>> _reportData = {};
 
   @override
   void initState() {
@@ -43,17 +43,17 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
 
   Future<void> _loadPlans() async {
     await planController.getPlans(user!.elhalagatID!);
-    
+
     // تنسيق التاريخ بصيغة "سنة-شهر" مثل "2025-05"
     String currentMonthFormat = _loadEtlawahPaln();
-    
+
     for (var islamicStudyPlan in planController.islamicStudyPlans) {
-      if(islamicStudyPlan.planMonth == currentMonthFormat){
+      if (islamicStudyPlan.planMonth == currentMonthFormat) {
         _islamicStudyPlan = islamicStudyPlan;
         break;
       }
     }
-    
+
     setState(() {
       _conservationPlans = planController.conservationPlans;
     });
@@ -88,27 +88,30 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
   }
 
   String _loadEtlawahPaln() {
-     // تنسيق التاريخ بصيغة "سنة-شهر" مثل "2025-05"
-    String monthStr = _selectedMonth.month < 10 ? "0${_selectedMonth.month}" : "${_selectedMonth.month}";
+    // تنسيق التاريخ بصيغة "سنة-شهر" مثل "2025-05"
+    String monthStr = _selectedMonth.month < 10
+        ? "0${_selectedMonth.month}"
+        : "${_selectedMonth.month}";
     String currentMonthFormat = "${_selectedMonth.year}-$monthStr";
     print("currentMonthFormat: $currentMonthFormat");
-    
+
     // طباعة عدد خطط التلاوة المتوفرة
     print("عدد خطط التلاوة: ${planController.eltlawahPlans.length}");
-    
+
     // طباعة تنسيق التاريخ لكل خطة تلاوة للتحقق
     for (var plan in planController.eltlawahPlans) {
-      print("خطة التلاوة - planMonth: '${plan.planMonth}' للطالب: ${plan.studentId}");
+      print(
+          "خطة التلاوة - planMonth: '${plan.planMonth}' للطالب: ${plan.studentId}");
     }
-    
+
     for (var eltlawahPlan in planController.eltlawahPlans) {
-      if(eltlawahPlan.planMonth == currentMonthFormat){
+      if (eltlawahPlan.planMonth == currentMonthFormat) {
         this.eltlawahPlan = eltlawahPlan;
         print("تم العثور على خطة التلاوة: $eltlawahPlan");
         break;
       }
     }
-    
+
     // التحقق من نتيجة البحث
     if (this.eltlawahPlan == null) {
       print("لم يتم العثور على خطة تلاوة للشهر: $currentMonthFormat");
@@ -179,7 +182,6 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
         'executedEndAya': conservationPlan.executedEndAya ?? 0,
         'executedRate': conservationPlan.executedRate ?? 0.0,
       };
-
     }
   }
 
@@ -384,10 +386,10 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
                                     color: Colors.blue,
                                     items: [
                                       _buildPlanItem(
-                                          _islamicStudyPlan!.subject!,
-                                          _islamicStudyPlan!.executedContent!,
-                                          '100%',
-                                          ),
+                                        _islamicStudyPlan!.subject!,
+                                        _islamicStudyPlan!.executedContent!,
+                                        '100%',
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -531,12 +533,12 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
                                                   ? Colors.white
                                                   : Colors.grey.shade50,
                                               border: Border(
-                                                bottom: index <
-                                                        _students.length - 1
-                                                    ? BorderSide(
-                                                        color: Colors
-                                                            .grey.shade200)
-                                                    : BorderSide.none,
+                                                bottom:
+                                                    index < _students.length - 1
+                                                        ? BorderSide(
+                                                            color: Colors
+                                                                .grey.shade200)
+                                                        : BorderSide.none,
                                               ),
                                             ),
                                             child: Row(
@@ -669,7 +671,8 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
                                               bottom: index <
                                                       _students.length - 1
                                                   ? BorderSide(
-                                                      color: Colors.grey.shade300)
+                                                      color:
+                                                          Colors.grey.shade300)
                                                   : BorderSide.none,
                                             ),
                                           ),

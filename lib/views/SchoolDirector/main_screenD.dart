@@ -62,8 +62,8 @@ class _MainScreenState extends State<MainScreenD> {
   Future<void> loadUsersFromFirebase() async {
     List<UserModel> users = await firebasehelper.getUsers();
     for (var user in users) {
-      bool exists =
-          await sqlDb.checkIfitemExists("Users", user.user_id!, "user_id");
+      bool exists = await sqlDb.checkIfitemExists(
+          "Users", user.user_id! as int, "user_id");
       if (exists) {
         await userController.updateUser(user, 0);
         print('===== Find user (update) =====');
@@ -79,7 +79,7 @@ class _MainScreenState extends State<MainScreenD> {
     int? schoolId = perfs.getInt('schoolId');
     print('===== schoolID ($schoolId) =====');
     // تحميل الطلاب من فايربيس
-    await studentController.addToLocalOfFirebase(schoolId!); 
+    await studentController.addToLocalOfFirebase(schoolId!);
   }
 
   Future<void> loadMessages() async {
@@ -110,7 +110,6 @@ class _MainScreenState extends State<MainScreenD> {
       print('===== schoolID ($schoolId) =====');
       // تحميل الحلقات من فايربيس
       await halagaController.getHalagatFromFirebaseByID(schoolId!, 'schoolID');
-      
     } catch (e) {
       print('خطأ في تحميل الحلقات: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -120,35 +119,35 @@ class _MainScreenState extends State<MainScreenD> {
         ),
       );
     }
+    if (!mounted) return;
     setState(() {
       isLoading = false;
     });
-
   }
 
   Future<void> loadPlans() async {
-    try {  
+    try {
       halagaController.halagatId.clear();
-      
+
       final prefs = await SharedPreferences.getInstance();
       int? schoolId = prefs.getInt('schoolId');
       if (schoolId != null) {
         List<HalagaModel> halaqat = await halagaController.getData(schoolId);
-        
+
         for (var halqa in halaqat) {
           if (halqa.halagaID != null) {
             halagaController.halagatId.add(halqa.halagaID!);
           }
         }
       }
-      
+
       List<int> halagaIds = halagaController.halagatId;
-      if(halagaIds.isEmpty){
+      if (halagaIds.isEmpty) {
         print('===== قائمة معرفات الحلقات فارغة =====');
         return;
       }
-      
-      for(int halagaId in halagaIds){
+
+      for (int halagaId in halagaIds) {
         await planController.getPlansFirebaseToLocal(halagaId);
       }
     } catch (e) {

@@ -36,7 +36,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   Future<void> loadConversations() async {
     await messageService.loadMessagesFromFirestore(widget.currentUser.user_id!);
     List<Message> messages = await messageController.getMessages();
-    List<int> userIds = [];
+    List<String> userIds = [];
     for (var message in messages) {
       if (message.senderId == widget.currentUser.user_id) {
         if (!userIds.contains(message.receiverId)) {
@@ -50,7 +50,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     }
 
     List<UserModel> users = [];
-    for (int userId in userIds) {
+    for (String userId in userIds) {
       UserModel? user;
       for (var parent in widget.availableParents) {
         if (parent.user_id == userId) {
@@ -98,9 +98,9 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   }
 
   // استخراج آخر رسالة لكل مستخدم
-  Future<Map<int, Message>> _getLastMessages() async {
+  Future<Map<String, Message>> _getLastMessages() async {
     List<Message> allMessages = await messageController.getMessages();
-    Map<int, Message> lastMessages = {};
+    Map<String, Message> lastMessages = {};
 
     for (var user in conversationUsers) {
       if (user.user_id == null) continue;
@@ -176,7 +176,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: loadConversations,
-        child: FutureBuilder<Map<int, Message>>(
+        child: FutureBuilder<Map<String, Message>>(
           future: _getLastMessages(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting &&
