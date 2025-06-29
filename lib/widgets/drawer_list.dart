@@ -1,6 +1,7 @@
 // ignore: file_names
 
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/views/Supervisor/school_reports.dart';
 import 'package:al_furqan/views/Supervisor/show_all_schools.dart';
 import 'package:al_furqan/views/Supervisor/show_all_teacher.dart';
 import 'package:al_furqan/views/checkDBlocal/database_viewer_entry.dart';
@@ -8,7 +9,6 @@ import 'package:al_furqan/views/supervisor/verification_requests_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
-
 
 class DrawerList extends StatelessWidget {
   UserModel? user;
@@ -37,7 +37,8 @@ class DrawerList extends StatelessWidget {
               children: [
                 CircleAvatar(
                   maxRadius: 40,
-                  backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                  backgroundColor:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.2),
                   child: Center(
                     child: Text(
                       user!.first_name!.substring(0, 1),
@@ -79,6 +80,17 @@ class DrawerList extends StatelessWidget {
               // Navigate to schools page
               Navigator.of(context).push(
                   CupertinoPageRoute(builder: (context) => ShowAllSchools()));
+            },
+          ),
+          _createDrawerItem(
+            context,
+            icon: Icons.bar_chart,
+            text: 'تقارير المدارس',
+            onTap: () {
+              Navigator.of(context).pop();
+              // Navigate to schools page
+              Navigator.of(context).push(
+                  CupertinoPageRoute(builder: (context) => SchoolReports()));
             },
           ),
           _createDrawerItem(
@@ -126,8 +138,7 @@ class DrawerList extends StatelessWidget {
               Navigator.of(context).pop();
               Navigator.push(
                 context,
-                CupertinoPageRoute(
-                    builder: (context) => DatabaseViewerEntry()),
+                CupertinoPageRoute(builder: (context) => DatabaseViewerEntry()),
               );
             },
           ),
@@ -136,8 +147,7 @@ class DrawerList extends StatelessWidget {
     );
   }
 
-  Widget _createDrawerItem(
-      BuildContext context,
+  Widget _createDrawerItem(BuildContext context,
       {required IconData icon,
       required String text,
       GestureTapCallback? onTap}) {

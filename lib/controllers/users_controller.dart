@@ -157,28 +157,10 @@ class UserController {
         await db.update('USERS', userModel.toMap(),
             where: 'user_id = ?', whereArgs: [userModel.user_id]);
       }
+    } else {
       await db.update('USERS', userModel.toMap(),
           where: 'user_id = ?', whereArgs: [userModel.user_id]);
     }
-    int response = await _sqlDb.updateData('''
-    UPDATE USERS SET
-      ActivityID = ${userModel.activityID},
-      ElhalagatID = ${userModel.elhalagatID},
-      first_name = '${userModel.first_name}',
-      middle_name = '${userModel.middle_name}',
-      grandfather_name = '${userModel.grandfather_name}',
-      last_name = '${userModel.last_name}',
-      password = '${userModel.password}',
-      email = '${userModel.email}',
-      phone_number = '${userModel.phone_number}',
-      telephone_number = '${userModel.telephone_number}',
-      roleID = ${userModel.roleID},
-      schoolID = ${userModel.schoolID},
-      date = '${userModel.date}',
-      isActivate = ${userModel.isActivate}
-    WHERE user_id = ${userModel.user_id}
-    ''');
-    print("response = $response");
   }
 
   // Method to add a new request
@@ -190,12 +172,13 @@ class UserController {
         await InternetConnectionChecker.createInstance().hasConnection;
 
     if (connection) {
+      print("===== sssssss =====");
       List<UserModel> responseFirebase = await firebasehelper.getUsers();
-      print("responseFirebase = $responseFirebase");
+      print("===== responseFirebase = $responseFirebase =====");
 
       for (var user in responseFirebase) {
-        bool exists = await _sqlDb.checkIfitemExists(
-            "Users", user.user_id! as int, "user_id");
+        bool exists =
+            await _sqlDb.checkIfitemExists2("Users", user.user_id!, "user_id");
         if (exists) {
           await updateUser(user, 0);
         } else {

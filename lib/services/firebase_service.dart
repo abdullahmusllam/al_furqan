@@ -217,7 +217,7 @@ class FirebaseHelper {
     }
   }
 
-  newTeacher(int halagaId, int teacherId) async {
+  newTeacher(int halagaId, String teacherId) async {
     try {
       final docRef = _firestore.collection('Users');
       await docRef.doc(teacherId.toString()).update({'ElhalagatID': halagaId});
@@ -334,6 +334,18 @@ class FirebaseHelper {
           .collection(collection)
           .doc(id.toString())
           .get();
+      print("Find document");
+      return documentSnapshot.exists;
+    } catch (e) {
+      print('Not found document');
+      return false;
+    }
+  }
+
+  Future<bool> checkDocumentExists2(String collection, String id) async {
+    try {
+      DocumentSnapshot documentSnapshot =
+          await FirebaseFirestore.instance.collection(collection).doc(id).get();
       print("Find document");
       return documentSnapshot.exists;
     } catch (e) {

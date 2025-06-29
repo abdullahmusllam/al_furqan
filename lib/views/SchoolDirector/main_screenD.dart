@@ -50,6 +50,8 @@ class _MainScreenState extends State<MainScreenD> {
       await loadMessages();
       await loadUsersFromFirebase();
     } else {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => SchoolManagerScreen()));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('لا يوجد اتصال بالانترنت لتحديث البيانات'),
@@ -60,18 +62,7 @@ class _MainScreenState extends State<MainScreenD> {
   }
 
   Future<void> loadUsersFromFirebase() async {
-    List<UserModel> users = await firebasehelper.getUsers();
-    for (var user in users) {
-      bool exists = await sqlDb.checkIfitemExists(
-          "Users", user.user_id! as int, "user_id");
-      if (exists) {
-        await userController.updateUser(user, 0);
-        print('===== Find user (update) =====');
-      } else {
-        await userController.addUser(user, 0);
-        print('===== Find user (add) =====');
-      }
-    }
+    await userController.addToLocalOfFirebase();
   }
 
   Future<void> loadStudents() async {
@@ -85,7 +76,7 @@ class _MainScreenState extends State<MainScreenD> {
   Future<void> loadMessages() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      int? Id = prefs.getInt('user_id');
+      String? Id = prefs.getString('user_id');
       print('===== ($Id) =====');
       // تحميل الرسائل من فايربيس
       await messageService.loadMessagesFromFirestore(Id!);
