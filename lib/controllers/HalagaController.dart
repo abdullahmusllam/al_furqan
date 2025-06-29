@@ -156,7 +156,7 @@ class HalagaController {
     }
   }
 
-  updateTeacherAssignment(int halagaId, int teacherId) async {
+  updateTeacherAssignment(int halagaId, String teacherId) async {
     try {
       if (await isConnected()) {
         ///الغاء ارتباط المعلم

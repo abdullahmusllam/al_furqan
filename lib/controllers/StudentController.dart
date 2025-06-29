@@ -175,23 +175,25 @@ class StudentController {
   }
 
   Future<void> updateStudent(StudentModel student, int type) async {
+    final db = await sqlDb.database;
     try {
       if (type == 1) {
         if (await isConnected()) {
           student.isSync = 1;
-          int update = await _sqldb.updateData(
-              "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}', isSync = 1 WHERE StudentID = ${student.studentID}");
+          int update = await db.update("Students", student.toMap(),
+              where: 'StudentID = ?', whereArgs: [student.studentID]);
           print("Update response: $update");
           print("User ID : ${student.userID}");
           await firebasehelper.updateStudentData(student);
         } else {
-          await _sqldb.updateData(
-              "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}', isSync = 0 WHERE StudentID = ${student.studentID}");
+          student.isSync = 0;
+          await db.update("Students", student.toMap(),
+              where: 'StudentID = ?', whereArgs: [student.studentID]);
         }
         print("Student in update : ${student.grandfatherName}");
       } else {
-        int update = await _sqldb.updateData(
-            "UPDATE Students SET ElhalagatID = '${student.elhalaqaID}', FirstName = '${student.firstName}', MiddleName = '${student.middleName}', grandfatherName = '${student.grandfatherName}', LastName = '${student.lastName}', AttendanceDays = ${student.attendanceDays ?? 'NULL'}, AbsenceDays = ${student.absenceDays ?? 'NULL'}, Excuse = '${student.excuse ?? ''}', ReasonAbsence = '${student.reasonAbsence ?? ''}' WHERE StudentID = ${student.studentID}");
+        int update = await db.update("Students", student.toMap(),
+            where: 'StudentID = ?', whereArgs: [student.studentID]);
         print("Update response: $update");
         print("User ID : ${student.userID}");
       }
@@ -321,7 +323,7 @@ class StudentController {
       if (await isConnected()) {
         await firebasehelper.assignStudentToHalqa(studentId, halqaID);
         await _sqldb.updateData(
-            "UPDATE Students SET ElhalagatID = $halqaID ,isSync = 1 WHERE StudentID = $studentId");
+            "UPDATE Students SET ElhalagatID = $halqaID ,isSync = 1 WHERE StudentID = '$studentId'");
 
         final count = await _sqldb.readData(
             "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = $halqaID");
@@ -331,7 +333,7 @@ class StudentController {
       }
 
       await _sqldb.updateData(
-          "UPDATE Students SET ElhalagatID = $halqaID, isSync = 0 WHERE StudentID = $studentId");
+          "UPDATE Students SET ElhalagatID = $halqaID, isSync = 0 WHERE StudentID = '$studentId'");
 
       final count = await _sqldb.readData(
           "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = $halqaID");
@@ -346,10 +348,10 @@ class StudentController {
     }
   }
 
-  Future<void> removeStudentFromHalqa(int studentId) async {
+  Future<void> removeStudentFromHalqa(String studentId) async {
     try {
       int response = await _sqldb.updateData(
-          "UPDATE Students SET ElhalagatID = NULL WHERE StudentID = $studentId");
+          "UPDATE Students SET ElhalagatID = NULL WHERE StudentID = '$studentId'");
       print("Removed student $studentId from halqa, response: $response");
       if (response == 0) {
         throw Exception("Failed to remove student $studentId from halqa");
@@ -367,8 +369,8 @@ class StudentController {
       print("responseFirebase = $responseFirebase");
 
       for (var student in responseFirebase) {
-        bool exists = await sqlDb.checkIfitemExists(
-            "Students", student.studentID! as int, "StudentID");
+        bool exists = await sqlDb.checkIfitemExists2(
+            "Students", student.studentID!, "StudentID");
         if (exists) {
           await updateStudent(student, 0);
           print('===== Find student (update) =====');

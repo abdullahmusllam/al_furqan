@@ -61,6 +61,7 @@ class UserModel {
 
   // تحويل Map إلى كائن UserModel
   factory UserModel.fromMap(Map<String, dynamic> map) {
+    print(map);
     return UserModel(
         user_id: map['user_id'] as String?,
         activityID: map['ActivityID'] as int?,
@@ -77,7 +78,7 @@ class UserModel {
         schoolID: map['schoolID'] as int?,
         date: map['date'] as String?,
         isActivate: map['isActivate'] as int?,
-        isSync: map['isSync']);
+        isSync: map['isSync'] as int?);
   }
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(

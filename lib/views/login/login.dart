@@ -42,8 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> loadUsersFromFirebase() async {
     List<UserModel> users = await firebasehelper.getUsers();
     for (var user in users) {
-      bool exists = await sqlDb.checkIfitemExists(
-          "Users", user.user_id! as int, "user_id");
+      bool exists =
+          await sqlDb.checkIfitemExists2("Users", user.user_id!, "user_id");
       if (exists) {
         await userController.updateUser(user, 0);
         print('===== Find user (update) =====');

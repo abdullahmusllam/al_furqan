@@ -1,3 +1,5 @@
+import 'package:al_furqan/controllers/StudentController.dart';
+import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/conservation_plan_model.dart';
 import 'package:al_furqan/models/eltlawah_plan_model.dart';
@@ -13,6 +15,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Sync {
   Future<void> syncUsers() async {
+    final db = await sqlDb.database;
     print('===== sync Users =====');
     List<Map<String, dynamic>> map =
         await sqlDb.readDataID("Users", 'isSync', 0);
@@ -20,19 +23,21 @@ class Sync {
       print('===== map.isNotEmpty =====');
       List<UserModel> users = map.map((map) => UserModel.fromMap(map)).toList();
       for (var user in users) {
-        bool exists = await firebasehelper.checkDocumentExists(
-            'Users', user.user_id! as int);
+        bool exists =
+            await firebasehelper.checkDocumentExists2('Users', user.user_id!);
         if (exists) {
           user.isSync = 1;
           await firebasehelper.updateUser(user);
-          await sqlDb.updateData(
-              'update Users set isSync = 1 where user_id = ${user.user_id}');
+          await userController.updateUser(user, 0);
+          // await sqlDb.updateData(
+          //     'update Users set isSync = 1 where user_id = ${user.user_id}');
           print('===== sync user (update) =====');
         } else {
           user.isSync = 1;
           await firebasehelper.addUser(user);
-          await sqlDb.updateData(
-              'update Users set isSync = 1 where user_id = ${user.user_id}');
+          await userController.updateUser(user, 0);
+          // await sqlDb.updateData(
+          //     'update Users set isSync = 1 where user_id = ${user.user_id}');
           print('===== sync user (add) =====');
         }
       }
@@ -269,6 +274,7 @@ class Sync {
   }
 
   Future<void> syncStudents() async {
+    final db = await sqlDb.database;
     print('===== sync Students =====');
     List<Map<String, dynamic>> map =
         await sqlDb.readDataID("Students", 'isSync', 0);
@@ -277,19 +283,21 @@ class Sync {
       List<StudentModel> students =
           map.map((map) => StudentModel.fromJson(map)).toList();
       for (var student in students) {
-        bool exists = await firebasehelper.checkDocumentExists(
-            'Students', student.studentID! as int);
+        bool exists = await firebasehelper.checkDocumentExists2(
+            'Students', student.studentID!);
         if (exists) {
           student.isSync = 1;
           await firebasehelper.updateStudentData(student);
-          await sqlDb.updateData(
-              'update Students set isSync = 1 where StudentID = ${student.studentID}');
+          await studentController.updateStudent(student, 0);
+          // await sqlDb.updateData(
+          //     'update Students set isSync = 1 where StudentID = ${student.studentID}');
           print('===== sync Student (update) =====');
         } else {
           student.isSync = 1;
           await firebasehelper.addStudent(student);
-          await sqlDb.updateData(
-              'update Students set isSync = 1 where StudentID = ${student.studentID}');
+          await studentController.updateStudent(student, 0);
+          // await sqlDb.updateData(
+          //     'update Students set isSync = 1 where StudentID = ${student.studentID}');
 
           print('===== sync Student (add) =====');
         }
