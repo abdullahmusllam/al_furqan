@@ -2,7 +2,6 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/helper/new_id2.dart';
 import 'package:al_furqan/models/users_model.dart';
-
 // import 'package:al_furqan/views/SchoolDirector/handling_excel_file.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:flutter/material.dart';
@@ -85,16 +84,15 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
     try {
       // أولاً: إضافة ولي الأمر
-      fatherModel.isSync = 0;
-      fatherModel.user_id = await fathersController.addFather(fatherModel);
+      // fatherModel.isSync = 0;
+      fatherModel.user_id = await fathersController.addFather(fatherModel, 1);
       print("تم إضافة ولي الأمر بمعرف: ${fatherModel.user_id}");
 
       // ثانيًا: ربط الطالب بولي الأمر
       studentModel.userID = fatherModel.user_id;
-
-      // ثالثًا: إضافة الطالب إلى قاعدة البيانات المحلية
+      //  ثالثًا: إضافة الطالب إلى قاعدة البيانات المحلية والسحابية
       // int studentID =getMaxValue();
-      int studentID = await studentController.addStudent(studentModel);
+      String? studentID = await studentController.addStudent(studentModel, 1);
       print("تم إضافة الطالب محليًا بمعرف: $studentID");
 
       // رابعًا: تحديث معرف الطالب في النموذج
@@ -102,57 +100,58 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
       // خامسًا: إضافة الطالب إلى Firebase
       // التحقق من وجود اتصال بالإنترنت باستخدام المكتبة الجديدة
-      bool hasConnection =
-          await InternetConnectionChecker.createInstance().hasConnection;
-      print("حالة الاتصال بالإنترنت: $hasConnection");
+      // bool hasConnection =
+      //     await InternetConnectionChecker.createInstance().hasConnection;
+      // print("حالة الاتصال بالإنترنت: $hasConnection");
 
-      if (!hasConnection) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                  'تم إضافة الطالب محلياً، لكن لا يمكن مزامنته مع Firebase بسبب عدم وجود اتصال بالإنترنت'),
-              backgroundColor: Colors.orange,
-              duration: Duration(seconds: 5),
-              action: SnackBarAction(
-                label: 'فهمت',
-                textColor: Colors.white,
-                onPressed: () async {
-                  // await studentController.addStudent(studentData);
-                },
-              ),
-            ),
-          );
-        }
-        // نتابع مع إظهار رسالة النجاح دون توقف عند هذه النقطة
-      } else {
-        // لدينا اتصال بالإنترنت، نحاول إضافة الطالب إلى Firebase
-        if (SchoolID != null) {
-          try {
-            await studentController.addStudentToFirebase(
-                studentModel, SchoolID);
-            print("تم إضافة الطالب إلى Firebase");
-            // أيضاً: إضافة ولي الأمر إلى Firebase
-            fatherModel.isSync = 1;
-            await userController.addFatherToFirebase(fatherModel, SchoolID);
-            print("تم إضافة ولي الأمر إلى Firebase");
-          } catch (firebaseError) {
-            print("خطأ في إضافة الطالب إلى Firebase: $firebaseError");
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                      'تم إضافة الطالب محلياً، لكن حدث خطأ أثناء المزامنة مع Firebase'),
-                  backgroundColor: Colors.orange,
-                  duration: Duration(seconds: 3),
-                ),
-              );
-            }
-          }
-        } else {
-          print("تحذير: معرف المدرسة غير متوفر، لم يتم الإضافة إلى Firebase");
-        }
-      }
+      // if (!hasConnection) {
+      //   if (mounted) {
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       SnackBar(
+      //         content: Text(
+      //             'تم إضافة الطالب محلياً، لكن لا يمكن مزامنته مع Firebase بسبب عدم وجود اتصال بالإنترنت'),
+      //         backgroundColor: Colors.orange,
+      //         duration: Duration(seconds: 5),
+      //         action: SnackBarAction(
+      //           label: 'فهمت',
+      //           textColor: Colors.white,
+      //           onPressed: () async {
+      //             // await studentController.addStudent(studentData);
+      //           },
+      //         ),
+      //       ),
+      //     );
+      //   }
+      //   // نتابع مع إظهار رسالة النجاح دون توقف عند هذه النقطة
+      // } else {
+      //   // لدينا اتصال بالإنترنت، نحاول إضافة الطالب إلى Firebase
+      //   if (SchoolID != null) {
+      //     try {
+      //       await studentController.addStudentToFirebase(
+      //           studentModel, SchoolID);
+      //       print("تم إضافة الطالب إلى Firebase");
+      //       // أيضاً: إضافة ولي الأمر إلى Firebase
+      //       fatherModel.isSync = 1;
+      //
+      //       await userController.addFatherToFirebase(fatherModel, SchoolID);
+      //       print("تم إضافة ولي الأمر إلى Firebase");
+      //     } catch (firebaseError) {
+      //       print("خطأ في إضافة الطالب إلى Firebase: $firebaseError");
+      //       if (mounted) {
+      //         ScaffoldMessenger.of(context).showSnackBar(
+      //           SnackBar(
+      //             content: Text(
+      //                 'تم إضافة الطالب محلياً، لكن حدث خطأ أثناء المزامنة مع Firebase'),
+      //             backgroundColor: Colors.orange,
+      //             duration: Duration(seconds: 3),
+      //           ),
+      //         );
+      //       }
+      //     }
+      //   } else {
+      //     print("تحذير: معرف المدرسة غير متوفر، لم يتم الإضافة إلى Firebase");
+      //   }
+      // }
 
       // إظهار رسالة النجاح النهائية
       if (mounted) {
@@ -360,9 +359,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                           ],
                         ),
                       ),
-
                       SizedBox(height: 24),
-
                       // أزرار العمليات
                       Row(
                         children: [

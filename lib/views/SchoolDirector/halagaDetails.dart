@@ -15,7 +15,8 @@ import 'package:al_furqan/views/Teacher/HalagaPlansScreen.dart';
 class HalqaDetailsPage extends StatefulWidget {
   final HalagaModel halqa;
   final String teacher;
-  const HalqaDetailsPage({super.key, required this.halqa, required this.teacher});
+  const HalqaDetailsPage(
+      {super.key, required this.halqa, required this.teacher});
 
   @override
   _HalqaDetailsPageState createState() => _HalqaDetailsPageState();
@@ -28,9 +29,9 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
   List<ConservationPlanModel> conservationPlans = [];
   List<EltlawahPlanModel> eltlawahPlans = [];
   List<IslamicStudiesModel> islamicStudyPlans = [];
-  
+
   // خرائط لربط معرفات الطلاب بخططهم
-  Map<int, ConservationPlanModel> studentConservationPlans = {};
+  Map<String, ConservationPlanModel> studentConservationPlans = {};
 
   @override
   void initState() {
@@ -105,43 +106,48 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
 
     try {
       setState(() => _isLoading = true);
-      
+
       // التحقق من وجود الحلقة في قاعدة البيانات
       print("------> Attempting to load plans for halagaID: $halagaID");
-      
+
       // الحصول على تفاصيل الحلقة بما في ذلك خطة الحفظ والتلاوة والعلوم الشرعية
       await planController.getPlans(halagaID);
-      
+
       // طباعة معلومات تصحيح للتحقق من البيانات
       print("------> Loaded plans from controller");
-      print("------> Conservation Plans: ${planController.conservationPlans.length}");
+      print(
+          "------> Conservation Plans: ${planController.conservationPlans.length}");
       print("------> Eltlawah Plans: ${planController.eltlawahPlans.length}");
-      print("------> Islamic Study Plans: ${planController.islamicStudyPlans.length}");
-      
+      print(
+          "------> Islamic Study Plans: ${planController.islamicStudyPlans.length}");
+
       if (mounted) {
         // تعيين القوائم بشكل صحيح بدون استخدام async داخل setState
         setState(() {
           conservationPlans = planController.conservationPlans;
           eltlawahPlans = planController.eltlawahPlans;
           islamicStudyPlans = planController.islamicStudyPlans;
-          
+
           // إنشاء خريطة من معرفات الطلاب إلى خطط الحفظ الخاصة بهم
           studentConservationPlans.clear();
           for (var plan in conservationPlans) {
-            if (plan.studentId != null && plan.studentId! > 0) {
+            if (plan.studentId != null) {
               studentConservationPlans[plan.studentId!] = plan;
               print("------> Added plan for student ID: ${plan.studentId}");
             }
           }
-          
+
           _isLoading = false;
-          
+
           // طباعة معلومات تصحيح للتحقق من البيانات بعد التعيين
           print("------> Updated state with plans");
-          print("------> Local Conservation Plans: ${conservationPlans.length}");
+          print(
+              "------> Local Conservation Plans: ${conservationPlans.length}");
           print("------> Local Eltlawah Plans: ${eltlawahPlans.length}");
-          print("------> Local Islamic Study Plans: ${islamicStudyPlans.length}");
-          print("------> Student Conservation Plans Map size: ${studentConservationPlans.length}");
+          print(
+              "------> Local Islamic Study Plans: ${islamicStudyPlans.length}");
+          print(
+              "------> Student Conservation Plans Map size: ${studentConservationPlans.length}");
         });
       }
     } catch (e) {
@@ -184,7 +190,8 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
               final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => EditHalagaScreen(halga: widget.halqa, teacher: widget.teacher),
+                  builder: (context) => EditHalagaScreen(
+                      halga: widget.halqa, teacher: widget.teacher),
                 ),
               );
 
@@ -342,7 +349,8 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.people, color: Theme.of(context).primaryColor),
+                            Icon(Icons.people,
+                                color: Theme.of(context).primaryColor),
                             const SizedBox(width: 8),
                             Text(
                               'الطلاب (${students.length})',
@@ -397,58 +405,73 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                                       itemCount: students.length,
                                       itemBuilder: (context, index) {
                                         final student = students[index];
-                                        final hasConservationPlan = studentConservationPlans.containsKey(student.studentID);
-                                        
+                                        final hasConservationPlan =
+                                            studentConservationPlans
+                                                .containsKey(student.studentID);
+
                                         return Card(
-                                          margin: const EdgeInsets.only(bottom: 12),
+                                          margin:
+                                              const EdgeInsets.only(bottom: 12),
                                           elevation: 1,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                           ),
                                           child: Padding(
                                             padding: const EdgeInsets.all(12.0),
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 // معلومات الطالب
                                                 Row(
                                                   children: [
                                                     CircleAvatar(
                                                       radius: 24,
-                                                      backgroundColor: Theme.of(context)
-                                                          .primaryColor
-                                                          .withOpacity(0.1),
+                                                      backgroundColor:
+                                                          Theme.of(context)
+                                                              .primaryColor
+                                                              .withOpacity(0.1),
                                                       child: Text(
                                                         student.firstName
-                                                                ?.substring(0, 1)
+                                                                ?.substring(
+                                                                    0, 1)
                                                                 .toUpperCase() ??
                                                             'S',
                                                         style: TextStyle(
                                                           fontSize: 18,
-                                                          color: Theme.of(context)
-                                                              .primaryColor,
-                                                          fontWeight: FontWeight.bold,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .primaryColor,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                         ),
                                                       ),
                                                     ),
                                                     const SizedBox(width: 12),
                                                     Expanded(
                                                       child: Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
                                                         children: [
                                                           Text(
                                                             '${student.firstName ?? ''} ${student.middleName ?? ''} ${student.lastName ?? ''}'
                                                                 .trim(),
-                                                            style: const TextStyle(
+                                                            style:
+                                                                const TextStyle(
                                                               fontSize: 16,
-                                                              fontWeight: FontWeight.bold,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
                                                             ),
                                                           ),
                                                           Text(
                                                             'رقم الهوية: ${student.studentID ?? "غير متوفر"}',
                                                             style: TextStyle(
                                                               fontSize: 12,
-                                                              color: Colors.grey[600],
+                                                              color: Colors
+                                                                  .grey[600],
                                                             ),
                                                           ),
                                                         ],
@@ -456,72 +479,126 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                                                     ),
                                                   ],
                                                 ),
-                                                
+
                                                 // خطة الحفظ
-                                                if (hasConservationPlan) ...[  
+                                                if (hasConservationPlan) ...[
                                                   const SizedBox(height: 16),
                                                   Container(
-                                                    padding: const EdgeInsets.all(12),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            12),
                                                     decoration: BoxDecoration(
                                                       color: Colors.grey[50],
-                                                      borderRadius: BorderRadius.circular(8),
-                                                      border: Border.all(color: Colors.grey[200]!),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                      border: Border.all(
+                                                          color: Colors
+                                                              .grey[200]!),
                                                     ),
                                                     child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
                                                       children: [
                                                         // المخطط
                                                         Row(
                                                           children: [
-                                                            Icon(Icons.assignment, size: 16, color: Theme.of(context).primaryColor),
-                                                            const SizedBox(width: 4),
+                                                            Icon(
+                                                                Icons
+                                                                    .assignment,
+                                                                size: 16,
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .primaryColor),
+                                                            const SizedBox(
+                                                                width: 4),
                                                             Text(
                                                               'خطة الحفظ',
                                                               style: TextStyle(
-                                                                fontWeight: FontWeight.bold,
-                                                                color: Theme.of(context).primaryColor,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .primaryColor,
                                                               ),
                                                             ),
                                                           ],
                                                         ),
-                                                        const SizedBox(height: 4),
+                                                        const SizedBox(
+                                                            height: 4),
                                                         Row(
                                                           children: [
                                                             Expanded(
                                                               child: Container(
-                                                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                                                                decoration: BoxDecoration(
-                                                                  color: Colors.white,
-                                                                  borderRadius: BorderRadius.circular(4),
+                                                                padding: const EdgeInsets
+                                                                    .symmetric(
+                                                                    vertical: 6,
+                                                                    horizontal:
+                                                                        8),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              4),
                                                                 ),
                                                                 child: Row(
                                                                   children: [
-                                                                    Text('من: ', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                                                                    Text('من: ',
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.grey[600],
+                                                                            fontSize: 12)),
                                                                     Expanded(
-                                                                      child: Text(
+                                                                      child:
+                                                                          Text(
                                                                         '${studentConservationPlans[student.studentID]?.plannedStartSurah ?? "غير محدد"} ${studentConservationPlans[student.studentID]?.plannedStartAya ?? ""}',
-                                                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                        style: const TextStyle(
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
                                                                       ),
                                                                     ),
                                                                   ],
                                                                 ),
                                                               ),
                                                             ),
-                                                            const SizedBox(width: 8),
+                                                            const SizedBox(
+                                                                width: 8),
                                                             Expanded(
                                                               child: Container(
-                                                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                                                                decoration: BoxDecoration(
-                                                                  color: Colors.white,
-                                                                  borderRadius: BorderRadius.circular(4),
+                                                                padding: const EdgeInsets
+                                                                    .symmetric(
+                                                                    vertical: 6,
+                                                                    horizontal:
+                                                                        8),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              4),
                                                                 ),
                                                                 child: Row(
                                                                   children: [
-                                                                    Text('إلى: ', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                                                                    Text(
+                                                                        'إلى: ',
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.grey[600],
+                                                                            fontSize: 12)),
                                                                     Expanded(
-                                                                      child: Text(
+                                                                      child:
+                                                                          Text(
                                                                         '${studentConservationPlans[student.studentID]?.plannedEndSurah ?? "غير محدد"} ${studentConservationPlans[student.studentID]?.plannedEndAya ?? ""}',
-                                                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                        style: const TextStyle(
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
                                                                       ),
                                                                     ),
                                                                   ],
@@ -530,60 +607,106 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                                                             ),
                                                           ],
                                                         ),
-                                                        
+
                                                         // المنفذ
-                                                        const SizedBox(height: 12),
+                                                        const SizedBox(
+                                                            height: 12),
                                                         Row(
                                                           children: [
-                                                            Icon(Icons.check_circle, size: 16, color: Colors.green[700]),
-                                                            const SizedBox(width: 4),
+                                                            Icon(
+                                                                Icons
+                                                                    .check_circle,
+                                                                size: 16,
+                                                                color: Colors
+                                                                        .green[
+                                                                    700]),
+                                                            const SizedBox(
+                                                                width: 4),
                                                             Text(
                                                               'المنفذ:',
                                                               style: TextStyle(
-                                                                fontWeight: FontWeight.bold,
-                                                                color: Colors.green[700],
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Colors
+                                                                    .green[700],
                                                               ),
                                                             ),
                                                           ],
                                                         ),
-                                                        const SizedBox(height: 4),
+                                                        const SizedBox(
+                                                            height: 4),
                                                         Row(
                                                           children: [
                                                             Expanded(
                                                               child: Container(
-                                                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                                                                decoration: BoxDecoration(
-                                                                  color: Colors.white,
-                                                                  borderRadius: BorderRadius.circular(4),
+                                                                padding: const EdgeInsets
+                                                                    .symmetric(
+                                                                    vertical: 6,
+                                                                    horizontal:
+                                                                        8),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              4),
                                                                 ),
                                                                 child: Row(
                                                                   children: [
-                                                                    Text('من: ', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                                                                    Text('من: ',
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.grey[600],
+                                                                            fontSize: 12)),
                                                                     Expanded(
-                                                                      child: Text(
+                                                                      child:
+                                                                          Text(
                                                                         '${studentConservationPlans[student.studentID]?.executedStartSurah ?? "غير محدد"} ${studentConservationPlans[student.studentID]?.executedStartAya ?? ""}',
-                                                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                        style: const TextStyle(
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
                                                                       ),
                                                                     ),
                                                                   ],
                                                                 ),
                                                               ),
                                                             ),
-                                                            const SizedBox(width: 8),
+                                                            const SizedBox(
+                                                                width: 8),
                                                             Expanded(
                                                               child: Container(
-                                                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                                                                decoration: BoxDecoration(
-                                                                  color: Colors.white,
-                                                                  borderRadius: BorderRadius.circular(4),
+                                                                padding: const EdgeInsets
+                                                                    .symmetric(
+                                                                    vertical: 6,
+                                                                    horizontal:
+                                                                        8),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              4),
                                                                 ),
                                                                 child: Row(
                                                                   children: [
-                                                                    Text('إلى: ', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                                                                    Text(
+                                                                        'إلى: ',
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.grey[600],
+                                                                            fontSize: 12)),
                                                                     Expanded(
-                                                                      child: Text(
+                                                                      child:
+                                                                          Text(
                                                                         '${studentConservationPlans[student.studentID]?.executedEndSurah ?? "غير محدد"} ${studentConservationPlans[student.studentID]?.executedEndAya ?? ""}',
-                                                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                        style: const TextStyle(
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
                                                                       ),
                                                                     ),
                                                                   ],
@@ -595,22 +718,32 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                                                       ],
                                                     ),
                                                   ),
-                                                ] else ...[  
+                                                ] else ...[
                                                   const SizedBox(height: 8),
                                                   Container(
-                                                    padding: const EdgeInsets.all(8),
+                                                    padding:
+                                                        const EdgeInsets.all(8),
                                                     decoration: BoxDecoration(
                                                       color: Colors.grey[100],
-                                                      borderRadius: BorderRadius.circular(4),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              4),
                                                     ),
                                                     child: Row(
-                                                      mainAxisSize: MainAxisSize.min,
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
                                                       children: [
-                                                        Icon(Icons.info_outline, size: 16, color: Colors.grey[600]),
-                                                        const SizedBox(width: 4),
+                                                        Icon(Icons.info_outline,
+                                                            size: 16,
+                                                            color: Colors
+                                                                .grey[600]),
+                                                        const SizedBox(
+                                                            width: 4),
                                                         Text(
                                                           'لا توجد خطة حفظ لهذا الطالب',
-                                                          style: TextStyle(color: Colors.grey[600]),
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .grey[600]),
                                                         ),
                                                       ],
                                                     ),
@@ -789,10 +922,11 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
 
     // نسبة الإنجاز (يمكن حساب هذه النسبة لاحقًا)
     String completionRate = '0%';
-  
+
     // طباعة معلومات تصحيح للتحقق من البيانات
-    print("_buildRecitationPlanSection - eltlawahPlans length: ${eltlawahPlans.length}");
-  
+    print(
+        "_buildRecitationPlanSection - eltlawahPlans length: ${eltlawahPlans.length}");
+
     // تحقق من وجود خطط تلاوة قبل محاولة الوصول إليها
     if (eltlawahPlans.isNotEmpty) {
       plannedStartSurah = eltlawahPlans[0].plannedStartSurah;
@@ -854,7 +988,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('من',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text(plannedStartSurah??'none',
+                      Text(plannedStartSurah ?? 'none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -863,7 +997,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('إلى',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text(plannedEndSurah??'none',
+                      Text(plannedEndSurah ?? 'none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -903,7 +1037,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('من',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text(executedStartSurah??'none',
+                      Text(executedStartSurah ?? 'none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -912,7 +1046,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                     children: [
                       const Text('إلى',
                           style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      Text(executedEndSurah??'none',
+                      Text(executedEndSurah ?? 'none',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -935,12 +1069,18 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
 
   Widget _buildIslamicStudiesSection() {
     // بيانات العلوم الشرعية
-    String? subject = islamicStudyPlans.isNotEmpty ? islamicStudyPlans[0].subject : null;
-    String? plannedContent = islamicStudyPlans.isNotEmpty ? islamicStudyPlans[0].plannedContent : null;
-    String? executedContent = islamicStudyPlans.isNotEmpty ? islamicStudyPlans[0].executedContent : null;
-    
+    String? subject =
+        islamicStudyPlans.isNotEmpty ? islamicStudyPlans[0].subject : null;
+    String? plannedContent = islamicStudyPlans.isNotEmpty
+        ? islamicStudyPlans[0].plannedContent
+        : null;
+    String? executedContent = islamicStudyPlans.isNotEmpty
+        ? islamicStudyPlans[0].executedContent
+        : null;
+
     // طباعة معلومات تصحيح للتحقق من البيانات
-    print("------> Islamic Study Plans in _buildIslamicStudiesSection: ${islamicStudyPlans.length}");
+    print(
+        "------> Islamic Study Plans in _buildIslamicStudiesSection: ${islamicStudyPlans.length}");
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -985,7 +1125,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                 children: [
                   const Text('المقرر: ',
                       style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text(subject??'none'),
+                  Text(subject ?? 'none'),
                 ],
               ),
               const SizedBox(height: 8),
@@ -995,7 +1135,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                   const Text('المحتوى: ',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Expanded(
-                    child: Text(plannedContent??'none'),
+                    child: Text(plannedContent ?? 'none'),
                   ),
                 ],
               ),
@@ -1031,7 +1171,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                   const Text('المحتوى: ',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Expanded(
-                    child: Text(executedContent??'none'),
+                    child: Text(executedContent ?? 'none'),
                   ),
                 ],
               ),

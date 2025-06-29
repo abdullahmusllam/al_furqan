@@ -179,8 +179,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.of(context).push(CupertinoPageRoute(
-                          builder: (context) =>
-                          TeacherManagement()));
+                          builder: (context) => TeacherManagement()));
                     },
                   ),
                   _buildMenuItem(
@@ -243,8 +242,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                       Navigator.push(
                         context,
                         CupertinoPageRoute(
-                          builder: (context) =>
-                              HalqatListPage(user: widget.user!),
+                          builder: (context) => HalqatListPage(),
                         ),
                       );
                     },

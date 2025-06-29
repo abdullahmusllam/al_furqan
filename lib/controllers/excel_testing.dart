@@ -261,11 +261,8 @@ class ExcelTesting {
 //       }
 //     }
 //   }
-  Future<void> _insertValidData(
-    BuildContext context,
-    List<StudentModel> students,
-      List<UserModel>fathers
-  ) async {
+  Future<void> _insertValidData(BuildContext context,
+      List<StudentModel> students, List<UserModel> fathers) async {
     int successfulInserts = 0;
 
     for (int i = 0; i < students.length; i++) {
@@ -282,7 +279,7 @@ class ExcelTesting {
 
       if (!studentExists) {
         // إضافة الطالب إذا لم يكن موجودًا
-        final studentId = await studentController.addStudent(students[i]);
+        final studentId = await studentController.addStudent(students[i], 1);
         print("Added student with ID: $studentId");
         successfulInserts++;
       } else {

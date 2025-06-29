@@ -6,12 +6,14 @@ import 'package:al_furqan/services/firebase_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:al_furqan/services/verification_service.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:uuid/uuid.dart';
 
 class UserController {
   final VerificationService _verificationService = VerificationService();
   final List<UserModel> _users = [];
   final List<UserModel> _requests = [];
   final SqlDb _sqlDb = SqlDb();
+  var uuid = Uuid();
   final FirebaseHelper _service = FirebaseHelper();
   final PasswordResetModel _model = PasswordResetModel();
   // var db = sqlDb.database;
@@ -25,7 +27,7 @@ class UserController {
   List<UserModel> _mapResponseToUserModel(List<Map> response) {
     return response.map((data) {
       return UserModel(
-        user_id: data['user_id'] as int?,
+        user_id: data['user_id'] as String?,
         first_name: data['first_name'],
         middle_name: data['middle_name'],
         grandfather_name: data['grandfather_name'],
@@ -44,7 +46,8 @@ class UserController {
 
   Future<void> addRequest(UserModel userModel) async {
     final db = await sqlDb.database;
-    userModel.user_id = await someController.newId("Users", "user_id");
+    // userModel.user_id = await someController.newId("Users", "user_id");
+    userModel.user_id = uuid.v4();
     userModel.isActivate = 0;
     if (await isConnected()) {
       userModel.isSync = 1;
@@ -85,7 +88,8 @@ class UserController {
     print("-------------> here add user");
     final db = await sqlDb.database;
     if (type == 1) {
-      userModel.user_id = await someController.newId("Users", "user_id");
+      // userModel.user_id = await someController.newId("Users", "user_id");
+      userModel.user_id = uuid.v4();
       if (await isConnected()) {
         userModel.isSync = 1;
         await firebasehelper.addUser(userModel);
@@ -106,7 +110,7 @@ class UserController {
   }
 
   // Method to delete a user
-  Future<void> deleteUser(int userId) async {
+  Future<void> deleteUser(String userId) async {
     int response =
         await _sqlDb.deleteData("DELETE FROM USERS WHERE user_id = $userId");
     print(response);
@@ -115,7 +119,7 @@ class UserController {
   }
 
   // Method to activate a user
-  Future<void> activateUser(int userId) async {
+  Future<void> activateUser(String userId) async {
     try {
       if (await isConnected()) {
         await firebasehelper.activateUser(userId);
@@ -133,7 +137,7 @@ class UserController {
   }
 
   // Method to delete a request
-  Future<void> deleteRequest(int userId) async {
+  Future<void> deleteRequest(String userId) async {
     await _sqlDb.deleteData(
         "DELETE FROM USERS WHERE user_id = $userId AND isActivate = 0");
     await getDataRequests();
@@ -153,28 +157,10 @@ class UserController {
         await db.update('USERS', userModel.toMap(),
             where: 'user_id = ?', whereArgs: [userModel.user_id]);
       }
+    } else {
       await db.update('USERS', userModel.toMap(),
           where: 'user_id = ?', whereArgs: [userModel.user_id]);
     }
-    int response = await _sqlDb.updateData('''
-    UPDATE USERS SET
-      ActivityID = ${userModel.activityID},
-      ElhalagatID = ${userModel.elhalagatID},
-      first_name = '${userModel.first_name}',
-      middle_name = '${userModel.middle_name}',
-      grandfather_name = '${userModel.grandfather_name}',
-      last_name = '${userModel.last_name}',
-      password = '${userModel.password}',
-      email = '${userModel.email}',
-      phone_number = '${userModel.phone_number}',
-      telephone_number = '${userModel.telephone_number}',
-      roleID = ${userModel.roleID},
-      schoolID = ${userModel.schoolID},
-      date = '${userModel.date}',
-      isActivate = ${userModel.isActivate}
-    WHERE user_id = ${userModel.user_id}
-    ''');
-    print("response = $response");
   }
 
   // Method to add a new request
@@ -186,12 +172,13 @@ class UserController {
         await InternetConnectionChecker.createInstance().hasConnection;
 
     if (connection) {
+      print("===== sssssss =====");
       List<UserModel> responseFirebase = await firebasehelper.getUsers();
-      print("responseFirebase = $responseFirebase");
+      print("===== responseFirebase = $responseFirebase =====");
 
       for (var user in responseFirebase) {
         bool exists =
-            await _sqlDb.checkIfitemExists("Users", user.user_id!, "user_id");
+            await _sqlDb.checkIfitemExists2("Users", user.user_id!, "user_id");
         if (exists) {
           await updateUser(user, 0);
         } else {
@@ -205,21 +192,19 @@ class UserController {
   }
 
   // إضافة بيانات الأب إلى Firebase
-  Future<void> addFatherToFirebase(UserModel fatherData, int schoolID) async {
-    print("جاري إضافة ولي الأمر إلى Firebase - معرف المدرسة: $schoolID");
+  Future<void> addFatherToFirebase(UserModel fatherData) async {
+    // print("جاري إضافة ولي الأمر إلى Firebase - معرف المدرسة: $schoolID");
     // التحقق أولاً من وجود اتصال بالإنترنت
     bool hasConnection =
         await InternetConnectionChecker.createInstance().hasConnection;
-    if (!hasConnection) {
-      print("لا يوجد اتصال بالإنترنت، لا يمكن إضافة ولي الأمر إلى Firebase");
-      return;
-    }
-
+    // if (!hasConnection) {
+    //   print("لا يوجد اتصال بالإنترنت، لا يمكن إضافة ولي الأمر إلى Firebase");
+    //   return;
+    // }
     if (fatherData.user_id == null) {
       print("تحذير: معرف ولي الأمر غير موجود (user_id = null)");
       return; // لا يمكن الإضافة إلى Firebase بدون معرف
     }
-
     try {
       // إرسال البيانات إلى Firebase
       await firebasehelper.addRequest(fatherData);

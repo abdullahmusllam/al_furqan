@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ConservationPlanModel {
   String? conservationPlanId;
   int? elhalagatId;
-  int? studentId;
+  String? studentId;
   String? plannedStartSurah;
   int? plannedStartAya;
   String? plannedEndSurah;

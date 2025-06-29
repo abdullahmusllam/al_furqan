@@ -38,7 +38,7 @@ class MessageController {
     final result = await db.query('messages');
     return result.map((json) => Message.fromMap(json)).toList();
   }
-  
+
   // Get messages for a specific receiver
   Future<List<Message>> getMessagesForReceiver(int receiverId) async {
     final db = await sqlDb.database;
@@ -49,7 +49,7 @@ class MessageController {
     );
     return result.map((json) => Message.fromMap(json)).toList();
   }
-  
+
   // عدد الرسائل غير المقروءة للمستخدم
   Future<int> getUnreadMessagesCount(int receiverId) async {
     try {
@@ -64,9 +64,9 @@ class MessageController {
       return 0; // إرجاع 0 في حالة حدوث خطأ
     }
   }
-  
+
   // تعليم الرسائل كمقروءة
-  Future<void> markMessagesAsRead(int receiverId) async {
+  Future<void> markMessagesAsRead(String receiverId) async {
     try {
       // تحديث قاعدة البيانات المحلية
       final db = await sqlDb.database;
@@ -76,10 +76,9 @@ class MessageController {
         where: 'receiverId = ? AND isRead = 0',
         whereArgs: [receiverId],
       );
-      
+
       // تحديث قاعدة بيانات الفايربيس
       await messageService.updateMessagesReadStatus(receiverId);
-      
     } catch (e) {
       print('خطأ في تعليم الرسائل كمقروءة: $e');
     }

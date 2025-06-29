@@ -19,8 +19,7 @@ class PlanController {
   Future<int> addConservationPlan2(ConservationPlanModel plan) async {
     try {
       plan.planMonth = DateFormat('yyyy-MM').format(DateTime.now());
-      String newConservationPlanID =
-          await getMaxValue();
+      String newConservationPlanID = await getMaxValue();
       plan.conservationPlanId = newConservationPlanID;
 
       print(
@@ -62,11 +61,12 @@ class PlanController {
     try {
       plan.planMonth = DateFormat('yyyy-MM').format(DateTime.now());
       String newEltlawahPlanID = await getMaxValue();
-    plan.eltlawahPlanId = newEltlawahPlanID;
+      plan.eltlawahPlanId = newEltlawahPlanID;
 
       // إذا كانت الخطة للحلقة بأكملها، نضع قيمة خاصة لـ studentId
       if (isForWholeHalaga) {
-        plan.studentId = -1; // قيمة خاصة تشير إلى أن الخطة للحلقة بأكملها
+        plan.studentId =
+            (-1) as String?; // قيمة خاصة تشير إلى أن الخطة للحلقة بأكملها
         print("----------> Adding Eltlawah Plan for the whole Halaga");
       } else {
         print("----------> studentId for EltlawahPlans is :${plan.studentId}");
@@ -105,8 +105,7 @@ class PlanController {
       {bool isForWholeHalaga = true}) async {
     try {
       plan.planMonth = DateFormat('yyyy-MM').format(DateTime.now());
-      String newIslamicStudiesID =
-          await getMaxValue();
+      String newIslamicStudiesID = await getMaxValue();
       plan.islamicStudiesID = newIslamicStudiesID;
 
       if (isForWholeHalaga) {
@@ -147,7 +146,7 @@ class PlanController {
     }
   }
 
-  Future<List<int>> getAllStudentsHalaga(int halagaId) async {
+  Future<List<String>> getAllStudentsHalaga(int halagaId) async {
     final db = await sqlDb.database;
     final result = await db.query(
       'Students',
@@ -157,7 +156,7 @@ class PlanController {
       orderBy: 'StudentID ASC',
     );
     print("-----> studentsID from DB: $result");
-    return result.map((e) => e['StudentID'] as int).toList();
+    return result.map((e) => e['StudentID'] as String).toList();
   }
 
   Future<void> clearAllPlans() async {
@@ -223,39 +222,48 @@ class PlanController {
       }
 
       print("-------------------> بدء جلب الخطط من فايربيس للحلقة: $halagaId");
-      
+
       // مسح البيانات القديمة
-      await sqlDb.deleteData2('ConservationPlans', 'ElhalagatID', halagaId.toString());
-      await sqlDb.deleteData2('EltlawahPlans', 'ElhalagatID', halagaId.toString());
-      await sqlDb.deleteData2('IslamicStudies', 'ElhalagatID', halagaId.toString());
+      await sqlDb.deleteData2(
+          'ConservationPlans', 'ElhalagatID', halagaId.toString());
+      await sqlDb.deleteData2(
+          'EltlawahPlans', 'ElhalagatID', halagaId.toString());
+      await sqlDb.deleteData2(
+          'IslamicStudies', 'ElhalagatID', halagaId.toString());
 
       // جلب البيانات الجديدة من فايربيس
       print("-------------------> جلب خطط الحفظ");
-      var responseConservationPlan = await firebasehelper.getConservationPlans(halagaId);
+      var responseConservationPlan =
+          await firebasehelper.getConservationPlans(halagaId);
       print("-------------------> جلب خطط التلاوة");
-      var responseEltlawahPlan = await firebasehelper.getEltlawahPlans(halagaId);
+      var responseEltlawahPlan =
+          await firebasehelper.getEltlawahPlans(halagaId);
       print("-------------------> جلب خطط العلوم الشرعية");
-      var responseIslamicStudyPlan = await firebasehelper.getIslamicStudyPlans(halagaId);
+      var responseIslamicStudyPlan =
+          await firebasehelper.getIslamicStudyPlans(halagaId);
 
       // إضافة البيانات إلى قاعدة البيانات المحلية
-      if(responseConservationPlan.isNotEmpty){
-        print("-------------------> إضافة ${responseConservationPlan.length} خطة حفظ");
+      if (responseConservationPlan.isNotEmpty) {
+        print(
+            "-------------------> إضافة ${responseConservationPlan.length} خطة حفظ");
         for (var plan in responseConservationPlan) {
           await sqlDb.insertData2('ConservationPlans', plan.toMap());
         }
         conservationPlans = responseConservationPlan; // تحديث القائمة المحلية
       }
 
-      if(responseEltlawahPlan.isNotEmpty){
-        print("-------------------> إضافة ${responseEltlawahPlan.length} خطة تلاوة");
+      if (responseEltlawahPlan.isNotEmpty) {
+        print(
+            "-------------------> إضافة ${responseEltlawahPlan.length} خطة تلاوة");
         for (var plan in responseEltlawahPlan) {
           await sqlDb.insertData2('EltlawahPlans', plan.toMap());
         }
         eltlawahPlans = responseEltlawahPlan; // تحديث القائمة المحلية
       }
 
-      if(responseIslamicStudyPlan.isNotEmpty){
-        print("-------------------> إضافة ${responseIslamicStudyPlan.length} خطة علوم شرعية");
+      if (responseIslamicStudyPlan.isNotEmpty) {
+        print(
+            "-------------------> إضافة ${responseIslamicStudyPlan.length} خطة علوم شرعية");
         for (var plan in responseIslamicStudyPlan) {
           await sqlDb.insertData2('IslamicStudies', plan.toMap());
         }
@@ -263,7 +271,6 @@ class PlanController {
       }
 
       print("-------------------> تم الانتهاء من مزامنة جميع الخطط بنجاح");
-      
     } catch (e) {
       print("-------------------> خطأ في جلب وتخزين الخطط: $e");
       throw Exception('فشل في مزامنة الخطط: $e');
@@ -366,7 +373,8 @@ class PlanController {
 
       // إذا كانت الخطة للحلقة بأكملها، نضع قيمة خاصة لـ studentId
       if (isForWholeHalaga) {
-        plan.studentId = -1; // قيمة خاصة تشير إلى أن الخطة للحلقة بأكملها
+        plan.studentId =
+            (-1) as String?; // قيمة خاصة تشير إلى أن الخطة للحلقة بأكملها
         updateData['StudentID'] = -1;
         print("----------> Updating Eltlawah Plan for the whole Halaga");
       }

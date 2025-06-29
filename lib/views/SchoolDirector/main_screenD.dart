@@ -50,6 +50,8 @@ class _MainScreenState extends State<MainScreenD> {
       await loadMessages();
       await loadUsersFromFirebase();
     } else {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => SchoolManagerScreen()));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('لا يوجد اتصال بالانترنت لتحديث البيانات'),
@@ -60,18 +62,7 @@ class _MainScreenState extends State<MainScreenD> {
   }
 
   Future<void> loadUsersFromFirebase() async {
-    List<UserModel> users = await firebasehelper.getUsers();
-    for (var user in users) {
-      bool exists =
-          await sqlDb.checkIfitemExists("Users", user.user_id!, "user_id");
-      if (exists) {
-        await userController.updateUser(user, 0);
-        print('===== Find user (update) =====');
-      } else {
-        await userController.addUser(user, 0);
-        print('===== Find user (add) =====');
-      }
-    }
+    await userController.addToLocalOfFirebase();
   }
 
   Future<void> loadStudents() async {
@@ -79,13 +70,13 @@ class _MainScreenState extends State<MainScreenD> {
     int? schoolId = perfs.getInt('schoolId');
     print('===== schoolID ($schoolId) =====');
     // تحميل الطلاب من فايربيس
-    await studentController.addToLocalOfFirebase(schoolId!); 
+    await studentController.addToLocalOfFirebase(schoolId!);
   }
 
   Future<void> loadMessages() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      int? Id = prefs.getInt('user_id');
+      String? Id = prefs.getString('user_id');
       print('===== ($Id) =====');
       // تحميل الرسائل من فايربيس
       await messageService.loadMessagesFromFirestore(Id!);
@@ -110,7 +101,6 @@ class _MainScreenState extends State<MainScreenD> {
       print('===== schoolID ($schoolId) =====');
       // تحميل الحلقات من فايربيس
       await halagaController.getHalagatFromFirebaseByID(schoolId!, 'schoolID');
-      
     } catch (e) {
       print('خطأ في تحميل الحلقات: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -120,35 +110,35 @@ class _MainScreenState extends State<MainScreenD> {
         ),
       );
     }
+    if (!mounted) return;
     setState(() {
       isLoading = false;
     });
-
   }
 
   Future<void> loadPlans() async {
-    try {  
+    try {
       halagaController.halagatId.clear();
-      
+
       final prefs = await SharedPreferences.getInstance();
       int? schoolId = prefs.getInt('schoolId');
       if (schoolId != null) {
         List<HalagaModel> halaqat = await halagaController.getData(schoolId);
-        
+
         for (var halqa in halaqat) {
           if (halqa.halagaID != null) {
             halagaController.halagatId.add(halqa.halagaID!);
           }
         }
       }
-      
+
       List<int> halagaIds = halagaController.halagatId;
-      if(halagaIds.isEmpty){
+      if (halagaIds.isEmpty) {
         print('===== قائمة معرفات الحلقات فارغة =====');
         return;
       }
-      
-      for(int halagaId in halagaIds){
+
+      for (int halagaId in halagaIds) {
         await planController.getPlansFirebaseToLocal(halagaId);
       }
     } catch (e) {

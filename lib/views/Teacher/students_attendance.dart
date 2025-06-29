@@ -11,19 +11,20 @@ class StudentsAttendance extends StatefulWidget {
   State<StudentsAttendance> createState() => _StudentsAttendanceState();
 }
 
-class _StudentsAttendanceState extends State<StudentsAttendance> with UserDataMixin {
+class _StudentsAttendanceState extends State<StudentsAttendance>
+    with UserDataMixin {
   final StudentController _studentController = StudentController();
   List<StudentModel> _students = [];
   bool _isLoading = true;
   String? _errorMessage;
   DateTime _selectedDate = DateTime.now();
-  
+
   // خريطة لتتبع حالة الحضور لكل طالب
   // المفتاح: معرف الطالب، القيمة: true (حاضر) أو false (غائب)
-  Map<int?, bool> _attendanceStatus = {};
-  
+  Map<String?, bool> _attendanceStatus = {};
+
   // خريطة لتخزين أسباب الغياب
-  Map<int?, String> _absenceReasons = {};
+  Map<String?, String> _absenceReasons = {};
 
   @override
   void initState() {
@@ -51,7 +52,7 @@ class _StudentsAttendanceState extends State<StudentsAttendance> with UserDataMi
 
       // تحميل الطلاب من حلقة المعلم
       final students = await _studentController.getStudents(user!.elhalagatID!);
-      
+
       // تعيين جميع الطلاب كحاضرين افتراضياً
       for (var student in students) {
         _attendanceStatus[student.studentID] = true;
@@ -87,7 +88,7 @@ class _StudentsAttendanceState extends State<StudentsAttendance> with UserDataMi
         );
       },
     );
-    
+
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
@@ -121,7 +122,7 @@ class _StudentsAttendanceState extends State<StudentsAttendance> with UserDataMi
     );
 
     print("------> جاري حفظ بيانات الحضور");
-    
+
     try {
       // هنا يمكنك تنفيذ المنطق اللازم لحفظ بيانات الحضور
       // على سبيل المثال، قد تقوم باستدعاء طريقة في وحدة التحكم للحفظ في قاعدة البيانات
@@ -130,17 +131,13 @@ class _StudentsAttendanceState extends State<StudentsAttendance> with UserDataMi
         if (_attendanceStatus[student.studentID] == false) {
           print("تحديث بيانات الطالب - غائب");
           await _studentController.updateAttendance(
-            student.studentID!, 
-            _attendanceStatus[student.studentID]!,
-            _absenceReasons[student.studentID] ?? "بدون سبب"
-          );
+              student.studentID!,
+              _attendanceStatus[student.studentID]!,
+              _absenceReasons[student.studentID] ?? "بدون سبب");
         } else {
           print("تحديث بيانات الطالب - حاضر");
           await _studentController.updateAttendance(
-            student.studentID!, 
-            _attendanceStatus[student.studentID]!,
-            "-"
-          );
+              student.studentID!, _attendanceStatus[student.studentID]!, "-");
         }
       }
 
@@ -174,7 +171,7 @@ class _StudentsAttendanceState extends State<StudentsAttendance> with UserDataMi
   void _showAbsenceReasonDialog(StudentModel student) {
     final TextEditingController reasonController = TextEditingController();
     reasonController.text = _absenceReasons[student.studentID] ?? '';
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -227,7 +224,9 @@ class _StudentsAttendanceState extends State<StudentsAttendance> with UserDataMi
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _errorMessage != null
-              ? Center(child: Text(_errorMessage!, style: TextStyle(color: Colors.red)))
+              ? Center(
+                  child:
+                      Text(_errorMessage!, style: TextStyle(color: Colors.red)))
               : Column(
                   children: [
                     // عرض التاريخ
@@ -262,12 +261,18 @@ class _StudentsAttendanceState extends State<StudentsAttendance> with UserDataMi
                           ),
                           _buildStatCard(
                             'الحضور',
-                            _attendanceStatus.values.where((v) => v).length.toString(),
+                            _attendanceStatus.values
+                                .where((v) => v)
+                                .length
+                                .toString(),
                             Colors.green,
                           ),
                           _buildStatCard(
                             'الغياب',
-                            _attendanceStatus.values.where((v) => !v).length.toString(),
+                            _attendanceStatus.values
+                                .where((v) => !v)
+                                .length
+                                .toString(),
                             Colors.red,
                           ),
                         ],
@@ -281,14 +286,18 @@ class _StudentsAttendanceState extends State<StudentsAttendance> with UserDataMi
                               itemCount: _students.length,
                               itemBuilder: (context, index) {
                                 final student = _students[index];
-                                final isPresent = _attendanceStatus[student.studentID] ?? true;
-                                
+                                final isPresent =
+                                    _attendanceStatus[student.studentID] ??
+                                        true;
+
                                 return Card(
-                                  margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
                                   elevation: 2,
                                   child: ListTile(
                                     leading: CircleAvatar(
-                                      backgroundColor: isPresent ? Colors.green : Colors.red,
+                                      backgroundColor:
+                                          isPresent ? Colors.green : Colors.red,
                                       child: Icon(
                                         isPresent ? Icons.check : Icons.close,
                                         color: Colors.white,
@@ -296,12 +305,17 @@ class _StudentsAttendanceState extends State<StudentsAttendance> with UserDataMi
                                     ),
                                     title: Text(
                                       '${student.firstName ?? ''} ${student.middleName ?? ''} ${student.lastName ?? ''}',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
                                     ),
-                                    subtitle: !isPresent && _absenceReasons[student.studentID]?.isNotEmpty == true
+                                    subtitle: !isPresent &&
+                                            _absenceReasons[student.studentID]
+                                                    ?.isNotEmpty ==
+                                                true
                                         ? Text(
                                             'سبب الغياب: ${_absenceReasons[student.studentID]}',
-                                            style: TextStyle(color: Colors.red.shade700),
+                                            style: TextStyle(
+                                                color: Colors.red.shade700),
                                           )
                                         : null,
                                     trailing: Row(
@@ -310,22 +324,28 @@ class _StudentsAttendanceState extends State<StudentsAttendance> with UserDataMi
                                         // زر سبب الغياب
                                         if (!isPresent)
                                           IconButton(
-                                            icon: Icon(Icons.edit_note, color: Colors.orange),
-                                            onPressed: () => _showAbsenceReasonDialog(student),
+                                            icon: Icon(Icons.edit_note,
+                                                color: Colors.orange),
+                                            onPressed: () =>
+                                                _showAbsenceReasonDialog(
+                                                    student),
                                             tooltip: 'سبب الغياب',
                                           ),
                                         // مفتاح تبديل الحضور
                                         Switch(
                                           value: isPresent,
                                           activeColor: Colors.green,
-                                          inactiveTrackColor: Colors.red.shade200,
+                                          inactiveTrackColor:
+                                              Colors.red.shade200,
                                           inactiveThumbColor: Colors.red,
                                           onChanged: (value) {
                                             setState(() {
-                                              _attendanceStatus[student.studentID] = value;
+                                              _attendanceStatus[
+                                                  student.studentID] = value;
                                               // إذا تم تحديد الطالب كحاضر، قم بمسح سبب الغياب
                                               if (value) {
-                                                _absenceReasons.remove(student.studentID);
+                                                _absenceReasons
+                                                    .remove(student.studentID);
                                               }
                                             });
                                           },
@@ -359,7 +379,8 @@ class _StudentsAttendanceState extends State<StudentsAttendance> with UserDataMi
           SizedBox(height: 4),
           Text(
             value,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
+            style: TextStyle(
+                fontSize: 18, fontWeight: FontWeight.bold, color: color),
           ),
         ],
       ),

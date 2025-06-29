@@ -66,7 +66,7 @@ class HalagaController {
 
     if (data.isNotEmpty) {
       for (var i = 0; i < data.length; i++) {
-        int? userID = data[i]['user_id'] as int?;
+        String? userID = data[i]['user_id'] as String?;
         String firstName = data[i]['first_name'] ?? 'اسم غير متوفر';
         String lastName = data[i]['last_name'] ?? 'اسم غير متوفر';
         int? roleID = data[i]['roleID'] as int?;
@@ -156,7 +156,7 @@ class HalagaController {
     }
   }
 
-  updateTeacherAssignment(int halagaId, int teacherId) async {
+  updateTeacherAssignment(int halagaId, String teacherId) async {
     try {
       if (await isConnected()) {
         ///الغاء ارتباط المعلم

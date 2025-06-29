@@ -1,4 +1,5 @@
 import 'package:al_furqan/controllers/HalagaController.dart';
+import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
@@ -9,8 +10,8 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class HalqatListPage extends StatefulWidget {
-  UserModel? user;
-  HalqatListPage({super.key, required this.user});
+  int? schoolIdS;
+  HalqatListPage({super.key, this.schoolIdS});
 
   @override
   State<HalqatListPage> createState() => _HalqatListPageState();
@@ -27,7 +28,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
   void initState() {
     super.initState();
     // استدعاء جلب الحلقات من Firebase وتحميل البيانات
-      _loadHalaqat();
+    _loadHalaqat();
   }
 
   // دالة لجلب الحلقات وأسماء المعلمين
@@ -36,21 +37,22 @@ class _HalqatListPageState extends State<HalqatListPage> {
       halaqat = []; // تهيئة القائمة عند تحميل البيانات
       teacherNames = {}; // تهيئة خريطة أسماء المعلمين
     });
-
-    int? schoolID = widget.user?.schoolID;
+    int? schoolID = widget.schoolIdS ?? perf.getInt("schoolId");
 
     if (schoolID != null) {
       try {
         // جلب الحلقات
-        List<HalagaModel>? loadedHalaqat = await halagaController.getData(schoolID);
+        List<HalagaModel>? loadedHalaqat =
+            await halagaController.getData(schoolID);
         if (loadedHalaqat != null && loadedHalaqat.isNotEmpty) {
           halaqat = loadedHalaqat;
-          
+
           print('تم تحميل ${halaqat.length} حلقة');
 
           // جلب أسماء المعلمين لكل حلقة
           for (var halqa in halaqat) {
-            halqa.teacherName = await halagaController.getTeacher(halqa.halagaID!);
+            halqa.teacherName =
+                await halagaController.getTeacher(halqa.halagaID!);
             print(halqa.teacherName);
           }
         } else {
@@ -156,7 +158,8 @@ class _HalqatListPageState extends State<HalqatListPage> {
                             halqa.teacherName == 'لا يوجد معلم للحلقة'
                                 ? Colors.red
                                 : Colors.green[700]!;
-                        return _buildHalqaCard(halqa, halqa.teacherName ?? '', teacherTextColor);
+                        return _buildHalqaCard(
+                            halqa, halqa.teacherName ?? '', teacherTextColor);
                       },
                     ),
             ),
@@ -165,15 +168,10 @@ class _HalqatListPageState extends State<HalqatListPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // الانتقال لصفحة إضافة حلقة جديدة
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      AddHalaqaScreen(user: widget.user!))).then((_) {
-            // تحديث القائمة بعد العودة من إضافة حلقة
+          Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AddHalaqaScreen()))
+              .then((_) {
             _loadHalaqat();
-            // إظهار رسالة تأكيد تحديث البيانات
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('تم تحديث قائمة الحلقات'),
@@ -189,7 +187,8 @@ class _HalqatListPageState extends State<HalqatListPage> {
   }
 
   // دالة لإنشاء كارد الحلقة
-  Widget _buildHalqaCard(HalagaModel halqa, String teacherName, Color teacherTextColor) {
+  Widget _buildHalqaCard(
+      HalagaModel halqa, String teacherName, Color teacherTextColor) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Card(
@@ -252,7 +251,8 @@ class _HalqatListPageState extends State<HalqatListPage> {
                           SizedBox(height: 4),
                           Row(
                             children: [
-                              Icon(Icons.person, size: 16, color: teacherTextColor),
+                              Icon(Icons.person,
+                                  size: 16, color: teacherTextColor),
                               SizedBox(width: 4),
                               Expanded(
                                 child: Text(
@@ -293,7 +293,8 @@ class _HalqatListPageState extends State<HalqatListPage> {
                     Row(
                       children: [
                         IconButton(
-                          icon: Icon(Icons.picture_as_pdf, color: Colors.orange, size: 20),
+                          icon: Icon(Icons.picture_as_pdf,
+                              color: Colors.orange, size: 20),
                           tooltip: 'تقرير PDF',
                           onPressed: () {
                             _showPdfFeatureDialog(context, halqa);
@@ -306,7 +307,8 @@ class _HalqatListPageState extends State<HalqatListPage> {
                             _showDeleteConfirmationDialog(halqa);
                           },
                         ),
-                        Icon(Icons.arrow_forward_ios, color: Colors.teal, size: 16),
+                        Icon(Icons.arrow_forward_ios,
+                            color: Colors.teal, size: 16),
                       ],
                     ),
                   ],

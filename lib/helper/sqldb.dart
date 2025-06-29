@@ -37,14 +37,14 @@ class SqlDb {
 
   _onUpgrade(Database db, int oldVersion, int newVersion) async {
     try {
-        // تعطيل قيود المفاتيح الأجنبية مؤقتًا
-        await db.execute('PRAGMA foreign_keys=off;');
-        
-        // بدء المعاملة
-        await db.execute('BEGIN TRANSACTION;');
-        
-        // إنشاء جدول مؤقت بالهيكل الجديد (بدون حقل StudentID أو بجعله اختياري)
-        await db.execute('''
+      // تعطيل قيود المفاتيح الأجنبية مؤقتًا
+      await db.execute('PRAGMA foreign_keys=off;');
+
+      // بدء المعاملة
+      await db.execute('BEGIN TRANSACTION;');
+
+      // إنشاء جدول مؤقت بالهيكل الجديد (بدون حقل StudentID أو بجعله اختياري)
+      await db.execute('''
           CREATE TABLE IslamicStudies_temp (
             "IslamicStudiesID" INTEGER NOT NULL PRIMARY KEY ,
             "ElhalagatID" INTEGER NOT NULL,
@@ -57,30 +57,32 @@ class SqlDb {
             CONSTRAINT "elhalagatidfk" FOREIGN KEY("ElhalagatID") REFERENCES "Elhalagat"("halagaID")
           );
         ''');
-        
-        // نسخ البيانات من الجدول القديم إلى الجدول المؤقت
-        await db.execute('INSERT INTO IslamicStudies_temp SELECT * FROM IslamicStudies;');
-        
-        // حذف الجدول القديم
-        await db.execute('DROP TABLE IslamicStudies;');
-        
-        // إعادة تسمية الجدول المؤقت
-        await db.execute('ALTER TABLE IslamicStudies_temp RENAME TO IslamicStudies;');
-        
-        // إنهاء المعاملة
-        await db.execute('COMMIT;');
-        
-        // إعادة تفعيل قيود المفاتيح الأجنبية
-        await db.execute('PRAGMA foreign_keys=on;');
-        
-        print("---------------------------> Upgrade to version 7 completed successfully!");
-      } catch (e) {
-        // التراجع عن المعاملة في حالة حدوث خطأ
-        await db.execute('ROLLBACK;');
-        print("---------------------------> Error upgrading database: $e");
-      }
-  }
 
+      // نسخ البيانات من الجدول القديم إلى الجدول المؤقت
+      await db.execute(
+          'INSERT INTO IslamicStudies_temp SELECT * FROM IslamicStudies;');
+
+      // حذف الجدول القديم
+      await db.execute('DROP TABLE IslamicStudies;');
+
+      // إعادة تسمية الجدول المؤقت
+      await db
+          .execute('ALTER TABLE IslamicStudies_temp RENAME TO IslamicStudies;');
+
+      // إنهاء المعاملة
+      await db.execute('COMMIT;');
+
+      // إعادة تفعيل قيود المفاتيح الأجنبية
+      await db.execute('PRAGMA foreign_keys=on;');
+
+      print(
+          "---------------------------> Upgrade to version 7 completed successfully!");
+    } catch (e) {
+      // التراجع عن المعاملة في حالة حدوث خطأ
+      await db.execute('ROLLBACK;');
+      print("---------------------------> Error upgrading database: $e");
+    }
+  }
 
   Future<String> loadSqlScript() async {
     return await rootBundle.loadString('assets/database/al_furqan.db');
@@ -160,6 +162,17 @@ class SqlDb {
   }
 
   Future<bool> checkIfitemExists(String table, int id, String column) async {
+    final db = await database;
+    final result = await db.query(
+      table,
+      where: '$column = ?',
+      whereArgs: [id],
+    );
+    return result.isNotEmpty;
+  }
+
+  Future<bool> checkIfitemExists2(
+      String table, String id, String column) async {
     final db = await database;
     final result = await db.query(
       table,

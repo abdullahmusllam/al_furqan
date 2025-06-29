@@ -158,7 +158,8 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
                 content: [
                   // شهر الخطة بشكل مميز
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.blue.shade50,
                       borderRadius: BorderRadius.circular(8),
@@ -168,7 +169,8 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.calendar_month, color: Colors.blue, size: 18),
+                        const Icon(Icons.calendar_month,
+                            color: Colors.blue, size: 18),
                         const SizedBox(width: 8),
                         Text(
                           "خطة شهر ${plan.planMonth}",
@@ -194,7 +196,8 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
                       children: [
                         Row(
                           children: const [
-                            Icon(Icons.check_circle, color: Colors.green, size: 16),
+                            Icon(Icons.check_circle,
+                                color: Colors.green, size: 16),
                             SizedBox(width: 8),
                             Text(
                               "المخطط",
@@ -226,7 +229,8 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
                       children: [
                         Row(
                           children: const [
-                            Icon(Icons.assignment_turned_in, color: Colors.orange, size: 16),
+                            Icon(Icons.assignment_turned_in,
+                                color: Colors.orange, size: 16),
                             SizedBox(width: 8),
                             Text(
                               "المنفذ",
@@ -238,9 +242,12 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
                           ],
                         ),
                         const SizedBox(height: 5),
-                        _buildInfoRow('من', '${plan.executedStartSurah} ، ${plan.executedStartAya}'),
-                        _buildInfoRow('إلى', '${plan.executedEndSurah} ، ${plan.executedEndAya}'),
-                        _buildInfoRow('معدل التنفيذ', '${(plan.executedRate ?? 0) * 100}%'),
+                        _buildInfoRow('من',
+                            '${plan.executedStartSurah} ، ${plan.executedStartAya}'),
+                        _buildInfoRow('إلى',
+                            '${plan.executedEndSurah} ، ${plan.executedEndAya}'),
+                        _buildInfoRow('معدل التنفيذ',
+                            '${(plan.executedRate ?? 0) * 100}%'),
 
                         // يمكن إضافة معلومات منفذة أخرى هنا إذا كانت متوفرة
                       ],
@@ -293,8 +300,6 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
             },
           );
   }
-
-
 
   Widget _buildEmptyState(String message, IconData icon) {
     return Center(
@@ -487,7 +492,7 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
             onPressed: () async {
               try {
                 await planController.deletePlan(planID, table, column);
-                if (table == "ConservationPlans") { 
+                if (table == "ConservationPlans") {
                   await firebasehelper.deleteConservationPlan(planID);
                 } else if (table == "EltlawahPlans") {
                   await firebasehelper.deleteEltlawahPlan(planID);
@@ -529,8 +534,8 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
   void _editPlan(BuildContext context, dynamic plan) {
     // تحديد نوع الخطة المراد تعديلها
     String planType = "";
-    int studentId = 0;
-  
+    String studentId = "";
+
     if (plan is ConservationPlanModel) {
       planType = "conservation";
       studentId = plan.studentId!;
@@ -540,9 +545,12 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
     }
 
     // البحث عن الطالب المناسب
-    StudentModel student = StudentModel(firstName: "طالب", lastName: "افتراضي", studentID: studentId); // طالب افتراضي
+    StudentModel student = StudentModel(
+        firstName: "طالب",
+        lastName: "افتراضي",
+        studentID: studentId); // طالب افتراضي
     bool foundStudent = false;
-    
+
     for (var s in studentController.students) {
       if (s.studentID == studentId) {
         student = s;
@@ -554,7 +562,8 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
     if (!foundStudent) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('لم يتم العثور على الطالب، سيتم استخدام بيانات افتراضية'),
+          content:
+              Text('لم يتم العثور على الطالب، سيتم استخدام بيانات افتراضية'),
           backgroundColor: Colors.orange,
         ),
       );

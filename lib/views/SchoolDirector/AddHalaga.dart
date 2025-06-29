@@ -1,6 +1,7 @@
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
@@ -12,11 +13,13 @@ import '../../../controllers/TeacherController.dart';
 class AddHalaqaScreen extends StatefulWidget {
   @override
   _AddHalaqaScreenState createState() => _AddHalaqaScreenState();
-  final UserModel user;
-  const AddHalaqaScreen({super.key, required this.user});
+  const AddHalaqaScreen({
+    super.key,
+  });
 }
 
 class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
+  int? schoolId = perf.getInt("schoolId");
   final _formKey = GlobalKey<FormState>();
   final HalagaModel _halaqaModel = HalagaModel();
   final TextEditingController halqaNameController = TextEditingController();
@@ -37,7 +40,7 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
   UserModel? selectedTeacher; // المتغير الذي يخزن المعلم المختار
 
   List<StudentModel> studentsWithoutHalaga = [];
-  Map<int, bool> selectedStudents = {}; // تخزين الطلاب المحددين
+  Map<String, bool> selectedStudents = {}; // تخزين الطلاب المحددين
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -55,7 +58,7 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
     }
     try {
       // جلب المعلمين حسب SchoolID
-      await teacherController.getTeachersBySchoolID(widget.user.schoolID!);
+      await teacherController.getTeachersBySchoolID(schoolId!);
 
       // ترتيب المعلمين: المتاحين أولاً ثم المرتبطين بحلقات
       List<UserModel> availableTeachers = [];
@@ -96,8 +99,8 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
     }
 
     try {
-      final students = await studentController
-          .getStudentsWithoutHalaga(widget.user.schoolID!);
+      final students =
+          await studentController.getStudentsWithoutHalaga(schoolId!);
       if (mounted) {
         setState(() {
           studentsWithoutHalaga = students;
@@ -383,19 +386,19 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                             }
 
                             // إضافة الحلقة مع البيانات
-                            _halaqaModel.SchoolID = widget.user.schoolID;
+                            _halaqaModel.SchoolID = schoolId;
                             _halaqaModel.Name = halqaNameController.text;
 
                             try {
                               // تعيين عدد الطلاب في نموذج الحلقة
                               int studentCount = selectedStudentCount;
                               _halaqaModel.NumberStudent = studentCount;
-                              
+
                               // إضافة الحلقة
-                              await halagaController.addHalaga(_halaqaModel,1);
+                              await halagaController.addHalaga(_halaqaModel, 1);
 
                               // الحصول على قائمة معرفات الطلاب المحددين
-                              List<int> selectedStudentIds = [];
+                              List<String> selectedStudentIds = [];
                               selectedStudents.forEach((studentId, isSelected) {
                                 if (isSelected) {
                                   selectedStudentIds.add(studentId);
@@ -420,11 +423,16 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                 _halaqaModel.NumberStudent = studentCount;
                                 await halagaController.updateHalaga(
                                     _halaqaModel, 1);
-                                await halagaController.updateTeacherAssignment(selectedTeacher!.user_id!, _halaqaModel.halagaID!);
+                                // await halagaController.updateTeacherAssignment(
+                                //     selectedTeacher!.user_id!,
+                                //     _halaqaModel.halagaID!);
                                 // تحديث elhalagatID للمعلم
-                                selectedTeacher!.elhalagatID = _halaqaModel.halagaID;
-                                await userController.updateUser(selectedTeacher!, 1);
-                                print("تم تحديث المعلم ${selectedTeacher!.first_name} ${selectedTeacher!.last_name} بحلقة رقم ${_halaqaModel.halagaID}");
+                                selectedTeacher!.elhalagatID =
+                                    _halaqaModel.halagaID;
+                                await userController.updateUser(
+                                    selectedTeacher!, 1);
+                                print(
+                                    "تم تحديث المعلم ${selectedTeacher!.first_name} ${selectedTeacher!.last_name} بحلقة رقم ${_halaqaModel.halagaID}");
                               }
 
                               ScaffoldMessenger.of(context).showSnackBar(

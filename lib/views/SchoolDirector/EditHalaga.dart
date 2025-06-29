@@ -23,7 +23,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
   final TextEditingController nameController = TextEditingController();
   List<StudentModel> students = [];
   List<UserModel> teachers = [];
-  int? selectedTeacherId;
+  String? selectedTeacherId;
   bool _isLoading = false;
   bool _isLoadingTeachers = false;
   final _sqlDb = SqlDb();
@@ -148,7 +148,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
     }
   }
 
-  Future<void> _removeStudent(int studentId) async {
+  Future<void> _removeStudent(String studentId) async {
     try {
       await studentController.removeStudentFromHalqa(studentId);
       if (mounted) {
@@ -198,7 +198,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
         // تسجيل للتشخيص
         print("بدء عملية تحديث الحلقة...");
         print("معرف المعلم المحدد: $selectedTeacherId");
-        int idTeacher = selectedTeacherId!;
+        String idTeacher = selectedTeacherId!;
 
         // بناء نموذج الحلقة المحدثة
         final updatedHalaga = HalagaModel(
@@ -212,7 +212,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
         print(
             "الحلقة المحدثة - الاسم: ${updatedHalaga.Name}, ID: ${updatedHalaga.halagaID}");
 
-        // استدعاء دالة تحديث الحلقة مع تمرير معرف المعلم المحدد
+        // استدعاء دالة تحديث الحلقة مع تسجيلمرير معرف المعلم المحدد
         await halagaController.updateHalaga(updatedHalaga, 1);
         await halagaController.updateTeacherAssignment(
             updatedHalaga.halagaID!, idTeacher);
@@ -664,7 +664,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        DropdownButtonFormField<int>(
+        DropdownButtonFormField<String?>(
           value: selectedTeacherId,
           decoration: InputDecoration(
             labelText: 'اختر المعلم',
@@ -678,7 +678,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
           ),
           items: [
             // خيار "بدون معلم"
-            DropdownMenuItem<int>(
+            DropdownMenuItem<String>(
               value: null,
               child: Row(
                 children: [
@@ -698,9 +698,9 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
 
             // إذا كان هناك معلمون متاحون، نضع عنوان لهم
             if (availableTeachers.isNotEmpty)
-              DropdownMenuItem<int>(
+              DropdownMenuItem<String>(
                 enabled: false,
-                value: -999, // قيمة غير صالحة للاختيار
+                value: "999", // قيمة غير صالحة للاختيار
                 child: Text(
                   '-- المعلمون المتاحون --',
                   style: TextStyle(
@@ -716,8 +716,8 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
               final bool isCurrentTeacher =
                   teacher.elhalagatID == widget.halga.halagaID;
 
-              return DropdownMenuItem<int>(
-                value: teacher.user_id,
+              return DropdownMenuItem<String?>(
+                value: teacher.user_id!,
                 child: Row(
                   children: [
                     CircleAvatar(
@@ -776,9 +776,9 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
 
             // إذا كان هناك معلمون مشغولون، نضع عنوان لهم
             if (assignedTeachers.isNotEmpty)
-              DropdownMenuItem<int>(
+              DropdownMenuItem<String>(
                 enabled: false,
-                value: -998, // قيمة غير صالحة للاختيار
+                value: "-998", // قيمة غير صالحة للاختيار
                 child: Text(
                   '-- المعلمون المرتبطون بحلقات أخرى --',
                   style: TextStyle(
@@ -791,7 +791,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
 
             // قائمة المعلمين المشغولين (الذين لديهم حلقات)
             ...assignedTeachers.map((teacher) {
-              return DropdownMenuItem<int>(
+              return DropdownMenuItem<String>(
                 value: teacher.user_id,
                 enabled: false, // تعطيل المعلمين المرتبطين بحلقات أخرى
                 child: Row(

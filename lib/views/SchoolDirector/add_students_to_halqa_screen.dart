@@ -18,7 +18,7 @@ class AddStudentsToHalqaScreen extends StatefulWidget {
 
 class _AddStudentsToHalqaScreenState extends State<AddStudentsToHalqaScreen> {
   List<StudentModel> availableStudents = [];
-  List<int> selectedStudentIds = [];
+  List<String> selectedStudentIds = [];
   bool _isLoading = false;
 
   @override
@@ -44,10 +44,12 @@ class _AddStudentsToHalqaScreenState extends State<AddStudentsToHalqaScreen> {
 
     try {
       if (mounted) setState(() => _isLoading = true);
-      final students = await studentController.getSchoolStudents(widget.schoolID!);
+      final students =
+          await studentController.getSchoolStudents(widget.schoolID!);
       final available = students
           .where((student) =>
-              student.elhalaqaID == null || student.elhalaqaID != widget.halqaID)
+              student.elhalaqaID == null ||
+              student.elhalaqaID != widget.halqaID)
           .toList();
       if (mounted) {
         setState(() {
@@ -81,7 +83,8 @@ class _AddStudentsToHalqaScreenState extends State<AddStudentsToHalqaScreen> {
     try {
       if (mounted) setState(() => _isLoading = true);
       for (final studentId in selectedStudentIds) {
-        await studentController.assignStudentToHalqa(studentId, widget.halqaID!);
+        await studentController.assignStudentToHalqa(
+            studentId, widget.halqaID!);
       }
       if (mounted) {
         setState(() => _isLoading = false);

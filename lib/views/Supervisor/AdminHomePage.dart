@@ -1,10 +1,7 @@
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/TeacherController.dart';
-// import 'package:al_furqan/controllers/message_controller.dart'; // سيتم استخدامه مستقبلاً
-// import 'package:al_furqan/controllers/plan_controller.dart'; // سيتم استخدامه مستقبلاً
 import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
-// import 'package:al_furqan/models/users_model.dart'; // تم التعليق لأنه غير مستخدم
 import 'package:al_furqan/services/sync.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:al_furqan/widgets/chart_card.dart';
@@ -13,9 +10,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
-
-// import '../../widgets/meeting_list.dart'; // سيتم استخدامه مستقبلاً
-// import '../../widgets/notification_card.dart'; // سيتم استخدامه مستقبلاً
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -42,7 +36,7 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
     _refreshData();
     _loadAdditionalData();
   }
-  
+
   Future<void> _loadAdditionalData() async {
     try {
       // Commented out message-related code for future use
@@ -52,47 +46,49 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
       //   // Get unread messages count
       //   _unreadMessages = await messageController.getUnreadMessagesCount(userId);
       // }
-      
+
       // Calculate attendance data (simulated since we don't have the actual data)
       // In a real implementation, this would come from the attendance database
       _calculateAttendanceData();
-      
+
       // Calculate activities completion rate (simulated)
       _calculateActivitiesData();
-      
+
       setState(() {});
     } catch (e) {
       print("Error loading additional data: $e");
     }
   }
-  
+
   void _calculateAttendanceData() {
     // Simulate teacher attendance data based on current time
     // In a real implementation, this would come from the attendance collection in Firestore
     final now = DateTime.now();
     final totalTeachers = _teachers.length;
-    
+
     if (totalTeachers > 0) {
       // Simulate that 70-90% of teachers are present
-      _presentTeachers = (totalTeachers * (0.7 + (now.minute % 20) / 100)).round();
-      
+      _presentTeachers =
+          (totalTeachers * (0.7 + (now.minute % 20) / 100)).round();
+
       // Simulate that 10-20% of present teachers are late (after 7:30 AM)
-      _lateTeachers = (now.hour >= 7 && now.minute > 30) 
+      _lateTeachers = (now.hour >= 7 && now.minute > 30)
           ? (_presentTeachers * (0.1 + (now.second % 10) / 100)).round()
           : 0;
-      
+
       // Calculate attendance rate
-      _attendanceRate = totalTeachers > 0 ? (_presentTeachers / totalTeachers) * 100 : 0;
+      _attendanceRate =
+          totalTeachers > 0 ? (_presentTeachers / totalTeachers) * 100 : 0;
     }
   }
-  
+
   void _calculateActivitiesData() {
     // Simulate activities completion rate based on current date
     // In a real implementation, this would be calculated from actual activity data
     final now = DateTime.now();
     final dayOfMonth = now.day;
     final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
-    
+
     // Calculate completion rate based on day of month (increases as month progresses)
     _activitiesCompletionRate = (dayOfMonth / daysInMonth) * 100;
   }
@@ -108,13 +104,15 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
         builder: (BuildContext context) {
           return AlertDialog(
             backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             content: Padding(
               padding: EdgeInsets.symmetric(vertical: 20),
               child: Row(
                 children: [
                   CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).primaryColor),
                   ),
                   SizedBox(width: 20),
                   Expanded(
@@ -141,17 +139,17 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
       await schoolController.getData();
       await teacherController.getTeachers();
       _totalStudents = await studentController.getTotalStudents();
-      
+
       // Update additional data
       await _loadAdditionalData();
-      
+
       // Update current date
       _currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      
+
       setState(() {});
       print(
           "Refreshed admin data: ${_schools.length} schools, ${_teachers.length} teachers, $_totalStudents students");
-      
+
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -164,7 +162,8 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
           ),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
     } catch (e) {
@@ -180,7 +179,8 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
           ),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
     }
@@ -202,27 +202,31 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
             onPressed: () async {
               // Show confirmation dialog
               bool confirm = await showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: Text('تسجيل الخروج'),
-                  content: Text('هل أنت متأكد من تسجيل الخروج؟'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: Text('إلغاء'),
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text('تسجيل الخروج'),
+                      content: Text('هل أنت متأكد من تسجيل الخروج؟'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text('إلغاء'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pushReplacement(
+                              context,
+                              CupertinoPageRoute(
+                                  builder: (context) => LoginScreen())),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: Text('تسجيل الخروج'),
+                        ),
+                      ],
                     ),
-                    ElevatedButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: Text('تسجيل الخروج'),
-                    ),
-                  ],
-                ),
-              ) ?? false;
-              
+                  ) ??
+                  false;
+
               if (confirm) {
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.clear();
@@ -266,7 +270,8 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
                         SizedBox(height: 8),
                         // _buildChartCard('نسبة تنفيذ الأنشطة', Colors.blue, _activitiesCompletionRate),
                         SizedBox(height: 16),
-                        _buildChartCard('نسبة حضور المعلمين', Colors.green, _attendanceRate),
+                        _buildChartCard('نسبة حضور المعلمين', Colors.green,
+                            _attendanceRate),
                         SizedBox(height: 24),
                         // تم تعليق قسم الإشعارات للاستخدام المستقبلي
                         // _buildSectionTitle('الإشعارات', Icons.notifications),
@@ -279,13 +284,16 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
       ),
     );
   }
-  
+
   Widget _buildWelcomeSection() {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withOpacity(0.7)],
+          colors: [
+            Theme.of(context).primaryColor,
+            Theme.of(context).primaryColor.withOpacity(0.7)
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -331,18 +339,19 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
       ),
     );
   }
-  
+
   Widget _buildAttendanceSummary() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _buildAttendanceIndicator('حاضر', _presentTeachers, Colors.green),
         _buildAttendanceIndicator('متأخر', _lateTeachers, Colors.orange),
-        _buildAttendanceIndicator('غائب', _teachers.length - _presentTeachers, Colors.red),
+        _buildAttendanceIndicator(
+            'غائب', _teachers.length - _presentTeachers, Colors.red),
       ],
     );
   }
-  
+
   Widget _buildAttendanceIndicator(String label, int count, Color color) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -381,23 +390,27 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       children: [
-        _buildStatCard('عدد المدارس', '${_schools.length}', Icons.school, Colors.blue),
-        _buildStatCard('عدد المعلمين', '${_teachers.length}', Icons.person, Colors.green),
-        _buildStatCard('عدد الطلاب', '$_totalStudents', Icons.people, Colors.orange),
+        _buildStatCard(
+            'عدد المدارس', '${_schools.length}', Icons.school, Colors.blue),
+        _buildStatCard(
+            'عدد المعلمين', '${_teachers.length}', Icons.person, Colors.green),
+        _buildStatCard(
+            'عدد الطلاب', '$_totalStudents', Icons.people, Colors.orange),
         // تم تعليق بطاقة الرسائل غير المقروءة للاستخدام المستقبلي
         // _buildStatCard('الرسائل غير المقروءة', '$_unreadMessages', Icons.mail, Colors.red),
-        _buildStatCard('نسبة الحضور', '${_attendanceRate.toStringAsFixed(1)}%', Icons.check_circle, Colors.teal),
+        _buildStatCard('نسبة الحضور', '${_attendanceRate.toStringAsFixed(1)}%',
+            Icons.check_circle, Colors.teal),
       ],
     );
   }
-  
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color) {
     return InkWell(
       onTap: () {
         // Show details when tapped
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تفاصيل $title'))
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('تفاصيل $title')));
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -485,9 +498,8 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
           borderRadius: BorderRadius.circular(16),
           onTap: () {
             // Show details when tapped
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('تفاصيل $title'))
-            );
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text('تفاصيل $title')));
           },
           child: ChartCard(
             title: title,

@@ -1,7 +1,7 @@
 class Message {
   int? id;
-  int? senderId;
-  int? receiverId;
+  String? senderId;
+  String? receiverId;
   String content;
   String timestamp;
   int sync;
@@ -35,18 +35,17 @@ class Message {
 
   // Create Message from Map (for SQLite)
   factory Message.fromMap(Map<String, dynamic> map) {
-  return Message(
-    id: map['id'],
-    senderId: map['senderId'] ?? 0,
-    receiverId: map['receiverId'] ?? 0,
-    content: map['content'] ?? '',
-    timestamp: map['timestamp'] ?? '',
-    sync: map['sync'] ?? 0,
-    senderType: map['senderType'] ?? '',
-    isRead: map['isRead'] ?? 0,
-  );
-}
-
+    return Message(
+      id: map['id'],
+      senderId: map['senderId'] ?? 0,
+      receiverId: map['receiverId'] ?? 0,
+      content: map['content'] ?? '',
+      timestamp: map['timestamp'] ?? '',
+      sync: map['sync'] ?? 0,
+      senderType: map['senderType'] ?? '',
+      isRead: map['isRead'] ?? 0,
+    );
+  }
 
   // Convert Message to JSON for Firebase
   Map<String, dynamic> toJson() {
@@ -56,7 +55,7 @@ class Message {
       'receiverId': receiverId,
       'content': content,
       'timestamp': timestamp,
-      'sync':sync,
+      'sync': sync,
       'senderType': senderType,
       'isRead': isRead,
     };
