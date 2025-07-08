@@ -5,7 +5,12 @@ import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
+import 'package:al_furqan/views/SchoolDirector/AddHalaga.dart';
 import 'package:al_furqan/views/SchoolDirector/DrawerSchoolDirector.dart';
+import 'package:al_furqan/views/SchoolDirector/ElhalagatList.dart';
+import 'package:al_furqan/views/SchoolDirector/add_teacher.dart';
+import 'package:al_furqan/views/SchoolDirector/teacher_list.dart';
+import 'package:al_furqan/views/SchoolDirector/teacher_management.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +64,6 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     }
   }
 
-
   // تحميل الرسائل
   Future<void> loadMessages() async {
     // تحديث عدد الإشعارات
@@ -77,8 +81,8 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   }
 
   Future<void> _loadData() async {
-    if(mounted){
-    setState(() => _isLoading = true);
+    if (mounted) {
+      setState(() => _isLoading = true);
     }
     try {
       await fetchUserData();
@@ -87,8 +91,8 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     } catch (e) {
       print('Error loading data: $e');
     } finally {
-      if(mounted){
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -526,6 +530,8 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
             TextButton.icon(
               onPressed: () {
                 // Navigate to full halaqat list
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => HalqatListPage()));
               },
               icon: Icon(Icons.menu_book, size: 18),
               label: Text("عرض الكل"),
@@ -559,6 +565,10 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                           ElevatedButton.icon(
                             onPressed: () {
                               // Navigate to add halaqat
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AddHalaqaScreen()));
                             },
                             icon: Icon(Icons.add),
                             label: Text("إضافة حلقة"),
@@ -590,23 +600,23 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                         ),
                         subtitle: Text(
                             'عدد الطلاب: ${_halaqatList[index].NumberStudent ?? 0}'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.info, color: Colors.blue),
-                              onPressed: () {
-                                // عرض تفاصيل الحلقة
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.edit, color: Colors.orange),
-                              onPressed: () {
-                                // تعديل بيانات الحلقة
-                              },
-                            ),
-                          ],
-                        ),
+                        // trailing: Row(
+                        //   mainAxisSize: MainAxisSize.min,
+                        //   children: [
+                        //     IconButton(
+                        //       icon: Icon(Icons.info, color: Colors.blue),
+                        //       onPressed: () {
+                        //         // عرض تفاصيل الحلقة
+                        //       },
+                        //     ),
+                        //     IconButton(
+                        //       icon: Icon(Icons.edit, color: Colors.orange),
+                        //       onPressed: () {
+                        //         // تعديل بيانات الحلقة
+                        //       },
+                        //     ),
+                        //   ],
+                        // ),
                       );
                     },
                   ),
@@ -636,6 +646,10 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
             TextButton.icon(
               onPressed: () {
                 // Navigate to full teachers list
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => TeacherManagement()));
               },
               icon: Icon(Icons.people, size: 18),
               label: Text("عرض الكل"),
@@ -668,6 +682,10 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                           ElevatedButton.icon(
                             onPressed: () {
                               // Navigate to add teacher
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AddTeacher()));
                             },
                             icon: Icon(Icons.add),
                             label: Text("إضافة معلم"),
@@ -698,23 +716,23 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                           style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                         subtitle: Text('المدرس - حلقة ${index + 1}'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.info, color: Colors.blue),
-                              onPressed: () {
-                                // عرض تفاصيل المعلم
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.edit, color: Colors.orange),
-                              onPressed: () {
-                                // تعديل بيانات المعلم
-                              },
-                            ),
-                          ],
-                        ),
+                        // trailing: Row(
+                        //   mainAxisSize: MainAxisSize.min,
+                        //   children: [
+                        //     IconButton(
+                        //       icon: Icon(Icons.info, color: Colors.blue),
+                        //       onPressed: () {
+                        //         // عرض تفاصيل المعلم
+                        //       },
+                        //     ),
+                        //     IconButton(
+                        //       icon: Icon(Icons.edit, color: Colors.orange),
+                        //       onPressed: () {
+                        //         // تعديل بيانات المعلم
+                        //       },
+                        //     ),
+                        //   ],
+                        // ),
                       );
                     },
                   ),
