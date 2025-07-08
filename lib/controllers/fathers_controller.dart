@@ -34,7 +34,7 @@ class FathersController {
   Future<UserModel> getFatherByID(String userID) async {
     // var fa = UserModel();
     List<Map<String, dynamic>> response =
-        await _sqlDb.readData("SELECT * FROM USERS WHERE user_id = $userID");
+        await _sqlDb.readData("SELECT * FROM USERS WHERE user_id = '$userID'");
     response.forEach((element) {
       fatherByID.user_id = element['user_id'];
       fatherByID.first_name = element['first_name'];
@@ -58,7 +58,7 @@ class FathersController {
       int schoolID, String studentID) async {
     /// this's all for get user id into student
     List<Map<String, dynamic>> response = await _sqlDb
-        .readData("SELECT * FROM Students WHERE StudentID = $studentID");
+        .readData("SELECT * FROM Students WHERE StudentID = '$studentID'");
     print(
         "Response in getFathersStudentsByStudentID method : ${response.isEmpty}");
     response.forEach((e) {
