@@ -1,6 +1,9 @@
+import 'package:al_furqan/controllers/StudentController.dart';
+import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/models/schools_model.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ShowAllSchools extends StatefulWidget {
   const ShowAllSchools({super.key});
@@ -46,7 +49,7 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
     final filteredSchools = _filterSchools();
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -70,7 +73,8 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
                   content: const Text('تم تحديث البيانات'),
                   duration: const Duration(seconds: 1),
                   behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
               );
             },
@@ -130,7 +134,8 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
                     ? _buildEmptyState()
                     : RefreshIndicator(
                         onRefresh: () async {
-                          await Future.delayed(const Duration(milliseconds: 300));
+                          await Future.delayed(
+                              const Duration(milliseconds: 300));
                           _refreshData();
                         },
                         child: ListView.builder(
@@ -146,10 +151,13 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
                                 side: BorderSide(color: Colors.grey.shade200),
                               ),
                               child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
                                 leading: CircleAvatar(
-                                  backgroundColor: primaryColor.withOpacity(0.2),
-                                  child: Icon(Icons.school, color: primaryColor),
+                                  backgroundColor:
+                                      primaryColor.withOpacity(0.2),
+                                  child:
+                                      Icon(Icons.school, color: primaryColor),
                                 ),
                                 title: Text(
                                   school.school_name!,
@@ -164,11 +172,13 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
                                     const SizedBox(height: 4),
                                     Row(
                                       children: [
-                                        const Icon(Icons.location_on, size: 14, color: Colors.grey),
+                                        const Icon(Icons.location_on,
+                                            size: 14, color: Colors.grey),
                                         const SizedBox(width: 4),
                                         Expanded(
                                           child: Text(
-                                            school.school_location ?? 'لا يوجد موقع',
+                                            school.school_location ??
+                                                'لا يوجد موقع',
                                             style: TextStyle(
                                               color: Colors.grey.shade700,
                                               fontSize: 14,
@@ -185,6 +195,7 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
                                   color: primaryColor,
                                   onPressed: () {
                                     // يمكن إضافة عرض تفاصيل المدرسة هنا
+
                                     _showSchoolDetails(context, school);
                                   },
                                 ),
@@ -205,7 +216,7 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
       ),
     );
   }
-  
+
   // Widget to display when no schools are found
   Widget _buildEmptyState() {
     return Center(
@@ -254,7 +265,11 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
   }
 
   // Show school details in a dialog
-  void _showSchoolDetails(BuildContext context, SchoolModel school) {
+  void _showSchoolDetails(BuildContext context, SchoolModel school) async {
+    List _numberStudentOfSchool =
+        await studentController.getSchoolStudents(school.schoolID!);
+    await teacherController.getTeachersBySchoolID(school.schoolID!);
+    List _teacher = await teacherController.teachers;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -263,7 +278,8 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
             children: [
               Icon(Icons.school, color: Theme.of(context).primaryColor),
               const SizedBox(width: 8),
-              Text('تفاصيل المدرسة', 
+              Text(
+                'تفاصيل المدرسة',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
@@ -274,12 +290,18 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildDetailItem('اسم المدرسة', school.school_name ?? '-', Icons.school),
+                _buildDetailItem(
+                    'اسم المدرسة', school.school_name ?? '-', Icons.school),
                 const Divider(),
-                _buildDetailItem('الموقع', school.school_location ?? 'غير محدد', Icons.location_on),
+                _buildDetailItem('الموقع', school.school_location ?? 'غير محدد',
+                    Icons.location_on),
                 if (school.schoolID != null) ...[
                   const Divider(),
-                  _buildDetailItem('رقم المدرسة', school.schoolID.toString(), Icons.numbers),
+                  _buildDetailItem('عدد المعلمين', _teacher.length.toString(),
+                      Icons.numbers_rounded),
+                  const Divider(),
+                  _buildDetailItem('عدد الطلاب',
+                      _numberStudentOfSchool.length.toString(), Icons.numbers),
                 ],
               ],
             ),
@@ -308,7 +330,7 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
       },
     );
   }
-  
+
   // Helper method to build detail items in the dialog
   Widget _buildDetailItem(String label, String value, IconData icon) {
     return Padding(
@@ -342,14 +364,16 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
       ),
     );
   }
-  
+
   // دالة لعرض مربع حوار إضافة أو تعديل مدرسة
   void _showAddEditSchoolDialog(BuildContext context, {SchoolModel? school}) {
     final bool isEditing = school != null;
-    final TextEditingController nameController = TextEditingController(text: isEditing ? school.school_name : '');
-    final TextEditingController locationController = TextEditingController(text: isEditing ? school.school_location : '');
+    final TextEditingController nameController =
+        TextEditingController(text: isEditing ? school.school_name : '');
+    final TextEditingController locationController =
+        TextEditingController(text: isEditing ? school.school_location : '');
     final formKey = GlobalKey<FormState>();
-    
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -439,7 +463,7 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
                     school_name: nameController.text,
                     school_location: locationController.text,
                   );
-                  
+
                   try {
                     // عرض مؤشر التحميل
                     showDialog(
@@ -458,23 +482,23 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
                         );
                       },
                     );
-                    
+
                     // حفظ البيانات
                     if (isEditing) {
                       await schoolController.updateSchool(schoolModel, 1);
                     } else {
                       await schoolController.addSchool(schoolModel, 1);
                     }
-                    
+
                     // إغلاق مؤشر التحميل
                     Navigator.of(context).pop();
-                    
+
                     // إغلاق مربع الحوار
                     Navigator.of(context).pop();
-                    
+
                     // تحديث البيانات
                     _refreshData();
-                    
+
                     // عرض رسالة نجاح
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -493,7 +517,7 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
                   } catch (e) {
                     // إغلاق مؤشر التحميل إذا كان مفتوحًا
                     Navigator.of(context).pop();
-                    
+
                     // عرض رسالة خطأ
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

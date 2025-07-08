@@ -241,6 +241,7 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
       ),
       drawer: user == null ? null : DrawerList(user: user),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Theme.of(context).primaryColor,
         onPressed: () => _refreshData(),
         tooltip: 'تحديث البيانات',
         child: Icon(Icons.refresh),
@@ -261,11 +262,7 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
                         SizedBox(height: 24),
                         _buildStatCards(),
                         SizedBox(height: 24),
-                        // تم تعليق قسم الاجتماعات للاستخدام المستقبلي
-                        // _buildSectionTitle('الاجتماعات', Icons.event),
-                        // SizedBox(height: 8),
-                        // MeetingList(),
-                        // SizedBox(height: 24),
+
                         _buildSectionTitle('الإحصائيات', Icons.analytics),
                         SizedBox(height: 8),
                         // _buildChartCard('نسبة تنفيذ الأنشطة', Colors.blue, _activitiesCompletionRate),
@@ -273,11 +270,6 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
                         _buildChartCard('نسبة حضور المعلمين', Colors.green,
                             _attendanceRate),
                         SizedBox(height: 24),
-                        // تم تعليق قسم الإشعارات للاستخدام المستقبلي
-                        // _buildSectionTitle('الإشعارات', Icons.notifications),
-                        // SizedBox(height: 8),
-                        // NotificationCard(),
-                        // SizedBox(height: 24),
                       ],
                     ),
                   ),
