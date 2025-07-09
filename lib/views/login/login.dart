@@ -6,8 +6,6 @@ import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/views/SchoolDirector/main_screenD.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
-import 'package:al_furqan/views/SchoolDirector/SchoolDirectorHome.dart';
-import 'package:al_furqan/views/Teacher/mainTeacher.dart';
 import 'package:al_furqan/views/Teacher/main_screenT.dart';
 import 'package:al_furqan/views/auth/forgot_password_screen.dart';
 import 'package:al_furqan/views/login/signup_screen.dart';
@@ -68,20 +66,35 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<bool> isConnected() async {
+    bool conn = await InternetConnectionChecker.createInstance().hasConnection;
+    return conn;
+  }
+
   /// تحميل البيانات من Firebase
   Future<void> _loadDataFromFirebase() async {
-    if (mounted) {
-      setState(() => _isLoading = true);
-    }
-    try {
-      await loadUsersFromFirebase();
-      await loadSchoolsFromFirebase();
-    } catch (e) {
-      print("Error loading data from Firebase: $e");
-    } finally {
+    if (await isConnected()) {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() => _isLoading = true);
       }
+      try {
+        await loadUsersFromFirebase();
+        await loadSchoolsFromFirebase();
+      } catch (e) {
+        print("Error loading data from Firebase: $e");
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+    } else {
+      setState(() {
+        _isLoading = false;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('لا يوجد اتصال بالانترنت لتحديث البيانات'),
+          backgroundColor: Colors.red,
+        ));
+      });
     }
   }
 

@@ -50,6 +50,8 @@ class _MainScreenState extends State<MainScreenT> {
       await loadHalagat();
       await loadPlans();
     } else {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => TeacherDashboard()));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('لا يوجد اتصال بالانترنت لتحديث البيانات'),

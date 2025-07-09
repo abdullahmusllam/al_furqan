@@ -1,4 +1,8 @@
+import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/StudentController.dart';
+import 'package:al_furqan/controllers/message_controller.dart';
+import 'package:al_furqan/controllers/plan_controller.dart';
+import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/conservation_plan_model.dart';
@@ -60,14 +64,12 @@ class Sync {
         if (exists) {
           school.isSync = 1;
           await firebasehelper.updateSchool(school);
-          await sqlDb.updateData(
-              'update Schools set isSync = 1 where SchoolID = ${school.schoolID}');
+          await schoolController.updateSchool(school, 0);
           print('===== sync school (update) =====');
         } else {
           school.isSync = 1;
           await firebasehelper.addSchool(school);
-          await sqlDb.updateData(
-              'update Schools set isSync = 1 where SchoolID = ${school.schoolID}');
+          await schoolController.updateSchool(school, 0);
 
           print('===== sync school (add) =====');
         }
@@ -94,16 +96,12 @@ class Sync {
               .collection('messages')
               .doc(message.id.toString())
               .update(message.toJson());
-
-          await sqlDb.updateData(
-              'update messages set sync = 1 where id = ${message.id}');
+          await messageController.updateMessage(message);
           print('===== sync message (update) =====');
         } else {
           message.sync = 1;
           await _firestore.collection('messages').add(message.toJson());
-          await sqlDb.updateData(
-              'update messages set sync = 1 where id = ${message.id}');
-
+          await messageController.updateMessage(message);
           print('===== sync message (add) =====');
         }
       }
@@ -155,16 +153,15 @@ class Sync {
             'Elhalagat', halaga.halagaID!);
         if (exists) {
           halaga.isSync = 1;
-          // await firebaseHelper.updateMessage(message);
+          await firebasehelper.updateHalaga(halaga);
+          await halagaController.updateHalaga(halaga, 0);
           await sqlDb.updateData(
               'update Elhalagat set isSync = 1 where halagaID = ${halaga.halagaID}');
           print('===== sync Elhalagat (update) =====');
         } else {
           halaga.isSync = 1;
-          // await firebaseHelper.saveMessage(message);
-          await sqlDb.updateData(
-              'update Elhalagat set isSync = 1 where halagaID = ${halaga.halagaID}');
-
+          await firebasehelper.updateHalaga(halaga);
+          await halagaController.updateHalaga(halaga, 0);
           print('===== sync Elhalagat (add) =====');
         }
       }
@@ -174,6 +171,7 @@ class Sync {
   }
 
   Future<void> syncIslamicStudies() async {
+    final db = await sqlDb.database;
     print('===== sync IslamicStudies =====');
     List<Map<String, dynamic>> map =
         await sqlDb.readDataID("IslamicStudies", 'isSync', 0);
@@ -188,16 +186,20 @@ class Sync {
           IslamicStudy.isSync = 1;
           await firebasehelper.updateIslamicStudyplan(
               IslamicStudy, IslamicStudy.islamicStudiesID!);
-          await sqlDb.updateData(
-              'update IslamicStudies set isSync = 1 where IslamicStudiesID = ${IslamicStudy.islamicStudiesID}');
+
+          await db.update("IslamicStudies",
+              IslamicStudy.toMap()..remove(IslamicStudy.islamicStudiesID),
+              where: 'IslamicStudiesID = ?',
+              whereArgs: [IslamicStudy.islamicStudiesID]);
           print('===== sync IslamicStudies (update) =====');
         } else {
           IslamicStudy.isSync = 1;
           await firebasehelper.addIslamicStudyplan(
               IslamicStudy, IslamicStudy.islamicStudiesID!);
-          await sqlDb.updateData(
-              'update IslamicStudies set isSync = 1 where IslamicStudiesID = ${IslamicStudy.islamicStudiesID}');
-
+          await db.update("IslamicStudies",
+              IslamicStudy.toMap()..remove(IslamicStudy.islamicStudiesID),
+              where: 'IslamicStudiesID = ?',
+              whereArgs: [IslamicStudy.islamicStudiesID]);
           print('===== sync IslamicStudies (add) =====');
         }
       }
@@ -207,6 +209,7 @@ class Sync {
   }
 
   Future<void> syncConservationPlan() async {
+    final db = await sqlDb.database;
     print('===== sync ConservationPlans =====');
     List<Map<String, dynamic>> map =
         await sqlDb.readDataID("ConservationPlans", 'isSync', 0);
@@ -215,23 +218,30 @@ class Sync {
       List<ConservationPlanModel> conservationPlans =
           map.map((map) => ConservationPlanModel.fromMap(map)).toList();
       for (var conservationPlan in conservationPlans) {
-        bool exists = await firebasehelper.checkDocumentExists(
-            'ConservationPlans',
-            int.parse(conservationPlan.conservationPlanId!));
+        bool exists = await firebasehelper.checkDocumentExists2(
+            'ConservationPlans', conservationPlan.conservationPlanId!);
         if (exists) {
           conservationPlan.isSync = 1;
           await firebasehelper.updateConservationPlan(
               conservationPlan, conservationPlan.conservationPlanId!);
-          await sqlDb.updateData(
-              'update ConservationPlans set isSync = 1 where ConservationPlanID = ${conservationPlan.conservationPlanId}');
+
+          await db.update(
+              "ConservationPlans",
+              conservationPlan.toMap()
+                ..remove(conservationPlan.conservationPlanId),
+              where: 'ConservationPlanID = ?',
+              whereArgs: [conservationPlan.conservationPlanId]);
           print('===== sync ConservationPlan (update) =====');
         } else {
           conservationPlan.isSync = 1;
           await firebasehelper.addConservationPlan(
               conservationPlan, conservationPlan.conservationPlanId!);
-          await sqlDb.updateData(
-              'update ConservationPlans set isSync = 1 where ConservationPlanID = ${conservationPlan.conservationPlanId}');
-
+          await db.update(
+              "ConservationPlans",
+              conservationPlan.toMap()
+                ..remove(conservationPlan.conservationPlanId),
+              where: 'ConservationPlanID = ?',
+              whereArgs: [conservationPlan.conservationPlanId]);
           print('===== sync ConservationPlan (add) =====');
         }
       }
@@ -241,6 +251,7 @@ class Sync {
   }
 
   Future<void> synsEltlawahPlan() async {
+    final db = await sqlDb.database;
     print('===== sync EltlawahPlan =====');
     List<Map<String, dynamic>> map =
         await sqlDb.readDataID("EltlawahPlans", 'isSync', 0);
@@ -255,16 +266,24 @@ class Sync {
           eltlawahPlan.isSync = 1;
           await firebasehelper.updateEltlawahPlan(
               eltlawahPlan, eltlawahPlan.eltlawahPlanId!);
-          await sqlDb.updateData(
-              'update EltlawahPlans set isSync = 1 where EltlawahPlanID = ${eltlawahPlan.eltlawahPlanId}');
+
+          await db.update("EltlawahPlans",
+              eltlawahPlan.toMap()..remove(eltlawahPlan.eltlawahPlanId),
+              where: 'EltlawahPlanID = ?',
+              whereArgs: [eltlawahPlan.eltlawahPlanId]);
+          await db.update("EltlawahPlans",
+              eltlawahPlan.toMap()..remove(eltlawahPlan.eltlawahPlanId),
+              where: 'EltlawahPlanID = ?',
+              whereArgs: [eltlawahPlan.eltlawahPlanId]);
           print('===== sync EltlawahPlan (update) =====');
         } else {
           eltlawahPlan.isSync = 1;
           await firebasehelper.addEltlawahPlan(
               eltlawahPlan, eltlawahPlan.eltlawahPlanId!);
-          await sqlDb.updateData(
-              'update EltlawahPlans set isSync = 1 where EltlawahPlanID = ${eltlawahPlan.eltlawahPlanId}');
-
+          await db.update("EltlawahPlans",
+              eltlawahPlan.toMap()..remove(eltlawahPlan.eltlawahPlanId),
+              where: 'EltlawahPlanID = ?',
+              whereArgs: [eltlawahPlan.eltlawahPlanId]);
           print('===== sync EltlawahPlan (add) =====');
         }
       }
