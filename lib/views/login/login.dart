@@ -66,20 +66,35 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<bool> isConnected() async {
+    bool conn = await InternetConnectionChecker.createInstance().hasConnection;
+    return conn;
+  }
+
   /// تحميل البيانات من Firebase
   Future<void> _loadDataFromFirebase() async {
-    if (mounted) {
-      setState(() => _isLoading = true);
-    }
-    try {
-      await loadUsersFromFirebase();
-      await loadSchoolsFromFirebase();
-    } catch (e) {
-      print("Error loading data from Firebase: $e");
-    } finally {
+    if (await isConnected()) {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() => _isLoading = true);
       }
+      try {
+        await loadUsersFromFirebase();
+        await loadSchoolsFromFirebase();
+      } catch (e) {
+        print("Error loading data from Firebase: $e");
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+    } else {
+      setState(() {
+        _isLoading = false;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('لا يوجد اتصال بالانترنت لتحديث البيانات'),
+          backgroundColor: Colors.red,
+        ));
+      });
     }
   }
 
