@@ -22,7 +22,8 @@ class ParentConversationsScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ParentConversationsScreenState createState() => _ParentConversationsScreenState();
+  _ParentConversationsScreenState createState() =>
+      _ParentConversationsScreenState();
 }
 
 class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
@@ -36,11 +37,12 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
     loadConversations();
     _loadChildren();
   }
-  
+
   // تحميل بيانات أبناء ولي الأمر
   Future<void> _loadChildren() async {
     if (widget.currentUser.user_id != null) {
-      final studentsList = await firestoreService.getStudentsByParentId(widget.currentUser.user_id!);
+      final studentsList = await firestoreService
+          .getStudentsByParentId(widget.currentUser.user_id!);
       if (mounted) {
         setState(() {
           children = studentsList;
@@ -53,20 +55,22 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
     try {
       // تحميل الرسائل من الخدمة
       List<Message> messages = await messageService.getAllMessages();
-      Set<int> userIds = {};
-      
+      Set<String> userIds = {};
+
       // جمع معرفات المستخدمين الذين تبادلوا الرسائل مع المستخدم الحالي
       for (var message in messages) {
-        if (message.senderId == widget.currentUser.user_id && message.receiverId != null) {
+        if (message.senderId == widget.currentUser.user_id &&
+            message.receiverId != null) {
           userIds.add(message.receiverId!);
-        } else if (message.receiverId == widget.currentUser.user_id && message.senderId != null) {
+        } else if (message.receiverId == widget.currentUser.user_id &&
+            message.senderId != null) {
           userIds.add(message.senderId!);
         }
       }
-      
+
       // إنشاء قائمة المستخدمين من معرفاتهم
       List<UserModel> users = [];
-      
+
       // إضافة المعلمين الذين تبادلوا الرسائل مع المستخدم الحالي
       for (var teacher in widget.availableTeachers) {
         if (teacher.user_id != null && userIds.contains(teacher.user_id)) {
@@ -75,28 +79,30 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
           userIds.remove(teacher.user_id);
         }
       }
-      
+
       // إضافة مديري المدارس الذين تبادلوا الرسائل مع المستخدم الحالي
       if (widget.availablePrincipals != null) {
         for (var principal in widget.availablePrincipals!) {
-          if (principal.user_id != null && userIds.contains(principal.user_id)) {
+          if (principal.user_id != null &&
+              userIds.contains(principal.user_id)) {
             users.add(principal);
             // إزالة المعرف من القائمة بعد إضافة المستخدم
             userIds.remove(principal.user_id);
           }
         }
       }
-      
+
       // البحث عن المستخدمين المتبقين في Firestore
-      for (int userId in userIds) {
+      for (String userId in userIds) {
         try {
           var doc = await FirebaseFirestore.instance
               .collection('Users')
-              .doc(userId.toString())
+              .doc(userId)
               .get();
-              
+
           if (doc.exists) {
-            UserModel user = UserModel.fromJson(doc.data() as Map<String, dynamic>);
+            UserModel user =
+                UserModel.fromJson(doc.data() as Map<String, dynamic>);
             users.add(user);
           } else {
             // إضافة مستخدم غير معروف إذا لم يتم العثور عليه
@@ -116,25 +122,24 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
           ));
         }
       }
-      
+
       if (!mounted) return;
       setState(() {
         conversationUsers = users;
       });
-      
     } catch (e) {
       print('خطأ في تحميل المحادثات: $e');
     }
   }
 
   // استخراج آخر رسالة لكل مستخدم
-  Future<Map<int, Message>> _getLastMessages() async {
+  Future<Map<String, Message>> _getLastMessages() async {
     List<Message> allMessages = await messageService.getAllMessages();
-    Map<int, Message> lastMessages = {};
-    
+    Map<String, Message> lastMessages = {};
+
     for (var user in conversationUsers) {
       if (user.user_id == null) continue;
-      
+
       // البحث عن آخر رسالة بين المستخدم الحالي والمستخدم في المحادثة
       List<Message> userMessages = allMessages
           .where((msg) =>
@@ -143,16 +148,16 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
               (msg.senderId == user.user_id &&
                   msg.receiverId == widget.currentUser.user_id))
           .toList();
-      
+
       if (userMessages.isNotEmpty) {
         // ترتيب الرسائل حسب الوقت (الأحدث أولاً)
-        userMessages.sort((a, b) => 
-          DateTime.parse(b.timestamp).compareTo(DateTime.parse(a.timestamp)));
-        
+        userMessages.sort((a, b) =>
+            DateTime.parse(b.timestamp).compareTo(DateTime.parse(a.timestamp)));
+
         lastMessages[user.user_id!] = userMessages.first;
       }
     }
-    
+
     return lastMessages;
   }
 
@@ -163,7 +168,7 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
       final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
-      
+
       if (messageDate == today) {
         // إذا كانت الرسالة اليوم، أظهر الوقت فقط
         return DateFormat('HH:mm').format(dateTime);
@@ -197,15 +202,16 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: loadConversations,
-        child: FutureBuilder<Map<int, Message>>(
+        child: FutureBuilder<Map<String, Message>>(
           future: _getLastMessages(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting && conversationUsers.isNotEmpty) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                conversationUsers.isNotEmpty) {
               return Center(child: CircularProgressIndicator());
             }
-            
+
             final lastMessages = snapshot.data ?? {};
-            
+
             return conversationUsers.isEmpty
                 ? Center(
                     child: Column(
@@ -217,14 +223,17 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
                         Text(
                           'لا توجد محادثات',
                           style: TextStyle(
-                              fontSize: 18, color: Theme.of(context).textTheme.bodyLarge?.color),
+                              fontSize: 18,
+                              color:
+                                  Theme.of(context).textTheme.bodyLarge?.color),
                         ),
                         SizedBox(height: 24),
                         ElevatedButton.icon(
                           icon: Icon(Icons.add),
                           label: Text('بدء محادثة جديدة'),
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -236,7 +245,8 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
                                 builder: (context) => ParentUsersScreen(
                                   currentUser: widget.currentUser,
                                   availableTeachers: widget.availableTeachers,
-                                  availablePrincipals: widget.availablePrincipals,
+                                  availablePrincipals:
+                                      widget.availablePrincipals,
                                   children: children,
                                 ),
                               ),
@@ -253,10 +263,11 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
                     itemBuilder: (context, index) {
                       final user = conversationUsers[index];
                       final lastMessage = lastMessages[user.user_id];
-                      final hasUnreadMessage = lastMessage != null && 
+                      final hasUnreadMessage = lastMessage != null &&
                           lastMessage.senderId != widget.currentUser.user_id &&
-                          lastMessage.isRead == 0; // فقط إذا كانت الرسالة غير مقروءة
-                      
+                          lastMessage.isRead ==
+                              0; // فقط إذا كانت الرسالة غير مقروءة
+
                       return InkWell(
                         onTap: () {
                           Navigator.push(
@@ -270,7 +281,8 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
                           ).then((_) => loadConversations());
                         },
                         child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
                           color: hasUnreadMessage ? Colors.blue.shade50 : null,
                           child: Row(
                             children: [
@@ -304,8 +316,8 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
                                             user.first_name ?? 'غير معروف',
                                             style: TextStyle(
                                               fontSize: 16,
-                                              fontWeight: hasUnreadMessage 
-                                                  ? FontWeight.bold 
+                                              fontWeight: hasUnreadMessage
+                                                  ? FontWeight.bold
                                                   : FontWeight.normal,
                                             ),
                                             overflow: TextOverflow.ellipsis,
@@ -313,14 +325,15 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
                                         ),
                                         if (lastMessage != null)
                                           Text(
-                                            _formatTimestamp(lastMessage.timestamp),
+                                            _formatTimestamp(
+                                                lastMessage.timestamp),
                                             style: TextStyle(
                                               fontSize: 12,
-                                              color: hasUnreadMessage 
+                                              color: hasUnreadMessage
                                                   ? Colors.blue.shade700
                                                   : Colors.grey.shade600,
-                                              fontWeight: hasUnreadMessage 
-                                                  ? FontWeight.bold 
+                                              fontWeight: hasUnreadMessage
+                                                  ? FontWeight.bold
                                                   : FontWeight.normal,
                                             ),
                                           ),
@@ -331,12 +344,14 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
                                       children: [
                                         // نوع المستخدم
                                         Container(
-                                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 6, vertical: 2),
                                           decoration: BoxDecoration(
                                             color: user.roleID == 2
                                                 ? Colors.blue.shade50
                                                 : Colors.green.shade50,
-                                            borderRadius: BorderRadius.circular(4),
+                                            borderRadius:
+                                                BorderRadius.circular(4),
                                           ),
                                           child: Text(
                                             user.roleID == 1
@@ -356,14 +371,15 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
                                         // محتوى آخر رسالة
                                         Expanded(
                                           child: Text(
-                                            lastMessage?.content ?? 'لا توجد رسائل',
+                                            lastMessage?.content ??
+                                                'لا توجد رسائل',
                                             style: TextStyle(
                                               fontSize: 14,
-                                              color: hasUnreadMessage 
+                                              color: hasUnreadMessage
                                                   ? Colors.black87
                                                   : Colors.grey.shade600,
-                                              fontWeight: hasUnreadMessage 
-                                                  ? FontWeight.bold 
+                                              fontWeight: hasUnreadMessage
+                                                  ? FontWeight.bold
                                                   : FontWeight.normal,
                                             ),
                                             overflow: TextOverflow.ellipsis,
@@ -402,7 +418,8 @@ class _ParentConversationsScreenState extends State<ParentConversationsScreen> {
               builder: (context) => ParentUsersScreen(
                 currentUser: widget.currentUser,
                 availableTeachers: widget.availableTeachers,
-                availablePrincipals: widget.availablePrincipals, // تمرير قائمة مديري المدارس
+                availablePrincipals:
+                    widget.availablePrincipals, // تمرير قائمة مديري المدارس
                 children: children, // تمرير قائمة أبناء ولي الأمر
               ),
             ),

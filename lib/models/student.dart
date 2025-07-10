@@ -1,5 +1,5 @@
 class Student {
-  final int studentID; // معرف الطالب
+  final String studentID; // معرف الطالب
   final String firstName; // الاسم الأول
   final String middleName; // الاسم الأوسط
   final String lastName; // الاسم الأخير
@@ -11,7 +11,7 @@ class Student {
   final String excuse; // عذر الغياب
   final String reasonAbsence; // سبب الغياب
   final int isSync; // حالة المزامنة
-  final int userID; // معرف المستخدم (ولي الأمر)
+  final String userID; // معرف المستخدم (ولي الأمر)
 
   // الحصول على الاسم الكامل للطالب
   String get fullName => '$firstName $middleName $lastName';
@@ -34,7 +34,7 @@ class Student {
 
   factory Student.fromMap(Map<String, dynamic> map) {
     return Student(
-      studentID: map['StudentID'] ?? 0,
+      studentID: map['StudentID'] ?? '',
       firstName: map['FirstName'] ?? '',
       middleName: map['MiddleName'] ?? '',
       lastName: map['LastName'] ?? '',
@@ -46,10 +46,10 @@ class Student {
       excuse: map['Excuse'] ?? '',
       reasonAbsence: map['ReasonAbsence'] ?? '',
       isSync: map['isSync'] ?? 0,
-      userID: map['userID'] ?? 0,
+      userID: map['userID'] ?? '',
     );
   }
-  
+
   // تحويل الكائن إلى Map للتخزين في Firestore
   Map<String, dynamic> toMap() {
     return {

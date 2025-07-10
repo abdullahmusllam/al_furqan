@@ -32,39 +32,39 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
     super.initState();
     // جمع المعلمين ومديري المدارس في قائمة واحدة
     allUsers = [];
-    
+
     // استخراج قائمة معرفات الحلقات الخاصة بأبناء ولي الأمر
     final List<int?> childrenHalaqatIds = widget.children
         .map((child) => child.elhalagatID)
         .where((id) => id != null)
         .toList();
-        
+
     // استخراج قائمة معرفات المدارس الخاصة بأبناء ولي الأمر
     final List<int?> childrenSchoolIds = widget.children
         .map((child) => child.schoolID)
         .where((id) => id != null)
         .toList();
-    
+
     // إضافة المعلمين الذين يشتركون في نفس معرف الحلقة مع أبناء ولي الأمر
     allUsers.addAll(widget.availableTeachers
-        .where((user) => 
-            user.user_id != null && 
-            user.user_id != 0 && 
-            user.elhalagatID != null && 
+        .where((user) =>
+            user.user_id != null &&
+            user.user_id != '' &&
+            user.elhalagatID != null &&
             childrenHalaqatIds.contains(user.elhalagatID))
         .toList());
-    
+
     // إضافة مديري المدارس الذين يشتركون في نفس معرف المدرسة مع أبناء ولي الأمر
     if (widget.availablePrincipals != null) {
       allUsers.addAll(widget.availablePrincipals!
-          .where((user) => 
-              user.user_id != null && 
-              user.user_id != 0 && 
-              user.schoolID != null && 
+          .where((user) =>
+              user.user_id != null &&
+              user.user_id != '' &&
+              user.schoolID != null &&
               childrenSchoolIds.contains(user.schoolID))
           .toList());
     }
-    
+
     // تعيين قائمة المستخدمين المعروضة
     displayedUsers = List.from(allUsers);
   }
@@ -77,10 +77,10 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
       if (user.roleID == 1 && !showPrincipals) return false; // مدير
       return true;
     }).toList();
-    
+
     // إذا كان البحث فارغًا، أعد القائمة المصفاة حسب الدور فقط
     if (query.isEmpty) return filteredByRole;
-    
+
     // تصفية حسب الاسم والدور
     return filteredByRole.where((user) {
       final name = user.first_name?.toLowerCase() ?? '';
@@ -92,7 +92,8 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('اختيار مستخدم للمراسلة', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('اختيار مستخدم للمراسلة',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -112,7 +113,8 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
                 ),
                 filled: true,
                 fillColor: Colors.grey.shade100,
-                contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 0, horizontal: 20),
               ),
               onChanged: (value) {
                 setState(() {
@@ -121,7 +123,7 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
               },
             ),
           ),
-          
+
           // خيارات التصفية
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -168,7 +170,7 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
               ],
             ),
           ),
-          
+
           // عنوان القسم
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -176,9 +178,13 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  showTeachers && showPrincipals ? 'قائمة المستخدمين' :
-                  showTeachers ? 'قائمة المعلمين' :
-                  showPrincipals ? 'قائمة المديرين' : 'لا يوجد مستخدمين',
+                  showTeachers && showPrincipals
+                      ? 'قائمة المستخدمين'
+                      : showTeachers
+                          ? 'قائمة المعلمين'
+                          : showPrincipals
+                              ? 'قائمة المديرين'
+                              : 'لا يوجد مستخدمين',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -186,10 +192,14 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
                   ),
                 ),
                 Text(
-                  '${displayedUsers.length} ' + 
-                  (showTeachers && showPrincipals ? 'مستخدم' :
-                  showTeachers ? 'معلم' :
-                  showPrincipals ? 'مدير' : ''),
+                  '${displayedUsers.length} ' +
+                      (showTeachers && showPrincipals
+                          ? 'مستخدم'
+                          : showTeachers
+                              ? 'معلم'
+                              : showPrincipals
+                                  ? 'مدير'
+                                  : ''),
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey.shade600,
@@ -198,9 +208,9 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
               ],
             ),
           ),
-          
+
           SizedBox(height: 8),
-          
+
           // قائمة المستخدمين
           Expanded(
             child: RefreshIndicator(
@@ -212,25 +222,29 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.person_off, size: 64, color: Colors.grey.shade400),
+                          Icon(Icons.person_off,
+                              size: 64, color: Colors.grey.shade400),
                           SizedBox(height: 16),
                           Text(
                             'لا يوجد معلمين متاحين للمراسلة',
-                            style: TextStyle(fontSize: 18, color: Colors.grey.shade700),
+                            style: TextStyle(
+                                fontSize: 18, color: Colors.grey.shade700),
                             textAlign: TextAlign.center,
                           ),
                         ],
                       ),
                     )
                   : ListView.separated(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       itemCount: displayedUsers.length,
                       separatorBuilder: (context, index) => Divider(height: 1),
                       itemBuilder: (context, index) {
                         final user = displayedUsers[index];
                         return InkWell(
                           onTap: () {
-                            print('اختيار معلم: ${user.first_name}, user_id: ${user.user_id}');
+                            print(
+                                'اختيار معلم: ${user.first_name}, user_id: ${user.user_id}');
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -242,7 +256,8 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
                             );
                           },
                           child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 4),
                             child: Row(
                               children: [
                                 // صورة المستخدم
@@ -262,7 +277,8 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
                                 // معلومات المستخدم
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         user.first_name ?? 'غير معروف',
@@ -275,23 +291,32 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
                                       Row(
                                         children: [
                                           Container(
-                                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 2),
                                             decoration: BoxDecoration(
-                                              color: user.roleID == 1 ? Colors.green.shade50 : Colors.blue.shade50,
-                                              borderRadius: BorderRadius.circular(12),
+                                              color: user.roleID == 1
+                                                  ? Colors.green.shade50
+                                                  : Colors.blue.shade50,
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
                                             child: Text(
-                                              user.roleID == 1 ? 'مدير' : 'معلم',
+                                              user.roleID == 1
+                                                  ? 'مدير'
+                                                  : 'معلم',
                                               style: TextStyle(
                                                 fontSize: 12,
-                                                color: user.roleID == 1 ? Colors.green.shade700 : Colors.blue.shade700,
+                                                color: user.roleID == 1
+                                                    ? Colors.green.shade700
+                                                    : Colors.blue.shade700,
                                               ),
                                             ),
                                           ),
                                           // المعلومات الإضافية للمستخدم
                                           if (user.elhalagatName != null)
                                             Padding(
-                                              padding: const EdgeInsets.only(right: 8.0),
+                                              padding: const EdgeInsets.only(
+                                                  right: 8.0),
                                               child: Text(
                                                 user.elhalagatName!,
                                                 style: TextStyle(
@@ -307,7 +332,8 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
                                 ),
                                 // زر المحادثة
                                 IconButton(
-                                  icon: Icon(Icons.chat_outlined, color: Colors.blue.shade700),
+                                  icon: Icon(Icons.chat_outlined,
+                                      color: Colors.blue.shade700),
                                   onPressed: () {
                                     Navigator.push(
                                       context,

@@ -4,7 +4,7 @@ import '../models/message.dart';
 
 class MessageService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   // Check internet connectivity
   Future<bool> isConnected() async {
     return await InternetConnectionChecker.createInstance().hasConnection;
@@ -19,13 +19,14 @@ class MessageService {
           .orderBy('id', descending: true)
           .limit(1)
           .get();
-      
+
       if (snapshot.docs.isEmpty) {
         return 1; // Start with ID 1 if no messages exist
       }
-      
+
       // Extract the highest ID and increment by 1
-      Map<String, dynamic> data = snapshot.docs.first.data() as Map<String, dynamic>;
+      Map<String, dynamic> data =
+          snapshot.docs.first.data() as Map<String, dynamic>;
       int highestId = data['id'] ?? 0;
       return highestId + 1;
     } catch (e) {
@@ -36,7 +37,7 @@ class MessageService {
   }
 
   // Load messages from Firestore for a specific receiver
-  Future<List<Message>> getMessagesByReceiverId(int receiverId) async {
+  Future<List<Message>> getMessagesByReceiverId(String receiverId) async {
     List<Message> messages = [];
     try {
       if (!await isConnected()) {
@@ -61,7 +62,7 @@ class MessageService {
         Message message = Message.fromMap(doc.data() as Map<String, dynamic>);
         messages.add(message);
       }
-      
+
       return messages;
     } catch (e) {
       print('خطأ في جلب الرسائل من Firestore: $e');
@@ -94,7 +95,7 @@ class MessageService {
         Message message = Message.fromMap(doc.data() as Map<String, dynamic>);
         messages.add(message);
       }
-      
+
       return messages;
     } catch (e) {
       print('خطأ في جلب جميع الرسائل: $e');
@@ -114,10 +115,8 @@ class MessageService {
       // Get all messages where the user is sender or receiver
       QuerySnapshot snapshot = await _firestore
           .collection('messages')
-          .where(Filter.or(
-            Filter('senderId', isEqualTo: userId),
-            Filter('receiverId', isEqualTo: userId)
-          ))
+          .where(Filter.or(Filter('senderId', isEqualTo: userId),
+              Filter('receiverId', isEqualTo: userId)))
           .orderBy('timestamp', descending: true)
           .get();
 
@@ -127,24 +126,28 @@ class MessageService {
       }
 
       // Process messages to get unique conversations
-      Map<int, Message> latestMessageByContact = {};
-      
+      Map<String, Message> latestMessageByContact = {};
+
       for (var doc in snapshot.docs) {
         Message message = Message.fromMap(doc.data() as Map<String, dynamic>);
-        
+
         // Determine the contact ID (the other person in the conversation)
-        int contactId = message.senderId == userId ? message.receiverId! : message.senderId!;
-        
+        String contactId = message.senderId == userId
+            ? message.receiverId!
+            : message.senderId!;
+
         // If we haven't seen this contact yet, or if this message is newer
-        if (!latestMessageByContact.containsKey(contactId) || 
-            message.timestamp.compareTo(latestMessageByContact[contactId]!.timestamp) > 0) {
+        if (!latestMessageByContact.containsKey(contactId) ||
+            message.timestamp
+                    .compareTo(latestMessageByContact[contactId]!.timestamp) >
+                0) {
           latestMessageByContact[contactId] = message;
         }
       }
-      
+
       // Convert the map values to a list
       conversations = latestMessageByContact.values.toList();
-      
+
       return conversations;
     } catch (e) {
       print('خطأ في جلب قائمة المحادثات: $e');
@@ -159,23 +162,23 @@ class MessageService {
         print('لا يوجد اتصال بالإنترنت، لا يمكن إرسال الرسالة');
         return false;
       }
-      
+
       // Generate a new ID if not provided
       if (message.id == null) {
         message.id = await _generateNewId();
       }
-      
+
       // Set timestamp if not provided
       if (message.timestamp.isEmpty) {
         message.timestamp = DateTime.now().toIso8601String();
       }
-      
+
       // Save to Firebase
       await _firestore
           .collection('messages')
           .doc(message.id.toString())
           .set(message.toJson());
-      
+
       print('تم إرسال وحفظ الرسالة بنجاح');
       return true;
     } catch (e) {
@@ -191,12 +194,12 @@ class MessageService {
         print('لا يوجد اتصال بالإنترنت، لا يمكن حذف الرسالة');
         return false;
       }
-      
+
       await _firestore
           .collection('messages')
           .doc(messageId.toString())
           .delete();
-      
+
       print('تم حذف الرسالة بنجاح');
       return true;
     } catch (e) {
@@ -212,12 +215,12 @@ class MessageService {
         print('لا يوجد اتصال بالإنترنت، لا يمكن تحديث الرسالة');
         return false;
       }
-      
+
       await _firestore
           .collection('messages')
           .doc(message.id.toString())
           .update(message.toJson());
-      
+
       print('تم تحديث الرسالة بنجاح');
       return true;
     } catch (e) {
@@ -225,24 +228,24 @@ class MessageService {
       return false;
     }
   }
-  
+
   // Update read status of messages for a specific receiver
-  Future<int> updateMessagesReadStatus(int receiverId) async {
+  Future<int> updateMessagesReadStatus(String receiverId) async {
     try {
       if (!await isConnected()) {
         print('لا يوجد اتصال بالإنترنت، لا يمكن تحديث حالة القراءة');
         return 0;
       }
-      
+
       // Get unread messages for the receiver
       QuerySnapshot snapshot = await _firestore
           .collection('messages')
           .where('receiverId', isEqualTo: receiverId)
           .where('isRead', isEqualTo: 0)
           .get();
-      
+
       int updatedCount = 0;
-      
+
       // Update each message
       for (var doc in snapshot.docs) {
         await _firestore
@@ -251,7 +254,7 @@ class MessageService {
             .update({'isRead': 1});
         updatedCount++;
       }
-      
+
       print('تم تحديث حالة قراءة $updatedCount رسالة في Firestore');
       return updatedCount;
     } catch (e) {
@@ -259,7 +262,7 @@ class MessageService {
       return 0;
     }
   }
-  
+
   // Get unread messages count for a specific receiver
   Future<int> getUnreadMessagesCount(int receiverId) async {
     try {
@@ -267,23 +270,24 @@ class MessageService {
         print('لا يوجد اتصال بالإنترنت، لا يمكن جلب عدد الرسائل غير المقروءة');
         return 0;
       }
-      
+
       // Get count of unread messages
       QuerySnapshot snapshot = await _firestore
           .collection('messages')
           .where('receiverId', isEqualTo: receiverId)
           .where('isRead', isEqualTo: 0)
           .get();
-      
+
       return snapshot.docs.length;
     } catch (e) {
       print('خطأ في جلب عدد الرسائل غير المقروءة: $e');
       return 0;
     }
   }
-  
+
   // Get messages between two users
-  Future<List<Message>> getMessagesBetweenUsers(int userId1, int userId2) async {
+  Future<List<Message>> getMessagesBetweenUsers(
+      String userId1, String userId2) async {
     List<Message> messages = [];
     try {
       if (!await isConnected()) {
@@ -321,10 +325,10 @@ class MessageService {
         Message message = Message.fromMap(doc.data() as Map<String, dynamic>);
         messages.add(message);
       }
-      
+
       // ترتيب الرسائل حسب الوقت
       messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-      
+
       return messages;
     } catch (e) {
       print('خطأ في جلب الرسائل بين المستخدمين: $e');

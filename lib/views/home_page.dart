@@ -10,7 +10,8 @@ import '../models/user.dart';
 class HomeScreen extends StatefulWidget {
   final List<UserModel> availableTeachers;
 
-  const HomeScreen({Key? key, this.availableTeachers = const []}) : super(key: key);
+  const HomeScreen({Key? key, this.availableTeachers = const []})
+      : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -34,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       // الحصول على معرف المستخدم من SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      int? userId = prefs.getInt('user_id');
+      String? userId = prefs.getString('user_id');
 
       if (userId != null) {
         // جلب بيانات ولي الأمر من Firestore
@@ -60,15 +61,17 @@ class _HomeScreenState extends State<HomeScreen> {
         });
         return;
       }
-      
+
       // جلب المدرسين من Firestore (roleID = 2)
-      List<UserModel> teachers = await _firestoreService.getUsersByRole(2); // 2 = معلم
-      
+      List<UserModel> teachers =
+          await _firestoreService.getUsersByRole(2); // 2 = معلم
+
       // جلب مديري المدارس من Firestore (roleID = 1)
-      List<UserModel> principals = await _firestoreService.getUsersByRole(1); // 1 = مدير
-      
+      List<UserModel> principals =
+          await _firestoreService.getUsersByRole(1); // 1 = مدير
+
       if (!mounted) return; // Check if widget is still mounted
-      
+
       setState(() {
         _availableTeachers = teachers;
         _availablePrincipals = principals;
@@ -83,7 +86,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_parent?.first_name ?? '',
-            style: TextStyle(fontFamily: 'RB', fontWeight: FontWeight.bold, color: Colors.white)),
+            style: TextStyle(
+                fontFamily: 'RB',
+                fontWeight: FontWeight.bold,
+                color: Colors.white)),
         centerTitle: true,
         backgroundColor: Color(0xFF017546),
         elevation: 0,
@@ -285,11 +291,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  ParentConversationsScreen(
-                                      currentUser: _parent!,
-                                      availableTeachers: _availableTeachers,
-                                      availablePrincipals: _availablePrincipals), // إضافة قائمة مديري المدارس
+                              builder: (context) => ParentConversationsScreen(
+                                  currentUser: _parent!,
+                                  availableTeachers: _availableTeachers,
+                                  availablePrincipals:
+                                      _availablePrincipals), // إضافة قائمة مديري المدارس
                             ),
                           );
                         },

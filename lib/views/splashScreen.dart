@@ -22,23 +22,21 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
-
-
   // التحقق من حالة تسجيل الدخول في SharedPreferences
   Future<void> _checkLoginStatus() async {
     try {
       // الحصول على مثيل من SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      
+
       // التحقق مما إذا كان المستخدم مسجل الدخول
       final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-      final userId = prefs.getInt('user_id');
-      
+      final userId = prefs.getString('user_id');
+
       print('===== isLoggedIn: $isLoggedIn =====');
       print('===== userId: $userId =====');
-      
+
       if (!mounted) return; // Check if widget is still mounted
-      
+
       if (isLoggedIn && userId != null) {
         // إذا كان المستخدم مسجل الدخول وتم العثور على معرف المستخدم
         Navigator.of(context).pushReplacement(
@@ -52,19 +50,15 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     } catch (e) {
       print('خطأ في التحقق من حالة تسجيل الدخول: $e');
-      
+
       if (!mounted) return; // Check if widget is still mounted
-      
+
       // في حالة حدوث خطأ، الانتقال إلى شاشة تسجيل الدخول
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => LoginScreen()),
       );
     }
   }
-  
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +68,10 @@ class _SplashScreenState extends State<SplashScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFE8F5F0), Colors.white], // Light version of #017546
+            colors: [
+              Color(0xFFE8F5F0),
+              Colors.white
+            ], // Light version of #017546
           ),
         ),
         child: Center(

@@ -10,7 +10,6 @@ import '../student_list_screen.dart';
 import 'forgot_password_screen.dart';
 import 'signup_screen.dart';
 
-
 int id = 0;
 
 class LoginScreen extends StatefulWidget {
@@ -33,13 +32,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   /// حفظ بيانات تسجيل الدخول في SharedPreferences
   Future<void> saveUserLogin(
-      String phoneUser, int roleId, int isActivate, int userId) async {
+      String phoneUser, int roleId, int isActivate, String userId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('phoneUser', phoneUser);
     await prefs.setInt('roleID', roleId);
     await prefs.setInt('isActivate', isActivate);
     await prefs.setBool('isLoggedIn', true);
-    await prefs.setInt('user_id', userId);
+    await prefs.setString('user_id', userId);
   }
 
   /// تسجيل الدخول باستخدام رقم الهاتف وكلمة المرور
@@ -47,16 +46,16 @@ class _LoginScreenState extends State<LoginScreen> {
     // التحقق من صحة المدخلات
     String phoneStr = phoneController.text.trim();
     String password = passwordController.text.trim();
-    
+
     // التحقق من أن رقم الهاتف صالح
     if (phoneStr.isEmpty || !RegExp(r'^[0-9]+$').hasMatch(phoneStr)) {
       _showErrorDialog(context, "خطأ", "الرجاء إدخال رقم هاتف صالح");
       return;
     }
-    
+
     // تحويل رقم الهاتف إلى رقم صحيح
     int phone = int.parse(phoneStr);
-    
+
     if (mounted) {
       setState(() => _isLoading = true);
     }
@@ -69,9 +68,10 @@ class _LoginScreenState extends State<LoginScreen> {
       _showErrorDialog(context, "خطأ", "الرجاء إدخال كلمة المرور.");
       return;
     }
-    
+
     // التحقق من اتصال الإنترنت
-    bool hasConnection = await InternetConnectionChecker.createInstance().hasConnection;
+    bool hasConnection =
+        await InternetConnectionChecker.createInstance().hasConnection;
     if (!hasConnection) {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _showErrorDialog(context, "خطأ", "بيانات تسجيل الدخول غير صحيحة");
         return;
       }
-      
+
       // التحقق من أن الحساب مفعل
       if (user.isActivate == 0) {
         if (mounted) {
@@ -107,14 +107,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // المستخدم موجود بالفعل وكلمة المرور صحيحة
       // حفظ بيانات المستخدم في الذاكرة المؤقتة
-      await saveUserLogin(phoneStr, user.roleID!, user.isActivate!, user.user_id!); 
-      
+      await saveUserLogin(
+          phoneStr, user.roleID!, user.isActivate!, user.user_id!);
+
       final prefs = await SharedPreferences.getInstance();
       // حفظ معرف المدرسة إذا كان موجوداً
       if (user.schoolID != null) {
         await prefs.setInt('schoolId', user.schoolID!);
       }
-      
+
       // حفظ معرف الحلقة إذا كان موجوداً
       if (user.elhalagatID != null) {
         await prefs.setInt('elhalagatID', user.elhalagatID!);
@@ -129,13 +130,13 @@ class _LoginScreenState extends State<LoginScreen> {
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
       );
-
     } catch (e) {
       print("خطأ في تسجيل الدخول: $e");
       if (mounted) {
         setState(() => _isLoading = false);
       }
-      _showErrorDialog(context, "خطأ", "حدث خطأ أثناء تسجيل الدخول، حاول مرة أخرى");
+      _showErrorDialog(
+          context, "خطأ", "حدث خطأ أثناء تسجيل الدخول، حاول مرة أخرى");
     }
   }
 
@@ -168,7 +169,10 @@ class _LoginScreenState extends State<LoginScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFE8F5F0), Colors.white], // Light version of #017546
+            colors: [
+              Color(0xFFE8F5F0),
+              Colors.white
+            ], // Light version of #017546
           ),
         ),
         child: SafeArea(
