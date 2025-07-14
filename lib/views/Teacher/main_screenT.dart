@@ -106,7 +106,7 @@ class _MainScreenState extends State<MainScreenT> {
   Future<void> loadPlans() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      int? Id = prefs.getInt('halagaID');
+      String? Id = prefs.getString('halagaID');
       print('===== halagaID ($Id) =====');
       // تحميل الرسائل من فايربيس
       await planController.getPlansFirebaseToLocal(Id!);

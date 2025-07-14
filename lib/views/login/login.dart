@@ -171,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (user.elhalagatID == null) {
         return;
       }
-      await per.setInt('halagaID', user.elhalagatID!);
+      await per.setString('halagaID', user.elhalagatID!);
     }
     print('===== save id ($id) =====');
     await chooseScreen(context);

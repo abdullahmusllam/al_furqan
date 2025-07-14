@@ -6,11 +6,13 @@ import 'package:al_furqan/services/firebase_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class HalagaController {
   final SqlDb _sqlDb = SqlDb();
   final List<HalagaModel> halagaData = [];
-  final List<int> halagatId = [];
+  final List<String> halagatId = [];
+  final uuid = Uuid();
 
   Future<bool> isConnected() async {
     var conn = InternetConnectionChecker.createInstance().hasConnection;
@@ -35,7 +37,7 @@ class HalagaController {
 
     if (data.isNotEmpty) {
       for (var i = 0; i < data.length; i++) {
-        int? halagaID = data[i]['halagaID'] as int?;
+        String? halagaID = data[i]['halagaID'] as String?;
         String name = data[i]['Name'] ?? 'اسم غير متوفر';
         int numberStudent =
             int.tryParse(data[i]['NumberStudent'].toString()) ?? 0;
@@ -89,8 +91,8 @@ class HalagaController {
     try {
       final db = await sqlDb.database;
       if (type == 1) {
-        halagaData.halagaID =
-            await someController.newId("Elhalagat", "halagaID");
+        halagaData.halagaID = uuid.v4();
+        // await someController.newId("Elhalagat", "halagaID");
         // إضافة الحلقة
         if (await isConnected()) {
           halagaData.isSync = 1;
@@ -156,29 +158,29 @@ class HalagaController {
     }
   }
 
-  updateTeacherAssignment(int halagaId, String teacherId) async {
+  updateTeacherAssignment(String halagaId, String teacherId) async {
     try {
       if (await isConnected()) {
         ///الغاء ارتباط المعلم
 
         await firebasehelper.teacherCancel(halagaId);
         await _sqlDb.updateData(
-            "UPDATE Users SET ElhalagatID = NULL, isSync = 1 WHERE ElhalagatID = $halagaId AND roleID = 2");
+            "UPDATE Users SET ElhalagatID = NULL, isSync = 1 WHERE ElhalagatID = '$halagaId' AND roleID = 2");
 
         /// تعيين معلم جديد
         await firebasehelper.newTeacher(halagaId, teacherId);
         await _sqlDb.updateData(
-          "UPDATE Users SET ElhalagatID = $halagaId, isSync = 1 WHERE user_id = $teacherId AND roleID = 2",
+          "UPDATE Users SET ElhalagatID = $halagaId, isSync = 1 WHERE user_id = '$teacherId' AND roleID = 2",
         );
         print("---------------->> here");
       } else {
         ///الغاء ارتباط المعلم
         await _sqlDb.updateData(
-            "UPDATE Users SET ElhalagatID = NULL, isSync = 0 WHERE ElhalagatID = $halagaId AND roleID = 2");
+            "UPDATE Users SET ElhalagatID = NULL, isSync = 0 WHERE ElhalagatID = '$halagaId' AND roleID = 2");
 
         /// تعيين معلم جديد
         await _sqlDb.updateData(
-          "UPDATE Users SET ElhalagatID = $halagaId, isSync = 0 WHERE user_id = $teacherId AND roleID = 2",
+          "UPDATE Users SET ElhalagatID = $halagaId, isSync = 0 WHERE user_id = '$teacherId' AND roleID = 2",
         );
       }
     } catch (e) {
@@ -186,17 +188,17 @@ class HalagaController {
     }
   }
 
-  Future<void> deleteHalaga(int halagaID) async {
+  Future<void> deleteHalaga(String halagaID) async {
     try {
       // إلغاء ارتباط الطلاب والمعلمين
       await _sqlDb.updateData(
-          "UPDATE Students SET ElhalagatID = NULL WHERE ElhalagatID = $halagaID");
+          "UPDATE Students SET ElhalagatID = NULL WHERE ElhalagatID = '$halagaID'");
       await _sqlDb.updateData(
-          "UPDATE Users SET ElhalagatID = NULL WHERE ElhalagatID = $halagaID");
+          "UPDATE Users SET ElhalagatID = NULL WHERE ElhalagatID = '$halagaID'");
 
       // حذف الحلقة
       int response = await _sqlDb
-          .deleteData("DELETE FROM Elhalagat WHERE halagaID = $halagaID");
+          .deleteData("DELETE FROM Elhalagat WHERE halagaID = '$halagaID'");
       print("تم حذف الحلقة $halagaID، الاستجابة: $response");
       if (response == 0) {
         throw Exception("فشل في حذف الحلقة $halagaID");
@@ -207,10 +209,10 @@ class HalagaController {
     }
   }
 
-  Future<int> getStudentCount(int halagaID) async {
+  Future<int> getStudentCount(String halagaID) async {
     try {
       final count = await _sqlDb.readData(
-          "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = $halagaID");
+          "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = '$halagaID'");
       return count[0]['count'] as int;
     } catch (e) {
       print("خطأ في جلب عدد الطلاب: $e");
@@ -218,14 +220,14 @@ class HalagaController {
     }
   }
 
-  Future<String> getTeacherNameByID(int? teacherID) async {
+  Future<String> getTeacherNameByID(String? teacherID) async {
     if (teacherID == null) {
       return 'لا يوجد معلم للحلقة';
     }
 
     try {
       var teacherData = await _sqlDb.readData(
-          'SELECT first_name, last_name FROM Users WHERE user_id = $teacherID AND roleID = 2');
+          'SELECT first_name, last_name FROM Users WHERE user_id = "$teacherID" AND roleID = 2');
 
       if (teacherData.isEmpty) {
         return 'معلم غير موجود';
@@ -238,13 +240,13 @@ class HalagaController {
     }
   }
 
-  Future<HalagaModel?> getHalqaDetails(int halagaID) async {
+  Future<HalagaModel?> getHalqaDetails(String halagaID) async {
     try {
       var response = await _sqlDb.readData(
           'SELECT E.*, U.first_name, U.last_name, U.user_id as TeacherID '
           'FROM Elhalagat E '
           'LEFT JOIN Users U ON U.ElhalagatID = E.halagaID AND U.roleID = 2 '
-          'WHERE E.halagaID = $halagaID');
+          'WHERE E.halagaID = "$halagaID"');
 
       if (response.isEmpty) {
         print('لا توجد بيانات للحلقة بالمعرف: $halagaID');
@@ -276,13 +278,13 @@ class HalagaController {
     }
   }
 
-  Future<List<HalagaModel>> getHalagaByHalagaID(int halagaID) async {
+  Future<List<HalagaModel>> getHalagaByHalagaID(String halagaID) async {
     List<Map<String, dynamic>> halagaData = await _sqlDb
-        .readData("SELECT * FROM Elhalagat WHERE halagaID = $halagaID");
+        .readData("SELECT * FROM Elhalagat WHERE halagaID = '$halagaID'");
     return halagaData.map((halaga) => HalagaModel.fromJson(halaga)).toList();
   }
 
-  Future<String> getTeacher(int halagaId) async {
+  Future<String> getTeacher(String halagaId) async {
     try {
       final db = await sqlDb.database;
       final result = await db.query(
@@ -317,7 +319,7 @@ class HalagaController {
             await FirebaseFirestore.instance.collection('Elhalaga').get();
         for (var doc in snapshot.docs) {
           HalagaModel halaga = HalagaModel.fromJson(doc.data());
-          bool exists = await _sqlDb.checkIfitemExists(
+          bool exists = await _sqlDb.checkIfitemExists2(
               'Elhalagat', halaga.halagaID!, 'halagaID');
           if (exists) {
             await updateHalaga(halaga, 0);
@@ -343,7 +345,7 @@ class HalagaController {
             .get();
         for (var doc in snapshot.docs) {
           HalagaModel halaga = HalagaModel.fromJson(doc.data());
-          bool exists = await _sqlDb.checkIfitemExists(
+          bool exists = await _sqlDb.checkIfitemExists2(
               'Elhalagat', halaga.halagaID!, 'halagaID');
           if (exists) {
             await updateHalaga(halaga, 0);

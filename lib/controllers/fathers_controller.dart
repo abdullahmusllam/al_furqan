@@ -113,7 +113,7 @@ class FathersController {
     return null;
   }
 
-  Future<List<UserModel>> getFathersByElhalagaId(int elhalagatID) async {
+  Future<List<UserModel>> getFathersByElhalagaId(String elhalagatID) async {
     print('getFathersByElhalagaId called with elhalagatID: $elhalagatID');
     try {
       // المشكلة قد تكون في العلاقة بين الجداول - نستخدم استعلام مختلف

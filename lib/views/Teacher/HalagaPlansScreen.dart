@@ -70,7 +70,7 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
     try {
       await planController.clearAllPlans(); // حذف البيانات القديمة
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('halagaID', halaga.halagaID!);
+      await prefs.setString('halagaID', halaga.halagaID!);
       print("-----------------Add------------------------");
       List<String> studentsID =
           await planController.getAllStudentsHalaga(halaga.halagaID!);

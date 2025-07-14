@@ -68,7 +68,7 @@ class FirebaseHelper {
     });
   }
 
-  assignStudentToHalqa(String studentId, int halqaID) async {
+  assignStudentToHalqa(String studentId, String halqaID) async {
     try {
       final docRef = _firestore.collection('Students').doc(studentId);
       await docRef.update({'ElhalagatID': halqaID});
@@ -191,7 +191,7 @@ class FirebaseHelper {
   }
 
   /// الغاء ارتباط المعلم بالحلقة
-  Future<void> teacherCancel(int halagaId) async {
+  Future<void> teacherCancel(String halagaId) async {
     try {
       final docRef = _firestore.collection('Users');
 
@@ -217,7 +217,7 @@ class FirebaseHelper {
     }
   }
 
-  newTeacher(int halagaId, String teacherId) async {
+  newTeacher(String halagaId, String teacherId) async {
     try {
       final docRef = _firestore.collection('Users');
       await docRef.doc(teacherId.toString()).update({'ElhalagatID': halagaId});
@@ -526,7 +526,8 @@ class FirebaseHelper {
     }
   }
 
-  Future<List<ConservationPlanModel>> getConservationPlans(int halagaId) async {
+  Future<List<ConservationPlanModel>> getConservationPlans(
+      String halagaId) async {
     try {
       print(
           "-------------------> Fetching conservation plans from Firestore for halaga: $halagaId");
@@ -570,7 +571,7 @@ class FirebaseHelper {
   }
 
   /// جلب خطط التلاوة من Firestore
-  Future<List<EltlawahPlanModel>> getEltlawahPlans(int halagaId) async {
+  Future<List<EltlawahPlanModel>> getEltlawahPlans(String halagaId) async {
     try {
       print(
           "-------------------> جاري جلب خطط التلاوة من Firestore للحلقة: $halagaId");
@@ -614,7 +615,8 @@ class FirebaseHelper {
   }
 
   /// جلب خطط العلوم الشرعية من Firestore
-  Future<List<IslamicStudiesModel>> getIslamicStudyPlans(int halagaId) async {
+  Future<List<IslamicStudiesModel>> getIslamicStudyPlans(
+      String halagaId) async {
     try {
       print(
           "-------------------> جاري جلب خطط العلوم الشرعية من Firestore للحلقة: $halagaId");

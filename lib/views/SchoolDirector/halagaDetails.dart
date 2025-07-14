@@ -42,7 +42,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
   }
 
   Future<void> _loadStudents() async {
-    final int? halagaID = widget.halqa.halagaID;
+    final String? halagaID = widget.halqa.halagaID;
     if (halagaID == null) {
       print("halagaID is null");
       if (mounted) {
@@ -77,7 +77,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
   }
 
   Future<void> _loadHalqaDetails() async {
-    final int? halagaID = widget.halqa.halagaID;
+    final String? halagaID = widget.halqa.halagaID;
     if (halagaID == null) return;
 
     try {
@@ -97,7 +97,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
   }
 
   Future<void> _loadPlanDetails() async {
-    final int? halagaID = widget.halqa.halagaID;
+    final String? halagaID = widget.halqa.halagaID;
     print("------> halagaID: $halagaID");
     if (halagaID == null) {
       print("------> halagaID is null, returning");

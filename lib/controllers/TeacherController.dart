@@ -79,7 +79,7 @@ class TeacherController {
         password: (data['password']) ?? 0,
         roleID: data['roleID'] as int?,
         schoolID: data['schoolID'] as int?,
-        elhalagatID: data['ElhalagatID'] as int?,
+        elhalagatID: data['ElhalagatID'] as String?,
         date: data['date']?.toString(),
         isActivate: data['isActivate'] as int?,
       );
