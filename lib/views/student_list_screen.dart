@@ -15,7 +15,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
   List<Student> _students = [];
   bool _isLoading = true;
   Map<int?, String> _schoolNames = {};
-  Map<int?, String> _halagaNames = {};
+  Map<String?, String> _halagaNames = {};
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
 
         // جلب أسماء المدارس والحلقات
         Map<int?, String> schoolNames = {};
-        Map<int?, String> halagaNames = {};
+        Map<String?, String> halagaNames = {};
 
         for (var student in students) {
           if (student.schoolID != null &&

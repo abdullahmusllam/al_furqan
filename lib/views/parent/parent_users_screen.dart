@@ -34,7 +34,7 @@ class _ParentUsersScreenState extends State<ParentUsersScreen> {
     allUsers = [];
 
     // استخراج قائمة معرفات الحلقات الخاصة بأبناء ولي الأمر
-    final List<int?> childrenHalaqatIds = widget.children
+    final List<String?> childrenHalaqatIds = widget.children
         .map((child) => child.elhalagatID)
         .where((id) => id != null)
         .toList();

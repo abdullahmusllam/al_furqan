@@ -5,7 +5,7 @@ class Student {
   final String lastName; // الاسم الأخير
   final String grandfatherName; // اسم الجد
   final int? schoolID; // معرف المدرسة
-  final int? elhalagatID; // معرف الحلقة
+  final String? elhalagatID; // معرف الحلقة
   final int? attendanceDays; // أيام الحضور
   final int? absenceDays; // أيام الغياب
   final String excuse; // عذر الغياب

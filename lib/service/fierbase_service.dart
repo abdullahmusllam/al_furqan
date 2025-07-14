@@ -68,7 +68,7 @@ class FirestoreService {
   }
 
   // جلب اسم الحلقة بواسطة معرف الحلقة
-  Future<String> getHalagaName(int? halagaId) async {
+  Future<String> getHalagaName(String? halagaId) async {
     if (halagaId == null) return 'غير محدد';
 
     try {

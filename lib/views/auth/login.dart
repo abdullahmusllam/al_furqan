@@ -118,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // حفظ معرف الحلقة إذا كان موجوداً
       if (user.elhalagatID != null) {
-        await prefs.setInt('elhalagatID', user.elhalagatID!);
+        await prefs.setString('elhalagatID', user.elhalagatID!);
       }
 
       if (mounted) {

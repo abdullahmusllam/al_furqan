@@ -1,7 +1,7 @@
 class UserModel {
   String? user_id;
   int? activityID;
-  int? elhalagatID;
+  String? elhalagatID;
   String? elhalagatName; // Added property for halaqat name
   String? first_name;
   String? middle_name;
@@ -65,7 +65,7 @@ class UserModel {
     return UserModel(
         user_id: map['user_id'],
         activityID: map['ActivityID'] as int?,
-        elhalagatID: map['ElhalagatID'] as int?,
+        elhalagatID: map['ElhalagatID'] as String?,
         elhalagatName: map['ElhalagatName'] as String?,
         first_name: map['first_name'] as String?,
         middle_name: map['middle_name'] as String?,
@@ -85,7 +85,7 @@ class UserModel {
     return UserModel(
         user_id: json['user_id'].toString(),
         activityID: json['ActivityID'] as int?,
-        elhalagatID: json['ElhalagatID'] as int?,
+        elhalagatID: json['ElhalagatID'] as String?,
         elhalagatName: json['ElhalagatName'] as String?,
         first_name: json['first_name'] as String?,
         middle_name: json['middle_name'] as String?,
