@@ -1,15 +1,12 @@
 import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/ElhalagatList.dart';
-import 'package:al_furqan/views/SchoolDirector/TeachersAttendance.dart';
 import 'package:al_furqan/views/SchoolDirector/attendanceQrScreen.dart';
 import 'package:al_furqan/views/SchoolDirector/main_screenD.dart';
 import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
 import 'package:al_furqan/views/SchoolDirector/teacher_management.dart';
 import 'package:al_furqan/views/SchoolDirector/teachers_attendance_list.dart';
-import 'package:al_furqan/views/checkDBlocal/database_viewer_entry.dart';
 import 'package:al_furqan/views/shared/main_screen.dart';
-import 'package:al_furqan/views/shared/message_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
