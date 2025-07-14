@@ -1,6 +1,6 @@
 class StudentModel {
   String? studentID;
-  int? elhalaqaID;
+  String? elhalaqaID;
   int? schoolId;
   String? userID; // father
   String? firstName;
@@ -48,12 +48,12 @@ class StudentModel {
 
   factory StudentModel.fromJson(Map<String, dynamic> json) {
     // معالجة ElhalagatID إذا كان نصاً
-    int? elhalaqaID;
+    String? elhalaqaID;
     if (json['ElhalagatID'] != null) {
       if (json['ElhalagatID'] is String) {
-        elhalaqaID = int.tryParse(json['ElhalagatID']);
+        elhalaqaID = json['ElhalagatID'];
       } else {
-        elhalaqaID = json['ElhalagatID'] as int?;
+        elhalaqaID = json['ElhalagatID'] as String?;
       }
     }
 

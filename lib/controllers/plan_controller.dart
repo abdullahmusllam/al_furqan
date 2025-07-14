@@ -146,7 +146,7 @@ class PlanController {
     }
   }
 
-  Future<List<String>> getAllStudentsHalaga(int halagaId) async {
+  Future<List<String>> getAllStudentsHalaga(String halagaId) async {
     final db = await sqlDb.database;
     final result = await db.query(
       'Students',
@@ -170,7 +170,7 @@ class PlanController {
     }
   }
 
-  Future<void> getPlans(int halagaId) async {
+  Future<void> getPlans(String halagaId) async {
     try {
       final db = await sqlDb.database;
 
@@ -212,7 +212,7 @@ class PlanController {
   }
 
   /// جلب جميع الخطط من فايربيس وإضافتها إلى قاعدة البيانات المحلية
-  Future<void> getPlansFirebaseToLocal(int halagaId) async {
+  Future<void> getPlansFirebaseToLocal(String halagaId) async {
     try {
       print("-------------------> التحقق من اتصال الإنترنت");
       bool hasConnection = await InternetConnectionChecker().hasConnection;

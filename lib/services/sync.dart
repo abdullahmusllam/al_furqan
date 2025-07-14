@@ -149,7 +149,7 @@ class Sync {
       List<HalagaModel> halagas =
           map.map((map) => HalagaModel.fromJson(map)).toList();
       for (var halaga in halagas) {
-        bool exists = await firebasehelper.checkDocumentExists(
+        bool exists = await firebasehelper.checkDocumentExists2(
             'Elhalagat', halaga.halagaID!);
         if (exists) {
           halaga.isSync = 1;

@@ -132,13 +132,13 @@ class _MainScreenState extends State<MainScreenD> {
         }
       }
 
-      List<int> halagaIds = halagaController.halagatId;
+      List<String> halagaIds = halagaController.halagatId;
       if (halagaIds.isEmpty) {
         print('===== قائمة معرفات الحلقات فارغة =====');
         return;
       }
 
-      for (int halagaId in halagaIds) {
+      for (var halagaId in halagaIds) {
         await planController.getPlansFirebaseToLocal(halagaId);
       }
     } catch (e) {

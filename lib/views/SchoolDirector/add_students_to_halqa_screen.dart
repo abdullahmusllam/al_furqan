@@ -3,7 +3,7 @@ import 'package:al_furqan/models/student_model.dart';
 import 'package:flutter/material.dart';
 
 class AddStudentsToHalqaScreen extends StatefulWidget {
-  final int? halqaID;
+  final String? halqaID;
   final int? schoolID;
   const AddStudentsToHalqaScreen({
     super.key,
