@@ -14,7 +14,7 @@ class StudentController {
     return conn;
   }
 
-  Future<List<StudentModel>> getStudents(int halagaID) async {
+  Future<List<StudentModel>> getStudents(String halagaID) async {
     List<Map> studentData = await _sqldb
         .readData("SELECT * FROM Students WHERE ElhalagatID = $halagaID");
 
@@ -63,8 +63,8 @@ class StudentController {
         lastName: student['LastName'] as String?,
         elhalaqaID: student['ElhalagatID'] != null
             ? (student['ElhalagatID'] is String
-                ? int.tryParse(student['ElhalagatID'])
-                : student['ElhalagatID'] as int?)
+                ? student['ElhalagatID']
+                : student['ElhalagatID'] as String?)
             : null,
         attendanceDays: student['AttendanceDays'] is String
             ? int.tryParse(student['AttendanceDays'])
@@ -318,7 +318,7 @@ class StudentController {
     }
   }
 
-  Future<void> assignStudentToHalqa(String studentId, int halqaID) async {
+  Future<void> assignStudentToHalqa(String studentId, String halqaID) async {
     try {
       if (await isConnected()) {
         await firebasehelper.assignStudentToHalqa(studentId, halqaID);
@@ -437,7 +437,7 @@ class StudentController {
   }
 
   Future<void> assignStudentsToHalaga(
-      List<String> studentIds, int halagaID) async {
+      List<String> studentIds, String halagaID) async {
     try {
       for (String studentId in studentIds) {
         await assignStudentToHalqa(studentId, halagaID);

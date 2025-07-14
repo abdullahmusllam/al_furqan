@@ -24,7 +24,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
   final sqlDb = SqlDb();
   final halagaController = HalagaController();
   List<StudentModel> students = [];
-  Map<int?, String> halaqaNames = {}; // To store halaqat names by ID
+  Map<String?, String> halaqaNames = {}; // To store halaqat names by ID
   List<HalagaModel> halaqat = [];
   bool isLoading = false;
 
@@ -39,7 +39,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
       halaqat = await halagaController.getData(schoolID);
       print("تم جلب ${halaqat.length} حلقة من المدرسة $schoolID");
 
-      Map<int?, String> names = {};
+      Map<String?, String> names = {};
 
       for (var halqa in halaqat) {
         if (halqa.halagaID != null) {
@@ -60,7 +60,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
     }
   }
 
-  Future<void> _loadHalaqat(int halagaID) async {
+  Future<void> _loadHalaqat(String halagaID) async {
     halaqat = await halagaController.getHalagaByHalagaID(halagaID);
   }
 
@@ -78,7 +78,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
     if (schoolID != null) {
       // تحميل أسماء الحلقات أولاً
       await _loadHalaqaNames(schoolID);
-      
+
       // تحميل البيانات من القاعدة المحلية فقط
       print("جاري تحميل البيانات من قاعدة البيانات المحلية...");
       List<StudentModel>? loadedStudent =
@@ -104,7 +104,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
     print("=== انتهاء تحميل بيانات الطلاب ===");
   }
 
-  String getHalaqaName(int? halaqaId) {
+  String getHalaqaName(String? halaqaId) {
     if (halaqaId == null) {
       print("الطالب بدون حلقة (معرف الحلقة: null)");
       return 'بدون حلقة';
