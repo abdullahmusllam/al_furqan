@@ -1,5 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
-
 class UserModel {
   String? user_id;
   int? activityID;
@@ -65,18 +63,18 @@ class UserModel {
     return UserModel(
         user_id: map['user_id'].toString(),
         activityID: map['ActivityID'] as int?,
-        elhalagatID: map['ElhalagatID'] as String?,
-        first_name: map['first_name'] as String?,
-        middle_name: map['middle_name'] as String?,
-        grandfather_name: map['grandfather_name'] as String?,
-        last_name: map['last_name'] as String?,
+        elhalagatID: map['ElhalagatID'].toString(),
+        first_name: map['first_name'].toString(),
+        middle_name: map['middle_name'].toString(),
+        grandfather_name: map['grandfather_name'].toString(),
+        last_name: map['last_name'].toString(),
         phone_number: map['phone_number'] as int?,
         telephone_number: map['telephone_number'] as int?,
-        email: map['email'] as String?,
-        password: map['password'] as String?,
+        email: map['email'].toString(),
+        password: map['password'].toString(),
         roleID: map['roleID'] as int?,
         schoolID: map['schoolID'] as int?,
-        date: map['date'] as String?,
+        date: map['date'].toString(),
         isActivate: map['isActivate'] as int?,
         isSync: map['isSync'] as int?);
   }
