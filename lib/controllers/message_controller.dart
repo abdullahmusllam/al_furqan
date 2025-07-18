@@ -51,7 +51,7 @@ class MessageController {
   }
 
   // عدد الرسائل غير المقروءة للمستخدم
-  Future<int> getUnreadMessagesCount(int receiverId) async {
+  Future<int> getUnreadMessagesCount(String receiverId) async {
     try {
       final db = await sqlDb.database;
       final result = await db.rawQuery(

@@ -1,7 +1,3 @@
-import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
-import 'package:al_furqan/views/Supervisor/UserManagementPage.dart';
-import 'package:al_furqan/views/login/login.dart';
-import 'package:al_furqan/views/login/login_auth.dart';
 import 'package:al_furqan/views/splashScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
