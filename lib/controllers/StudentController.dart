@@ -128,10 +128,10 @@ class StudentController {
   Future<String?> addStudent(StudentModel studentData, int type) async {
     try {
       // إذا كان schoolId غير موجود، استخدم قيمة افتراضية
-      int schoolId = studentData.schoolId ?? 0;
+      // int schoolId = studentData.schoolId ?? 0;
       // إذا كان userID غير موجود، استخدم NULL
-      String userIdStr =
-          studentData.userID != null ? "${studentData.userID}" : "NULL";
+      // String userIdStr =
+      //     studentData.userID != null ? "${studentData.userID}" : "NULL";
 
       // bool hasConnection = await isConnected();
       // int syncValue = hasConnection ? 1 : 0;
@@ -307,7 +307,7 @@ class StudentController {
   Future<void> delete(String id) async {
     try {
       int response =
-          await _sqldb.deleteData("DELETE FROM Students WHERE StudentID = $id");
+          await _sqldb.deleteData("DELETE FROM Students WHERE StudentID = '$id'");
       print("Delete response: $response");
       if (response == 0) {
         throw Exception("Failed to delete student $id");

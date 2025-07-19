@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
@@ -8,10 +10,7 @@ import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_excel/excel.dart';
-import 'package:path/path.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:path_provider/path_provider.dart'; // For dynamic file paths
 
 class ExcelTesting {
   int? schoolID;
@@ -148,7 +147,6 @@ class ExcelTesting {
     );
   }
 
-
   Future<void> _insertValidData(BuildContext context,
       List<StudentModel> students, List<UserModel> fathers) async {
     int successfulInserts = 0;
@@ -167,14 +165,13 @@ class ExcelTesting {
 
       if (!studentExists) {
         // إضافة الطالب إذا لم يكن موجودًا
-        final studentId = await studentController.addStudent(students[i], 1);
-        /// إضافة الأب إذا لم يكن موجودًا
-        /// الكود هنا حق اضافة الاب الى قاعدة البيانات
-        print("Added student with ID: $studentId");
+        print("-----------> Student [Father ID is : ${students[i].userID}]");
+        await studentController.addStudent(students[i], 1);
+        fathers[i].schoolID = students[i].schoolId;
+        await fathersController.addFather(fathers[i], 1);
         successfulInserts++;
       } else {
-
-        print("Student $firstName $lastName already exists, skipping...").log;
+        print("Student $firstName $lastName already exists, skipping...");
       }
     }
 

@@ -1,7 +1,6 @@
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
-import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:flutter/services.dart';
@@ -45,13 +44,14 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
 
   void initTextContoller() async {
     // تعبئة الحقول بالبيانات الحالية للطالب
-    print("this's initTextColtoller method");
-    print("Student ID in initTextColtoller method : ${father.first_name}");
+    print("-------> this's initTextColtoller method");
+    print(
+        "----------> Student ID in initTextColtoller method : ${father.first_name}");
     firstNameController.text = widget.student.firstName ?? '';
     middleNameController.text = widget.student.middleName ?? '';
     grandfatherNameController.text = widget.student.grandfatherName ?? '';
-    lastNameController.text = widget.student.lastName ?? '';
     grandFatherNameForFatherStudent.text = father.grandfather_name ?? '';
+    lastNameController.text = widget.student.lastName ?? '';
     dateFatherStudent.text = father.date ?? '';
     gmailOfFatherStudent.text = father.email ?? 'gh';
     phoneFatherStudent.text = father.phone_number.toString();
@@ -84,9 +84,10 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
       father.telephone_number = int.parse(telephoneFatherStudent.text);
       father.email = gmailOfFatherStudent.text;
       father.date = dateFatherStudent.text;
-      
-      await studentController.updateStudent(widget.student, 1); // استخدام الدالة لتحديث بيانات الطالب
-      await userController.updateUser(father,1).then((_) async {
+
+      await studentController.updateStudent(
+          widget.student, 1); // استخدام الدالة لتحديث بيانات الطالب
+      await userController.updateUser(father, 1).then((_) async {
         // تحميل البيانات من القاعدة المحلية
 
         // إذا لم يكن هناك اتصال بالإنترنت، يتم تحميل البيانات من القاعدة المحلية فقط

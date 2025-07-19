@@ -35,7 +35,7 @@ class FathersController {
     // var fa = UserModel();
     List<Map<String, dynamic>> response =
         await _sqlDb.readData("SELECT * FROM USERS WHERE user_id = '$userID'");
-    response.forEach((element) {
+    for (var element in response) {
       fatherByID.user_id = element['user_id'];
       fatherByID.first_name = element['first_name'];
       fatherByID.middle_name = element['middle_name'];
@@ -49,7 +49,7 @@ class FathersController {
       fatherByID.schoolID = element['schoolID'];
       fatherByID.date = element['date'];
       fatherByID.isActivate = element['isActivate'];
-    });
+    }
     return fatherByID;
   }
 
@@ -61,8 +61,8 @@ class FathersController {
         .readData("SELECT * FROM Students WHERE StudentID = '$studentID'");
     print(
         "Response in getFathersStudentsByStudentID method : ${response.isEmpty}");
-    response.forEach((e) {
-      fatherByID.user_id = e['userID'];
+    for (var e in response) {
+      fatherByID.user_id = e['userID'].toString();
       fatherByID.first_name = e['first_name'];
       fatherByID.middle_name = e['middle_name'];
       fatherByID.grandfather_name = e['grandfather_name'];
@@ -77,7 +77,7 @@ class FathersController {
       fatherByID.isActivate = e['isActivate'];
 
       print("User Id in FatherController : ${fatherByID.user_id}");
-    });
+    }
     try {
       fatherByID = await getFatherByID(fatherByID.user_id!);
     } catch (e) {
@@ -93,12 +93,15 @@ class FathersController {
       father.user_id = id;
       if (await connected()) {
         father.isSync = 1;
-        await db.insert('USERS', father.toMap());
+        int response = await db.insert('USERS', father.toMap());
+        print("Insert To Local : $response");
         await userController.addFatherToFirebase(father);
         return id;
       } else {
         father.isSync = 0;
-        await db.insert('USERS', father.toMap());
+        print("Father Map : ${father.toMap()}");
+        int response = await db.insert('USERS', father.toMap());
+        print("Insert To Local : $response");
         return id;
       }
     } else {
