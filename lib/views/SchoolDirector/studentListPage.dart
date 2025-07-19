@@ -261,16 +261,6 @@ class _StudentsListPageState extends State<StudentsListPage> {
                                                     TextButton(
                                                       child: Text('حذف'),
                                                       onPressed: () async {
-                                                        await studentController
-                                                            .delete(student
-                                                                .studentID!);
-                                                        if (await checkInternet()) {
-                                                          await firebasehelper
-                                                              .delete(
-                                                                  student
-                                                                      .studentID!,
-                                                                  "Students");
-                                                        }
                                                         Navigator.of(context)
                                                             .pop(true);
                                                         setState(() {
@@ -287,6 +277,12 @@ class _StudentsListPageState extends State<StudentsListPage> {
                                           try {
                                             await studentController
                                                 .delete(student.studentID!);
+                                            if (await checkInternet()) {
+                                              await firebasehelper.delete(
+                                                  student.studentID!,
+                                                  "Students");
+                                            }
+                                            if (!mounted) return;
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
                                               SnackBar(

@@ -72,6 +72,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      // التحقق من صحة النموذج
       widget.student.firstName = firstNameController.text;
       widget.student.middleName = middleNameController.text;
       widget.student.grandfatherName = grandfatherNameController.text;
@@ -84,7 +85,9 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
       father.telephone_number = int.parse(telephoneFatherStudent.text);
       father.email = gmailOfFatherStudent.text;
       father.date = dateFatherStudent.text;
-
+      widget.student.userID = father.user_id;
+      print(
+          "---------> Update Student in SupmitForm [Father ID is : ${widget.student.userID}]");
       await studentController.updateStudent(
           widget.student, 1); // استخدام الدالة لتحديث بيانات الطالب
       await userController.updateUser(father, 1).then((_) async {
@@ -102,7 +105,14 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('تعديل بيانات الطالب')),
+      appBar: AppBar(
+        title: Text('تعديل بيانات الطالب',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(16.0),
@@ -111,32 +121,138 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTextField(firstNameController, 'الاسم الأول'),
-                _buildTextField(middleNameController, 'الاسم الأوسط'),
-                _buildTextField(grandfatherNameController, 'اسم الجد'),
-                _buildTextField(lastNameController, 'اسم العائلة'),
-                dataOfFatherStudent(),
+                // قسم بيانات الطالب
+                Card(
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Colors.blue.shade100, width: 1),
+                  ),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text(
+                          "بيانات الطالب",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildTextField(firstNameController, 'الاسم الأول',
+                                Icons.person),
+                            _buildTextField(middleNameController,
+                                'الاسم الأوسط', Icons.person),
+                            _buildTextField(grandfatherNameController,
+                                'اسم الجد', Icons.person),
+                            _buildTextField(lastNameController, 'اسم العائلة',
+                                Icons.family_restroom),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 16),
+
+                // قسم بيانات ولي الأمر
+                Card(
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Colors.teal.shade100, width: 1),
+                  ),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text(
+                          "بيانات ولي الأمر",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.teal.shade700,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildTextField(middleNameController,
+                                "اسم ولى الأمر", Icons.person),
+                            _buildTextField(grandfatherNameController,
+                                "الاسم الاوسط لولي الامر", Icons.person),
+                            _buildTextField(grandFatherNameForFatherStudent,
+                                "اسم جد ولي الامر", Icons.person),
+                            _buildTextField(lastNameController, "القبيلة",
+                                Icons.family_restroom),
+                            _buildTextFieldData(),
+                            _buildTextField(gmailOfFatherStudent,
+                                "البريد الالكتروني", Icons.email),
+                            _builtTextFieldNumber("رقم الجوال",
+                                phoneFatherStudent, 9, Icons.phone),
+                            _builtTextFieldNumber("رقم البيت",
+                                telephoneFatherStudent, 6, Icons.phone_in_talk),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 24),
+                // أزرار العمليات
                 Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton(
+                      child: ElevatedButton.icon(
                         onPressed: _submitForm,
+                        icon: Icon(Icons.save, color: Colors.white),
+                        label: Text(
+                          'تعديل',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue),
-                        child: Text('تعديل',
-                            style: TextStyle(color: Colors.white)),
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 3,
+                        ),
                       ),
                     ),
                     SizedBox(width: 10),
                     Expanded(
-                      child: ElevatedButton(
+                      child: ElevatedButton.icon(
                         onPressed: () {
                           Navigator.pop(context); // العودة بدون حفظ التعديلات
                         },
+                        icon: Icon(Icons.cancel, color: Colors.white),
+                        label: Text(
+                          'إلغاء',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red),
-                        child: Text('إلغاء',
-                            style: TextStyle(color: Colors.white)),
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 3,
+                        ),
                       ),
                     ),
                   ],
@@ -174,8 +290,10 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
               _buildTextField(lastNameController, "القبيلة"),
               _buildTextFieldData(),
               _buildTextField(gmailOfFatherStudent, "البريد الالكتروني"),
-              _builtTextFieldNumber("رقم الجوال", phoneFatherStudent, 9),
-              _builtTextFieldNumber("رقم البيت", telephoneFatherStudent, 6),
+              _builtTextFieldNumber(
+                  "رقم الجوال", phoneFatherStudent, 9, Icons.phone_android),
+              _builtTextFieldNumber(
+                  "رقم البيت", telephoneFatherStudent, 6, Icons.phone),
             ],
           ),
         ));
@@ -216,8 +334,8 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     );
   }
 
-  Widget _builtTextFieldNumber(
-      String label, TextEditingController controller, int maxLength) {
+  Widget _builtTextFieldNumber(String label, TextEditingController controller,
+      int maxLength, IconData? icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
@@ -232,13 +350,24 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
           return null;
         },
         controller: controller,
-        decoration:
-            InputDecoration(labelText: label, border: OutlineInputBorder()),
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          prefixIcon: icon != null ? Icon(icon) : null,
+          filled: true,
+          fillColor: Colors.grey.shade50,
+          contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          counterText: "",
+          hintText: 'أدخل $label',
+        ),
       ),
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label) {
+  Widget _buildTextField(TextEditingController controller, String label,
+      [IconData? icon]) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
@@ -256,7 +385,14 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
         },
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          prefixIcon: icon != null ? Icon(icon) : null,
+          filled: true,
+          fillColor: Colors.grey.shade50,
+          contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          hintText: 'أدخل $label',
         ),
       ),
     );

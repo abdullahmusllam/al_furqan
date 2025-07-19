@@ -176,6 +176,7 @@ class StudentController {
 
   Future<void> updateStudent(StudentModel student, int type) async {
     final db = await sqlDb.database;
+    print("---------> Update Student [Father ID is : ${student.userID}]");
     try {
       if (type == 1) {
         if (await isConnected()) {
@@ -306,8 +307,8 @@ class StudentController {
 
   Future<void> delete(String id) async {
     try {
-      int response =
-          await _sqldb.deleteData("DELETE FROM Students WHERE StudentID = '$id'");
+      int response = await _sqldb
+          .deleteData("DELETE FROM Students WHERE StudentID = '$id'");
       print("Delete response: $response");
       if (response == 0) {
         throw Exception("Failed to delete student $id");

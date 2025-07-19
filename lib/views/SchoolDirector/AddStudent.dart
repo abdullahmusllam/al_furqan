@@ -204,6 +204,23 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    firstNameController.dispose();
+    middleNameController.dispose();
+    grandfatherNameController.dispose();
+    lastNameController.dispose();
+    grandFatherNameForFatherStudent.dispose();
+    gmailOfFatherStudent.dispose();
+    passwordFatherStudent.dispose();
+    phoneFatherStudent.dispose();
+    telephoneFatherStudent.dispose();
+    _dateFatherStudent.dispose();
+    _formKey.currentState?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
