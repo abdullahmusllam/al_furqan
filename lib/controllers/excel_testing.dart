@@ -1,75 +1,21 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
-import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/controllers/validation_from_excelfile.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_excel/excel.dart';
-import 'package:path/path.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:path_provider/path_provider.dart'; // For dynamic file paths
 
 class ExcelTesting {
   int? schoolID;
   ExcelTesting({required this.schoolID});
   var excel = Excel.createExcel();
   List<Map<String, dynamic>> dataList = []; // قائمة لتخزين البيانات
-  bool _isProcessingExcel = false;
-
-  void createExcelFile(BuildContext context) async {
-    Sheet _sheet = excel["sheet2"];
-
-    var firstName = _sheet.cell(CellIndex.indexByString('A1'));
-    var fatherName = _sheet.cell(CellIndex.indexByString('B1'));
-    var grandFathername = _sheet.cell(CellIndex.indexByString('C1'));
-    var grandFatheFathername = _sheet.cell(CellIndex.indexByString('D1'));
-    var lastName = _sheet.cell(CellIndex.indexByString('E1'));
-    var gmail = _sheet.cell(CellIndex.indexByString('F1'));
-    var phone = _sheet.cell(CellIndex.indexByString('G1'));
-    var telephone = _sheet.cell(CellIndex.indexByString('H1'));
-
-    firstName.value = "الاسم الاول";
-    fatherName.value = 'اسم الأب';
-    grandFathername.value = 'اسم الجد';
-    grandFatheFathername.value = 'اسم جد الأب';
-    lastName.value = 'اسم العائلة';
-    telephone.value = 'رقم الهاتف';
-    phone.value = 'رقم الجوال';
-    gmail.value = 'البريد الالكتروني';
-
-    // _sheet.appendRow(data);
-    try {
-      await saveExcelFile();
-    } catch (e) {
-      print("the is exit already : $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("حصل خطأ $e"),
-        ),
-      );
-    }
-  }
-
-  saveExcelFile() async {
-    var _per = await Permission.storage.request();
-    if (_per.isGranted) {
-      var _fileByte = excel.save();
-      if (_fileByte != null) {
-        File(join(
-            '/storage/emulated/0/Download/تطبيق الفرقان/اسماء الطلاب.xlsx'))
-          ..createSync(recursive: true)
-          ..writeAsBytesSync(_fileByte);
-        print(
-            "Doneeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee!!");
-      }
-    } else {
-      print('Permission Denied!');
-    }
-  }
 
   Future<void> readExcelFile(BuildContext context) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -125,6 +71,7 @@ class ExcelTesting {
 
           // التحقق من صحة الصف
           final validation = ExcelDataValidator.validateRow(rowData);
+          print("Finished--------------------------------");
           if (!validation['isValid']) {
             errors.add({
               'row': rowData,
@@ -149,8 +96,8 @@ class ExcelTesting {
             grandfather_name: rowData['اسم جد الأب']?.toString() ?? '',
             last_name: rowData['اسم العائلة']?.toString() ?? '',
             email: validation['validated']['email'],
-            phone_number: validation['validated']['phone'],
-            telephone_number: validation['validated']['telephone'],
+            phone_number: validation['validated']['phone'] ?? 0,
+            telephone_number: validation['validated']['telephone'] ?? 0,
             password: '12345678',
             roleID: 3,
             isActivate: 0,
@@ -199,68 +146,6 @@ class ExcelTesting {
     );
   }
 
-// إدخال البيانات الصالحة
-//   Future<void> _insertValidData(
-//     BuildContext context,
-//     List<StudentModel> students,
-//     List<UserModel> fathers,
-//   ) async {
-//     bool isExist;
-//     await fathersController.getFathersStudents(schoolID!);
-//     for (int i = 0; i < students.length; i++) {
-//       print("------------- i = $i");
-//       try {
-//         for (int f = 0; f < fathersController.fathers.length; f++) {
-//           print("------------- f = $f");
-//           int fatherID = fathersController.fathers[f].user_id!;
-//           isExist =
-//               await SqlDb().checkIfitemExists("Users", fatherID, "user_id");
-//           if (isExist) {
-//             for (int s = 0; s < studentController.students.length; s++) {
-//               print("------------- s = $s");
-//               isExist = await SqlDb().checkIfitemExists("Students",
-//                   studentController.students[s].studentID!, "StudentID");
-//               if (isExist) {
-//                 // throw Exception(
-//                 //     "the student is exist ${studentController.students[s].studentID}, s : $s");
-//                 print(
-//                     "the student is exist ${studentController.students[s].firstName}, s : $s,");
-//                 continue;
-//               } else {
-//                 print("is not exist: $isExist");
-//                 students[i].userID = fatherID;
-//                 await studentController.addStudent(students[i]);
-//                 print("ID : ${studentController.students.last.studentID}");
-//                 ScaffoldMessenger.of(context).showSnackBar(
-//                   SnackBar(
-//                     content: Text('تم إدخال ${students.length} طالب بنجاح'),
-//                     backgroundColor: Colors.green,
-//                   ),
-//                 );
-//               }
-//             }
-//           } else {
-//             print("father is not exist");
-//             final fatherId = await fathersController.addFather(fathers[i]);
-//             students[i].userID = fatherId;
-//             await studentController.addStudent(students[i]);
-//             print("ID : ${studentController.students.last.studentID}");
-//             ScaffoldMessenger.of(context).showSnackBar(
-//               SnackBar(
-//                 content: Text('تم إدخال ${students.length} طالب بنجاح'),
-//                 backgroundColor: Colors.green,
-//               ),
-//             );
-//           }
-//         }
-//       } catch (e) {
-//         // ScaffoldMessenger.of(context).showSnackBar(
-//         //   SnackBar(content: Text('فشل إدخال البيانات: $e')),
-//         // );
-//         print("-------- Error : $e");
-//       }
-//     }
-//   }
   Future<void> _insertValidData(BuildContext context,
       List<StudentModel> students, List<UserModel> fathers) async {
     int successfulInserts = 0;
@@ -279,10 +164,15 @@ class ExcelTesting {
 
       if (!studentExists) {
         // إضافة الطالب إذا لم يكن موجودًا
-        final studentId = await studentController.addStudent(students[i], 1);
-        print("Added student with ID: $studentId");
+        students[i].userID = await fathersController.addFather(
+            fathers[i], 1); // ربط الطالب بالأب
+        await studentController.addStudent(students[i], 1);
+        fathers[i].schoolID = students[i].schoolId;
+        print(
+            "-----------> Student [Father ID is : ${students[i].userID}]\nFahter [Father ID is : ${fathers[i].user_id}]");
         successfulInserts++;
       } else {
+        // إذا كان الطالب موجودًا، تخطي الإضافة
         print("Student $firstName $lastName already exists, skipping...");
       }
     }

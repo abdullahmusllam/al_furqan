@@ -2,6 +2,7 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/helper/new_id2.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
 // import 'package:al_furqan/views/SchoolDirector/handling_excel_file.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:flutter/material.dart';
@@ -203,6 +204,23 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    firstNameController.dispose();
+    middleNameController.dispose();
+    grandfatherNameController.dispose();
+    lastNameController.dispose();
+    grandFatherNameForFatherStudent.dispose();
+    gmailOfFatherStudent.dispose();
+    passwordFatherStudent.dispose();
+    phoneFatherStudent.dispose();
+    telephoneFatherStudent.dispose();
+    _dateFatherStudent.dispose();
+    _formKey.currentState?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -390,14 +408,40 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                               onPressed: _isLoading
                                   ? null
                                   : () async {
+                                      late BuildContext dialogContext;
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (BuildContext ctx) {
+                                          dialogContext = ctx;
+                                          return PopScope<void>(
+                                            canPop: false,
+                                            child: AlertDialog(
+                                              content: Row(
+                                                children: [
+                                                  CircularProgressIndicator(),
+                                                  SizedBox(width: 16),
+                                                  Expanded(
+                                                    child: Text(
+                                                        'جاري إضافة البيانات...\nيرجى الانتظار'),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+
                                       try {
+                                        // 2. استدعي القراءة والإضافة
                                         await ExcelTesting(
                                                 schoolID: widget.user?.schoolID)
                                             .readExcelFile(context)
-                                            .then((_) {
-                                          Navigator.pop(context);
-                                        });
+                                            .then((_) =>
+                                                Navigator.of(dialogContext)
+                                                    .pop());
                                       } catch (e) {
+                                        // 4. إعلام بالخطأ
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
                                           SnackBar(
@@ -406,6 +450,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                                             backgroundColor: Colors.red,
                                           ),
                                         );
+                                      } finally {
+                                        // 5. أغلق الديالوج باستخدام نفس الـ dialogContext
+                                        Navigator.of(dialogContext).pop();
                                       }
                                     },
                               icon:
