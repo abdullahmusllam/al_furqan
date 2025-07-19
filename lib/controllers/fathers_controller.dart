@@ -93,6 +93,7 @@ class FathersController {
       father.user_id = id;
       if (await connected()) {
         father.isSync = 1;
+        print("--------> Father Map in Add Father : ${father.toMap()}");
         int response = await db.insert('USERS', father.toMap());
         print("Insert To Local : $response");
         await userController.addFatherToFirebase(father);

@@ -3,7 +3,6 @@
 import 'dart:io';
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
-import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/controllers/validation_from_excelfile.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/student_model.dart';
@@ -165,12 +164,15 @@ class ExcelTesting {
 
       if (!studentExists) {
         // إضافة الطالب إذا لم يكن موجودًا
-        print("-----------> Student [Father ID is : ${students[i].userID}]");
+        students[i].userID = await fathersController.addFather(
+            fathers[i], 1); // ربط الطالب بالأب
         await studentController.addStudent(students[i], 1);
         fathers[i].schoolID = students[i].schoolId;
-        await fathersController.addFather(fathers[i], 1);
+        print(
+            "-----------> Student [Father ID is : ${students[i].userID}]\nFahter [Father ID is : ${fathers[i].user_id}]");
         successfulInserts++;
       } else {
+        // إذا كان الطالب موجودًا، تخطي الإضافة
         print("Student $firstName $lastName already exists, skipping...");
       }
     }
