@@ -14,7 +14,8 @@ class EditStudentScreen extends StatefulWidget {
   final StudentModel student; // استلام بيانات الطالب لتعديلها
   final UserModel father;
 
-  const EditStudentScreen({super.key, required this.student,required this.father});
+  const EditStudentScreen(
+      {super.key, required this.student, required this.father});
 
   @override
   _EditStudentScreenState createState() => _EditStudentScreenState();
@@ -75,6 +76,11 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => Center(child: CircularProgressIndicator()),
+      );
       // التحقق من صحة النموذج
       widget.student.firstName = firstNameController.text;
       widget.student.middleName = middleNameController.text;
