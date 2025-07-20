@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/login/login.dart';
@@ -34,7 +36,7 @@ class SchoolDirectorController {
     //   print(
     //       "USER ID : ${element.user_id}\nUSER NAME : ${element.first_name}\nSCHOOL ID : ${element.schoolID}\n____________________________________________________________________________");
     // });
-    print("${userData.isEmpty}");
+    log("${userData.isEmpty}");
   }
 
   Future<String> getSchoolName(int schoolId) async {

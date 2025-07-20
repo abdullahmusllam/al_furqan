@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
@@ -36,6 +38,12 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   int _studentCount = 0;
   int _halqatCount = 0;
   int _unreadMessagesCount = 0;
+
+  // متغيّرات جديدة لحفظ الأوقات بالميلي ثانية
+  int _elapsedTotal = 0;
+  int _elapsedUserData = 0;
+  int _elapsedCounts = 0;
+  int _elapsedHalagat = 0;
 
   @override
   void initState() {
@@ -82,18 +90,34 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   }
 
   Future<void> _loadData() async {
+    // Start calc Time
+    final swTotal = Stopwatch()..start();
     if (mounted) {
       setState(() => _isLoading = true);
     }
     try {
+      final sw1 = Stopwatch()..start();
       await fetchUserData();
+      sw1.stop();
+      _elapsedUserData = sw1.elapsedMilliseconds;
+
+      final sw2 = Stopwatch()..start();
       await _fetchCounts();
+      sw2.stop();
+      _elapsedCounts = sw2.elapsedMilliseconds;
       // No longer calling _generateRecentActivities() as it's not needed
     } catch (e) {
       print('Error loading data: $e');
     } finally {
+      swTotal.stop();
+      _elapsedTotal = swTotal.elapsedMilliseconds;
       if (mounted) {
         setState(() => _isLoading = false);
+        // أضف طباعة وقت التحميل في الـ log
+        log('⏱️ Total loadData: $_elapsedTotal ms');
+        log('- fetchUserData: $_elapsedUserData ms');
+        log('- _fetchCounts: $_elapsedCounts ms');
+        log('- getHalagatFromFirebase: $_elapsedHalagat ms');
       }
     }
   }
@@ -136,7 +160,10 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
           IconButton(
             onPressed: () {
               _loadData();
+              final sw3 = Stopwatch()..start();
               halagaController.getHalagatFromFirebase();
+              sw3.stop();
+              _elapsedHalagat = sw3.elapsedMilliseconds;
               updateNotificationCount(); // تحديث عدد الإشعارات عند الضغط على زر التحديث
             },
             icon: Icon(Icons.refresh, color: Colors.white),

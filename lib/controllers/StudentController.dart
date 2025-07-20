@@ -51,9 +51,12 @@ class StudentController {
     // تحويل البيانات المسترجعة إلى قائمة من StudentModel
     students = studentData.map((student) {
       return StudentModel(
+        userID: student['userID'] is String
+            ? student['userID']
+            : student['userID'].toString(),
         studentID: student['StudentID'] is String
             ? (student['StudentID'])
-            : student['StudentID'] as String?,
+            : student['StudentID'].toString(),
         schoolId: student['SchoolID'] is String
             ? int.tryParse(student['SchoolID'])
             : student['SchoolID'] as int?,

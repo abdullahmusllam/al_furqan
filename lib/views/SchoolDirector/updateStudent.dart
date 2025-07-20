@@ -1,3 +1,5 @@
+// ignore: file_names
+// ignore_for_file: library_private_types_in_public_api
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
@@ -5,13 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import '../../models/users_model.dart';
 
 class EditStudentScreen extends StatefulWidget {
   // final UserModel? user;
   final StudentModel student; // استلام بيانات الطالب لتعديلها
-  // final UserModel fatherModel;
+  final UserModel father;
 
-  const EditStudentScreen({super.key, required this.student});
+  const EditStudentScreen({super.key, required this.student,required this.father});
 
   @override
   _EditStudentScreenState createState() => _EditStudentScreenState();
