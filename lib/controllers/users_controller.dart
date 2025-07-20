@@ -1,21 +1,20 @@
-import 'package:al_furqan/controllers/some_controller.dart';
+import 'dart:developer';
 import 'package:al_furqan/helper/sqldb.dart';
-import 'package:al_furqan/models/password_model.dart';
+// import 'package:al_furqan/models/password_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:al_furqan/services/verification_service.dart';
+// import 'package:al_furqan/services/verification_service.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:uuid/uuid.dart';
 
 class UserController {
-  final VerificationService _verificationService = VerificationService();
+  // final VerificationService _verificationService = VerificationService();
   final List<UserModel> _users = [];
   final List<UserModel> _requests = [];
   final SqlDb _sqlDb = SqlDb();
   var uuid = Uuid();
-  final FirebaseHelper _service = FirebaseHelper();
-  final PasswordResetModel _model = PasswordResetModel();
+  // final FirebaseHelper _service = FirebaseHelper();
+  // final PasswordResetModel _model = PasswordResetModel();
   // var db = sqlDb.database;
   Future<bool> isConnected() async {
     var conn = InternetConnectionChecker.createInstance().hasConnection;
@@ -71,7 +70,7 @@ class UserController {
         await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 1");
     _users.clear();
     _users.addAll(_mapResponseToUserModel(response));
-    print("Users List (Local): ${_users.isEmpty}");
+    log("Users List (Local): ${_users.isEmpty}");
   }
 
   Future<void> getDataRequests() async {
@@ -80,7 +79,7 @@ class UserController {
         await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 0");
     _requests.clear();
     _requests.addAll(_mapResponseToUserModel(response));
-    print("_requests List (Local): ${_requests.isEmpty}");
+    log("_requests List (Local): ${_requests.isEmpty}");
   }
 
   // Method to add a new user
@@ -174,10 +173,7 @@ class UserController {
         await InternetConnectionChecker.createInstance().hasConnection;
 
     if (connection) {
-      print("===== sssssss =====");
       List<UserModel> responseFirebase = await firebasehelper.getUsers();
-      print("===== responseFirebase = $responseFirebase =====");
-
       for (var user in responseFirebase) {
         bool exists =
             await _sqlDb.checkIfitemExists2("Users", user.user_id!, "user_id");
@@ -199,10 +195,7 @@ class UserController {
     // التحقق أولاً من وجود اتصال بالإنترنت
     bool hasConnection =
         await InternetConnectionChecker.createInstance().hasConnection;
-    // if (!hasConnection) {
-    //   print("لا يوجد اتصال بالإنترنت، لا يمكن إضافة ولي الأمر إلى Firebase");
-    //   return;
-    // }
+    
     if (fatherData.user_id == null) {
       print("تحذير: معرف ولي الأمر غير موجود (user_id = null)");
       return; // لا يمكن الإضافة إلى Firebase بدون معرف

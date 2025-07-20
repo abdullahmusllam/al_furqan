@@ -1,13 +1,11 @@
-import 'dart:math';
 
-import 'package:al_furqan/controllers/StudentController.dart';
+import 'dart:developer';
+
 import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
-import 'package:al_furqan/views/login/login.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
 class FathersController {
@@ -25,10 +23,10 @@ class FathersController {
   Future<void> getFathersStudents(int schoolID) async {
     List<Map<String, dynamic>> response = await _sqlDb.readData(
         "SELECT * FROM USERS WHERE ROLEID = 3 AND schoolID = $schoolID");
-    print("Reponse into getFathersStudents method : ${response.isEmpty}");
+    log("Reponse into getFathersStudents method : ${response.isEmpty}");
     fathers.clear();
     fathers.addAll(teacherController.mapResponseToUserModel(response));
-    print("FathersList into getFathersStudents method : ${fathers.isEmpty}");
+    log("FathersList into getFathersStudents method : ${fathers.isEmpty}");
   }
 
   Future<UserModel> getFatherByID(String userID) async {
@@ -59,7 +57,7 @@ class FathersController {
     /// this's all for get user id into student
     List<Map<String, dynamic>> response = await _sqlDb
         .readData("SELECT * FROM Students WHERE StudentID = '$studentID'");
-    print(
+    log(
         "Response in getFathersStudentsByStudentID method : ${response.isEmpty}");
     for (var e in response) {
       fatherByID.user_id = e['userID'].toString();
@@ -76,12 +74,12 @@ class FathersController {
       fatherByID.date = e['date'];
       fatherByID.isActivate = e['isActivate'];
 
-      print("User Id in FatherController : ${fatherByID.user_id}");
+      log("User Id in FatherController : ${fatherByID.user_id}");
     }
     try {
       fatherByID = await getFatherByID(fatherByID.user_id!);
     } catch (e) {
-      print("Error In Father Controller : $e ");
+      log("Error In Father Controller : $e ");
     }
   }
 
@@ -127,7 +125,7 @@ class FathersController {
            JOIN Students ON Users.user_id = Students.userID 
            WHERE Students.ElhalagatID = $elhalagatID AND Users.roleID = 3""");
 
-      print("Query result count: ${response.length}");
+      log("Query result count: ${response.length}");
 
       if (response.isEmpty) {
         // محاولة استعلام بديل إذا كان الاستعلام الأول لا يعيد نتائج
