@@ -1,5 +1,7 @@
 // ignore: file_names
 // ignore_for_file: library_private_types_in_public_api
+import 'dart:developer';
+
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
@@ -46,9 +48,25 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     // initTextContoller();
   }
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    telephoneFatherStudent.dispose();
+    firstNameController.dispose();
+    middleNameController.dispose();
+    grandfatherNameController.dispose();
+    dateFatherStudent.dispose();
+    lastNameController.dispose();
+    grandFatherNameForFatherStudent.dispose();
+    gmailOfFatherStudent.dispose();
+    passwordFatherStudent.dispose();
+    phoneFatherStudent.dispose();
+    super.dispose();
+  }
+
   void initTextContoller() async {
     // تعبئة الحقول بالبيانات الحالية للطالب
-    print("-------> this's initTextColtoller method");
+    log("-------> this's initTextColtoller method");
     print(
         "----------> Student ID in initTextColtoller method : ${father.first_name}");
     firstNameController.text = widget.student.firstName ?? '';
@@ -57,7 +75,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     grandFatherNameForFatherStudent.text = father.grandfather_name ?? '';
     lastNameController.text = widget.student.lastName ?? '';
     dateFatherStudent.text = father.date ?? '';
-    gmailOfFatherStudent.text = father.email ?? 'gh';
+    gmailOfFatherStudent.text = father.email ?? '';
     phoneFatherStudent.text = father.phone_number.toString();
     telephoneFatherStudent.text = father.telephone_number.toString();
   }
@@ -95,8 +113,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
       father.email = gmailOfFatherStudent.text;
       father.date = dateFatherStudent.text;
       widget.student.userID = father.user_id;
-      print(
-          "---------> Update Student in SupmitForm [Father ID is : ${widget.student.userID}]");
+      log("---------> Update Student in SupmitForm [Father ID is : ${widget.student.userID}]");
       await studentController.updateStudent(
           widget.student, 1); // استخدام الدالة لتحديث بيانات الطالب
       await userController.updateUser(father, 1).then((_) async {
@@ -104,8 +121,11 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
 
         // إذا لم يكن هناك اتصال بالإنترنت، يتم تحميل البيانات من القاعدة المحلية فقط
         await _refreshData();
+        if (!mounted) return;
         Navigator.pop(context); // العودة إلى الصفحة السابقة
       });
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
     } else {
       print("Form validation failed");
     }
