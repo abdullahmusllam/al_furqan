@@ -158,9 +158,9 @@ class _StudentsListPageState extends State<StudentsListPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading || fathers.length < students.length) {
-      return Center(child: CircularProgressIndicator());
-    }
+    // if (isLoading || fathers.length < students.length) {
+    //   return Center(child: CircularProgressIndicator());
+    // }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -175,7 +175,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
               icon: Icon(Icons.refresh, color: Colors.white))
         ],
       ),
-      body: isLoading
+      body: isLoading || fathers.length < students.length
           ? Center(child: CircularProgressIndicator(color: Colors.teal))
           : Column(
               children: [
@@ -208,7 +208,6 @@ class _StudentsListPageState extends State<StudentsListPage> {
                           itemBuilder: (context, index) {
                             final student = students[index];
                             final father = fathers[index];
-                            print("Student Len : ${students.length}");
                             // final halaqaName =
                             //     getHalaqaName(student.elhalaqaID);
 
