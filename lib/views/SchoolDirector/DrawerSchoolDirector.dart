@@ -214,7 +214,6 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                               MainScreen(currentUser: widget.user!)));
                     },
                   ),
-
                   // Student Management Section
                   _buildSectionTitle('إدارة الطلاب والحلقات'),
                   _buildMenuItem(

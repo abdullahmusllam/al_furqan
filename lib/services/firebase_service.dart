@@ -1,5 +1,5 @@
 // This file contains Firebase service code, remove it entirely if not needed.
-import 'dart:math';
+import 'dart:developer';
 import 'package:al_furqan/models/conservation_plan_model.dart';
 import 'package:al_furqan/models/eltlawah_plan_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
@@ -318,7 +318,7 @@ class FirebaseHelper {
       final snapshot = await docRef.get();
       return snapshot.docs.map((doc) => UserModel.fromMap(doc.data())).toList();
     } catch (e) {
-      print('حدث خطأ: $e');
+      log('حدث خطأ: $e');
       return [];
     }
   }

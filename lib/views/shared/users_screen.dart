@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/shared/message_screen.dart';
 import 'package:flutter/material.dart';
@@ -8,22 +10,38 @@ class UsersScreen extends StatefulWidget {
   final List<UserModel> availableTeachers;
 
   const UsersScreen({
-    Key? key,
+    super.key,
     required this.currentUser,
     required this.availableParents,
     required this.availableTeachers,
-  }) : super(key: key);
-
+  });
   @override
   _UsersScreenState createState() => _UsersScreenState();
 }
 
 class _UsersScreenState extends State<UsersScreen> {
   List<UserModel> displayedUsers = [];
-
+  bool hasDialogShown = false;
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!hasDialogShown && widget.currentUser.roleID == 1) {
+        hasDialogShown = true;
+        if (widget.availableTeachers.isEmpty) {
+          // عرض رسالة إذا القائمة فارغة
+          showUserTypeDialog();
+          showDialogNoUser(context, "معلمين");
+        } else if (widget.availableParents.isEmpty) {
+          // عرض رسالة إذا القائمة فارغة
+          showUserTypeDialog();
+          showDialogNoUser(context, "أولياء الأمور");
+        } else {
+          // عرض حوار اختيار نوع المستخدم
+          showUserTypeDialog();
+        }
+      }
+    });
     if (widget.currentUser.roleID != 1) {
       displayedUsers = widget.availableParents
           .where((user) => user.user_id != null && user.user_id != 0)
@@ -83,6 +101,22 @@ class _UsersScreenState extends State<UsersScreen> {
     );
   }
 
+  void showDialogNoUser(BuildContext context, String userType) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('تنبيه'),
+        content: Text('لا يوجد $userType متاحين حالياً.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('حسناً'),
+          ),
+        ],
+      ),
+    );
+  }
+
   // دالة للبحث في المستخدمين
   List<UserModel> _filterUsers(String query) {
     if (query.isEmpty) return displayedUsers;
@@ -95,11 +129,11 @@ class _UsersScreenState extends State<UsersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.currentUser.roleID == 1 && displayedUsers.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showUserTypeDialog();
-      });
-    }
+    // if (widget.currentUser.roleID == 1 && displayedUsers.isEmpty) {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     showUserTypeDialog();
+    //   });
+    // }
 
     return Scaffold(
       appBar: AppBar(
@@ -203,7 +237,6 @@ class _UsersScreenState extends State<UsersScreen> {
                               padding: const EdgeInsets.only(top: 16.0),
                               child: ElevatedButton(
                                 onPressed: showUserTypeDialog,
-                                child: Text('اختيار نوع المستخدم'),
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 10),
@@ -211,6 +244,7 @@ class _UsersScreenState extends State<UsersScreen> {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                 ),
+                                child: Text('اختيار نوع المستخدم'),
                               ),
                             ),
                         ],
@@ -225,8 +259,7 @@ class _UsersScreenState extends State<UsersScreen> {
                         final user = displayedUsers[index];
                         return InkWell(
                           onTap: () {
-                            print(
-                                'اختيار مستخدم: ${user.first_name!} ${user.last_name!} , user_id: ${user.user_id}');
+                            log('اختيار مستخدم: ${user.first_name!} ${user.last_name!} , user_id: ${user.user_id}');
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -267,7 +300,7 @@ class _UsersScreenState extends State<UsersScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        '${user.first_name} ${user.middle_name ?? ''} ${user.last_name ?? ''}',
+                                        '${user.first_name} ${user.middle_name} ${user.grandfather_name} ${user.last_name}',
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w500,

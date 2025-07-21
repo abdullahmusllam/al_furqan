@@ -1,5 +1,6 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 import '../helper/sqldb.dart';
@@ -13,7 +14,7 @@ class SomeController {
     // QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('collection').get();
 
     // Use local database instead
-    List<Map> response = await _sqlDb.readData("SELECT * FROM 'collection'");
+    // List<Map> response = await _sqlDb.readData("SELECT * FROM 'collection'");
     // ...process response...
   }
 
@@ -70,7 +71,7 @@ class SomeController {
         }
       });
     } catch (e) {
-      print("Error generating new ID for $table.$column: $e");
+      debugPrint("Error generating new ID for $table.$column: $e");
       throw Exception("Failed to generate unique ID");
     }
   }
@@ -99,7 +100,7 @@ class SomeController {
           .get();
       return doc.exists;
     } catch (e) {
-      print("Error checking Firebase for $table ID $id: $e");
+      debugPrint("Error checking Firebase for $table ID $id: $e");
       return false; // افترض عدم الوجود في حالة الخطأ
     }
   }

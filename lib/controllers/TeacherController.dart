@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
@@ -23,7 +25,7 @@ class TeacherController {
             "Teacher: ${e.user_id}, RoleID: ${e.roleID}, Name: ${e.first_name}, schoolID: ${e.schoolID}");
       });
     } catch (e) {
-      print("Error fetching teachers: $e");
+      log("Error fetching teachers: $e");
       teachers.clear();
       rethrow;
     }
@@ -44,7 +46,7 @@ class TeacherController {
           "Teachers fetched for schoolID $schoolID: ${teachers.length} teachers");
 
       if (teachers.isEmpty) {
-        print("WARNING: No teachers found for schoolID $schoolID");
+        log("WARNING: No teachers found for schoolID $schoolID");
       } else {
         teachers.forEach((e) {
           print(
@@ -52,7 +54,7 @@ class TeacherController {
         });
       }
     } catch (e) {
-      print("Error fetching teachers for schoolID $schoolID: $e");
+      log("Error fetching teachers for schoolID $schoolID: $e");
       teachers.clear();
       rethrow;
     }

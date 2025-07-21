@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/models/messages_model.dart';
 import 'package:al_furqan/models/users_model.dart';
@@ -14,11 +16,11 @@ class ConversationsScreen extends StatefulWidget {
   final List<UserModel> availableTeachers;
 
   const ConversationsScreen({
-    Key? key,
+    super.key,
     required this.currentUser,
     required this.availableParents,
     required this.availableTeachers,
-  }) : super(key: key);
+  });
 
   @override
   _ConversationsScreenState createState() => _ConversationsScreenState();
@@ -77,17 +79,15 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
             user = UserModel.fromJson(doc.data() as Map<String, dynamic>);
           }
         } catch (e) {
-          print('خطأ في جلب المستخدم $userId: $e');
+          log('خطأ في جلب المستخدم $userId: $e');
         }
       }
 
-      if (user == null) {
-        user = UserModel(
-          user_id: userId,
-          first_name: 'مستخدم غير معروف',
-          roleID: 0,
-        );
-      }
+      user ??= UserModel(
+        user_id: userId,
+        first_name: 'مستخدم غير معروف',
+        roleID: 0,
+      );
 
       users.add(user);
     }
@@ -213,6 +213,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                             ),
                           ),
                           onPressed: () {
+                            // الانتقال إلى شاشة المستخدمين لاختيار محادثة جديدة
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -394,9 +395,9 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
             ),
           ).then((_) => loadConversations());
         },
-        child: Icon(Icons.add_comment, color: Colors.white),
         backgroundColor: Theme.of(context).primaryColor,
         tooltip: 'محادثة جديدة',
+        child: Icon(Icons.add_comment, color: Colors.white),
       ),
     );
   }
