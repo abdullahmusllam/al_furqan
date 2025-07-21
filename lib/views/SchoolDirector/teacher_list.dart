@@ -29,16 +29,16 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
   }
 
   Future<void> _initializeTeachers() async {
-    print("TeacherList: _initializeTeachers started");
+    debugPrint("TeacherList: _initializeTeachers started");
     await fetchUserData();
 
     // If UserDataMixin didn't load teachers properly, load them directly
     if (teacherController.teachers.isEmpty && schoolID != null) {
-      print(
+      debugPrint(
           "TeacherList: No teachers found after mixin initialization, fetching directly");
       await _directFetchTeachers();
     } else {
-      print(
+      debugPrint(
           "TeacherList: ${teacherController.teachers.length} teachers found after mixin initialization");
       _updateFilteredTeachers();
     }
@@ -49,7 +49,7 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
     _hasInitialized = true;
     _forceShowContent = true; // إضافة تعيين قيمة true للمتغير الجديد
     setState(() {});
-    print("TeacherList: _initializeTeachers completed");
+    debugPrint("TeacherList: _initializeTeachers completed");
   }
 
   // التحقق من وجود طلبات تفعيل معلقة
@@ -59,10 +59,10 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
         // استخدام الدالة الثابتة من TeacherRequest للتحقق من طلبات التفعيل
         _pendingActivationsCount =
             await TeacherRequest.checkPendingActivationsCount(schoolID!);
-        print(
+        debugPrint(
             "TeacherList: Found $_pendingActivationsCount pending activations");
       } catch (e) {
-        print("TeacherList: Error checking pending activations - $e");
+        debugPrint("TeacherList: Error checking pending activations - $e");
         _pendingActivationsCount = 0;
       }
       setState(() {});
@@ -72,7 +72,7 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
   // Direct fetch method that doesn't rely on the mixin
   Future<void> _directFetchTeachers() async {
     if (schoolID == null) {
-      print("TeacherList: _directFetchTeachers - schoolID is null");
+      debugPrint("TeacherList: _directFetchTeachers - schoolID is null");
       return;
     }
 
@@ -80,14 +80,14 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
       _isRefreshing = true;
     });
 
-    print("TeacherList: Directly fetching teachers for schoolID: $schoolID");
+    debugPrint("TeacherList: Directly fetching teachers for schoolID: $schoolID");
     try {
       await teacherController.getTeachersBySchoolID(schoolID!);
       _updateFilteredTeachers();
-      print(
+      debugPrint(
           "TeacherList: Direct fetch complete, found ${_filteredTeachers.length} teachers");
     } catch (e) {
-      print("TeacherList: Error in direct fetch - $e");
+      debugPrint("TeacherList: Error in direct fetch - $e");
     } finally {
       setState(() {
         _isRefreshing = false;
@@ -112,43 +112,43 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
       }).toList();
     }
     // Debug print
-    print("Filtered teachers updated - count: ${_filteredTeachers.length}");
+    debugPrint("Filtered teachers updated - count: ${_filteredTeachers.length}");
     setState(() {});
   }
 
   Future<void> _refreshTeachers() async {
     if (schoolID != null) {
-      print("Refreshing teachers for schoolID: $schoolID");
+      debugPrint("Refreshing teachers for schoolID: $schoolID");
       setState(() {
         _isRefreshing = true;
       });
 
       try {
         await teacherController.getTeachersBySchoolID(schoolID!);
-        print(
+        debugPrint(
             "Teachers refreshed - count: ${teacherController.teachers.length}");
         _updateFilteredTeachers();
 
         // تحديث عدد طلبات التفعيل المعلقة
         await _checkPendingActivations();
       } catch (e) {
-        print("Error refreshing teachers: $e");
+        debugPrint("Error refreshing teachers: $e");
       } finally {
         setState(() {
           _isRefreshing = false;
         });
       }
     } else {
-      print("Cannot refresh - schoolID is null");
+      debugPrint("Cannot refresh - schoolID is null");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     // Debug prints
-    print(
+    debugPrint(
         "TeacherList build - isLoading: $isLoading, _isRefreshing: $_isRefreshing, _forceShowContent: $_forceShowContent, hasInitialized: $_hasInitialized");
-    print(
+    debugPrint(
         "TeacherList build - _filteredTeachers count: ${_filteredTeachers.length}");
 
     if (!_hasInitialized &&
@@ -369,7 +369,7 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
                   radius: 30,
                   backgroundColor: Color.fromARGB(255, 1, 117, 70),
                   child: Text(
-                    "${teacher.first_name?.substring(0, 1) ?? ''}",
+                    teacher.first_name?.substring(0, 1) ?? '',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

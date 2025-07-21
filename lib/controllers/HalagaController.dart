@@ -1,12 +1,14 @@
-import 'package:al_furqan/controllers/some_controller.dart';
+// ignore_for_file: file_names
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:uuid/uuid.dart';
+
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 
 class HalagaController {
   final SqlDb _sqlDb = SqlDb();
@@ -26,12 +28,12 @@ class HalagaController {
         "LEFT JOIN Users U ON U.ElhalagatID = E.halagaID AND U.roleID = 2 "
         "WHERE E.SchoolID = $id");
 
-    print("--------------------------------------------");
-    print("بيانات الحلقات التي تم جلبها من قاعدة البيانات:");
+    debugPrint("--------------------------------------------");
+    debugPrint("بيانات الحلقات التي تم جلبها من قاعدة البيانات:");
     for (var row in data) {
-      print("halagaID: ${row['halagaID']}, Name: ${row['Name']}");
+      debugPrint("halagaID: ${row['halagaID']}, Name: ${row['Name']}");
     }
-    print("--------------------------------------------");
+    debugPrint("--------------------------------------------");
 
     List<HalagaModel> halagaData = [];
 
@@ -43,10 +45,6 @@ class HalagaController {
             int.tryParse(data[i]['NumberStudent'].toString()) ?? 0;
         int? schoolID = data[i]['SchoolID'] as int?;
 
-        String? teacherName =
-            (data[i]['first_name'] != null && data[i]['last_name'] != null)
-                ? "${data[i]['first_name']} ${data[i]['last_name']}"
-                : 'لا يوجد معلم للحلقة';
 
         halagaData.add(HalagaModel(
           halagaID: halagaID,
@@ -56,7 +54,7 @@ class HalagaController {
         ));
       }
     }
-    print("تم جلب بيانات الحلقات: ${data.length}");
+    debugPrint("تم جلب بيانات الحلقات: ${data.length}");
     return halagaData;
   }
 
@@ -68,22 +66,24 @@ class HalagaController {
 
     if (data.isNotEmpty) {
       for (var i = 0; i < data.length; i++) {
-        String? userID = data[i]['user_id'] as String?;
-        String firstName = data[i]['first_name'] ?? 'اسم غير متوفر';
-        String lastName = data[i]['last_name'] ?? 'اسم غير متوفر';
-        int? roleID = data[i]['roleID'] as int?;
-        int? schoolID = data[i]['schoolID'] as int?;
+        // String? userID = data[i]['user_id'] as String?;
+        // String firstName = data[i]['first_name'] ?? 'اسم غير متوفر';
+        // String lastName = data[i]['last_name'] ?? 'اسم غير متوفر';
+        // int? roleID = data[i]['roleID'] as int?;
+        // int? schoolID = data[i]['schoolID'] as int?;
 
         teachers.add(UserModel(
-          user_id: userID,
-          first_name: firstName,
-          last_name: lastName,
-          roleID: roleID,
-          schoolID: schoolID,
+          user_id: data[i]['user_id'],
+          first_name: data[i]['first_name'],
+          middle_name: data[i]['middle_name'],
+          grandfather_name: data[i]['grandfather_name'],
+          last_name: data[i]['last_name'],
+          roleID: data[i]['roleID'],
+          schoolID: data[i]['schoolID'],
         ));
       }
     }
-    print("تم جلب بيانات المعلمين: ${teachers.length}");
+    debugPrint("تم جلب بيانات المعلمين: ${teachers.length}");
     return teachers;
   }
 
@@ -106,7 +106,7 @@ class HalagaController {
         await db.insert('Elhalagat', halagaData.toMap());
       }
     } catch (e) {
-      print("خطأ في إضافة الحلقة: $e");
+      debugPrint("خطأ في إضافة الحلقة: $e");
       rethrow;
     }
   }
@@ -153,7 +153,7 @@ class HalagaController {
         );
       }
     } catch (e) {
-      print("خطأ في تحديث الحلقة: $e");
+      debugPrint("خطأ في تحديث الحلقة: $e");
       rethrow;
     }
   }
@@ -172,7 +172,7 @@ class HalagaController {
         await _sqlDb.updateData(
           "UPDATE Users SET ElhalagatID = $halagaId, isSync = 1 WHERE user_id = '$teacherId' AND roleID = 2",
         );
-        print("---------------->> here");
+        debugPrint("---------------->> here");
       } else {
         ///الغاء ارتباط المعلم
         await _sqlDb.updateData(
@@ -184,7 +184,7 @@ class HalagaController {
         );
       }
     } catch (e) {
-      print('error===$e');
+      debugPrint('error===$e');
     }
   }
 
@@ -199,12 +199,12 @@ class HalagaController {
       // حذف الحلقة
       int response = await _sqlDb
           .deleteData("DELETE FROM Elhalagat WHERE halagaID = '$halagaID'");
-      print("تم حذف الحلقة $halagaID، الاستجابة: $response");
+      debugPrint("تم حذف الحلقة $halagaID، الاستجابة: $response");
       if (response == 0) {
         throw Exception("فشل في حذف الحلقة $halagaID");
       }
     } catch (e) {
-      print("خطأ في حذف الحلقة: $e");
+      debugPrint("خطأ في حذف الحلقة: $e");
       rethrow;
     }
   }
@@ -215,7 +215,7 @@ class HalagaController {
           "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = '$halagaID'");
       return count[0]['count'] as int;
     } catch (e) {
-      print("خطأ في جلب عدد الطلاب: $e");
+      debugPrint("خطأ في جلب عدد الطلاب: $e");
       return 0;
     }
   }
@@ -235,7 +235,7 @@ class HalagaController {
 
       return "${teacherData[0]['first_name']} ${teacherData[0]['last_name']}";
     } catch (e) {
-      print('خطأ في جلب بيانات المعلم: $e');
+      debugPrint('خطأ في جلب بيانات المعلم: $e');
       return 'خطأ في جلب بيانات المعلم';
     }
   }
@@ -249,16 +249,14 @@ class HalagaController {
           'WHERE E.halagaID = "$halagaID"');
 
       if (response.isEmpty) {
-        print('لا توجد بيانات للحلقة بالمعرف: $halagaID');
+        debugPrint('لا توجد بيانات للحلقة بالمعرف: $halagaID');
         return null;
       }
 
       var halagaData = response[0];
-      String teacherName = 'لا يوجد معلم للحلقة';
 
       // إذا كان هناك معلم مرتبط بالحلقة
       if (halagaData['first_name'] != null && halagaData['last_name'] != null) {
-        teacherName = "${halagaData['first_name']} ${halagaData['last_name']}";
       }
 
       HalagaModel halaga = HalagaModel(
@@ -270,10 +268,10 @@ class HalagaController {
             : 0,
       );
 
-      print('تم جلب بيانات الحلقة بنجاح: ${halaga.Name}');
+      debugPrint('تم جلب بيانات الحلقة بنجاح: ${halaga.Name}');
       return halaga;
     } catch (e) {
-      print('خطأ في جلب بيانات الحلقة: $e');
+      debugPrint('خطأ في جلب بيانات الحلقة: $e');
       return null;
     }
   }
@@ -293,10 +291,10 @@ class HalagaController {
         whereArgs: [halagaId],
         limit: 1,
       );
-      print('================$result');
+      debugPrint('================$result');
       if (result.isNotEmpty) {
         final firstName = result.first['first_name'] ?? '';
-        print('===============$firstName');
+        debugPrint('===============$firstName');
         final middleName = result.first['middle_name'] ?? '';
         final lastName = result.first['last_name'] ?? '';
 
@@ -306,7 +304,7 @@ class HalagaController {
         return 'لا يوجد معلم للحلقة';
       }
     } catch (e) {
-      print('خطأ في جلب اسم المعلم: $e');
+      debugPrint('خطأ في جلب اسم المعلم: $e');
       return 'لا يوجد معلم للحلقة';
     }
   }
@@ -314,7 +312,7 @@ class HalagaController {
   Future<void> getHalagatFromFirebase() async {
     try {
       if (await isConnected()) {
-        print('===== getHalagatFromFirebase =====');
+        debugPrint('===== getHalagatFromFirebase =====');
         final snapshot =
             await FirebaseFirestore.instance.collection('Elhalaga').get();
         for (var doc in snapshot.docs) {
@@ -323,15 +321,15 @@ class HalagaController {
               'Elhalagat', halaga.halagaID!, 'halagaID');
           if (exists) {
             await updateHalaga(halaga, 0);
-            print('===== updateHalaga =====');
+            debugPrint('===== updateHalaga =====');
           } else {
             await addHalaga(halaga, 0);
-            print('===== addHalaga =====');
+            debugPrint('===== addHalaga =====');
           }
         }
       }
     } catch (e) {
-      print('خطأ في جلب الحلقات من Firebase: $e');
+      debugPrint('خطأ في جلب الحلقات من Firebase: $e');
       return;
     }
   }
@@ -350,16 +348,16 @@ class HalagaController {
           if (exists) {
             await updateHalaga(halaga, 0);
             halagatId.add(halaga.halagaID!);
-            print('===== updateHalaga =====');
+            debugPrint('===== updateHalaga =====');
           } else {
             await addHalaga(halaga, 0);
             halagatId.add(halaga.halagaID!);
-            print('===== addHalaga =====');
+            debugPrint('===== addHalaga =====');
           }
         }
       }
     } catch (e) {
-      print('خطأ في جلب الحلقات من Firebase: $e');
+      debugPrint('خطأ في جلب الحلقات من Firebase: $e');
       return;
     }
   }

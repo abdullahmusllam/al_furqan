@@ -5,33 +5,36 @@ import 'package:intl/intl.dart';
 class TeachersAttendanceListScreen extends StatefulWidget {
   final String schoolId;
 
-  const TeachersAttendanceListScreen({Key? key, required this.schoolId}) : super(key: key);
+  const TeachersAttendanceListScreen({super.key, required this.schoolId});
 
   @override
-  State<TeachersAttendanceListScreen> createState() => _TeachersAttendanceListScreenState();
+  State<TeachersAttendanceListScreen> createState() =>
+      _TeachersAttendanceListScreenState();
 }
 
-class _TeachersAttendanceListScreenState extends State<TeachersAttendanceListScreen> {
+class _TeachersAttendanceListScreenState
+    extends State<TeachersAttendanceListScreen> {
   DateTime _selectedDate = DateTime.now();
   List<Map<String, dynamic>> _teachersList = [];
   bool _isLoading = true;
-  
+
   @override
   void initState() {
     super.initState();
     _loadTeachersAttendance();
   }
-  
+
   // تحميل بيانات حضور المعلمين حسب التاريخ المحدد
   Future<void> _loadTeachersAttendance() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       // تنسيق التاريخ بالشكل المطلوب (yyyy-MM-dd)
       String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDate);
-      
+
       // الاستعلام عن بيانات الحضور من Firestore
       final QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('attendance')
@@ -39,7 +42,7 @@ class _TeachersAttendanceListScreenState extends State<TeachersAttendanceListScr
           .collection('teachers')
           .where('schoolId', isEqualTo: int.tryParse(widget.schoolId))
           .get();
-      
+
       // تحويل البيانات إلى قائمة
       List<Map<String, dynamic>> teachers = [];
       for (var doc in snapshot.docs) {
@@ -47,7 +50,7 @@ class _TeachersAttendanceListScreenState extends State<TeachersAttendanceListScr
         data['id'] = doc.id; // إضافة معرف الوثيقة
         teachers.add(data);
       }
-      
+
       // ترتيب المعلمين حسب الوقت
       teachers.sort((a, b) {
         Timestamp? timestampA = a['timestamp'] as Timestamp?;
@@ -55,12 +58,13 @@ class _TeachersAttendanceListScreenState extends State<TeachersAttendanceListScr
         if (timestampA == null || timestampB == null) return 0;
         return timestampA.compareTo(timestampB);
       });
-      
+      if (!mounted) return;
       setState(() {
         _teachersList = teachers;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -69,7 +73,7 @@ class _TeachersAttendanceListScreenState extends State<TeachersAttendanceListScr
       );
     }
   }
-  
+
   // تغيير التاريخ المحدد
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -91,7 +95,7 @@ class _TeachersAttendanceListScreenState extends State<TeachersAttendanceListScr
         );
       },
     );
-    
+
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
@@ -99,23 +103,24 @@ class _TeachersAttendanceListScreenState extends State<TeachersAttendanceListScr
       _loadTeachersAttendance();
     }
   }
-  
+
   // تنسيق وقت الحضور
   String _formatTimestamp(Timestamp? timestamp) {
     if (timestamp == null) return 'غير معروف';
-    
+
     DateTime dateTime = timestamp.toDate();
     return DateFormat('HH:mm').format(dateTime);
   }
-  
+
   @override
   Widget build(BuildContext context) {
     // تنسيق التاريخ للعرض
     String formattedDate = DateFormat('yyyy/MM/dd').format(_selectedDate);
-    
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('حضور المعلمين', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('حضور المعلمين',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         elevation: 2,
@@ -128,7 +133,8 @@ class _TeachersAttendanceListScreenState extends State<TeachersAttendanceListScr
             color: Theme.of(context).primaryColor.withOpacity(0.1),
             child: Row(
               children: [
-                Icon(Icons.calendar_today, color: Theme.of(context).primaryColor),
+                Icon(Icons.calendar_today,
+                    color: Theme.of(context).primaryColor),
                 SizedBox(width: 12),
                 Text(
                   'التاريخ: $formattedDate',
@@ -147,7 +153,7 @@ class _TeachersAttendanceListScreenState extends State<TeachersAttendanceListScr
               ],
             ),
           ),
-          
+
           // عنوان القائمة
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -169,7 +175,7 @@ class _TeachersAttendanceListScreenState extends State<TeachersAttendanceListScr
               ],
             ),
           ),
-          
+
           // قائمة المعلمين
           Expanded(
             child: _isLoading
@@ -202,24 +208,32 @@ class _TeachersAttendanceListScreenState extends State<TeachersAttendanceListScr
                         itemBuilder: (context, index) {
                           final teacher = _teachersList[index];
                           final isLate = teacher['status'] == 'متأخر';
-                          
+
                           return Card(
                             elevation: 2,
-                            margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                            margin: EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                               side: BorderSide(
-                                color: isLate ? Colors.orange.shade300 : Colors.green.shade300,
+                                color: isLate
+                                    ? Colors.orange.shade300
+                                    : Colors.green.shade300,
                                 width: 1.5,
                               ),
                             ),
                             child: ListTile(
-                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               leading: CircleAvatar(
-                                backgroundColor: isLate ? Colors.orange.shade100 : Colors.green.shade100,
+                                backgroundColor: isLate
+                                    ? Colors.orange.shade100
+                                    : Colors.green.shade100,
                                 child: Icon(
                                   Icons.person,
-                                  color: isLate ? Colors.orange.shade800 : Colors.green.shade800,
+                                  color: isLate
+                                      ? Colors.orange.shade800
+                                      : Colors.green.shade800,
                                 ),
                               ),
                               title: Text(
@@ -250,15 +264,20 @@ class _TeachersAttendanceListScreenState extends State<TeachersAttendanceListScr
                                 ],
                               ),
                               trailing: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: isLate ? Colors.orange.shade100 : Colors.green.shade100,
+                                  color: isLate
+                                      ? Colors.orange.shade100
+                                      : Colors.green.shade100,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
                                   teacher['status'] ?? 'غير معروف',
                                   style: TextStyle(
-                                    color: isLate ? Colors.orange.shade800 : Colors.green.shade800,
+                                    color: isLate
+                                        ? Colors.orange.shade800
+                                        : Colors.green.shade800,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
