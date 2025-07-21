@@ -367,7 +367,7 @@ class StudentController {
     if (await isConnected()) {
       List<StudentModel> responseFirebase =
           await firebasehelper.getStudentData(schoolId);
-      print("responseFirebase = $responseFirebase");
+      // print("responseFirebase = $responseFirebase");
 
       for (var student in responseFirebase) {
         bool exists = await sqlDb.checkIfitemExists2(

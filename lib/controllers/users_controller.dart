@@ -176,7 +176,7 @@ class UserController {
     if (connection) {
       print("===== sssssss =====");
       List<UserModel> responseFirebase = await firebasehelper.getUsers();
-      print("===== responseFirebase = $responseFirebase =====");
+      // print("===== responseFirebase = $responseFirebase =====");
 
       for (var user in responseFirebase) {
         bool exists =

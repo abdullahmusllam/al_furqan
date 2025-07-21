@@ -2,6 +2,7 @@ import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/plan_controller.dart';
+import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/models/halaga_model.dart'; // إضافة استيراد نموذج الحلقة
 import 'package:al_furqan/views/shared/Conversation_list.dart';
@@ -41,14 +42,16 @@ class _MainScreenState extends State<MainScreenD> {
 
   Future<void> load() async {
     if (await isConnected()) {
-      await sync.syncUsers();
-      await sync.syncElhalagat();
-      await sync.syncStudents();
+      // await sync.syncUsers();
+      // await sync.syncElhalagat();
+      // await sync.syncStudents();
       await loadStudents();
       await loadHalagat();
-      await loadPlans();
-      await loadMessages();
-      await loadUsersFromFirebase();
+      // await loadPlans();
+      // await loadMessages();
+      // await loadUsersFromFirebase();
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => SchoolManagerScreen()));
     } else {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => SchoolManagerScreen()));
@@ -66,8 +69,7 @@ class _MainScreenState extends State<MainScreenD> {
   }
 
   Future<void> loadStudents() async {
-    final perfs = await SharedPreferences.getInstance();
-    int? schoolId = perfs.getInt('schoolId');
+    int? schoolId = perf.getInt('schoolId');
     print('===== schoolID ($schoolId) =====');
     // تحميل الطلاب من فايربيس
     await studentController.addToLocalOfFirebase(schoolId!);
@@ -75,8 +77,7 @@ class _MainScreenState extends State<MainScreenD> {
 
   Future<void> loadMessages() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      String? Id = prefs.getString('user_id');
+      String? Id = perf.getString('user_id');
       print('===== ($Id) =====');
       // تحميل الرسائل من فايربيس
       await messageService.loadMessagesFromFirestore(Id!);
