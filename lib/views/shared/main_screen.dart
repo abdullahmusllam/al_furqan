@@ -19,6 +19,8 @@ class _MainScreenState extends State<MainScreen> {
   List<UserModel> parents = [];
   List<UserModel> teachers = [];
   bool isLoading = true;
+  final swTotaol = Stopwatch();
+  int _timedaley = 0;
 
   @override
   void initState() {
@@ -68,6 +70,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
+      swTotaol.start();
       return Scaffold(
         appBar: AppBar(
           title: Text('جاري التحميل...',
@@ -93,12 +96,15 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ),
       );
+    } else {
+      swTotaol.stop();
+      _timedaley = swTotaol.elapsedMilliseconds;
+      log("The Time To Build Screen is : $_timedaley ms");
+      return ConversationsScreen(
+        currentUser: widget.currentUser,
+        availableParents: parents,
+        availableTeachers: teachers,
+      );
     }
-
-    return ConversationsScreen(
-      currentUser: widget.currentUser,
-      availableParents: parents,
-      availableTeachers: teachers,
-    );
   }
 }

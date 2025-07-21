@@ -65,6 +65,7 @@ class _UsersScreenState extends State<UsersScreen> {
                 title: Text('مراسلة معلم',
                     style: TextStyle(color: Colors.grey.shade700)),
                 onTap: () {
+                  Navigator.pop(context);
                   setState(() {
                     displayedUsers = widget.availableTeachers
                         .where(

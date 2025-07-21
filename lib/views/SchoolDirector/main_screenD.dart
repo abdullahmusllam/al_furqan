@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
@@ -10,8 +12,6 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../controllers/users_controller.dart';
-import '../../helper/sqldb.dart';
-import '../../services/firebase_service.dart';
 import '../../services/message_sevice.dart';
 import '../../services/sync.dart';
 import 'SchoolDirectorHome.dart';
@@ -19,7 +19,7 @@ import 'SchoolDirectorHome.dart';
 class MainScreenD extends StatefulWidget {
   // final UserModel User;
 
-  const MainScreenD({Key? key}) : super(key: key);
+  const MainScreenD({super.key});
 
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -27,7 +27,15 @@ class MainScreenD extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreenD> {
   bool isLoading = true;
-
+  int? timeLoadTotal,
+      timeSyncUser,
+      timeSyncElhalagat,
+      timeSyncStudents,
+      timeLoadStudents,
+      timeLoadElhalagat,
+      timeLoadPlans,
+      timeLoadMessages,
+      timeLoadUsersFromFirebase;
   @override
   void initState() {
     super.initState();
@@ -41,15 +49,61 @@ class _MainScreenState extends State<MainScreenD> {
 
   Future<void> load() async {
     if (await isConnected()) {
+      final swTotal = Stopwatch()..start();
+
+      final sw1 = Stopwatch()..start();
       await sync.syncUsers();
+      sw1.stop();
+      timeSyncUser = sw1.elapsedMilliseconds;
+      log("Time Sync User is : $timeSyncUser ms");
+
+      final sw2 = Stopwatch()..start();
       await sync.syncElhalagat();
+      sw2.stop();
+      timeSyncElhalagat = sw2.elapsedMilliseconds;
+      log("Time Sync Elhalagat is : $timeSyncElhalagat ms");
+
+      final sw3 = Stopwatch()..start();
       await sync.syncStudents();
+      sw3.stop();
+      timeSyncStudents = sw3.elapsedMilliseconds;
+      log("Time Sync Students is : $timeSyncStudents ms");
+
+      final sw4 = Stopwatch()..start();
       await loadStudents();
+      sw4.stop();
+      timeLoadStudents = sw4.elapsedMilliseconds;
+      log("Time Load Students is : $timeLoadStudents ms");
+
+      final sw5 = Stopwatch()..start();
       await loadHalagat();
+      sw4.stop();
+      timeLoadElhalagat = sw5.elapsedMilliseconds;
+      log("Time Load Elhalagat is : $timeLoadElhalagat ms");
+
+      final sw6 = Stopwatch()..start();
       await loadPlans();
+      sw6.stop();
+      timeLoadPlans = sw6.elapsedMilliseconds;
+      log("Time Load Plans is : $timeLoadPlans ms");
+
+      final sw7 = Stopwatch()..start();
       await loadMessages();
+      sw7.stop();
+      timeLoadMessages = sw7.elapsedMilliseconds;
+      log("Time Load Messages is : $timeLoadMessages ms");
+
+      final sw8 = Stopwatch()..start();
       await loadUsersFromFirebase();
+      sw8.stop();
+      timeLoadUsersFromFirebase = sw8.elapsedMilliseconds;
+      log("Time Load Users From Firebase is : $timeLoadUsersFromFirebase ms");
+
+      swTotal.stop();
+      timeLoadTotal = swTotal.elapsedMilliseconds;
+      log("-----> Time Total For Load Data : $timeLoadTotal ms");
     } else {
+      if (!mounted) return;
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => SchoolManagerScreen()));
       ScaffoldMessenger.of(context).showSnackBar(
