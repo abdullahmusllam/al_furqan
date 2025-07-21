@@ -95,7 +95,9 @@ class UserController {
         await firebasehelper.addUser(userModel);
         int response = await db.insert('Users', userModel.toMap());
         print(
-            "------------>Add & Sync is : ${response == 1 && userModel.isSync == 1 ? 'Done Added & Sync' : 'Failed Added & Sync'}");
+            "------------> add to local is ${response == 1 ? 'Done Added To Local' : 'Failed'}");
+        print(
+            "------------>Sync is : ${userModel.isSync == 1 ? 'Done  Sync' : 'Failed  Sync'}");
       } else {
         userModel.isSync = 0;
         int response = await db.insert('Users', userModel.toMap());
@@ -174,7 +176,7 @@ class UserController {
     if (connection) {
       print("===== sssssss =====");
       List<UserModel> responseFirebase = await firebasehelper.getUsers();
-      print("===== responseFirebase = $responseFirebase =====");
+      // print("===== responseFirebase = $responseFirebase =====");
 
       for (var user in responseFirebase) {
         bool exists =

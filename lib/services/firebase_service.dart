@@ -9,6 +9,7 @@ import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/models/verification_code_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class FirebaseHelper {
@@ -650,6 +651,15 @@ class FirebaseHelper {
     } catch (e) {
       print("-------------------> خطأ في جلب خطط العلوم الشرعية: $e");
       throw Exception('فشل في جلب خطط العلوم الشرعية: $e');
+    }
+  }
+
+  delete(String id, String nameTable) {
+    try {
+      final docRef = _firestore.collection(nameTable);
+      docRef.doc(id).delete();
+    } on Exception catch (e) {
+      print("Error in Firebase Delete : $e");
     }
   }
 } // End of FirebaseHelper class

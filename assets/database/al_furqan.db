@@ -49,7 +49,7 @@ CREATE TABLE "Activities" (
 
 -- إنشاء جدول الحلقات
 CREATE TABLE "Elhalagat" (
-    "halagaID" INTEGER NOT NULL PRIMARY KEY ,
+    "halagaID" TEXT NOT NULL PRIMARY KEY ,
     "SchoolID" INTEGER NOT NULL,
     "Name" TEXT NOT NULL,
     "NumberStudent" INTEGER NOT NULL,

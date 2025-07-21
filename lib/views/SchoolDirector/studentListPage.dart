@@ -1,7 +1,6 @@
+// ignore_for_file: file_names
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
-import 'package:al_furqan/controllers/fathers_controller.dart';
-import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
@@ -14,7 +13,7 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class StudentsListPage extends StatefulWidget {
   final UserModel? user;
-  StudentsListPage({super.key, this.user});
+  const StudentsListPage({super.key, this.user});
 
   @override
   State<StudentsListPage> createState() => _StudentsListPageState();
@@ -32,6 +31,11 @@ class _StudentsListPageState extends State<StudentsListPage> {
   void initState() {
     super.initState();
     _loadStudent();
+  }
+
+  Future<bool> checkInternet() async {
+    bool hasInternet = await InternetConnectionChecker().hasConnection;
+    return hasInternet;
   }
 
   Future<void> _loadHalaqaNames(int schoolID) async {
@@ -75,31 +79,21 @@ class _StudentsListPageState extends State<StudentsListPage> {
     int schoolID = widget.user!.schoolID!;
     print("معرف المدرسة: $schoolID");
 
-    if (schoolID != null) {
-      // تحميل أسماء الحلقات أولاً
-      await _loadHalaqaNames(schoolID);
+    // تحميل أسماء الحلقات أولاً
+    await _loadHalaqaNames(schoolID);
+    // تحميل البيانات من القاعدة المحلية فقط
+    print("جاري تحميل البيانات من قاعدة البيانات المحلية...");
+    List<StudentModel>? loadedStudent =
+        await studentController.getSchoolStudents(schoolID);
+    print(
+        "تم تحميل ${loadedStudent.length ?? 0} طالب من قاعدة البيانات المحلية");
 
-      // تحميل البيانات من القاعدة المحلية فقط
-      print("جاري تحميل البيانات من قاعدة البيانات المحلية...");
-      List<StudentModel>? loadedStudent =
-          await studentController.getSchoolStudents(schoolID);
-      print(
-          "تم تحميل ${loadedStudent?.length ?? 0} طالب من قاعدة البيانات المحلية");
-
-      if (mounted) {
-        setState(() {
-          students = loadedStudent ?? [];
-          isLoading = false;
-          print("تم تحديث واجهة المستخدم بـ ${students.length} طالب");
-        });
-      }
-    } else {
-      print("معرف المدرسة غير متوفر!");
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
+    if (mounted) {
+      setState(() {
+        students = loadedStudent ?? [];
+        isLoading = false;
+        print("تم تحديث واجهة المستخدم بـ ${students.length} طالب");
+      });
     }
     print("=== انتهاء تحميل بيانات الطلاب ===");
   }
@@ -109,7 +103,6 @@ class _StudentsListPageState extends State<StudentsListPage> {
       print("الطالب بدون حلقة (معرف الحلقة: null)");
       return 'بدون حلقة';
     }
-
     String halaqaName = halaqaNames[halaqaId] ?? 'بدون حلقة';
     print(
         "معرف الحلقة: $halaqaId، اسم الحلقة: $halaqaName، القاموس يحتوي على: ${halaqaNames.keys.toList()}");
@@ -165,8 +158,8 @@ class _StudentsListPageState extends State<StudentsListPage> {
                           itemCount: students.length,
                           itemBuilder: (context, index) {
                             final student = students[index];
-                            final halaqaName =
-                                getHalaqaName(student.elhalaqaID);
+                            // final halaqaName =
+                            //     getHalaqaName(student.elhalaqaID);
 
                             // Only load halaqat if there is a valid ID
                             if (student.elhalaqaID != null) {
@@ -216,7 +209,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
                                         SizedBox(width: 4),
                                         Text(
                                           student.elhalaqaID == null
-                                              ? "الحلقة: بدون حلقة"
+                                              ? "الطالب: بدون حلقة"
                                               : "الحلقة: ${halaqat.firstWhere((h) => h.halagaID == student.elhalaqaID, orElse: () => HalagaModel(Name: 'غير معروف')).Name}",
                                           style: TextStyle(
                                             fontSize: 14,
@@ -267,9 +260,13 @@ class _StudentsListPageState extends State<StudentsListPage> {
                                                     ),
                                                     TextButton(
                                                       child: Text('حذف'),
-                                                      onPressed: () =>
-                                                          Navigator.of(context)
-                                                              .pop(true),
+                                                      onPressed: () async {
+                                                        Navigator.of(context)
+                                                            .pop(true);
+                                                        setState(() {
+                                                          _loadStudent();
+                                                        });
+                                                      },
                                                     ),
                                                   ],
                                                 );
@@ -280,6 +277,12 @@ class _StudentsListPageState extends State<StudentsListPage> {
                                           try {
                                             await studentController
                                                 .delete(student.studentID!);
+                                            if (await checkInternet()) {
+                                              await firebasehelper.delete(
+                                                  student.studentID!,
+                                                  "Students");
+                                            }
+                                            if (!mounted) return;
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
                                               SnackBar(
@@ -292,7 +295,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
                                                 .showSnackBar(
                                               SnackBar(
                                                   content: Text(
-                                                      'فشل في حذف الطالب')),
+                                                      ' ${e.toString()} في حذف الطالب')),
                                             );
                                           }
                                         }

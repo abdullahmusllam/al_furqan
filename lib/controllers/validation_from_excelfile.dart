@@ -28,7 +28,8 @@ class ExcelDataValidator {
 
     // التحقق من الحقول المطلوبة
     for (final field in requiredFields) {
-      print("-------------------------------------------------------------this's row $field : ${row[field]}");
+      print(
+          "-------------------------------------------------------------this's row $field : ${row[field]}");
       final value = row[field]?.toString().trim() ?? '';
       if (value.isEmpty) {
         errors[field] = 'هذا الحقل مطلوب';
@@ -42,7 +43,7 @@ class ExcelDataValidator {
     } else {
       validated['email'] = email;
     }
-print("-------------number phone filed: ${row['رقم الجوال']}");
+    print("-------------number phone filed: ${row['رقم الجوال']}");
     // التحقق من رقم الجوال
     final phone =
         _convertArabicNumbers(row['رقم الجوال']?.toString().trim() ?? '');
@@ -51,7 +52,8 @@ print("-------------number phone filed: ${row['رقم الجوال']}");
     } else {
       validated['phone'] = int.parse(phone);
     }
-    print("------بلابلا-------number phone filed: ${row['رقم الهاتف'].toString()}");
+    print(
+        "------بلابلا-------number Telephone filed: ${row['رقم الهاتف'].toString()}");
 
     // التحقق من رقم الهاتف
     final telephone =

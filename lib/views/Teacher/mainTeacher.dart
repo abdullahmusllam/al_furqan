@@ -386,7 +386,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
   // تحديث عدد الإشعارات
   Future<void> updateNotificationCount() async {
     final prefs = await SharedPreferences.getInstance();
-    int? Id = prefs.getInt('user_id');
+    String? Id = prefs.getString('user_id');
     if (Id != null) {
       _unreadMessagesCount = await messageController.getUnreadMessagesCount(Id);
       setState(() {}); // تحديث واجهة المستخدم

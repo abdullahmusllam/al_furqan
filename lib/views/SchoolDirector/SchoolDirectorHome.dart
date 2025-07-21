@@ -20,7 +20,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class SchoolManagerScreen extends StatefulWidget {
-  SchoolManagerScreen({super.key});
+  const SchoolManagerScreen({super.key});
 
   @override
   State<SchoolManagerScreen> createState() => _SchoolManagerScreenState();
@@ -73,8 +73,9 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   // تحديث عدد الإشعارات
   Future<void> updateNotificationCount() async {
     final prefs = await SharedPreferences.getInstance();
-    int? Id = prefs.getInt('user_id');
+    String? Id = prefs.getString('user_id');
     if (Id != null) {
+      print("User ID ==============> $Id");
       _unreadMessagesCount = await messageController.getUnreadMessagesCount(Id);
       setState(() {}); // تحديث واجهة المستخدم
     }
@@ -187,11 +188,11 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                       SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: _loadData,
-                        child: Text('إعادة المحاولة'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(context).primaryColor,
                           foregroundColor: Colors.white,
                         ),
+                        child: Text('إعادة المحاولة'),
                       ),
                     ],
                   ),
@@ -290,7 +291,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                   ),
                   SizedBox(height: 4),
                   Text(
-                    "لديك ${_unreadMessagesCount} رسائل جديدة",
+                    "لديك $_unreadMessagesCount رسائل جديدة",
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white.withOpacity(0.9),
@@ -391,7 +392,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               ),
             ),
             SizedBox(height: 10),
-            Container(
+            SizedBox(
               height: 250,
               child: _studentCount > 0 || _teacherCount > 0
                   ? BarChart(
@@ -548,7 +549,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
           child: Padding(
             padding: EdgeInsets.all(12.0),
             child: _halaqatList.isEmpty
-                ? Container(
+                ? SizedBox(
                     height: 120,
                     child: Center(
                       child: Column(
@@ -595,7 +596,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                               color: Colors.purple.shade700),
                         ),
                         title: Text(
-                          "${_halaqatList[index].Name ?? 'حلقة بدون اسم'}",
+                          _halaqatList[index].Name ?? 'حلقة بدون اسم',
                           style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                         subtitle: Text(
@@ -666,7 +667,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
           child: Padding(
             padding: EdgeInsets.all(12.0),
             child: teachers.isEmpty
-                ? Container(
+                ? SizedBox(
                     height: 120,
                     child: Center(
                       child: Column(
@@ -715,7 +716,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                               .trim(),
                           style: TextStyle(fontWeight: FontWeight.w500),
                         ),
-                        subtitle: Text('المدرس - حلقة ${index + 1}'),
+                        // subtitle: Text('المدرس - حلقة ${index + 1}'),
                         // trailing: Row(
                         //   mainAxisSize: MainAxisSize.min,
                         //   children: [
