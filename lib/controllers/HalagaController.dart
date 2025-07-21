@@ -4,6 +4,7 @@ import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -68,22 +69,24 @@ class HalagaController {
 
     if (data.isNotEmpty) {
       for (var i = 0; i < data.length; i++) {
-        String? userID = data[i]['user_id'] as String?;
-        String firstName = data[i]['first_name'] ?? 'اسم غير متوفر';
-        String lastName = data[i]['last_name'] ?? 'اسم غير متوفر';
-        int? roleID = data[i]['roleID'] as int?;
-        int? schoolID = data[i]['schoolID'] as int?;
+        // String? userID = data[i]['user_id'] as String?;
+        // String firstName = data[i]['first_name'] ?? 'اسم غير متوفر';
+        // String lastName = data[i]['last_name'] ?? 'اسم غير متوفر';
+        // int? roleID = data[i]['roleID'] as int?;
+        // int? schoolID = data[i]['schoolID'] as int?;
 
         teachers.add(UserModel(
-          user_id: userID,
-          first_name: firstName,
-          last_name: lastName,
-          roleID: roleID,
-          schoolID: schoolID,
+          user_id: data[i]['user_id'],
+          first_name: data[i]['first_name'],
+          middle_name: data[i]['middle_name'],
+          grandfather_name: data[i]['grandfather_name'],
+          last_name: data[i]['last_name'],
+          roleID: data[i]['roleID'],
+          schoolID: data[i]['schoolID'],
         ));
       }
     }
-    print("تم جلب بيانات المعلمين: ${teachers.length}");
+    debugPrint("تم جلب بيانات المعلمين: ${teachers.length}");
     return teachers;
   }
 

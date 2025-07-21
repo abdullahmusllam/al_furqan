@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/shared/message_screen.dart';
 import 'package:flutter/material.dart';
@@ -8,12 +10,11 @@ class UsersScreen extends StatefulWidget {
   final List<UserModel> availableTeachers;
 
   const UsersScreen({
-    Key? key,
+    super.key,
     required this.currentUser,
     required this.availableParents,
     required this.availableTeachers,
-  }) : super(key: key);
-
+  });
   @override
   _UsersScreenState createState() => _UsersScreenState();
 }
@@ -49,10 +50,29 @@ class _UsersScreenState extends State<UsersScreen> {
                 onTap: () {
                   Navigator.pop(context);
                   setState(() {
-                    displayedUsers = widget.availableTeachers
-                        .where(
-                            (user) => user.user_id != null && user.user_id != 0)
-                        .toList();
+                    if (widget.availableTeachers.isEmpty) {
+                      // عرض رسالة إذا القائمة فارغة
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: Text('تنبيه'),
+                          content: Text('لا يوجد معلمين متاحين حالياً.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('حسناً'),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      setState(() {
+                        displayedUsers = widget.availableTeachers
+                            .where((user) =>
+                                user.user_id != null && user.user_id != 0)
+                            .toList();
+                      });
+                    }
                   });
                 },
               ),
@@ -62,10 +82,29 @@ class _UsersScreenState extends State<UsersScreen> {
                 onTap: () {
                   Navigator.pop(context);
                   setState(() {
-                    displayedUsers = widget.availableParents
-                        .where(
-                            (user) => user.user_id != null && user.user_id != 0)
-                        .toList();
+                    if (widget.availableParents.isEmpty) {
+                      // عرض رسالة إذا القائمة فارغة
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: Text('تنبيه'),
+                          content: Text('لا يوجد ولي أمر متاحين حالياً.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('حسناً'),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      setState(() {
+                        displayedUsers = widget.availableParents
+                            .where((user) =>
+                                user.user_id != null && user.user_id != 0)
+                            .toList();
+                      });
+                    }
                   });
                 },
               ),
@@ -203,7 +242,6 @@ class _UsersScreenState extends State<UsersScreen> {
                               padding: const EdgeInsets.only(top: 16.0),
                               child: ElevatedButton(
                                 onPressed: showUserTypeDialog,
-                                child: Text('اختيار نوع المستخدم'),
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 10),
@@ -211,6 +249,7 @@ class _UsersScreenState extends State<UsersScreen> {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                 ),
+                                child: Text('اختيار نوع المستخدم'),
                               ),
                             ),
                         ],
@@ -267,7 +306,7 @@ class _UsersScreenState extends State<UsersScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        '${user.first_name} ${user.middle_name ?? ''} ${user.last_name ?? ''}',
+                                        '${user.first_name} ${user.middle_name} ${user.grandfather_name} ${user.last_name}',
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w500,

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/models/users_model.dart';
@@ -7,7 +9,7 @@ import 'package:flutter/material.dart';
 class MainScreen extends StatefulWidget {
   final UserModel currentUser;
 
-  const MainScreen({Key? key, required this.currentUser}) : super(key: key);
+  const MainScreen({super.key, required this.currentUser});
 
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -27,20 +29,25 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> loadUsers() async {
     try {
       if (widget.currentUser.roleID == 1) {
-        print('تحميل المستخدمين للمدير، schoolID: ${widget.currentUser.schoolID}');
-        parents = (await fathersController.getFathersBySchoolId(widget.currentUser.schoolID!))
+        log('تحميل المستخدمين للمدير، schoolID: ${widget.currentUser.schoolID}');
+        parents = (await fathersController
+                .getFathersBySchoolId(widget.currentUser.schoolID!))
             .where((user) => user.user_id != null && user.user_id != 0)
             .toList();
-        print('تم تحميل ${parents.length} من أولياء الأمور: ${parents.map((p) => p.first_name).toList()}');
-        teachers = (await halagaController.getTeachers(widget.currentUser.schoolID!))
-            .where((user) => user.user_id != null && user.user_id != 0)
-            .toList();
-        print('تم تحميل ${teachers.length} من المعلمين: ${teachers.map((t) => "${t.first_name} (ID: ${t.user_id})").toList()}');
+        print(
+            'تم تحميل ${parents.length} من أولياء الأمور: ${parents.map((p) => p.first_name).toList()}');
+        teachers =
+            (await halagaController.getTeachers(widget.currentUser.schoolID!))
+                .where((user) => user.user_id != null && user.user_id != 0)
+                .toList();
+        log('تم تحميل ${teachers.length} من المعلمين: ${teachers.map((t) => "${t.toMap()}\n").toList()}');
       } else if (widget.currentUser.roleID == 2) {
-        parents = (await fathersController.getFathersByElhalagaId(widget.currentUser.elhalagatID!))
+        parents = (await fathersController
+                .getFathersByElhalagaId(widget.currentUser.elhalagatID!))
             .where((user) => user.user_id != null && user.user_id != 0)
             .toList();
-        print('تم تحميل ${parents.length} من أولياء الأمور: ${parents.map((p) => p.first_name).toList()}');
+        print(
+            'تم تحميل ${parents.length} من أولياء الأمور: ${parents.map((p) => p.first_name).toList()}');
       } else {
         print('دور المستخدم غير مدعوم: ${widget.currentUser.roleID}');
       }
@@ -64,7 +71,8 @@ class _MainScreenState extends State<MainScreen> {
     if (isLoading) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('جاري التحميل...', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Text('جاري التحميل...',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           backgroundColor: Theme.of(context).primaryColor,
           foregroundColor: Colors.white,
           elevation: 0,
@@ -87,6 +95,8 @@ class _MainScreenState extends State<MainScreen> {
         ),
       );
     }
+    log("Teachers: ${teachers.map((t) => "${t.toMap()}\n")}");
+    log("Parants: ${parents.map((p) => "${p.toMap()}\n")}");
 
     return ConversationsScreen(
       currentUser: widget.currentUser,
