@@ -194,8 +194,8 @@ class UserController {
   Future<void> addFatherToFirebase(UserModel fatherData) async {
     // print("جاري إضافة ولي الأمر إلى Firebase - معرف المدرسة: $schoolID");
     // التحقق أولاً من وجود اتصال بالإنترنت
-    bool hasConnection =
-        await InternetConnectionChecker.createInstance().hasConnection;
+    // bool hasConnection =
+    //     await InternetConnectionChecker.createInstance().hasConnection;
 
     if (fatherData.user_id == null) {
       debugPrint("تحذير: معرف ولي الأمر غير موجود (user_id = null)");
