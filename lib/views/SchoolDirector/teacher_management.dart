@@ -2,9 +2,6 @@ import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/views/SchoolDirector/add_teacher.dart';
 import 'package:al_furqan/views/SchoolDirector/teacher_list.dart';
 import 'package:al_furqan/views/SchoolDirector/teacher_request.dart';
-// import 'package:al_furqan/views/Supervisor/add_teacher.dart';
-import 'package:al_furqan/views/Supervisor/requests_list.dart';
-import 'package:al_furqan/views/Supervisor/user_list.dart';
 import 'package:flutter/material.dart';
 
 class TeacherManagement extends StatefulWidget {
@@ -40,18 +37,18 @@ class _TeacherManagementState extends State<TeacherManagement>
       _isLoading = true;
     });
 
-    print("TeacherManagement refreshing data...");
+    debugPrint("TeacherManagement refreshing data...");
     try {
       await teacherController.getTeachers();
-      print(
+      debugPrint(
           "TeacherManagement: Teachers fetched - count: ${teacherController.teachers.length}");
     } catch (e) {
-      print("TeacherManagement: Error fetching teachers - $e");
+      debugPrint("TeacherManagement: Error fetching teachers - $e");
     } finally {
       setState(() {
         _isLoading = false;
       });
-      print("TeacherManagement: Loading state set to false");
+      debugPrint("TeacherManagement: Loading state set to false");
     }
   }
 
@@ -113,6 +110,12 @@ class _TeacherManagementState extends State<TeacherManagement>
                     .then((result) {
                   if (result == true) {
                     // Show a success message if the add operation was successful
+                    if (mounted) {
+                      debugPrint(
+                          "TeacherManagement: Teacher added successfully");
+                    } else {
+                      return;
+                    }
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("تم إضافة المعلم بنجاح وتحديث القائمة"),

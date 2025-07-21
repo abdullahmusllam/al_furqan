@@ -79,7 +79,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
             user = UserModel.fromJson(doc.data() as Map<String, dynamic>);
           }
         } catch (e) {
-          print('خطأ في جلب المستخدم $userId: $e');
+          log('خطأ في جلب المستخدم $userId: $e');
         }
       }
 
@@ -213,9 +213,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                             ),
                           ),
                           onPressed: () {
-                            log("available Teachers: ${widget.availableTeachers.map((e) {
-                              return e.toMap();
-                            }).toList()}");
+                            // الانتقال إلى شاشة المستخدمين لاختيار محادثة جديدة
                             Navigator.push(
                               context,
                               MaterialPageRoute(

@@ -21,10 +21,27 @@ class UsersScreen extends StatefulWidget {
 
 class _UsersScreenState extends State<UsersScreen> {
   List<UserModel> displayedUsers = [];
-
+  bool hasDialogShown = false;
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!hasDialogShown && widget.currentUser.roleID == 1) {
+        hasDialogShown = true;
+        if (widget.availableTeachers.isEmpty) {
+          // عرض رسالة إذا القائمة فارغة
+          showUserTypeDialog();
+          showDialogNoUser(context, "معلمين");
+        } else if (widget.availableParents.isEmpty) {
+          // عرض رسالة إذا القائمة فارغة
+          showUserTypeDialog();
+          showDialogNoUser(context, "أولياء الأمور");
+        } else {
+          // عرض حوار اختيار نوع المستخدم
+          showUserTypeDialog();
+        }
+      }
+    });
     if (widget.currentUser.roleID != 1) {
       displayedUsers = widget.availableParents
           .where((user) => user.user_id != null && user.user_id != 0)
@@ -48,31 +65,11 @@ class _UsersScreenState extends State<UsersScreen> {
                 title: Text('مراسلة معلم',
                     style: TextStyle(color: Colors.grey.shade700)),
                 onTap: () {
-                  Navigator.pop(context);
                   setState(() {
-                    if (widget.availableTeachers.isEmpty) {
-                      // عرض رسالة إذا القائمة فارغة
-                      showDialog(
-                        context: context,
-                        builder: (_) => AlertDialog(
-                          title: Text('تنبيه'),
-                          content: Text('لا يوجد معلمين متاحين حالياً.'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text('حسناً'),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      setState(() {
-                        displayedUsers = widget.availableTeachers
-                            .where((user) =>
-                                user.user_id != null && user.user_id != 0)
-                            .toList();
-                      });
-                    }
+                    displayedUsers = widget.availableTeachers
+                        .where(
+                            (user) => user.user_id != null && user.user_id != 0)
+                        .toList();
                   });
                 },
               ),
@@ -82,29 +79,10 @@ class _UsersScreenState extends State<UsersScreen> {
                 onTap: () {
                   Navigator.pop(context);
                   setState(() {
-                    if (widget.availableParents.isEmpty) {
-                      // عرض رسالة إذا القائمة فارغة
-                      showDialog(
-                        context: context,
-                        builder: (_) => AlertDialog(
-                          title: Text('تنبيه'),
-                          content: Text('لا يوجد ولي أمر متاحين حالياً.'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text('حسناً'),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      setState(() {
-                        displayedUsers = widget.availableParents
-                            .where((user) =>
-                                user.user_id != null && user.user_id != 0)
-                            .toList();
-                      });
-                    }
+                    displayedUsers = widget.availableParents
+                        .where(
+                            (user) => user.user_id != null && user.user_id != 0)
+                        .toList();
                   });
                 },
               ),
@@ -122,6 +100,22 @@ class _UsersScreenState extends State<UsersScreen> {
     );
   }
 
+  void showDialogNoUser(BuildContext context, String userType) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('تنبيه'),
+        content: Text('لا يوجد $userType متاحين حالياً.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('حسناً'),
+          ),
+        ],
+      ),
+    );
+  }
+
   // دالة للبحث في المستخدمين
   List<UserModel> _filterUsers(String query) {
     if (query.isEmpty) return displayedUsers;
@@ -134,11 +128,11 @@ class _UsersScreenState extends State<UsersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.currentUser.roleID == 1 && displayedUsers.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showUserTypeDialog();
-      });
-    }
+    // if (widget.currentUser.roleID == 1 && displayedUsers.isEmpty) {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     showUserTypeDialog();
+    //   });
+    // }
 
     return Scaffold(
       appBar: AppBar(
@@ -264,8 +258,7 @@ class _UsersScreenState extends State<UsersScreen> {
                         final user = displayedUsers[index];
                         return InkWell(
                           onTap: () {
-                            print(
-                                'اختيار مستخدم: ${user.first_name!} ${user.last_name!} , user_id: ${user.user_id}');
+                            log('اختيار مستخدم: ${user.first_name!} ${user.last_name!} , user_id: ${user.user_id}');
                             Navigator.push(
                               context,
                               MaterialPageRoute(

@@ -1,4 +1,3 @@
-
 import 'dart:developer';
 
 import 'package:al_furqan/controllers/TeacherController.dart';
@@ -57,8 +56,7 @@ class FathersController {
     /// this's all for get user id into student
     List<Map<String, dynamic>> response = await _sqlDb
         .readData("SELECT * FROM Students WHERE StudentID = '$studentID'");
-    log(
-        "Response in getFathersStudentsByStudentID method : ${response.isEmpty}");
+    log("Response in getFathersStudentsByStudentID method : ${response.isEmpty}");
     for (var e in response) {
       fatherByID.user_id = e['userID'].toString();
       fatherByID.first_name = e['first_name'];
@@ -161,7 +159,6 @@ class FathersController {
   }
 
   Future<List<UserModel>> getFathersBySchoolId(int schoolID) async {
-    // print('========================================= father');
     try {
       List<Map<String, dynamic>> response =
           await _sqlDb.readData("SELECT * FROM Users "
@@ -175,16 +172,10 @@ class FathersController {
           user_id: e['user_id'],
           first_name: e['first_name'],
           middle_name: e['middle_name'],
-          // grandfather_name: e['grandfather_name'],
+          grandfather_name: e['grandfather_name'],
           last_name: e['last_name'],
-          phone_number: e['phone_number'],
-          telephone_number: e['telephone_number'],
-          email: e['email'],
-          // password: e['password'],
-          // roleID: e['roleID'],
-          // schoolID: e['schoolID'],
-          // date: e['date'],
-          // isActivate: e['isActivate'],
+          roleID: e['roleID'],
+          schoolID: e['schoolID'],
         );
 
         fathers.add(father);

@@ -34,25 +34,24 @@ class _MainScreenState extends State<MainScreen> {
                 .getFathersBySchoolId(widget.currentUser.schoolID!))
             .where((user) => user.user_id != null && user.user_id != 0)
             .toList();
-        print(
-            'تم تحميل ${parents.length} من أولياء الأمور: ${parents.map((p) => p.first_name).toList()}');
+        log('تم تحميل ${parents.length} من أولياء الأمور : ${parents.map((p) => p.first_name).toList()}\n\n ');
         teachers =
             (await halagaController.getTeachers(widget.currentUser.schoolID!))
                 .where((user) => user.user_id != null && user.user_id != 0)
                 .toList();
-        log('تم تحميل ${teachers.length} من المعلمين: ${teachers.map((t) => "${t.toMap()}\n").toList()}');
+        log('تم تحميل ${teachers.length} من المعلمين: ${teachers.map((t) => t.first_name).toList()}');
       } else if (widget.currentUser.roleID == 2) {
         parents = (await fathersController
                 .getFathersByElhalagaId(widget.currentUser.elhalagatID!))
             .where((user) => user.user_id != null && user.user_id != 0)
             .toList();
-        print(
+        debugPrint(
             'تم تحميل ${parents.length} من أولياء الأمور: ${parents.map((p) => p.first_name).toList()}');
       } else {
-        print('دور المستخدم غير مدعوم: ${widget.currentUser.roleID}');
+        debugPrint('دور المستخدم غير مدعوم: ${widget.currentUser.roleID}');
       }
     } catch (e) {
-      print('خطأ في تحميل المستخدمين: $e');
+      debugPrint('خطأ في تحميل المستخدمين: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('خطأ في تحميل المستخدمين'),
@@ -95,8 +94,6 @@ class _MainScreenState extends State<MainScreen> {
         ),
       );
     }
-    log("Teachers: ${teachers.map((t) => "${t.toMap()}\n")}");
-    log("Parants: ${parents.map((p) => "${p.toMap()}\n")}");
 
     return ConversationsScreen(
       currentUser: widget.currentUser,

@@ -201,7 +201,7 @@ class _ChatScreenState extends State<ChatScreen> {
             textAlign: TextAlign.center,
             showReceivedMessages
                 ? 'الرسائل المستلمة'
-                : '${widget.selectedUser!.first_name} ${widget.selectedUser!.middle_name ?? ''} ${widget.selectedUser!.grandfather_name} ${widget.selectedUser!.last_name}',
+                : '${widget.selectedUser!.first_name} ${widget.selectedUser!.middle_name ?? ''} ${widget.selectedUser!.last_name}',
             style: TextStyle(
                 fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
           ),
