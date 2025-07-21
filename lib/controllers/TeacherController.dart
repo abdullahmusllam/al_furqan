@@ -11,6 +11,7 @@ class TeacherController {
   Future<void> getTeachers() async {
     try {
       print("TeacherController: Fetching all teachers...");
+
       List<Map> response =
           await _sqlDb.readData("SELECT * FROM Users WHERE roleID = 2");
       print(
@@ -69,7 +70,7 @@ class TeacherController {
 
     return response.map((data) {
       return UserModel(
-        user_id: data['user_id'] as String?,
+        user_id: data['user_id']?.toString(),
         first_name: data['first_name']?.toString(),
         middle_name: data['middle_name']?.toString(),
         grandfather_name: data['grandfather_name']?.toString(),
@@ -78,10 +79,10 @@ class TeacherController {
         telephone_number:
             int.tryParse(data['telephone_number'].toString()) ?? 0,
         email: data['email']?.toString(),
-        password: (data['password']) ?? 0,
+        password: (data['password']) ?? '',
         roleID: data['roleID'] as int?,
         schoolID: data['schoolID'] as int?,
-        elhalagatID: data['ElhalagatID'] as String?,
+        elhalagatID: data['ElhalagatID']?.toString(),
         date: data['date']?.toString(),
         isActivate: data['isActivate'] as int?,
       );

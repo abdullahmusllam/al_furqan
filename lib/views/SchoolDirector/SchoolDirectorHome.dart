@@ -743,7 +743,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                               .trim(),
                           style: TextStyle(fontWeight: FontWeight.w500),
                         ),
-                        subtitle: Text('المدرس - حلقة ${index + 1}'),
+                        // subtitle: Text('المدرس - حلقة ${index + 1}'),
                         // trailing: Row(
                         //   mainAxisSize: MainAxisSize.min,
                         //   children: [
