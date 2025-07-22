@@ -5,12 +5,13 @@ import 'package:al_furqan/views/Teacher/attendTeacherScreen.dart';
 import 'package:al_furqan/views/Teacher/islamic_studies_plans_list.dart';
 import 'package:al_furqan/views/Teacher/main_screenT.dart';
 import 'package:al_furqan/views/Teacher/monthly_report.dart';
-import 'package:al_furqan/views/shared/main_screen.dart';
 import 'package:al_furqan/views/Teacher/students_attendance.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
+
+import '../shared/Conversation_list.dart';
 
 class DrawerTeacher extends StatefulWidget {
   const DrawerTeacher({
@@ -465,10 +466,9 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MainScreen(
-                            currentUser: user!,
-                          ),
-                        ),
+                            builder: (context) => ConversationsScreen(
+                                  currentUser: user!,
+                                )),
                       );
                     },
                   ),

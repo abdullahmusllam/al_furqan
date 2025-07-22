@@ -15,36 +15,45 @@ class FirebaseHelper {
     return conn;
   }
 
-  Future<void> loadMessagesFromFirestore(String receiverId) async {
+  Future<void> loadMessagesFromFirestore(String userId) async {
     try {
-      // جلب الرسائل من Firestore بناءً على receiverId
-      QuerySnapshot snapshot = await FirebaseFirestore.instance
+      // استعلام الرسائل التي أرسلها المستخدم
+      QuerySnapshot sentMessagesSnapshot = await FirebaseFirestore.instance
           .collection('messages')
-          .where('receiverId', isEqualTo: receiverId)
+          .where('senderId', isEqualTo: userId)
           .get();
 
-      if (snapshot.docs.isEmpty) {
-        debugPrint('============ فااااااارغ ============');
+      // استعلام الرسائل التي استلمها المستخدم
+      QuerySnapshot receivedMessagesSnapshot = await FirebaseFirestore.instance
+          .collection('messages')
+          .where('receiverId', isEqualTo: userId)
+          .get();
+
+      List<QueryDocumentSnapshot> allDocs = [
+        ...sentMessagesSnapshot.docs,
+        ...receivedMessagesSnapshot.docs
+      ];
+
+      if (allDocs.isEmpty) {
+        debugPrint('📭 لا توجد رسائل لهذا المستخدم');
       }
 
-      // حفظ الرسائل في قاعدة البيانات المحلية وتحويلها
-      for (var doc in snapshot.docs) {
+      for (var doc in allDocs) {
         Message message = Message.fromMap(doc.data() as Map<String, dynamic>);
 
         bool exists =
             await sqlDb.checkIfitemExists('messages', message.id!, 'id');
-        debugPrint('================== 1');
 
         if (exists) {
           await messageService.updateMessage(message, 0);
-          debugPrint('===== Find message (update) =====');
+          debugPrint('🟡 تم تحديث الرسالة (${message.id})');
         } else {
           await messageService.saveMessage(message, 0);
-          debugPrint('===== Find message (add) =====');
+          debugPrint('🟢 تم إضافة الرسالة (${message.id})');
         }
       }
     } catch (e) {
-      debugPrint('خطأ في جلب الرسائل من Firestore: $e');
+      debugPrint('❌ خطأ في جلب الرسائل من Firestore: $e');
     }
   }
 

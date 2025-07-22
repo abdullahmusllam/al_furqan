@@ -6,9 +6,10 @@ import 'package:al_furqan/views/SchoolDirector/main_screenD.dart';
 import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
 import 'package:al_furqan/views/SchoolDirector/teacher_management.dart';
 import 'package:al_furqan/views/SchoolDirector/teachers_attendance_list.dart';
-import 'package:al_furqan/views/shared/main_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../shared/Conversation_list.dart';
 
 class DrawerSchoolDirector extends StatefulWidget {
   final UserModel? user;
@@ -210,8 +211,9 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.of(context).push(CupertinoPageRoute(
-                          builder: (context) =>
-                              MainScreen(currentUser: widget.user!)));
+                          builder: (context) => ConversationsScreen(
+                                currentUser: widget.user!,
+                              )));
                     },
                   ),
                   // Student Management Section
