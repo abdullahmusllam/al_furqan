@@ -329,23 +329,23 @@ class StudentController {
       if (await isConnected()) {
         await firebasehelper.assignStudentToHalqa(studentId, halqaID);
         await _sqldb.updateData(
-            "UPDATE Students SET ElhalagatID = $halqaID ,isSync = 1 WHERE StudentID = '$studentId'");
+            "UPDATE Students SET ElhalagatID = '$halqaID' ,isSync = 1 WHERE StudentID = '$studentId'");
 
         final count = await _sqldb.readData(
-            "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = $halqaID");
+            "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = '$halqaID'");
         final studentCount = count[0]['count'] as int;
         await _sqldb.updateData(
-            "UPDATE Elhalagat SET NumberStudent = $studentCount, isSync = 1 WHERE halagaID = $halqaID");
+            "UPDATE Elhalagat SET NumberStudent = $studentCount, isSync = 1 WHERE halagaID = '$halqaID'");
       }
 
       await _sqldb.updateData(
-          "UPDATE Students SET ElhalagatID = $halqaID, isSync = 0 WHERE StudentID = '$studentId'");
+          "UPDATE Students SET ElhalagatID = '$halqaID', isSync = 0 WHERE StudentID = '$studentId'");
 
       final count = await _sqldb.readData(
-          "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = $halqaID");
+          "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = '$halqaID'");
       final studentCount = count[0]['count'] as int;
       int halagaResponse = await _sqldb.updateData(
-          "UPDATE Elhalagat SET NumberStudent = $studentCount, isSync = 0 WHERE halagaID = $halqaID");
+          "UPDATE Elhalagat SET NumberStudent = $studentCount, isSync = 0 WHERE halagaID = '$halqaID'");
       debugPrint(
           "Updated NumberStudent to $studentCount for halqa $halqaID, response: $halagaResponse");
     } catch (e) {
@@ -451,10 +451,10 @@ class StudentController {
 
       // Update the student count for the halaga
       final count = await _sqldb.readData(
-          "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = $halagaID");
+          "SELECT COUNT(*) as count FROM Students WHERE ElhalagatID = '$halagaID'");
       final studentCount = count[0]['count'] as int;
       int halagaResponse = await _sqldb.updateData(
-          "UPDATE Elhalagat SET NumberStudent = $studentCount WHERE halagaID = $halagaID");
+          "UPDATE Elhalagat SET NumberStudent = $studentCount WHERE halagaID = '$halagaID'");
       debugPrint(
           "Updated NumberStudent to $studentCount for halqa $halagaID, response: $halagaResponse");
     } catch (e) {

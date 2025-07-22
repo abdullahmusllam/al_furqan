@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
@@ -7,7 +9,6 @@ import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:intl/intl.dart';
-
 import '../../../controllers/TeacherController.dart';
 
 class AddHalaqaScreen extends StatefulWidget {
@@ -182,21 +183,25 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                   ]
                                 : teachers.map((teacher) {
                                     // التحقق مما إذا كان المعلم لديه حلقة بالفعل
-                                    bool hasHalaga =
-                                        teacher.elhalagatID != null;
+                                    bool noHalaga = teacher.elhalagatID == null;
+                                    log("Teacher NO Halaga : $noHalaga,Teacher ID halaga ${teacher.elhalagatID}");
+                                    debugPrint(
+                                        "No Halaga : $noHalaga, & has Halaga : ${!noHalaga}");
+                                    print(
+                                        'value: ${teacher.elhalagatID}, type: ${teacher.elhalagatID.runtimeType}');
 
                                     return DropdownMenuItem<UserModel>(
                                       value: teacher,
                                       // تعطيل المعلمين الذين لديهم حلقات
-                                      enabled: !hasHalaga,
+                                      enabled: noHalaga,
                                       child: Row(
                                         children: [
                                           // عرض أيقونة تشير إلى حالة المعلم
                                           Icon(
-                                            hasHalaga
+                                            noHalaga
                                                 ? Icons.person_off
                                                 : Icons.person_outlined,
-                                            color: hasHalaga
+                                            color: noHalaga
                                                 ? Colors.grey
                                                 : Colors.green,
                                             size: 20,
@@ -206,16 +211,16 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                           Text(
                                             '${teacher.first_name} ${teacher.last_name}',
                                             style: TextStyle(
-                                              color: hasHalaga
+                                              color: noHalaga
                                                   ? Colors.grey
                                                   : Colors.black,
-                                              fontWeight: hasHalaga
+                                              fontWeight: noHalaga
                                                   ? FontWeight.normal
                                                   : FontWeight.bold,
                                             ),
                                           ),
                                           // إضافة وصف للمعلمين الذين لديهم حلقات
-                                          if (hasHalaga)
+                                          if (!noHalaga)
                                             Expanded(
                                               child: Text(
                                                 ' (مرتبط بحلقة)',
@@ -269,7 +274,7 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                             ),
 
                           // إضافة رسالة عندما لا يوجد معلمين متاحين
-                          if (!teachers.any(
+                          if (!teachers.every(
                                   (teacher) => teacher.elhalagatID == null) &&
                               teachers.isNotEmpty)
                             Padding(
@@ -431,10 +436,10 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                     _halaqaModel.halagaID;
                                 await userController.updateUser(
                                     selectedTeacher!, 1);
-                                print(
+                                debugPrint(
                                     "تم تحديث المعلم ${selectedTeacher!.first_name} ${selectedTeacher!.last_name} بحلقة رقم ${_halaqaModel.halagaID}");
                               }
-
+                              if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('تم إضافة الحلقة بنجاح'),

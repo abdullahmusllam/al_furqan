@@ -130,12 +130,13 @@ class _MainScreenState extends State<MainScreenD> {
   Future<void> loadMessages() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      String? Id = prefs.getString('user_id');
-      print('===== ($Id) =====');
+      String? id = prefs.getString('user_id');
+      print('===== ($id) =====');
       // تحميل الرسائل من فايربيس
-      await messageService.loadMessagesFromFirestore(Id!);
+      await messageService.loadMessagesFromFirestore(id!);
     } catch (e) {
       print('خطأ في تحميل البيانات: $e');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('خطأ في تحميل البيانات'),

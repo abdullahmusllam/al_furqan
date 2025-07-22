@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
@@ -31,7 +33,7 @@ class SqlDb {
         await db.execute(query);
       }
     }
-    print("Database Created Successfully");
+    log("Database Created Successfully");
   }
 
   _onUpgrade(Database db, int oldVersion, int newVersion) async {
