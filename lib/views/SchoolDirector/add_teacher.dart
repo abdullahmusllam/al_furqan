@@ -403,7 +403,7 @@ class _AddTeacherState extends State<AddTeacher> with UserDataMixin {
           : 'تمت إضافة المعلم بنجاح وإضافته إلى قائمة طلبات تفعيل الحساب';
 
       // إظهار حوار نجاح بدلاً من Snackbar
-      print("تمت العملية بنجاح");
+      debugPrint("تمت العملية بنجاح");
       showDialog(
         context: context,
         barrierDismissible: false,

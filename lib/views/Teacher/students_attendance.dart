@@ -121,21 +121,21 @@ class _StudentsAttendanceState extends State<StudentsAttendance>
       },
     );
 
-    print("------> جاري حفظ بيانات الحضور");
+    debugPrint("------> جاري حفظ بيانات الحضور");
 
     try {
       // هنا يمكنك تنفيذ المنطق اللازم لحفظ بيانات الحضور
       // على سبيل المثال، قد تقوم باستدعاء طريقة في وحدة التحكم للحفظ في قاعدة البيانات
       for (var student in _students) {
-        print("الطالب: ${student.studentID}");
+        debugPrint("الطالب: ${student.studentID}");
         if (_attendanceStatus[student.studentID] == false) {
-          print("تحديث بيانات الطالب - غائب");
+          debugPrint("تحديث بيانات الطالب - غائب");
           await _studentController.updateAttendance(
               student.studentID!,
               _attendanceStatus[student.studentID]!,
               _absenceReasons[student.studentID] ?? "بدون سبب");
         } else {
-          print("تحديث بيانات الطالب - حاضر");
+          debugPrint("تحديث بيانات الطالب - حاضر");
           await _studentController.updateAttendance(
               student.studentID!, _attendanceStatus[student.studentID]!, "-");
         }

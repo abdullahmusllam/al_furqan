@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:al_furqan/models/users_model.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -76,12 +77,12 @@ class SqlDb {
       // إعادة تفعيل قيود المفاتيح الأجنبية
       await db.execute('PRAGMA foreign_keys=on;');
 
-      print(
+      debugPrint(
           "---------------------------> Upgrade to version 7 completed successfully!");
     } catch (e) {
       // التراجع عن المعاملة في حالة حدوث خطأ
       await db.execute('ROLLBACK;');
-      print("---------------------------> Error upgrading database: $e");
+      debugPrint("---------------------------> Error upgrading database: $e");
     }
   }
 
@@ -99,7 +100,7 @@ class SqlDb {
     if (maps.isNotEmpty) {
       return UserModel.fromMap(maps.first);
     }
-    print("User not found for phone: $phone");
+    debugPrint("User not found for phone: $phone");
     return null;
   }
 
@@ -123,7 +124,7 @@ class SqlDb {
     try {
       return await mydb.insert(table, values);
     } catch (e) {
-      print("Error inserting into $table: $e");
+      debugPrint("Error inserting into $table: $e");
       return -1;
     }
   }
@@ -143,11 +144,11 @@ class SqlDb {
         where: where,
         whereArgs: whereArgs,
       );
-      print(
+      debugPrint(
           "------------------> Updated $table where $where: $result row(s) affected");
       return result;
     } catch (e) {
-      print("------------------> Error updating $table: $e");
+      debugPrint("------------------> Error updating $table: $e");
       return -1;
     }
   }
@@ -197,11 +198,11 @@ class SqlDb {
         whereArgs: whereArgs,
       );
 
-      print(
+      debugPrint(
           "-----> Checking if item exists in $table with $values: ${result.isNotEmpty}");
       return result.isNotEmpty;
     } catch (e) {
-      print("Error checking item in $table: $e");
+      debugPrint("Error checking item in $table: $e");
       return false;
     }
   }

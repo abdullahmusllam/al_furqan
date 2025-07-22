@@ -29,7 +29,7 @@ class _AddStudentsToHalqaScreenState extends State<AddStudentsToHalqaScreen> {
 
   Future<void> _loadAvailableStudents() async {
     if (widget.schoolID == null) {
-      print("schoolID is null");
+      debugPrint("schoolID is null");
       if (mounted) {
         setState(() {
           availableStudents = [];
@@ -55,11 +55,11 @@ class _AddStudentsToHalqaScreenState extends State<AddStudentsToHalqaScreen> {
         setState(() {
           availableStudents = available;
           _isLoading = false;
-          print("Available students: ${availableStudents.length}");
+          debugPrint("Available students: ${availableStudents.length}");
         });
       }
     } catch (e) {
-      print("Error loading available students: $e");
+      debugPrint("Error loading available students: $e");
       if (mounted) {
         setState(() {
           availableStudents = [];
@@ -97,7 +97,7 @@ class _AddStudentsToHalqaScreenState extends State<AddStudentsToHalqaScreen> {
         Navigator.pop(context);
       }
     } catch (e) {
-      print("Error adding students to halqa: $e");
+      debugPrint("Error adding students to halqa: $e");
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(

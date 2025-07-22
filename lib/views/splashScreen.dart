@@ -42,12 +42,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
   /// التحقق من حالة تسجيل الدخول وتوجيه المستخدم
   void _checkLoginStatus() async {
-    print(
+    debugPrint(
         "----------------------Here check Login Status--------------------------");
     bool isLogin = await isUserLoggedIn();
-    print("-------------: $isLogin");
+    debugPrint("-------------: $isLogin");
     if (isLogin) {
-      print(
+      debugPrint(
           "----------------------Here if check Login Status--------------------------");
       _loginPref();
     } else {
@@ -87,12 +87,12 @@ class _SplashScreenState extends State<SplashScreen> {
             MaterialPageRoute(builder: (context) => DashboardScreen()));
         break;
       case 1:
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => MainScreenD()));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => MainScreenD()));
         break;
       case 2:
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => MainScreenT()));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => MainScreenT()));
         break;
       default:
         _showErrorDialog(context, "خطأ", "حسابك غير مفعل، تواصل مع الإدارة.");

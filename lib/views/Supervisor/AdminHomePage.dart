@@ -56,7 +56,7 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
 
       setState(() {});
     } catch (e) {
-      print("Error loading additional data: $e");
+      debugPrint("Error loading additional data: $e");
     }
   }
 
@@ -94,7 +94,7 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
   }
 
   Future<void> syncData() async {
-    await sync.syncUsers;
+    sync.syncUsers;
   }
 
   void _showLoadingDialog() {
@@ -147,7 +147,7 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
       _currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
       setState(() {});
-      print(
+      debugPrint(
           "Refreshed admin data: ${_schools.length} schools, ${_teachers.length} teachers, $_totalStudents students");
 
       // Show success message
@@ -167,7 +167,7 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
         ),
       );
     } catch (e) {
-      print("Error refreshing admin data: $e");
+      debugPrint("Error refreshing admin data: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(

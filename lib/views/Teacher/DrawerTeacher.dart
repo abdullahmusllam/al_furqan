@@ -30,7 +30,7 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
   @override
   void initState() {
     super.initState();
-    print("DrawerTeacher - initState called");
+    debugPrint("DrawerTeacher - initState called");
     // نضيف مؤقت صغير للتأكد من أن بيانات المستخدم تم تحميلها قبل تحميل الحلقة
     Future.delayed(Duration(milliseconds: 500), () {
       if (mounted) {
@@ -42,25 +42,26 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    print("DrawerTeacher - didChangeDependencies called");
+    debugPrint("DrawerTeacher - didChangeDependencies called");
     // لن نستدعي _loadTeacherHalaga هنا لتجنب التكرار، سيتم استدعاؤها من initState
   }
 
   Future<void> _loadTeacherHalaga() async {
-    print("DrawerTeacher - _loadTeacherHalaga started");
-    print(
+    debugPrint("DrawerTeacher - _loadTeacherHalaga started");
+    debugPrint(
         "DrawerTeacher - User data: ${user != null ? 'Available' : 'Not available'}");
 
     if (_isLoadingHalaga) {
-      print("DrawerTeacher - Already loading halaga data, skipping");
+      debugPrint("DrawerTeacher - Already loading halaga data, skipping");
       return;
     }
 
     if (user == null) {
-      print("DrawerTeacher - User is null, trying to load user data first");
+      debugPrint(
+          "DrawerTeacher - User is null, trying to load user data first");
       await fetchUserData(); // استدعاء دالة تحميل بيانات المستخدم أولاً
       if (user == null) {
-        print("DrawerTeacher - Still couldn't load user data");
+        debugPrint("DrawerTeacher - Still couldn't load user data");
         setState(() {
           _errorMessage = "فشل في تحميل بيانات المستخدم";
         });
@@ -68,10 +69,10 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
       }
     }
 
-    print("DrawerTeacher - User elhalagatID: ${user?.elhalagatID}");
+    debugPrint("DrawerTeacher - User elhalagatID: ${user?.elhalagatID}");
 
     if (user!.elhalagatID == null || user!.elhalagatID == 0) {
-      print("DrawerTeacher - User has no halaga assigned");
+      debugPrint("DrawerTeacher - User has no halaga assigned");
       setState(() {
         _errorMessage = "لم يتم تعيين حلقة للمعلم";
       });
@@ -83,27 +84,28 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
     });
 
     try {
-      print(
+      debugPrint(
           "DrawerTeacher - Fetching halaga details for ID: ${user!.elhalagatID}");
       // Get the teacher's halaga details using the halagaID (elhalagatID) from user data
       _teacherHalaga =
           await _halagaController.getHalqaDetails(user!.elhalagatID!);
 
-      print(
+      debugPrint(
           "DrawerTeacher - Halaga response: ${_teacherHalaga != null ? 'Found' : 'Not found'}");
 
       if (_teacherHalaga != null) {
-        print(
+        debugPrint(
             "DrawerTeacher - Fetched teacher's halaga: ${_teacherHalaga?.Name}, ID: ${_teacherHalaga?.halagaID}");
       } else {
-        print("DrawerTeacher - Halaga not found for ID: ${user!.elhalagatID}");
+        debugPrint(
+            "DrawerTeacher - Halaga not found for ID: ${user!.elhalagatID}");
         setState(() {
           _errorMessage =
               "لم يتم العثور على بيانات الحلقة رقم ${user!.elhalagatID}";
         });
       }
     } catch (e) {
-      print("DrawerTeacher - Error fetching teacher's halaga: $e");
+      debugPrint("DrawerTeacher - Error fetching teacher's halaga: $e");
       setState(() {
         _errorMessage = "خطأ أثناء جلب بيانات الحلقة: $e";
       });
@@ -168,7 +170,7 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
 
   @override
   Widget build(BuildContext context) {
-    print(
+    debugPrint(
         "DrawerTeacher - Build called, teacherHalaga: ${_teacherHalaga != null ? 'Available' : 'Null'}");
     return Drawer(
       elevation: 16.0,
@@ -346,7 +348,8 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                         ),
                       );
                     },
-                  ), _buildMenuItem(
+                  ),
+                  _buildMenuItem(
                     context,
                     icon: Icons.qr_code,
                     title: 'حضوري ',

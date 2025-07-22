@@ -56,7 +56,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
         isLoading = false;
       });
     }
-    print("==> بداية تحميل آباء الطلاب <==");
+    debugPrint("==> بداية تحميل آباء الطلاب <==");
     for (var i = 0; i < students.length; i++) {
       if (students[i].userID != null) {
         final dad = await fathersController.getFatherByID(students[i].userID!);
@@ -89,12 +89,12 @@ class _StudentsListPageState extends State<StudentsListPage> {
   Future<void> _loadHalaqaNames(int schoolID) async {
     try {
       halaqat = await halagaController.getData(schoolID);
-      print("تم جلب ${halaqat.length} حلقة من المدرسة $schoolID");
+      debugPrint("تم جلب ${halaqat.length} حلقة من المدرسة $schoolID");
       Map<String?, String> names = {};
       for (var halqa in halaqat) {
         if (halqa.halagaID != null) {
           names[halqa.halagaID] = halqa.Name ?? 'حلقة بدون اسم';
-          print("إضافة حلقة: ${halqa.halagaID} -> ${halqa.Name}");
+          debugPrint("إضافة حلقة: ${halqa.halagaID} -> ${halqa.Name}");
         }
       }
       if (mounted) {
@@ -102,9 +102,9 @@ class _StudentsListPageState extends State<StudentsListPage> {
           halaqaNames = names;
         });
       }
-      print("تم تحميل ${halaqaNames.length} حلقة في القاموس");
+      debugPrint("تم تحميل ${halaqaNames.length} حلقة في القاموس");
     } catch (e) {
-      print("خطأ في تحميل أسماء الحلقات: $e");
+      debugPrint("خطأ في تحميل أسماء الحلقات: $e");
     }
   }
 
@@ -120,16 +120,16 @@ class _StudentsListPageState extends State<StudentsListPage> {
         isLoading = true;
       });
     }
-    print("=== بداية تحميل بيانات الطلاب ===");
+    debugPrint("=== بداية تحميل بيانات الطلاب ===");
     int schoolID = widget.user!.schoolID!;
-    print("معرف المدرسة: $schoolID");
+    debugPrint("معرف المدرسة: $schoolID");
     // تحميل أسماء الحلقات أولاً
     await _loadHalaqaNames(schoolID);
     // تحميل البيانات من القاعدة المحلية فقط
-    print("جاري تحميل البيانات من قاعدة البيانات المحلية...");
+    debugPrint("جاري تحميل البيانات من قاعدة البيانات المحلية...");
     List<StudentModel>? loadedStudent =
         await studentController.getSchoolStudents(schoolID);
-    print(
+    debugPrint(
         "تم تحميل ${loadedStudent.length ?? 0} طالب من قاعدة البيانات المحلية");
     if (mounted) {
       setState(() {
@@ -137,21 +137,21 @@ class _StudentsListPageState extends State<StudentsListPage> {
         log("student [father ID :\n ${loadedStudent.map((e) => e.userID).join('\n ')}]");
 
         isLoading = false;
-        print("تم تحديث واجهة المستخدم بـ ${students.length} طالب");
+        debugPrint("تم تحديث واجهة المستخدم بـ ${students.length} طالب");
       });
     }
-    print("=== انتهاء تحميل بيانات الطلاب ===");
+    debugPrint("=== انتهاء تحميل بيانات الطلاب ===");
 
     await _loadFathersStudents();
   }
 
   // String getHalaqaName(String? halaqaId) {
   //   if (halaqaId == null) {
-  //     print("الطالب بدون حلقة (معرف الحلقة: null)");
+  //     debugPrint("الطالب بدون حلقة (معرف الحلقة: null)");
   //     return 'بدون حلقة';
   //   }
   //   String halaqaName = halaqaNames[halaqaId] ?? 'بدون حلقة';
-  //   print(
+  //   debugPrint(
   //       "معرف الحلقة: $halaqaId، اسم الحلقة: $halaqaName، القاموس يحتوي على: ${halaqaNames.keys.toList()}");
   //   return halaqaName;
   // }

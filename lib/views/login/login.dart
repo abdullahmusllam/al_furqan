@@ -44,10 +44,10 @@ class _LoginScreenState extends State<LoginScreen> {
           await sqlDb.checkIfitemExists2("Users", user.user_id!, "user_id");
       if (exists) {
         await userController.updateUser(user, 0);
-        print('===== Find user (update) =====');
+        debugPrint('===== Find user (update) =====');
       } else {
         await userController.addUser(user, 0);
-        print('===== Find user (add) =====');
+        debugPrint('===== Find user (add) =====');
       }
     }
   }
@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await loadUsersFromFirebase();
         await loadSchoolsFromFirebase();
       } catch (e) {
-        print("Error loading data from Firebase: $e");
+        debugPrint("Error loading data from Firebase: $e");
       } finally {
         if (mounted) {
           setState(() => _isLoading = false);
@@ -173,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
       await per.setString('halagaID', user.elhalagatID!);
     }
-    print('===== save id ($id) =====');
+    debugPrint('===== save id ($id) =====');
     await chooseScreen(context);
   }
 

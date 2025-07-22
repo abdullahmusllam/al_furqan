@@ -469,7 +469,7 @@ class _EditTeacherState extends State<EditTeacher> with UserDataMixin {
         },
       );
     } catch (e) {
-      print("Error updating teacher: $e");
+      debugPrint("Error updating teacher: $e");
 
       // إظهار حوار خطأ
       if (!mounted) return;

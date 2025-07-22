@@ -18,20 +18,17 @@ class FirebaseHelper {
 
   // ======================= Start Student ==============
   Future<void> addStudent(StudentModel StudentData) async {
-    final StudentRef = await _firestore.collection('Students');
+    final StudentRef = _firestore.collection('Students');
 
     // StudentData.schoolId = schoolID;
-    if (StudentData != null) {
-      try {
-        StudentData.isSync = 1;
-        await StudentRef.doc(StudentData.studentID.toString())
-            .set(StudentData.toMap());
-        print('تمت إضافة/تحديث الطالب بالرقم ${StudentData.studentID} بنجاح ');
-      } catch (e) {
-        print('خطأ أثناء إضافة الطالب إلى Firebase: $e');
-      }
-    } else {
-      print('تحذير: studentData فارغ');
+    try {
+      StudentData.isSync = 1;
+      await StudentRef.doc(StudentData.studentID.toString())
+          .set(StudentData.toMap());
+      debugPrint(
+          'تمت إضافة/تحديث الطالب بالرقم ${StudentData.studentID} بنجاح ');
+    } catch (e) {
+      debugPrint('خطأ أثناء إضافة الطالب إلى Firebase: $e');
     }
   }
 
@@ -43,17 +40,17 @@ class FirebaseHelper {
           .get();
 
       if (snapshot.docs.isNotEmpty) {
-        print('تم العثور على مستند');
+        debugPrint('تم العثور على مستند');
         return snapshot.docs
             .map((doc) =>
                 StudentModel.fromJson(doc.data() as Map<String, dynamic>))
             .toList();
       } else {
-        print('لا توجد مستندات تطابق الشرط');
+        debugPrint('لا توجد مستندات تطابق الشرط');
         return [];
       }
     } catch (e) {
-      print('خطأ أثناء جلب البيانات: $e');
+      debugPrint('خطأ أثناء جلب البيانات: $e');
       return [];
     }
   }
@@ -63,9 +60,9 @@ class FirebaseHelper {
     final docRef =
         _firestore.collection('Students').doc(Student.studentID.toString());
     await docRef.update(Student.toMap()).then((_) {
-      print('تم التعديل بنجاح');
+      debugPrint('تم التعديل بنجاح');
     }).catchError((error) {
-      print('حدث خطأ: $error');
+      debugPrint('حدث خطأ: $error');
     });
   }
 
@@ -74,7 +71,7 @@ class FirebaseHelper {
       final docRef = _firestore.collection('Students').doc(studentId);
       await docRef.update({'ElhalagatID': halqaID});
     } catch (e) {
-      print('error=== $e');
+      debugPrint('error=== $e');
     }
   }
 // ===================== End Student ===========================
@@ -86,49 +83,41 @@ class FirebaseHelper {
       QuerySnapshot querySnapshot = await _firestore.collection('School').get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        print('تم العثور على المدارس');
+        debugPrint('تم العثور على المدارس');
         return querySnapshot.docs
             .map((doc) =>
                 SchoolModel.fromJson(doc.data() as Map<String, dynamic>))
             .toList();
       } else {
-        print('لا توجد مدارس');
+        debugPrint('لا توجد مدارس');
         return [];
       }
     } catch (e) {
-      print('خطأ أثناء جلب بيانات المدارس: $e');
+      debugPrint('خطأ أثناء جلب بيانات المدارس: $e');
       return [];
     }
   }
 
   addSchool(SchoolModel school) async {
     final docRef = _firestore.collection('School');
-    if (school != null) {
-      await docRef.doc(school.schoolID.toString()).set({
-        'SchoolID': school.schoolID,
-        'school_name': school.school_name,
-        'school_location': school.school_location,
-        'isSync': 1,
-      });
-      print('تم إضافة المدرسة ${school.schoolID} بنجاح');
-    } else {
-      print('خطأ في إضافة المدرسة');
-    }
+    await docRef.doc(school.schoolID.toString()).set({
+      'SchoolID': school.schoolID,
+      'school_name': school.school_name,
+      'school_location': school.school_location,
+      'isSync': 1,
+    });
+    debugPrint('تم إضافة المدرسة ${school.schoolID} بنجاح');
   }
 
   updateSchool(SchoolModel school) async {
     final docRef =
         _firestore.collection('School').doc(school.schoolID.toString());
-    if (school != null) {
-      await docRef.update({
-        'school_name': school.school_name,
-        'school_location': school.school_location,
-        'isSync': 1,
-      });
-      print('تم تحديث المدرسة ${school.schoolID} بنجاح');
-    } else {
-      print('خطأ في تحديث المدرسة');
-    }
+    await docRef.update({
+      'school_name': school.school_name,
+      'school_location': school.school_location,
+      'isSync': 1,
+    });
+    debugPrint('تم تحديث المدرسة ${school.schoolID} بنجاح');
   }
 
   /// حذف مدرسة من Firebase
@@ -136,9 +125,9 @@ class FirebaseHelper {
     try {
       final docRef = _firestore.collection('School').doc(schoolId.toString());
       await docRef.delete();
-      print('تم حذف المدرسة $schoolId من Firebase بنجاح');
+      debugPrint('تم حذف المدرسة $schoolId من Firebase بنجاح');
     } catch (e) {
-      print('خطأ في حذف المدرسة من Firebase: $e');
+      debugPrint('خطأ في حذف المدرسة من Firebase: $e');
       rethrow;
     }
   }
@@ -156,38 +145,34 @@ class FirebaseHelper {
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        print('تم العثور على حلقات');
+        debugPrint('تم العثور على حلقات');
         return querySnapshot.docs
             .map((doc) => doc.data() as Map<String, dynamic>)
             .toList();
       } else {
-        print('لا توجد حلقات تطابق الشرط');
+        debugPrint('لا توجد حلقات تطابق الشرط');
         return [];
       }
     } catch (e) {
-      print('خطأ أثناء جلب بيانات الحلقات: $e');
+      debugPrint('خطأ أثناء جلب بيانات الحلقات: $e');
       return [];
     }
   }
 
   addHalga(HalagaModel halaga) async {
     try {
-      final docRef = await _firestore.collection('Elhalaga');
-      if (halaga != null) {
-        docRef.doc(halaga.halagaID.toString()).set(halaga.toMap());
-        print('===== تم رفع حلقة ${halaga.Name} بنجاح');
-      }
+      final docRef = _firestore.collection('Elhalaga');
+      docRef.doc(halaga.halagaID.toString()).set(halaga.toMap());
+      debugPrint('===== تم رفع حلقة ${halaga.Name} بنجاح');
     } catch (e) {}
   }
 
   updateHalaga(HalagaModel halaga) async {
     try {
-      final docRef = await _firestore.collection('Elhalaga');
-      if (halaga != null) {
-        docRef.doc(halaga.halagaID.toString()).update(halaga.toMap());
-      }
+      final docRef = _firestore.collection('Elhalaga');
+      docRef.doc(halaga.halagaID.toString()).update(halaga.toMap());
     } catch (e) {
-      print('error ==== $e');
+      debugPrint('error ==== $e');
     }
   }
 
@@ -209,12 +194,12 @@ class FirebaseHelper {
         // تحديث ElhalagatID إلى null
         await docRef.doc(docId).update({'ElhalagatID': null});
 
-        print('تم إلغاء ارتباط المعلم بالحلفة بنجاح من Firebase');
+        debugPrint('تم إلغاء ارتباط المعلم بالحلفة بنجاح من Firebase');
       } else {
-        print('لم يتم العثور على معلم مرتبط بهذه الحلقة');
+        debugPrint('لم يتم العثور على معلم مرتبط بهذه الحلقة');
       }
     } catch (e) {
-      print('حدث خطأ أثناء إلغاء ارتباط المعلم: $e');
+      debugPrint('حدث خطأ أثناء إلغاء ارتباط المعلم: $e');
     }
   }
 
@@ -223,7 +208,7 @@ class FirebaseHelper {
       final docRef = _firestore.collection('Users');
       await docRef.doc(teacherId.toString()).update({'ElhalagatID': halagaId});
     } catch (e) {
-      print('error====$e');
+      debugPrint('error====$e');
     }
   }
 
@@ -232,24 +217,20 @@ class FirebaseHelper {
 // =========================== Start User ===============================
 
   addUser(UserModel user) async {
-    print("addUser(UserModel user)");
+    debugPrint("addUser(UserModel user)");
     final docRef = _firestore.collection('Users');
     // user.user_id = id;
-    if (user != null) {
-      await docRef.doc(user.user_id.toString()).set(user.toMap());
-      print("تمت اضافة المستخدم ${user.user_id} بنجاح");
-    } else {
-      print("خطا في الرفع");
-    }
+    await docRef.doc(user.user_id.toString()).set(user.toMap());
+    debugPrint("تمت اضافة المستخدم ${user.user_id} بنجاح");
   }
 
   updateUser(UserModel user) async {
     final docRef = _firestore.collection('Users').doc(user.user_id.toString());
     // user.user_id = id;
     await docRef.update(user.toMap()).then((_) {
-      print('تم التعديل بنجاح');
+      debugPrint('تم التعديل بنجاح');
     }).catchError((error) {
-      print('حدث خطأ: $error');
+      debugPrint('حدث خطأ: $error');
     });
   }
 
@@ -257,9 +238,9 @@ class FirebaseHelper {
     try {
       final docRef = _firestore.collection('Users').doc(id.toString());
       await docRef.delete();
-      print('تم حذف المستخدم $id بنجاح');
+      debugPrint('تم حذف المستخدم $id بنجاح');
     } catch (e) {
-      print('حدث خطأ: $e');
+      debugPrint('حدث خطأ: $e');
     }
   }
 
@@ -268,9 +249,9 @@ class FirebaseHelper {
       final docRef = _firestore.collection('Users').doc(id);
       await docRef.update({'isSync': 1});
       await docRef.update({'isActivate': 1});
-      print('تم تفعيل المستخدم $id بنجاح');
+      debugPrint('تم تفعيل المستخدم $id بنجاح');
     } catch (e) {
-      print('حدث خطأ: $e');
+      debugPrint('حدث خطأ: $e');
     }
   }
 
@@ -278,9 +259,9 @@ class FirebaseHelper {
     try {
       final docRef = _firestore.collection('Users').doc(id.toString());
       await docRef.update({'isActivate': 0});
-      print('تم تعطيل المستخدم $id بنجاح');
+      debugPrint('تم تعطيل المستخدم $id بنجاح');
     } catch (e) {
-      print('حدث خطأ: $e');
+      debugPrint('حدث خطأ: $e');
     }
   }
 
@@ -288,9 +269,9 @@ class FirebaseHelper {
     try {
       final docRef = _firestore.collection('Users').doc(user.user_id);
       docRef.set(user.toMap());
-      print("تمت اضافة الطلب ${user.user_id} بنجاح");
+      debugPrint("تمت اضافة الطلب ${user.user_id} بنجاح");
     } catch (e) {
-      print('حدث خطأ: $e');
+      debugPrint('حدث خطأ: $e');
     }
   }
 
@@ -307,7 +288,7 @@ class FirebaseHelper {
       }
       return null;
     } catch (e) {
-      print('حدث خطأ: $e');
+      debugPrint('حدث خطأ: $e');
       return null;
     }
   }
@@ -335,10 +316,10 @@ class FirebaseHelper {
           .collection(collection)
           .doc(id.toString())
           .get();
-      print("Find document");
+      debugPrint("Find document");
       return documentSnapshot.exists;
     } catch (e) {
-      print('Not found document');
+      debugPrint('Not found document');
       return false;
     }
   }
@@ -347,10 +328,10 @@ class FirebaseHelper {
     try {
       DocumentSnapshot documentSnapshot =
           await FirebaseFirestore.instance.collection(collection).doc(id).get();
-      print("Find document");
+      debugPrint("Find document");
       return documentSnapshot.exists;
     } catch (e) {
-      print('Not found document');
+      debugPrint('Not found document');
       return false;
     }
   }
@@ -363,10 +344,10 @@ class FirebaseHelper {
           .collection("ConservationPlans")
           .doc(idDoc)
           .set(plan.toMap());
-      print(
+      debugPrint(
           "---------------> The addConservationPlan in ((FirebaseService)) : Done");
     } catch (e) {
-      print(
+      debugPrint(
           "---------------> The Error in addConservationPlan in ((FirebaseService)) : $e");
     }
   }
@@ -374,10 +355,10 @@ class FirebaseHelper {
   Future<void> addEltlawahPlan(EltlawahPlanModel plan, String idDoc) async {
     try {
       await _firestore.collection("EltlawahPlans").doc(idDoc).set(plan.toMap());
-      print(
+      debugPrint(
           "---------------> The addEltlawahPlan in ((FirebaseService)) : Done");
     } catch (e) {
-      print(
+      debugPrint(
           "---------------> The Error in addEltlawahPlan in ((FirebaseService)) : $e");
     }
   }
@@ -389,10 +370,10 @@ class FirebaseHelper {
           .collection("IslamicStudies")
           .doc(idDoc)
           .set(plan.toMap());
-      print(
+      debugPrint(
           "---------------> The addIslamicStudyplan in ((FirebaseService)) : Done");
     } catch (e) {
-      print(
+      debugPrint(
           "---------------> The Error in addIslamicStudyplan in ((FirebaseService)) : $e");
     }
   }
@@ -405,10 +386,10 @@ class FirebaseHelper {
           .collection("ConservationPlans")
           .doc(idDoc)
           .update(plan.toMap());
-      print(
+      debugPrint(
           "---------------> The updateConservationPlan in ((FirebaseService)) : Done");
     } catch (e) {
-      print(
+      debugPrint(
           "---------------> The Error in updateConservationPlan in ((FirebaseService)) : $e");
     }
   }
@@ -420,10 +401,10 @@ class FirebaseHelper {
           .collection("EltlawahPlans")
           .doc(idDoc)
           .update(plan.toMap());
-      print(
+      debugPrint(
           "---------------> The updateEltlawahPlan in ((FirebaseService)) : Done");
     } catch (e) {
-      print(
+      debugPrint(
           "---------------> The Error in updateEltlawahPlan in ((FirebaseService)) : $e");
     }
   }
@@ -436,10 +417,10 @@ class FirebaseHelper {
           .collection("IslamicStudies")
           .doc(idDoc)
           .update(plan.toMap());
-      print(
+      debugPrint(
           "---------------> The updateIslamicStudyplan in ((FirebaseService)) : Done");
     } catch (e) {
-      print(
+      debugPrint(
           "---------------> The Error in updateIslamicStudyplan in ((FirebaseService)) : $e");
     }
   }
@@ -448,10 +429,10 @@ class FirebaseHelper {
   Future<void> deleteConservationPlan(String idDoc) async {
     try {
       await _firestore.collection("ConservationPlans").doc(idDoc).delete();
-      print(
+      debugPrint(
           "---------------> The deleteConservationPlan in ((FirebaseService)) : Done");
     } catch (e) {
-      print(
+      debugPrint(
           "---------------> The Error in deleteConservationPlan in ((FirebaseService)) : $e");
     }
   }
@@ -460,10 +441,10 @@ class FirebaseHelper {
   Future<void> deleteEltlawahPlan(String idDoc) async {
     try {
       await _firestore.collection("EltlawahPlans").doc(idDoc).delete();
-      print(
+      debugPrint(
           "---------------> The deleteEltlawahPlan in ((FirebaseService)) : Done");
     } catch (e) {
-      print(
+      debugPrint(
           "---------------> The Error in deleteEltlawahPlan in ((FirebaseService)) : $e");
     }
   }
@@ -472,10 +453,10 @@ class FirebaseHelper {
   Future<void> deleteIslamicStudyplan(String idDoc) async {
     try {
       await _firestore.collection("IslamicStudies").doc(idDoc).delete();
-      print(
+      debugPrint(
           "---------------> The deleteIslamicStudyplan in ((FirebaseService)) : Done");
     } catch (e) {
-      print(
+      debugPrint(
           "---------------> The Error in deleteIslamicStudyplan in ((FirebaseService)) : $e");
     }
   }
@@ -517,20 +498,22 @@ class FirebaseHelper {
           });
         }
 
-        print("---------------> تم تحديث بيانات الحضور في Firestore بنجاح");
+        debugPrint(
+            "---------------> تم تحديث بيانات الحضور في Firestore بنجاح");
       } else {
-        print(
+        debugPrint(
             "---------------> لم يتم العثور على الطالب في Firestore برقم: $studentID");
       }
     } catch (e) {
-      print("---------------> خطأ في تحديث بيانات الحضور في Firestore: $e");
+      debugPrint(
+          "---------------> خطأ في تحديث بيانات الحضور في Firestore: $e");
     }
   }
 
   Future<List<ConservationPlanModel>> getConservationPlans(
       String halagaId) async {
     try {
-      print(
+      debugPrint(
           "-------------------> Fetching conservation plans from Firestore for halaga: $halagaId");
 
       // جلب الخطط من مجموعة ConservationPlans حيث elhalagatId يساوي halagaId
@@ -539,7 +522,7 @@ class FirebaseHelper {
           .where('ElhalagatID', isEqualTo: halagaId)
           .get();
 
-      print(
+      debugPrint(
           "-------------------> Found ${querySnapshot.docs.length} conservation plans");
 
       // تحويل البيانات إلى نماذج ConservationPlanModel
@@ -563,10 +546,10 @@ class FirebaseHelper {
         );
       }).toList();
 
-      print("-------------------> Successfully converted plans to models");
+      debugPrint("-------------------> Successfully converted plans to models");
       return plans;
     } catch (e) {
-      print("-------------------> Error fetching conservation plans: $e");
+      debugPrint("-------------------> Error fetching conservation plans: $e");
       throw Exception('فشل في جلب خطط الحفظ: $e');
     }
   }
@@ -574,7 +557,7 @@ class FirebaseHelper {
   /// جلب خطط التلاوة من Firestore
   Future<List<EltlawahPlanModel>> getEltlawahPlans(String halagaId) async {
     try {
-      print(
+      debugPrint(
           "-------------------> جاري جلب خطط التلاوة من Firestore للحلقة: $halagaId");
 
       // جلب الخطط من مجموعة EltlawahPlans حيث elhalagatId يساوي halagaId
@@ -583,7 +566,7 @@ class FirebaseHelper {
           .where('ElhalagatID', isEqualTo: halagaId)
           .get();
 
-      print(
+      debugPrint(
           "-------------------> تم العثور على ${querySnapshot.docs.length} خطة تلاوة");
 
       // تحويل البيانات إلى نماذج EltlawahPlanModel
@@ -607,10 +590,10 @@ class FirebaseHelper {
         );
       }).toList();
 
-      print("-------------------> تم تحويل خطط التلاوة بنجاح");
+      debugPrint("-------------------> تم تحويل خطط التلاوة بنجاح");
       return plans;
     } catch (e) {
-      print("-------------------> خطأ في جلب خطط التلاوة: $e");
+      debugPrint("-------------------> خطأ في جلب خطط التلاوة: $e");
       throw Exception('فشل في جلب خطط التلاوة: $e');
     }
   }
@@ -619,7 +602,7 @@ class FirebaseHelper {
   Future<List<IslamicStudiesModel>> getIslamicStudyPlans(
       String halagaId) async {
     try {
-      print(
+      debugPrint(
           "-------------------> جاري جلب خطط العلوم الشرعية من Firestore للحلقة: $halagaId");
 
       // جلب الخطط من مجموعة IslamicStudies حيث elhalagatId يساوي halagaId
@@ -628,7 +611,7 @@ class FirebaseHelper {
           .where('ElhalagatID', isEqualTo: halagaId)
           .get();
 
-      print(
+      debugPrint(
           "-------------------> تم العثور على ${querySnapshot.docs.length} خطة علوم شرعية");
 
       // تحويل البيانات إلى نماذج IslamicStudiesModel
@@ -646,10 +629,10 @@ class FirebaseHelper {
         );
       }).toList();
 
-      print("-------------------> تم تحويل خطط العلوم الشرعية بنجاح");
+      debugPrint("-------------------> تم تحويل خطط العلوم الشرعية بنجاح");
       return plans;
     } catch (e) {
-      print("-------------------> خطأ في جلب خطط العلوم الشرعية: $e");
+      debugPrint("-------------------> خطأ في جلب خطط العلوم الشرعية: $e");
       throw Exception('فشل في جلب خطط العلوم الشرعية: $e');
     }
   }
@@ -659,7 +642,7 @@ class FirebaseHelper {
       final docRef = _firestore.collection(nameTable);
       docRef.doc(id).delete();
     } on Exception catch (e) {
-      print("Error in Firebase Delete : $e");
+      debugPrint("Error in Firebase Delete : $e");
     }
   }
 } // End of FirebaseHelper class

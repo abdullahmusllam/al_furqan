@@ -57,7 +57,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     });
 
     int? SchoolID = widget.user!.schoolID;
-    print("معرف المدرسة للطالب الجديد: $SchoolID");
+    debugPrint("معرف المدرسة للطالب الجديد: $SchoolID");
 
     // بيانات الطالب
     studentModel.firstName = firstNameController.text;
@@ -79,7 +79,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     fatherModel.password = '12345678'; //defualt Just for fathers
     fatherModel.roleID = 3; // 3 means fathers in display later
     fatherModel.schoolID = widget.user!.schoolID;
-    print("معرف المدرسة لولي الأمر: ${fatherModel.schoolID}");
+    debugPrint("معرف المدرسة لولي الأمر: ${fatherModel.schoolID}");
     fatherModel.isActivate = 0; // not actinates
     // fatherModel.isSync = 1;
 
@@ -87,14 +87,14 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       // أولاً: إضافة ولي الأمر
       // fatherModel.isSync = 0;
       fatherModel.user_id = await fathersController.addFather(fatherModel, 1);
-      print("تم إضافة ولي الأمر بمعرف: ${fatherModel.user_id}");
+      debugPrint("تم إضافة ولي الأمر بمعرف: ${fatherModel.user_id}");
 
       // ثانيًا: ربط الطالب بولي الأمر
       studentModel.userID = fatherModel.user_id;
       //  ثالثًا: إضافة الطالب إلى قاعدة البيانات المحلية والسحابية
       // int studentID =getMaxValue();
       String? studentID = await studentController.addStudent(studentModel, 1);
-      print("تم إضافة الطالب محليًا بمعرف: $studentID");
+      debugPrint("تم إضافة الطالب محليًا بمعرف: $studentID");
 
       // رابعًا: تحديث معرف الطالب في النموذج
       studentModel.studentID = studentID;
@@ -103,7 +103,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       // التحقق من وجود اتصال بالإنترنت باستخدام المكتبة الجديدة
       // bool hasConnection =
       //     await InternetConnectionChecker.createInstance().hasConnection;
-      // print("حالة الاتصال بالإنترنت: $hasConnection");
+      // debugPrint("حالة الاتصال بالإنترنت: $hasConnection");
 
       // if (!hasConnection) {
       //   if (mounted) {
@@ -130,14 +130,14 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       //     try {
       //       await studentController.addStudentToFirebase(
       //           studentModel, SchoolID);
-      //       print("تم إضافة الطالب إلى Firebase");
+      //       debugPrint("تم إضافة الطالب إلى Firebase");
       //       // أيضاً: إضافة ولي الأمر إلى Firebase
       //       fatherModel.isSync = 1;
       //
       //       await userController.addFatherToFirebase(fatherModel, SchoolID);
-      //       print("تم إضافة ولي الأمر إلى Firebase");
+      //       debugPrint("تم إضافة ولي الأمر إلى Firebase");
       //     } catch (firebaseError) {
-      //       print("خطأ في إضافة الطالب إلى Firebase: $firebaseError");
+      //       debugPrint("خطأ في إضافة الطالب إلى Firebase: $firebaseError");
       //       if (mounted) {
       //         ScaffoldMessenger.of(context).showSnackBar(
       //           SnackBar(
@@ -150,7 +150,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       //       }
       //     }
       //   } else {
-      //     print("تحذير: معرف المدرسة غير متوفر، لم يتم الإضافة إلى Firebase");
+      //     debugPrint("تحذير: معرف المدرسة غير متوفر، لم يتم الإضافة إلى Firebase");
       //   }
       // }
 
@@ -178,7 +178,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         Navigator.pop(context);
       }
     } catch (e) {
-      print("حدث خطأ أثناء إضافة الطالب: $e");
+      debugPrint("حدث خطأ أثناء إضافة الطالب: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

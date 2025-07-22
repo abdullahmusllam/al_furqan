@@ -345,7 +345,7 @@ class _SignupScreenState extends State<SignupScreen> {
           break;
       }
       _userModel.roleID = roleID;
-      print("_selectedSchoolId = $_selectedSchoolId");
+      debugPrint("_selectedSchoolId = $_selectedSchoolId");
       userController.addRequest(_userModel);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

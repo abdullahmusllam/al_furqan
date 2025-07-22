@@ -50,7 +50,6 @@ class _MainScreenState extends State<MainScreenD> {
 
   Future<void> load() async {
     if (await isConnected()) {
-
       final swTotal = Stopwatch()..start();
 
       final sw1 = Stopwatch()..start();
@@ -124,7 +123,7 @@ class _MainScreenState extends State<MainScreenD> {
 
   Future<void> loadStudents() async {
     int? schoolId = perf.getInt('schoolId');
-    print('===== schoolID ($schoolId) =====');
+    debugPrint('===== schoolID ($schoolId) =====');
     // تحميل الطلاب من فايربيس
     await studentController.addToLocalOfFirebase(schoolId!);
   }
@@ -133,11 +132,11 @@ class _MainScreenState extends State<MainScreenD> {
     try {
       final prefs = await SharedPreferences.getInstance();
       String? id = prefs.getString('user_id');
-      print('===== ($id) =====');
+      debugPrint('===== ($id) =====');
       // تحميل الرسائل من فايربيس
       await messageService.loadMessagesFromFirestore(id!);
     } catch (e) {
-      print('خطأ في تحميل البيانات: $e');
+      debugPrint('خطأ في تحميل البيانات: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -155,11 +154,11 @@ class _MainScreenState extends State<MainScreenD> {
     try {
       final prefs = await SharedPreferences.getInstance();
       int? schoolId = prefs.getInt('schoolId');
-      print('===== schoolID ($schoolId) =====');
+      debugPrint('===== schoolID ($schoolId) =====');
       // تحميل الحلقات من فايربيس
       await halagaController.getHalagatFromFirebaseByID(schoolId!, 'schoolID');
     } catch (e) {
-      print('خطأ في تحميل الحلقات: $e');
+      debugPrint('خطأ في تحميل الحلقات: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('خطأ في تحميل الحلقات'),
@@ -191,7 +190,7 @@ class _MainScreenState extends State<MainScreenD> {
 
       List<String> halagaIds = halagaController.halagatId;
       if (halagaIds.isEmpty) {
-        print('===== قائمة معرفات الحلقات فارغة =====');
+        debugPrint('===== قائمة معرفات الحلقات فارغة =====');
         return;
       }
 
@@ -199,7 +198,7 @@ class _MainScreenState extends State<MainScreenD> {
         await planController.getPlansFirebaseToLocal(halagaId);
       }
     } catch (e) {
-      print('خطأ في تحميل الخطط: $e');
+      debugPrint('خطأ في تحميل الخطط: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('خطأ في تحميل الخطط'),

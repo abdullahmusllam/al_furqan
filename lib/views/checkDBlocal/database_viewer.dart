@@ -2,7 +2,7 @@ import 'package:al_furqan/helper/sqldb.dart';
 import 'package:flutter/material.dart';
 
 class DatabaseViewerScreen extends StatefulWidget {
-  const DatabaseViewerScreen({Key? key}) : super(key: key);
+  const DatabaseViewerScreen({super.key});
 
   @override
   State<DatabaseViewerScreen> createState() => _DatabaseViewerScreenState();
@@ -29,24 +29,24 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
 
     try {
       final db = await sqlDb.database;
-      
+
       // استعلام لجلب جميع أسماء الجداول من قاعدة البيانات
       final result = await db.rawQuery(
         "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%'",
       );
-      
+
       setState(() {
         tables = result.map((row) => row['name'] as String).toList();
         isLoading = false;
       });
-      
-      print("تم تحميل ${tables.length} جدول من قاعدة البيانات");
+
+      debugPrint("تم تحميل ${tables.length} جدول من قاعدة البيانات");
     } catch (e) {
-      print("خطأ في تحميل الجداول: $e");
+      debugPrint("خطأ في تحميل الجداول: $e");
       setState(() {
         isLoading = false;
       });
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('فشل في تحميل الجداول: $e')),
       );
@@ -61,28 +61,29 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
 
     try {
       final db = await sqlDb.database;
-      
+
       // جلب معلومات عن أعمدة الجدول
       final pragmaResult = await db.rawQuery("PRAGMA table_info($tableName)");
-      final columnNames = pragmaResult.map((col) => col['name'] as String).toList();
-      
+      final columnNames =
+          pragmaResult.map((col) => col['name'] as String).toList();
+
       // جلب جميع البيانات من الجدول
       final data = await db.query(tableName);
-      
+
       setState(() {
         columns = columnNames;
         tableData = data;
         isLoading = false;
       });
-      
-      print("تم تحميل ${tableData.length} صف من جدول $tableName");
-      print("الأعمدة: $columns");
+
+      debugPrint("تم تحميل ${tableData.length} صف من جدول $tableName");
+      debugPrint("الأعمدة: $columns");
     } catch (e) {
-      print("خطأ في تحميل بيانات الجدول: $e");
+      debugPrint("خطأ في تحميل بيانات الجدول: $e");
       setState(() {
         isLoading = false;
       });
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('فشل في تحميل بيانات الجدول: $e')),
       );
@@ -93,7 +94,7 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
   Future<void> _deleteRow(Map<String, dynamic> row) async {
     // التحقق من وجود معرف أساسي للصف
     if (selectedTable == null) return;
-    
+
     // البحث عن العمود الذي يمكن استخدامه كمعرف أساسي
     String? primaryKeyColumn;
     for (var column in columns) {
@@ -102,14 +103,14 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
         break;
       }
     }
-    
+
     if (primaryKeyColumn == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('لا يمكن تحديد المعرف الأساسي للصف')),
       );
       return;
     }
-    
+
     final primaryKeyValue = row[primaryKeyColumn];
     if (primaryKeyValue == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -117,28 +118,30 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
       );
       return;
     }
-    
+
     // تأكيد الحذف
     bool confirmDelete = await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('تأكيد الحذف'),
-        content: Text('هل أنت متأكد من حذف هذا الصف؟ هذا الإجراء لا يمكن التراجع عنه.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('إلغاء'),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('تأكيد الحذف'),
+            content: Text(
+                'هل أنت متأكد من حذف هذا الصف؟ هذا الإجراء لا يمكن التراجع عنه.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('إلغاء'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text('حذف', style: TextStyle(color: Colors.red)),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text('حذف', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    ) ?? false;
-    
+        ) ??
+        false;
+
     if (!confirmDelete) return;
-    
+
     try {
       final db = await sqlDb.database;
       final result = await db.delete(
@@ -146,7 +149,7 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
         where: '$primaryKeyColumn = ?',
         whereArgs: [primaryKeyValue],
       );
-      
+
       if (result > 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('تم حذف الصف بنجاح')),
@@ -159,42 +162,44 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
         );
       }
     } catch (e) {
-      print('خطأ في حذف الصف: $e');
+      debugPrint('خطأ في حذف الصف: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('فشل في حذف الصف: $e')),
       );
     }
   }
-  
+
   // دالة لحذف جميع بيانات الجدول
   Future<void> _deleteAllTableData() async {
     if (selectedTable == null) return;
-    
+
     // تأكيد الحذف
     bool confirmDelete = await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('تأكيد حذف جميع البيانات'),
-        content: Text('هل أنت متأكد من حذف جميع بيانات الجدول "$selectedTable"؟ هذا الإجراء لا يمكن التراجع عنه.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('إلغاء'),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('تأكيد حذف جميع البيانات'),
+            content: Text(
+                'هل أنت متأكد من حذف جميع بيانات الجدول "$selectedTable"؟ هذا الإجراء لا يمكن التراجع عنه.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('إلغاء'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text('حذف الكل', style: TextStyle(color: Colors.red)),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text('حذف الكل', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    ) ?? false;
-    
+        ) ??
+        false;
+
     if (!confirmDelete) return;
-    
+
     try {
       final db = await sqlDb.database;
       final result = await db.delete(selectedTable!);
-      
+
       if (result >= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('تم حذف جميع بيانات الجدول بنجاح')),
@@ -207,7 +212,7 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
         );
       }
     } catch (e) {
-      print('خطأ في حذف بيانات الجدول: $e');
+      debugPrint('خطأ في حذف بيانات الجدول: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('فشل في حذف بيانات الجدول: $e')),
       );
@@ -220,7 +225,9 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
         title: Text(
-          selectedTable != null ? 'جدول: $selectedTable' : 'عارض قاعدة البيانات',
+          selectedTable != null
+              ? 'جدول: $selectedTable'
+              : 'عارض قاعدة البيانات',
           style: const TextStyle(color: Colors.white),
         ),
         centerTitle: true,
@@ -272,7 +279,7 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
         ),
       );
     }
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
@@ -298,7 +305,7 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
               ],
             ),
           ),
-          
+
           // قائمة الجداول
           Expanded(
             child: ListView.builder(
@@ -306,7 +313,8 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
               itemBuilder: (context, index) {
                 final tableName = tables[index];
                 return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
@@ -320,16 +328,20 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
                   ),
                   child: Card(
                     elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                     child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
                       leading: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withOpacity(0.1),
+                          color:
+                              Theme.of(context).primaryColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Icon(Icons.table_chart, color: Theme.of(context).primaryColor),
+                        child: Icon(Icons.table_chart,
+                            color: Theme.of(context).primaryColor),
                       ),
                       title: Text(
                         tableName,
@@ -342,7 +354,8 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
                         'انقر لعرض بيانات الجدول',
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
-                      trailing: Icon(Icons.arrow_forward_ios, color: Theme.of(context).primaryColor),
+                      trailing: Icon(Icons.arrow_forward_ios,
+                          color: Theme.of(context).primaryColor),
                       onTap: () => _loadTableData(tableName),
                     ),
                   ),
@@ -418,7 +431,8 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min, // استخدام الحد الأدنى من المساحة الرأسية
+        mainAxisSize:
+            MainAxisSize.min, // استخدام الحد الأدنى من المساحة الرأسية
         children: [
           // معلومات الجدول
           Container(
@@ -452,7 +466,7 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
               ],
             ),
           ),
-          
+
           // جدول البيانات
           Flexible(
             child: SingleChildScrollView(
@@ -460,87 +474,93 @@ class _DatabaseViewerScreenState extends State<DatabaseViewerScreen> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
-                headingRowColor: MaterialStateProperty.all(
-                  Theme.of(context).primaryColor.withOpacity(0.1),
-                ),
-                dataRowMinHeight: 60,
-                dataRowMaxHeight: 80,
-                columnSpacing: 20,
-                horizontalMargin: 16,
-                dividerThickness: 1,
-                border: TableBorder(
-                  horizontalInside: BorderSide(color: Colors.grey.shade300, width: 1),
-                ),
-                columns: dataColumns,
-                rows: tableData.map((row) {
-                  return DataRow(
-                    color: MaterialStateProperty.resolveWith<Color>(
-                      (Set<MaterialState> states) {
-                        // تلوين الصفوف بالتناوب
-                        return tableData.indexOf(row) % 2 == 0
-                            ? Colors.white
-                            : Colors.grey.shade50;
-                      },
-                    ),
-                    cells: [
-                      ...columns.map((column) {
-                        final value = row[column];
-                        // تنسيق خاص للقيم المختلفة
-                        Widget cellContent;
-                        if (value == null) {
-                          cellContent = Text(
-                            'null',
-                            style: TextStyle(color: Colors.grey[400], fontStyle: FontStyle.italic),
-                          );
-                        } else if (column.toLowerCase().contains('id')) {
-                          // تنسيق خاص للمعرفات
-                          cellContent = Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              value.toString(),
+                  headingRowColor: WidgetStateProperty.all(
+                    Theme.of(context).primaryColor.withOpacity(0.1),
+                  ),
+                  dataRowMinHeight: 60,
+                  dataRowMaxHeight: 80,
+                  columnSpacing: 20,
+                  horizontalMargin: 16,
+                  dividerThickness: 1,
+                  border: TableBorder(
+                    horizontalInside:
+                        BorderSide(color: Colors.grey.shade300, width: 1),
+                  ),
+                  columns: dataColumns,
+                  rows: tableData.map((row) {
+                    return DataRow(
+                      color: WidgetStateProperty.resolveWith<Color>(
+                        (Set<WidgetState> states) {
+                          // تلوين الصفوف بالتناوب
+                          return tableData.indexOf(row) % 2 == 0
+                              ? Colors.white
+                              : Colors.grey.shade50;
+                        },
+                      ),
+                      cells: [
+                        ...columns.map((column) {
+                          final value = row[column];
+                          // تنسيق خاص للقيم المختلفة
+                          Widget cellContent;
+                          if (value == null) {
+                            cellContent = Text(
+                              'null',
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).primaryColor,
+                                  color: Colors.grey[400],
+                                  fontStyle: FontStyle.italic),
+                            );
+                          } else if (column.toLowerCase().contains('id')) {
+                            // تنسيق خاص للمعرفات
+                            cellContent = Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .primaryColor
+                                    .withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4),
                               ),
+                              child: Text(
+                                value.toString(),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                            );
+                          } else {
+                            // تنسيق عام للقيم الأخرى
+                            cellContent = Text(
+                              value.toString(),
+                              style: const TextStyle(fontSize: 14),
+                            );
+                          }
+
+                          return DataCell(cellContent);
+                        }),
+                        // خلية الإجراءات (زر الحذف)
+                        DataCell(
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.delete, size: 18),
+                            label: const Text('حذف'),
+                            onPressed: () => _deleteRow(row),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red.shade50,
+                              foregroundColor: Colors.red,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
                             ),
-                          );
-                        } else {
-                          // تنسيق عام للقيم الأخرى
-                          cellContent = Text(
-                            value.toString(),
-                            style: const TextStyle(fontSize: 14),
-                          );
-                        }
-                        
-                        return DataCell(cellContent);
-                      }),
-                      // خلية الإجراءات (زر الحذف)
-                      DataCell(
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.delete, size: 18),
-                          label: const Text('حذف'),
-                          onPressed: () => _deleteRow(row),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red.shade50,
-                            foregroundColor: Colors.red,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                }).toList(),
+                      ],
+                    );
+                  }).toList(),
+                ),
               ),
             ),
           ),
-          ),
         ],
-      
       ),
     );
   }

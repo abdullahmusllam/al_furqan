@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 class ForgotPasswordScreen extends StatefulWidget {
+  const ForgotPasswordScreen({super.key});
+
   @override
   _ForgotPasswordScreenState createState() => _ForgotPasswordScreenState();
 }
@@ -15,7 +17,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _codeController = TextEditingController();
   bool _isCodeSent = false;
   bool _isLoading = false;
-  
+
   // Timer for verification code countdown
   Timer? _timer;
   int _countdownSeconds = 0;
@@ -34,10 +36,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         _isLoading = true;
       });
       try {
-          print(_phoneController.text);
-          print('=========================================');
-          await verificationService.verificationRequest(int.parse(_phoneController.text));
-        
+        debugPrint(_phoneController.text);
+        debugPrint('=========================================');
+        await verificationService
+            .verificationRequest(int.parse(_phoneController.text));
+
         setState(() {
           _isCodeSent = true;
         });
@@ -65,70 +68,69 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Future<void> _verifyCode() async {
-  if (_formKey.currentState!.validate()) {
-    setState(() {
-      _isLoading = true;
-    });
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
 
-    try {
-      // جلب الكود من Firestore ومقارنته
-      final code = _codeController.text.trim();
+      try {
+        // جلب الكود من Firestore ومقارنته
+        final code = _codeController.text.trim();
 
-      final snapshot = await FirebaseFirestore.instance
-          .collection('verification_codes')
-          .where('code', isEqualTo: code)
-          .where('used', isEqualTo: 0) // تأكد أنه لم يُستخدم
-          .get();
-
-      if (snapshot.docs.isNotEmpty) {
-        // ✅ الكود صحيح ولم يُستخدم
-        final docId = snapshot.docs.first.id;
-
-        // يمكنك هنا تحديث الحقل لجعل الكود مستعملاً
-        await FirebaseFirestore.instance
+        final snapshot = await FirebaseFirestore.instance
             .collection('verification_codes')
-            .doc(docId)
-            .update({'used': 1});
+            .where('code', isEqualTo: code)
+            .where('used', isEqualTo: 0) // تأكد أنه لم يُستخدم
+            .get();
 
+        if (snapshot.docs.isNotEmpty) {
+          // ✅ الكود صحيح ولم يُستخدم
+          final docId = snapshot.docs.first.id;
+
+          // يمكنك هنا تحديث الحقل لجعل الكود مستعملاً
+          await FirebaseFirestore.instance
+              .collection('verification_codes')
+              .doc(docId)
+              .update({'used': 1});
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('رمز التحقق صحيح، يمكنك تغيير كلمة المرور الآن'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+
+          // ✅ الانتقال لصفحة تغيير كلمة المرور
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChangePasswordScreen(), // ضع صفحتك هنا
+            ),
+          );
+        } else {
+          // ❌ الرمز غير صحيح أو مستعمل
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('رمز التحقق غير صحيح أو تم استخدامه'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('رمز التحقق صحيح، يمكنك تغيير كلمة المرور الآن'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-
-        // ✅ الانتقال لصفحة تغيير كلمة المرور
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChangePasswordScreen(), // ضع صفحتك هنا
-          ),
-        );
-      } else {
-        // ❌ الرمز غير صحيح أو مستعمل
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('رمز التحقق غير صحيح أو تم استخدامه'),
+            content: Text('حدث خطأ: ${e.toString()}'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
         );
+      } finally {
+        setState(() => _isLoading = false);
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('حدث خطأ: ${e.toString()}'),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } finally {
-      setState(() => _isLoading = false);
     }
   }
-}
-
 
   void _startCountdown() {
     _countdownSeconds = 60; // 1 minute countdown
@@ -191,7 +193,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     ),
                   ),
                   SizedBox(height: 32),
-                  
+
                   // Phone number field
                   TextFormField(
                     controller: _phoneController,
@@ -219,9 +221,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     },
                   ),
                   SizedBox(height: 20),
-                  
+
                   // Verification code field (only shown after code is sent)
-                  if (_isCodeSent) ...[                    
+                  if (_isCodeSent) ...[
                     TextFormField(
                       controller: _codeController,
                       decoration: InputDecoration(
@@ -243,7 +245,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       },
                     ),
                     SizedBox(height: 12),
-                    
+
                     // Resend code option with countdown
                     if (_countdownSeconds > 0)
                       Center(
@@ -261,9 +263,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         child: Text('إعادة إرسال رمز التحقق'),
                       ),
                   ],
-                  
+
                   SizedBox(height: 32),
-                  
+
                   // Submit button
                   SizedBox(
                     height: 50,
@@ -285,7 +287,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               elevation: 2,
                             ),
                             child: Text(
-                              _isCodeSent ? 'تحقق من الرمز' : 'إرسال رمز التحقق',
+                              _isCodeSent
+                                  ? 'تحقق من الرمز'
+                                  : 'إرسال رمز التحقق',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

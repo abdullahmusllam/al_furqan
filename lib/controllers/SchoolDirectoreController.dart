@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/login/login.dart';
+import 'package:flutter/material.dart';
 
 class SchoolDirectorController {
   final SqlDb _sqlDb = SqlDb();
@@ -33,7 +34,7 @@ class SchoolDirectorController {
       ));
     }
     // users.forEach((element) {
-    //   print(
+    //   debugPrint(
     //       "USER ID : ${element.user_id}\nUSER NAME : ${element.first_name}\nSCHOOL ID : ${element.schoolID}\n____________________________________________________________________________");
     // });
     log("${userData.isEmpty}");
@@ -46,7 +47,7 @@ class SchoolDirectorController {
     for (var i = 0; i < Data.length; i++) {
       schoolName = Data[i]['school_name'];
     }
-    print("school name: $schoolName");
+    debugPrint("school name: $schoolName");
     return schoolName;
   }
 }

@@ -71,13 +71,13 @@ class _HalagaPlansScreenState extends State<AddHalagaPlansScreen> {
       await planController.clearAllPlans(); // حذف البيانات القديمة
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('halagaID', halaga.halagaID!);
-      print("-----------------Add------------------------");
+      debugPrint("-----------------Add------------------------");
       List<String> studentsID =
           await planController.getAllStudentsHalaga(halaga.halagaID!);
-      print("-----> studentsID = $studentsID");
+      debugPrint("-----> studentsID = $studentsID");
 
       for (String item in studentsID) {
-        print("----------> Processing studentId: $item");
+        debugPrint("----------> Processing studentId: $item");
 
         // التحقق من صحة السور
         if (!isValidSurah(conservationStartSurahController.text) ||

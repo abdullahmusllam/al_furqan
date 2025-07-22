@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 
 class AttendanceScannerPage extends StatefulWidget {
-  const AttendanceScannerPage({Key? key}) : super(key: key);
+  const AttendanceScannerPage({super.key});
 
   @override
   State<AttendanceScannerPage> createState() => _AttendanceScannerPageState();
@@ -22,7 +22,8 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
   // وقت التحضير المسموح (تقدر تغيره براحتك)
   final int allowedStartHour = 7; // 7 صباحاً
   final int allowedEndHour = 8; // 8 صباحاً
-  final int lateMinuteThreshold = 30; // يعتبر متأخر بعد 30 دقيقة من بداية الدوام
+  final int lateMinuteThreshold =
+      30; // يعتبر متأخر بعد 30 دقيقة من بداية الدوام
 
   @override
   void initState() {
@@ -44,7 +45,7 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
       if (pendingTeacherName != null && pendingDate != null) {
         // تحقق مما إذا كان التاريخ المعلق هو نفس تاريخ اليوم
         String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-        
+
         // محاولة رفع التحضير المعلق مباشرة إلى Firebase
         if (pendingDate == today) {
           try {
@@ -60,14 +61,14 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
               'status': pendingStatus ?? "حاضر",
               'timestamp': FieldValue.serverTimestamp(),
             });
-            
+
             // تم الرفع بنجاح، نحذف البيانات المعلقة
             await prefs.remove('pending_attendance');
             await prefs.remove('pending_attendance_date');
             await prefs.remove('pending_attendance_status');
             await prefs.remove('pending_teacher_id');
             await prefs.remove('pending_school_id');
-            
+
             // تحديث حالة التحضير
             prefs.setString('last_attendance_date', today);
           } catch (e) {
@@ -91,18 +92,18 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       int? schoolId = prefs.getInt('schoolId');
-      DocumentSnapshot snapshot =
-          await FirebaseFirestore.instance
-              .collection('attendanceCodes') //  الكولكشن اللي طلبته
-              .doc(schoolId.toString()) //  الدوكمنت اللي طلبته
-              .get();
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('attendanceCodes') //  الكولكشن اللي طلبته
+          .doc(schoolId.toString()) //  الدوكمنت اللي طلبته
+          .get();
 
       if (snapshot.exists) {
         setState(() {
           _currentAttendanceCode = snapshot['code'];
         });
       } else {
-        _showDialog("خطأ", "⚠️ لم يتم العثور على اسم المعلم. يرجى التحقق من حسابك.");
+        _showDialog(
+            "خطأ", "⚠️ لم يتم العثور على اسم المعلم. يرجى التحقق من حسابك.");
       }
     } catch (e) {
       _showDialog("خطأ", "❌ حدث خطأ أثناء جلب كود الحضور: $e");
@@ -115,11 +116,11 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
       int? teacherId = prefs.getInt('user_id');
       int? schoolId = prefs.getInt('schoolId');
       String date = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      
+
       // تحديد حالة الحضور بناءً على الوقت
       String attendanceStatus = "حاضر";
       TimeOfDay now = TimeOfDay.now();
-      
+
       // إذا كان الوقت بعد الساعة 7:30 صباحاً يعتبر متأخراً
       // يمكنك تعديل هذه القيم حسب سياسة المدرسة
       // تم تعليق التحقق من الوقت للاختبار
@@ -162,7 +163,8 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
       });
     } catch (e) {
       await _savePendingAttendance(teacherName); //  حفظ مؤقت
-      _showDialog("لا يوجد اتصال", "❌ تم حفظ حضورك مؤقتًا وسيتم رفعه تلقائيًا عند توفر الإنترنت.");
+      _showDialog("لا يوجد اتصال",
+          "❌ تم حفظ حضورك مؤقتًا وسيتم رفعه تلقائيًا عند توفر الإنترنت.");
     }
   }
 
@@ -183,17 +185,18 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
         );
         return;
       } */
-      
+
       // استخراج كود الحضور من الرمز المقروء (الذي قد يحتوي على معرف المدرسة)
       String extractedCode = scannedCode;
       if (scannedCode.contains(':')) {
-        extractedCode = scannedCode.split(':')[0]; // أخذ الجزء قبل علامة ":" فقط
+        extractedCode =
+            scannedCode.split(':')[0]; // أخذ الجزء قبل علامة ":" فقط
       }
-      
-      print('===== $_currentAttendanceCode =====');
-      print('===== $scannedCode =====');
-      print('===== استخراج الكود: $extractedCode =====');
-      
+
+      debugPrint('===== $_currentAttendanceCode =====');
+      debugPrint('===== $scannedCode =====');
+      debugPrint('===== استخراج الكود: $extractedCode =====');
+
       if (_currentAttendanceCode == null) {
         _showDialog("خطأ", "⚠️ كود الحضور غير متوفر حالياً. حاول لاحقاً.");
         return;
@@ -219,7 +222,8 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
         _attendanceStatus = "حاضر";
 
         if (lastDate == today) {
-          _showDialog("تم تسجيل الحضور مسبقًا", "لقد قمت بتسجيل حضورك بالفعل اليوم! 👍");
+          _showDialog("تم تسجيل الحضور مسبقًا",
+              "لقد قمت بتسجيل حضورك بالفعل اليوم! 👍");
         } else {
           await _markAttendance(teacherName);
         }
@@ -237,11 +241,11 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
     int? teacherId = prefs.getInt('userId');
     int? schoolId = prefs.getInt('schoolId');
     String date = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    
+
     // تحديد حالة الحضور بناءً على الوقت
     String attendanceStatus = "حاضر";
     TimeOfDay now = TimeOfDay.now();
-    
+
     // إذا كان الوقت بعد الساعة 7:30 صباحاً، يعتبر متأخراً
     // تم تعليق التحقق من الوقت للاختبار
     /* if ((now.hour == allowedStartHour && now.minute > lateMinuteThreshold) || now.hour > allowedStartHour) {
@@ -256,7 +260,7 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
     await prefs.setString('pending_attendance_status', attendanceStatus);
     await prefs.setInt('pending_teacher_id', teacherId ?? 0);
     await prefs.setInt('pending_school_id', schoolId ?? 0);
-    
+
     try {
       // محاولة رفع البيانات مباشرة
       await FirebaseFirestore.instance
@@ -271,7 +275,7 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
         'status': attendanceStatus,
         'timestamp': FieldValue.serverTimestamp(),
       });
-      
+
       // تم التحضير بنجاح، نحذف البيانات من التخزين المحلي
       await prefs.remove('pending_attendance');
       await prefs.remove('pending_attendance_date');
@@ -302,27 +306,25 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
     }
   }
 
-
   void _showDialog(String title, String message) {
     showDialog(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            title: Text(title),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  setState(() {
-                    _scanned = false;
-                  });
-                  _controller.start();
-                },
-                child: const Text("موافق"),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              setState(() {
+                _scanned = false;
+              });
+              _controller.start();
+            },
+            child: const Text("موافق"),
           ),
+        ],
+      ),
     );
   }
 
@@ -343,97 +345,102 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
         backgroundColor: Color.fromARGB(255, 1, 117, 70),
         elevation: 0,
       ),
-      body:
-          _attendanceDone
-              ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        _attendanceStatus == "متأخر" ? Icons.access_time : Icons.check_circle_outline,
-                        size: 100,
-                        color: _attendanceStatus == "متأخر" ? Colors.orange : Colors.blueAccent,
+      body: _attendanceDone
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      _attendanceStatus == "متأخر"
+                          ? Icons.access_time
+                          : Icons.check_circle_outline,
+                      size: 100,
+                      color: _attendanceStatus == "متأخر"
+                          ? Colors.orange
+                          : Colors.blueAccent,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      _attendanceStatus == "متأخر"
+                          ? "تم تسجيل حضورك بنجاح (متأخر) ⏰"
+                          : "تم تسجيل حضورك بنجاح ✅",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: _attendanceStatus == "متأخر"
+                            ? Colors.orange
+                            : Colors.blueAccent,
                       ),
-                      const SizedBox(height: 20),
-                      Text(
-                        _attendanceStatus == "متأخر" 
-                            ? "تم تسجيل حضورك بنجاح (متأخر) ⏰" 
-                            : "تم تسجيل حضورك بنجاح ✅",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: _attendanceStatus == "متأخر" ? Colors.orange : Colors.blueAccent,
-                        ),
-                        textAlign: TextAlign.center,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      _teacherName,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black54,
                       ),
-                      const SizedBox(height: 10),
-                      Text(
-                        _teacherName,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black54,
+                    ),
+                    const SizedBox(height: 30),
+                    ElevatedButton.icon(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                          vertical: 14,
                         ),
-                      ),
-                      const SizedBox(height: 30),
-                      ElevatedButton.icon(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 30,
-                            vertical: 14,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                        ),
-                        icon: const Icon(Icons.arrow_back),
-                        label: const Text(
-                          "رجوع",
-                          style: TextStyle(fontSize: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
                         ),
                       ),
-                    ],
-                  ),
+                      icon: const Icon(Icons.arrow_back),
+                      label: const Text(
+                        "رجوع",
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  ],
                 ),
-              )
-              : Column(
-                children: <Widget>[
-                  const SizedBox(height: 20),
-                  const Text(
-                    '📷 امسح رمز QR لتسجيل الحضور ',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.blueAccent, width: 3),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.blueAccent.withOpacity(0.2),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: MobileScanner(
-                          controller: _controller,
-                          onDetect: _handleScan,
+              ),
+            )
+          : Column(
+              children: <Widget>[
+                const SizedBox(height: 20),
+                const Text(
+                  '📷 امسح رمز QR لتسجيل الحضور ',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.blueAccent, width: 3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blueAccent.withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
                         ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: MobileScanner(
+                        controller: _controller,
+                        onDetect: _handleScan,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
     );
   }
 }

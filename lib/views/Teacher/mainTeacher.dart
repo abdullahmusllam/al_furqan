@@ -33,13 +33,12 @@ class _TeacherDashboardState extends State<TeacherDashboard>
   List<EltlawahPlanModel>? eltlawahPlan;
   List<IslamicStudiesModel>? islamicPlan;
 
-
   // Future<void> _loadPlans() async {
   //   setState(() => _isLoading = true);
   //   try {
   //     await planController.getPlans(_teacherHalaga!.halagaID!);
   //     await studentController.getStudents(_teacherHalaga!.halagaID!);
-  //     print("------------------------->> planController.eltlawahPlans : ${ planController.eltlawahPlans.isEmpty}");
+  //     debugPrint("------------------------->> planController.eltlawahPlans : ${ planController.eltlawahPlans.isEmpty}");
   //     eltlawahPlan = await planController.eltlawahPlans;
   //     islamicPlan = await planController.islamicStudyPlans;
   //   } catch (e) {
@@ -55,20 +54,20 @@ class _TeacherDashboardState extends State<TeacherDashboard>
   // }
 
   Future<void> _loadTeacherHalaga() async {
-    print("MainTeacher - _loadTeacherHalaga started");
-    print(
+    debugPrint("MainTeacher - _loadTeacherHalaga started");
+    debugPrint(
         "MainTeacher - User data: ${user != null ? 'Available' : 'Not available'}");
 
     if (_isLoadingHalaga) {
-      print("MainTeacher - Already loading halaga data, skipping");
+      debugPrint("MainTeacher - Already loading halaga data, skipping");
       return;
     }
 
     if (user == null) {
-      print("MainTeacher - User is null, trying to load user data first");
+      debugPrint("MainTeacher - User is null, trying to load user data first");
       await fetchUserData(); // استدعاء دالة تحميل بيانات المستخدم أولاً
       if (user == null) {
-        print("MainTeacher - Still couldn't load user data");
+        debugPrint("MainTeacher - Still couldn't load user data");
         setState(() {
           _errorMessage = "فشل في تحميل بيانات المستخدم";
         });
@@ -76,10 +75,10 @@ class _TeacherDashboardState extends State<TeacherDashboard>
       }
     }
 
-    print("MainTeacher - User elhalagatID: ${user?.elhalagatID}");
+    debugPrint("MainTeacher - User elhalagatID: ${user?.elhalagatID}");
 
     if (user!.elhalagatID == null || user!.elhalagatID == 0) {
-      print("MainTeacher - User has no halaga assigned");
+      debugPrint("MainTeacher - User has no halaga assigned");
       setState(() {
         _errorMessage = "لم يتم تعيين حلقة للمعلم";
       });
@@ -91,27 +90,28 @@ class _TeacherDashboardState extends State<TeacherDashboard>
     });
 
     try {
-      print(
+      debugPrint(
           "MainTeacher - Fetching halaga details for ID: ${user!.elhalagatID}");
       // Get the teacher's halaga details using the halagaID (elhalagatID) from user data
       _teacherHalaga =
           await _halagaController.getHalqaDetails(user!.elhalagatID!);
 
-      print(
+      debugPrint(
           "MainTeacher - Halaga response: ${_teacherHalaga != null ? 'Found' : 'Not found'}");
 
       if (_teacherHalaga != null) {
-        print(
+        debugPrint(
             "MainTeacher - Fetched teacher's halaga: ${_teacherHalaga?.Name}, ID: ${_teacherHalaga?.halagaID}");
       } else {
-        print("MainTeacher - Halaga not found for ID: ${user!.elhalagatID}");
+        debugPrint(
+            "MainTeacher - Halaga not found for ID: ${user!.elhalagatID}");
         setState(() {
           _errorMessage =
               "لم يتم العثور على بيانات الحلقة رقم ${user!.elhalagatID}";
         });
       }
     } catch (e) {
-      print("MainTeacher - Error fetching teacher's halaga: $e");
+      debugPrint("MainTeacher - Error fetching teacher's halaga: $e");
       setState(() {
         _errorMessage = "خطأ أثناء جلب بيانات الحلقة: $e";
       });
@@ -369,7 +369,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
   Future<void> loadMessagesAndStudent() async {
     final prefs = await SharedPreferences.getInstance();
     String? Id = prefs.getString('user_id');
-    print('===== ($Id) =====');
+    debugPrint('===== ($Id) =====');
 
     // تحميل الرسائل من فايربيس
     await messageService.loadMessagesFromFirestore(Id!);
