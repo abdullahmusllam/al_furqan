@@ -1,4 +1,5 @@
 import 'package:al_furqan/models/provider/message_provider.dart';
+import 'package:al_furqan/models/provider/student_provider.dart';
 import 'package:al_furqan/views/splashScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +14,10 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   perf = await SharedPreferences.getInstance();
   runApp(MultiProvider(
-    providers: [ChangeNotifierProvider(create: (_) => MessageProvider())],
+    providers: [
+      ChangeNotifierProvider(create: (_) => MessageProvider()),
+      ChangeNotifierProvider(create: (_) => StudentProvider())
+    ],
     child: MyApp(),
   ));
 }

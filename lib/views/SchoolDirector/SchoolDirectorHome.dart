@@ -5,6 +5,8 @@ import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
+import 'package:al_furqan/main.dart';
+import 'package:al_furqan/models/provider/student_provider.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddHalaga.dart';
@@ -16,6 +18,7 @@ import 'package:al_furqan/views/SchoolDirector/teacher_management.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -35,7 +38,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   List<HalagaModel> _halaqatList = [];
   bool _isLoading = true;
   int _teacherCount = 0;
-  int _studentCount = 0;
+  // int _studentCount = 0;
   int _halqatCount = 0;
   int _unreadMessagesCount = 0;
 
@@ -54,7 +57,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     initializeDateFormatting('ar', null).then((_) {
       _loadData();
     });
-    loadMessages();
+    // loadMessages();
   }
 
   @override
@@ -125,9 +128,9 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   Future<void> _fetchCounts() async {
     try {
       if (user != null && user!.schoolID != null) {
-        List<StudentModel> studentsList =
-            await studentController.getSchoolStudents(user!.schoolID!);
-        _studentCount = studentsList.length;
+        // List<StudentModel> studentsList =
+        //     await studentController.getSchoolStudents(user!.schoolID!);
+        // _studentCount = studentsList.length;
 
         _teacherCount = teachers.length;
 
@@ -173,6 +176,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
             onPressed: () async {
               final prefs = await SharedPreferences.getInstance();
               await prefs.clear();
+              await perf.clear();
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) => LoginScreen()));
             },
@@ -377,15 +381,15 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               ),
             ),
             SizedBox(width: 12),
-            Expanded(
+            Selector<StudentProvider, int>(builder: (context, prov, child) => Expanded(
               child: _buildStatCard(
                 'الطلاب',
-                '$_studentCount',
+                '$prov',
                 Icons.school,
                 Colors.green.shade700,
                 Colors.green.shade100,
               ),
-            ),
+            ), selector: (context, S) => S.studentCount),
             SizedBox(width: 12),
             Expanded(
               child: _buildStatCard(
@@ -419,13 +423,15 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               ),
             ),
             SizedBox(height: 10),
-            SizedBox(
+            Selector<StudentProvider, Map<String, dynamic>>(selector: (_, S) => {
+              'StCount': S.studentCount
+            } ,builder: (context, prov, child) => SizedBox(
               height: 250,
-              child: _studentCount > 0 || _teacherCount > 0
+              child: prov['StCount'] > 0 || _teacherCount > 0
                   ? BarChart(
                       BarChartData(
                         alignment: BarChartAlignment.spaceAround,
-                        maxY: _studentCount > 0 ? _studentCount * 1.2 : 10,
+                        maxY: prov['StCount'] > 0 ? prov['StCount'] * 1.2 : 10,
                         barTouchData: BarTouchData(enabled: false),
                         titlesData: FlTitlesData(
                           show: true,
@@ -498,7 +504,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                             x: 1,
                             barRods: [
                               BarChartRodData(
-                                toY: _studentCount.toDouble(),
+                                toY: prov['StCount'].toDouble(),
                                 color: Colors.green.shade700,
                                 width: 25,
                                 borderRadius: BorderRadius.only(
@@ -531,7 +537,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                         textAlign: TextAlign.center,
                       ),
                     ),
-            ),
+            )),
           ],
         ),
       ),

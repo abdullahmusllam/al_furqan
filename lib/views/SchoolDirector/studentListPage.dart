@@ -5,6 +5,7 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
+import 'package:al_furqan/models/provider/student_provider.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/models/users_model.dart';
@@ -13,6 +14,7 @@ import 'package:al_furqan/views/SchoolDirector/AddStudent.dart';
 import 'package:al_furqan/views/SchoolDirector/updateStudent.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:provider/provider.dart';
 
 class StudentsListPage extends StatefulWidget {
   final UserModel? user;
@@ -34,6 +36,9 @@ class _StudentsListPageState extends State<StudentsListPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<StudentProvider>(context, listen: false).loadStudentFromFirebase();
+    });
     _loadStudent();
   }
 

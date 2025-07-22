@@ -122,7 +122,7 @@ class FathersController {
       List<Map<String, dynamic>> response =
           await _sqlDb.readData("""SELECT DISTINCT Users.* FROM Users 
            JOIN Students ON Users.user_id = Students.userID 
-           WHERE Students.ElhalagatID = $elhalagatID AND Users.roleID = 3""");
+           WHERE Students.ElhalagatID = '$elhalagatID' AND Users.roleID = 3""");
 
       log("Query result count: ${response.length}");
 
@@ -130,7 +130,7 @@ class FathersController {
         // محاولة استعلام بديل إذا كان الاستعلام الأول لا يعيد نتائج
         response = await _sqlDb.readData("""SELECT DISTINCT Users.* FROM Users 
              JOIN Students ON Users.user_id = Students.userID 
-             WHERE Students.ElhalagatID = $elhalagatID AND Users.roleID = 3""");
+             WHERE Students.ElhalagatID = '$elhalagatID' AND Users.roleID = 3""");
         debugPrint("Alternative query result count: ${response.length}");
       }
 

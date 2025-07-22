@@ -1,19 +1,21 @@
 import 'dart:developer';
 
+import 'package:al_furqan/models/provider/message_provider.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/shared/message_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class UsersScreen extends StatefulWidget {
   final UserModel currentUser;
-  final List<UserModel> availableParents;
-  final List<UserModel> availableTeachers;
+  // final List<UserModel> availableParents;
+  // final List<UserModel> availableTeachers;
 
   const UsersScreen({
     super.key,
     required this.currentUser,
-    required this.availableParents,
-    required this.availableTeachers,
+    // required this.availableParents,
+    // required this.availableTeachers,
   });
   @override
   _UsersScreenState createState() => _UsersScreenState();
@@ -25,14 +27,15 @@ class _UsersScreenState extends State<UsersScreen> {
   @override
   void initState() {
     super.initState();
+    var prov = Provider.of<MessageProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!hasDialogShown && widget.currentUser.roleID == 1) {
         hasDialogShown = true;
-        if (widget.availableTeachers.isEmpty) {
+        if (prov.teachers.isEmpty) {
           // عرض رسالة إذا القائمة فارغة
           showUserTypeDialog();
           showDialogNoUser(context, "معلمين");
-        } else if (widget.availableParents.isEmpty) {
+        } else if (prov.parents.isEmpty) {
           // عرض رسالة إذا القائمة فارغة
           showUserTypeDialog();
           showDialogNoUser(context, "أولياء الأمور");
@@ -43,7 +46,7 @@ class _UsersScreenState extends State<UsersScreen> {
       }
     });
     if (widget.currentUser.roleID != 1) {
-      displayedUsers = widget.availableParents
+      displayedUsers = prov.parents
           .where((user) => user.user_id != null && user.user_id != 0)
           .toList();
     }
@@ -61,32 +64,36 @@ class _UsersScreenState extends State<UsersScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                title: Text('مراسلة معلم',
-                    style: TextStyle(color: Colors.grey.shade700)),
-                onTap: () {
-                  Navigator.pop(context);
-                  setState(() {
-                    displayedUsers = widget.availableTeachers
-                        .where(
-                            (user) => user.user_id != null && user.user_id != 0)
-                        .toList();
-                  });
-                },
-              ),
-              ListTile(
-                title: Text('مراسلة ولي أمر',
-                    style: TextStyle(color: Colors.grey.shade700)),
-                onTap: () {
-                  Navigator.pop(context);
-                  setState(() {
-                    displayedUsers = widget.availableParents
-                        .where(
-                            (user) => user.user_id != null && user.user_id != 0)
-                        .toList();
-                  });
-                },
-              ),
+              Selector<MessageProvider, List<UserModel>>(
+                  selector: (context, S) => S.teachersList,
+                  builder: (context, prov, child) => ListTile(
+                        title: Text('مراسلة معلم',
+                            style: TextStyle(color: Colors.grey.shade700)),
+                        onTap: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            displayedUsers = prov
+                                .where((user) =>
+                                    user.user_id != null && user.user_id != 0)
+                                .toList();
+                          });
+                        },
+                      )),
+              Selector<MessageProvider, List<UserModel>>(
+                  builder: (context, prov, child) => ListTile(
+                        title: Text('مراسلة ولي أمر',
+                            style: TextStyle(color: Colors.grey.shade700)),
+                        onTap: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            displayedUsers = prov
+                                .where((user) =>
+                                    user.user_id != null && user.user_id != 0)
+                                .toList();
+                          });
+                        },
+                      ),
+                  selector: (_, S) => S.parentsList)
             ],
           ),
           actions: [

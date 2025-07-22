@@ -5,11 +5,14 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/plan_controller.dart';
 import 'package:al_furqan/main.dart';
+import 'package:al_furqan/models/provider/message_provider.dart';
+import 'package:al_furqan/models/provider/student_provider.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/models/halaga_model.dart'; // إضافة استيراد نموذج الحلقة
 import 'package:al_furqan/views/shared/Conversation_list.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../controllers/users_controller.dart';
@@ -40,7 +43,9 @@ class _MainScreenState extends State<MainScreenD> {
   @override
   void initState() {
     super.initState();
-    load();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      load();
+    });
   }
 
   Future<bool> isConnected() async {
@@ -49,6 +54,8 @@ class _MainScreenState extends State<MainScreenD> {
   }
 
   Future<void> load() async {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (_) => SchoolManagerScreen()));
     if (await isConnected()) {
       final swTotal = Stopwatch()..start();
 
@@ -71,7 +78,7 @@ class _MainScreenState extends State<MainScreenD> {
       log("Time Sync Students is : $timeSyncStudents ms");
 
       final sw4 = Stopwatch()..start();
-      await loadStudents();
+      await Provider.of<StudentProvider>(context, listen: false).loadStudents();
       sw4.stop();
       timeLoadStudents = sw4.elapsedMilliseconds;
       log("Time Load Students is : $timeLoadStudents ms");
@@ -90,7 +97,7 @@ class _MainScreenState extends State<MainScreenD> {
       log("Time Load Plans is : $timeLoadPlans ms");
 
       final sw7 = Stopwatch()..start();
-      await loadMessages();
+      await Provider.of<MessageProvider>(context, listen: false).loadMessages();
       sw7.stop();
       timeLoadMessages = sw7.elapsedMilliseconds;
       log("Time Load Messages is : $timeLoadMessages ms");
