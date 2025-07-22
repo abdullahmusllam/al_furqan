@@ -1,21 +1,21 @@
-import 'package:al_furqan/controllers/some_controller.dart';
+import 'dart:developer';
 import 'package:al_furqan/helper/sqldb.dart';
-import 'package:al_furqan/models/password_model.dart';
+// import 'package:al_furqan/models/password_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:al_furqan/services/verification_service.dart';
+import 'package:flutter/material.dart';
+// import 'package:al_furqan/services/verification_service.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:uuid/uuid.dart';
 
 class UserController {
-  final VerificationService _verificationService = VerificationService();
+  // final VerificationService _verificationService = VerificationService();
   final List<UserModel> _users = [];
   final List<UserModel> _requests = [];
   final SqlDb _sqlDb = SqlDb();
   var uuid = Uuid();
-  final FirebaseHelper _service = FirebaseHelper();
-  final PasswordResetModel _model = PasswordResetModel();
+  // final FirebaseHelper _service = FirebaseHelper();
+  // final PasswordResetModel _model = PasswordResetModel();
   // var db = sqlDb.database;
   Future<bool> isConnected() async {
     var conn = InternetConnectionChecker.createInstance().hasConnection;
@@ -71,7 +71,7 @@ class UserController {
         await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 1");
     _users.clear();
     _users.addAll(_mapResponseToUserModel(response));
-    print("Users List (Local): ${_users.isEmpty}");
+    log("Users List (Local): ${_users.isEmpty}");
   }
 
   Future<void> getDataRequests() async {
@@ -80,12 +80,12 @@ class UserController {
         await _sqlDb.readData("SELECT * FROM USERS WHERE isActivate = 0");
     _requests.clear();
     _requests.addAll(_mapResponseToUserModel(response));
-    print("_requests List (Local): ${_requests.isEmpty}");
+    log("_requests List (Local): ${_requests.isEmpty}");
   }
 
   // Method to add a new user
   Future<void> addUser(UserModel userModel, int type) async {
-    print("-------------> here add user");
+    debugPrint("-------------> here add user");
     final db = await sqlDb.database;
     if (type == 1) {
       // userModel.user_id = await someController.newId("Users", "user_id");
@@ -94,28 +94,28 @@ class UserController {
         userModel.isSync = 1;
         await firebasehelper.addUser(userModel);
         int response = await db.insert('Users', userModel.toMap());
-        print(
+        debugPrint(
             "------------> add to local is ${response == 1 ? 'Done Added To Local' : 'Failed'}");
-        print(
+        debugPrint(
             "------------>Sync is : ${userModel.isSync == 1 ? 'Done  Sync' : 'Failed  Sync'}");
       } else {
         userModel.isSync = 0;
         int response = await db.insert('Users', userModel.toMap());
-        print(
+        debugPrint(
             "------------> add to local is ${response == 1 ? 'Done Added To Local' : 'Failed Added To local'}\n"
             "------------> Sync is ${userModel.isSync == 0 ? 'Failed Sync' : 'Done'}");
       }
     } else {
       int response = await db.insert('Users', userModel.toMap());
-      print("------------$response---------------");
+      debugPrint("------------$response---------------");
     }
   }
 
   // Method to delete a user
   Future<void> deleteUser(String userId) async {
     int response =
-        await _sqlDb.deleteData("DELETE FROM USERS WHERE user_id = $userId");
-    print(response);
+        await _sqlDb.deleteData("DELETE FROM USERS WHERE user_id = '$userId'");
+    debugPrint("$response");
     await getDataUsers();
     // await firebasehelper.deleteUser(userId);
   }
@@ -126,15 +126,15 @@ class UserController {
       if (await isConnected()) {
         await firebasehelper.activateUser(userId);
         await _sqlDb.updateData('''
-    UPDATE USERS SET isActivate = 1, isSync = 1 WHERE user_id = $userId
+    UPDATE USERS SET isActivate = 1, isSync = 1 WHERE user_id = '$userId'
     ''');
         await getData();
       }
       await _sqlDb.updateData('''
-    UPDATE USERS SET isActivate = 1, isSync = 0 WHERE user_id = $userId
+    UPDATE USERS SET isActivate = 1, isSync = 0 WHERE user_id = '$userId'
     ''');
     } catch (e) {
-      print('========> Error in users controller activate user : $e');
+      debugPrint('========> Error in users controller activate user : $e');
     }
   }
 
@@ -174,10 +174,7 @@ class UserController {
         await InternetConnectionChecker.createInstance().hasConnection;
 
     if (connection) {
-      print("===== sssssss =====");
       List<UserModel> responseFirebase = await firebasehelper.getUsers();
-      // print("===== responseFirebase = $responseFirebase =====");
-
       for (var user in responseFirebase) {
         bool exists =
             await _sqlDb.checkIfitemExists2("Users", user.user_id!, "user_id");
@@ -188,7 +185,7 @@ class UserController {
         }
       }
     } else {
-      print("لا يوجد اتصال بالانترنت");
+      debugPrint("لا يوجد اتصال بالانترنت");
       await getDataUsers();
     }
   }
@@ -197,22 +194,19 @@ class UserController {
   Future<void> addFatherToFirebase(UserModel fatherData) async {
     // print("جاري إضافة ولي الأمر إلى Firebase - معرف المدرسة: $schoolID");
     // التحقق أولاً من وجود اتصال بالإنترنت
-    bool hasConnection =
-        await InternetConnectionChecker.createInstance().hasConnection;
-    // if (!hasConnection) {
-    //   print("لا يوجد اتصال بالإنترنت، لا يمكن إضافة ولي الأمر إلى Firebase");
-    //   return;
-    // }
+    // bool hasConnection =
+    //     await InternetConnectionChecker.createInstance().hasConnection;
+
     if (fatherData.user_id == null) {
-      print("تحذير: معرف ولي الأمر غير موجود (user_id = null)");
+      debugPrint("تحذير: معرف ولي الأمر غير موجود (user_id = null)");
       return; // لا يمكن الإضافة إلى Firebase بدون معرف
     }
     try {
       // إرسال البيانات إلى Firebase
       await firebasehelper.addRequest(fatherData);
-      print("تم إرسال بيانات ولي الأمر إلى Firebase بنجاح");
+      debugPrint("تم إرسال بيانات ولي الأمر إلى Firebase بنجاح");
     } catch (e) {
-      print("حدث خطأ أثناء إضافة ولي الأمر إلى Firebase: $e");
+      debugPrint("حدث خطأ أثناء إضافة ولي الأمر إلى Firebase: $e");
     }
   }
 }

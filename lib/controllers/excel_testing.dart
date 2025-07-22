@@ -46,7 +46,7 @@ class ExcelTesting {
             sheet.rows[0].map((cell) => cell!.value.toString().trim()).toList();
 
         // طباعة الأعمدة للتحقق
-        print("Headers: $headers");
+        debugPrint("Headers: $headers");
 
         for (int rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
           final row = sheet.rows[rowIndex];
@@ -66,12 +66,13 @@ class ExcelTesting {
           for (int colIndex = 0; colIndex < headers.length; colIndex++) {
             rowData[headers[colIndex]] =
                 row[colIndex]?.value?.toString().trim();
-            print("Column ${headers[colIndex]}: ${rowData[headers[colIndex]]}");
+            debugPrint(
+                "Column ${headers[colIndex]}: ${rowData[headers[colIndex]]}");
           }
 
           // التحقق من صحة الصف
           final validation = ExcelDataValidator.validateRow(rowData);
-          print("Finished--------------------------------");
+          debugPrint("Finished--------------------------------");
           if (!validation['isValid']) {
             errors.add({
               'row': rowData,
@@ -119,7 +120,7 @@ class ExcelTesting {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('حدث خطأ: $e')),
       );
-      print("-------------the error is $e");
+      debugPrint("-------------the error is $e");
     }
   }
 
@@ -160,7 +161,7 @@ class ExcelTesting {
         "firstName": firstName,
         "lastName": lastName,
       });
-      print("Student $firstName $lastName exists: $studentExists");
+      debugPrint("Student $firstName $lastName exists: $studentExists");
 
       if (!studentExists) {
         // إضافة الطالب إذا لم يكن موجودًا
@@ -168,12 +169,12 @@ class ExcelTesting {
             fathers[i], 1); // ربط الطالب بالأب
         await studentController.addStudent(students[i], 1);
         fathers[i].schoolID = students[i].schoolId;
-        print(
+        debugPrint(
             "-----------> Student [Father ID is : ${students[i].userID}]\nFahter [Father ID is : ${fathers[i].user_id}]");
         successfulInserts++;
       } else {
         // إذا كان الطالب موجودًا، تخطي الإضافة
-        print("Student $firstName $lastName already exists, skipping...");
+        debugPrint("Student $firstName $lastName already exists, skipping...");
       }
     }
 

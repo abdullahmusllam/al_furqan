@@ -1,18 +1,21 @@
+import 'dart:developer';
+
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/plan_controller.dart';
 import 'package:al_furqan/main.dart';
+import 'package:al_furqan/models/provider/message_provider.dart';
+import 'package:al_furqan/models/provider/student_provider.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/models/halaga_model.dart'; // إضافة استيراد نموذج الحلقة
 import 'package:al_furqan/views/shared/Conversation_list.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../controllers/users_controller.dart';
-import '../../helper/sqldb.dart';
-import '../../services/firebase_service.dart';
 import '../../services/message_sevice.dart';
 import '../../services/sync.dart';
 import 'SchoolDirectorHome.dart';
@@ -20,7 +23,7 @@ import 'SchoolDirectorHome.dart';
 class MainScreenD extends StatefulWidget {
   // final UserModel User;
 
-  const MainScreenD({Key? key}) : super(key: key);
+  const MainScreenD({super.key});
 
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -28,11 +31,21 @@ class MainScreenD extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreenD> {
   bool isLoading = true;
-
+  int? timeLoadTotal,
+      timeSyncUser,
+      timeSyncElhalagat,
+      timeSyncStudents,
+      timeLoadStudents,
+      timeLoadElhalagat,
+      timeLoadPlans,
+      timeLoadMessages,
+      timeLoadUsersFromFirebase;
   @override
   void initState() {
     super.initState();
-    load();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      load();
+    });
   }
 
   Future<bool> isConnected() async {
@@ -41,18 +54,65 @@ class _MainScreenState extends State<MainScreenD> {
   }
 
   Future<void> load() async {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (_) => SchoolManagerScreen()));
     if (await isConnected()) {
-      // await sync.syncUsers();
-      // await sync.syncElhalagat();
-      // await sync.syncStudents();
-      await loadStudents();
+      final swTotal = Stopwatch()..start();
+
+      final sw1 = Stopwatch()..start();
+      await sync.syncUsers();
+      sw1.stop();
+      timeSyncUser = sw1.elapsedMilliseconds;
+      log("Time Sync User is : $timeSyncUser ms");
+
+      final sw2 = Stopwatch()..start();
+      await sync.syncElhalagat();
+      sw2.stop();
+      timeSyncElhalagat = sw2.elapsedMilliseconds;
+      log("Time Sync Elhalagat is : $timeSyncElhalagat ms");
+
+      final sw3 = Stopwatch()..start();
+      await sync.syncStudents();
+      sw3.stop();
+      timeSyncStudents = sw3.elapsedMilliseconds;
+      log("Time Sync Students is : $timeSyncStudents ms");
+
+      final sw4 = Stopwatch()..start();
+      await Provider.of<StudentProvider>(context, listen: false).loadStudents();
+      sw4.stop();
+      timeLoadStudents = sw4.elapsedMilliseconds;
+      log("Time Load Students is : $timeLoadStudents ms");
+
+      final sw5 = Stopwatch()..start();
       await loadHalagat();
-      // await loadPlans();
-      // await loadMessages();
-      // await loadUsersFromFirebase();
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => SchoolManagerScreen()));
+
+      sw4.stop();
+      timeLoadElhalagat = sw5.elapsedMilliseconds;
+      log("Time Load Elhalagat is : $timeLoadElhalagat ms");
+
+      final sw6 = Stopwatch()..start();
+      await loadPlans();
+      sw6.stop();
+      timeLoadPlans = sw6.elapsedMilliseconds;
+      log("Time Load Plans is : $timeLoadPlans ms");
+
+      final sw7 = Stopwatch()..start();
+      await Provider.of<MessageProvider>(context, listen: false).loadMessages();
+      sw7.stop();
+      timeLoadMessages = sw7.elapsedMilliseconds;
+      log("Time Load Messages is : $timeLoadMessages ms");
+
+      final sw8 = Stopwatch()..start();
+      await loadUsersFromFirebase();
+      sw8.stop();
+      timeLoadUsersFromFirebase = sw8.elapsedMilliseconds;
+      log("Time Load Users From Firebase is : $timeLoadUsersFromFirebase ms");
+
+      swTotal.stop();
+      timeLoadTotal = swTotal.elapsedMilliseconds;
+      log("-----> Time Total For Load Data : $timeLoadTotal ms");
     } else {
+      if (!mounted) return;
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => SchoolManagerScreen()));
       ScaffoldMessenger.of(context).showSnackBar(
@@ -70,19 +130,21 @@ class _MainScreenState extends State<MainScreenD> {
 
   Future<void> loadStudents() async {
     int? schoolId = perf.getInt('schoolId');
-    print('===== schoolID ($schoolId) =====');
+    debugPrint('===== schoolID ($schoolId) =====');
     // تحميل الطلاب من فايربيس
     await studentController.addToLocalOfFirebase(schoolId!);
   }
 
   Future<void> loadMessages() async {
     try {
-      String? Id = perf.getString('user_id');
-      print('===== ($Id) =====');
+      final prefs = await SharedPreferences.getInstance();
+      String? id = prefs.getString('user_id');
+      debugPrint('===== ($id) =====');
       // تحميل الرسائل من فايربيس
-      await messageService.loadMessagesFromFirestore(Id!);
+      await messageService.loadMessagesFromFirestore(id!);
     } catch (e) {
-      print('خطأ في تحميل البيانات: $e');
+      debugPrint('خطأ في تحميل البيانات: $e');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('خطأ في تحميل البيانات'),
@@ -99,11 +161,11 @@ class _MainScreenState extends State<MainScreenD> {
     try {
       final prefs = await SharedPreferences.getInstance();
       int? schoolId = prefs.getInt('schoolId');
-      print('===== schoolID ($schoolId) =====');
+      debugPrint('===== schoolID ($schoolId) =====');
       // تحميل الحلقات من فايربيس
       await halagaController.getHalagatFromFirebaseByID(schoolId!, 'schoolID');
     } catch (e) {
-      print('خطأ في تحميل الحلقات: $e');
+      debugPrint('خطأ في تحميل الحلقات: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('خطأ في تحميل الحلقات'),
@@ -135,7 +197,7 @@ class _MainScreenState extends State<MainScreenD> {
 
       List<String> halagaIds = halagaController.halagatId;
       if (halagaIds.isEmpty) {
-        print('===== قائمة معرفات الحلقات فارغة =====');
+        debugPrint('===== قائمة معرفات الحلقات فارغة =====');
         return;
       }
 
@@ -143,7 +205,7 @@ class _MainScreenState extends State<MainScreenD> {
         await planController.getPlansFirebaseToLocal(halagaId);
       }
     } catch (e) {
-      print('خطأ في تحميل الخطط: $e');
+      debugPrint('خطأ في تحميل الخطط: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('خطأ في تحميل الخطط'),

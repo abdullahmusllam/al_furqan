@@ -6,9 +6,10 @@ import 'package:al_furqan/views/SchoolDirector/main_screenD.dart';
 import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
 import 'package:al_furqan/views/SchoolDirector/teacher_management.dart';
 import 'package:al_furqan/views/SchoolDirector/teachers_attendance_list.dart';
-import 'package:al_furqan/views/shared/main_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../shared/Conversation_list.dart';
 
 class DrawerSchoolDirector extends StatefulWidget {
   final UserModel? user;
@@ -30,7 +31,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
 
   Future<void> _loadSchoolName() async {
     if (widget.user?.schoolID == null) {
-      print("schoolID is null");
+      debugPrint("schoolID is null");
       if (mounted) {
         setState(() {
           _schoolName = 'غير متوفر';
@@ -50,7 +51,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
         });
       }
     } catch (e) {
-      print("Error loading school name: $e");
+      debugPrint("Error loading school name: $e");
       if (mounted) {
         setState(() {
           _schoolName = 'خطأ في الجلب';
@@ -129,7 +130,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     ),
                     SizedBox(height: 5),
                     _isLoading
-                        ? Container(
+                        ? SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
@@ -210,11 +211,11 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.of(context).push(CupertinoPageRoute(
-                          builder: (context) =>
-                              MainScreen(currentUser: widget.user!)));
+                          builder: (context) => ConversationsScreen(
+                                currentUser: widget.user!,
+                              )));
                     },
                   ),
-
                   // Student Management Section
                   _buildSectionTitle('إدارة الطلاب والحلقات'),
                   _buildMenuItem(

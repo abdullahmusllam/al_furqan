@@ -10,10 +10,10 @@ class ChatScreen extends StatefulWidget {
   final UserModel? selectedUser;
 
   const ChatScreen({
-    Key? key,
+    super.key,
     required this.currentUser,
     this.selectedUser,
-  }) : super(key: key);
+  });
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -42,7 +42,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // دالة لتحميل المحادثة بين المستخدم الحالي والمستخدم المختار
   Future<void> loadMessages() async {
     if (widget.selectedUser == null || widget.selectedUser!.user_id == null) {
-      print('خطأ: لا يوجد مستخدم مختار أو معرف المستخدم غير موجود');
+      debugPrint('خطأ: لا يوجد مستخدم مختار أو معرف المستخدم غير موجود');
       return;
     }
 
@@ -64,7 +64,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // دالة لتحميل الرسائل المرسلة إلى المستخدم الحالي فقط
   Future<void> loadReceivedMessages() async {
     if (widget.currentUser.user_id == null) {
-      print('خطأ: معرف المستخدم الحالي غير موجود');
+      debugPrint('خطأ: معرف المستخدم الحالي غير موجود');
       return;
     }
 
@@ -92,7 +92,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     if (widget.selectedUser == null || widget.selectedUser!.user_id == null) {
-      print('خطأ: لا يمكن إرسال رسالة بدون مستخدم مختار');
+      debugPrint('خطأ: لا يمكن إرسال رسالة بدون مستخدم مختار');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('خطأ: اختر مستخدمًا للمراسلة'),
@@ -122,7 +122,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       );
     } catch (e) {
-      print('خطأ في إرسال الرسالة: $e');
+      debugPrint('خطأ في إرسال الرسالة: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('فشل إرسال الرسالة'),
@@ -142,19 +142,20 @@ class _ChatScreenState extends State<ChatScreen> {
   // دالة لتعليم الرسائل كمقروءة
   Future<void> markMessagesAsRead() async {
     if (widget.currentUser.user_id == null) {
-      print('خطأ: معرف المستخدم الحالي غير موجود');
+      debugPrint('خطأ: معرف المستخدم الحالي غير موجود');
       return;
     }
 
     try {
       // تعليم جميع الرسائل الخاصة بالمستخدم الحالي كمقروءة
       await messageController.markMessagesAsRead(widget.currentUser.user_id!);
-      print('تم تعليم الرسائل كمقروءة');
+      debugPrint('تم تعليم الرسائل كمقروءة');
     } catch (e) {
-      print('خطأ في تعليم الرسائل كمقروءة: $e');
+      debugPrint('خطأ في تعليم الرسائل كمقروءة: $e');
     }
   }
 
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -173,7 +174,7 @@ class _ChatScreenState extends State<ChatScreen> {
         return DateFormat('HH:mm').format(dateTime);
       } else if (messageDate == today.subtract(Duration(days: 1))) {
         // إذا كانت الرسالة بالأمس
-        return 'أمس ' + DateFormat('HH:mm').format(dateTime);
+        return 'أمس ${DateFormat('HH:mm').format(dateTime)}';
       } else {
         // غير ذلك، أظهر التاريخ
         return DateFormat('yyyy/MM/dd HH:mm').format(dateTime);
@@ -197,6 +198,7 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: ListTile(
           title: Text(
+            textAlign: TextAlign.center,
             showReceivedMessages
                 ? 'الرسائل المستلمة'
                 : '${widget.selectedUser!.first_name} ${widget.selectedUser!.middle_name ?? ''} ${widget.selectedUser!.last_name}',
@@ -252,69 +254,6 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          // معلومات المستخدم في أعلى المحادثة
-          // if (!showReceivedMessages)
-          // Container(
-          //   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          //   color: Theme.of(context).primaryColor.withOpacity(0.1),
-          //   child: Row(
-          //     children: [
-          //       CircleAvatar(
-          //         radius: 24,
-          //         backgroundColor: widget.selectedUser!.roleID == 2
-          //             ? Colors.blue.shade100
-          //             : Colors.green.shade100,
-          //         child: Text(
-          //           widget.selectedUser!.first_name?[0] ?? '?',
-          //           style: TextStyle(
-          //             fontSize: 20,
-          //             fontWeight: FontWeight.bold,
-          //             color: widget.selectedUser!.roleID == 2
-          //                 ? Colors.blue.shade700
-          //                 : Colors.green.shade700,
-          //           ),
-          //         ),
-          //       ),
-          //       SizedBox(width: 16),
-          //       Expanded(
-          //         child: Column(
-          //           crossAxisAlignment: CrossAxisAlignment.start,
-          //           children: [
-          //             Text(
-          //               widget.selectedUser!.first_name ?? 'غير معروف',
-          //               style: TextStyle(
-          //                   fontSize: 18, fontWeight: FontWeight.bold),
-          //             ),
-          //             SizedBox(height: 4),
-          //             Container(
-          //               padding:
-          //                   EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          //               decoration: BoxDecoration(
-          //                 color: widget.selectedUser!.roleID == 2
-          //                     ? Colors.blue.shade50
-          //                     : Colors.green.shade50,
-          //                 borderRadius: BorderRadius.circular(12),
-          //               ),
-          //               child: Text(
-          //                 widget.selectedUser!.roleID == 1
-          //                     ? 'مدير'
-          //                     : widget.selectedUser!.roleID == 2
-          //                         ? 'معلم'
-          //                         : 'ولي أمر',
-          //                 style: TextStyle(
-          //                   fontSize: 12,
-          //                   color: widget.selectedUser!.roleID == 2
-          //                       ? Colors.blue.shade700
-          //                       : Colors.green.shade700,
-          //                 ),
-          //               ),
-          //             ),
-          //           ],
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
           // قائمة الرسائل
           Expanded(
             child: RefreshIndicator(

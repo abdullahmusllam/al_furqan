@@ -269,7 +269,7 @@ class _UserDetailsState extends State<UserDetails> {
 
                 // Save Button (only shown in edit mode)
                 if (_isEditable)
-                  Container(
+                  SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
@@ -400,7 +400,7 @@ class _UserDetailsState extends State<UserDetails> {
             radius: 40,
             backgroundColor: Colors.white,
             child: Text(
-              '${widget.user.first_name?[0] ?? ''}',
+              widget.user.first_name?[0] ?? '',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
@@ -544,7 +544,7 @@ class _UserDetailsState extends State<UserDetails> {
         ),
       );
     } catch (e) {
-      print("Error in _handleFormSubmission: $e");
+      debugPrint("Error in _handleFormSubmission: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(

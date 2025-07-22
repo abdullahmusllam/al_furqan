@@ -38,7 +38,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
 
   Future<void> _loadTeachers() async {
     if (widget.halga.SchoolID == null) {
-      print("SchoolID is null");
+      debugPrint("SchoolID is null");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('خطأ: معرف المدرسة غير متوفر')),
@@ -58,12 +58,11 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
           teachers = teacherController.teachers;
 
           // طلب معلم الحلقة الحالي
-          final String? currentTeacherName = widget.teacher;
-          if (currentTeacherName != null &&
-              currentTeacherName != 'لا يوجد معلم للحلقة') {
+          final String currentTeacherName = widget.teacher;
+          if (currentTeacherName != 'لا يوجد معلم للحلقة') {
             // البحث عن المعلم الحالي بالاسم
             final nameParts = currentTeacherName.trim().split(' ');
-            if (nameParts.length >= 1) {
+            if (nameParts.isNotEmpty) {
               final firstName = nameParts[0];
               final lastName = nameParts.length > 1 ? nameParts[1] : '';
 
@@ -107,7 +106,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
         });
       }
     } catch (e) {
-      print("Error loading teachers: $e");
+      debugPrint("Error loading teachers: $e");
       if (mounted) {
         setState(() => _isLoadingTeachers = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -119,7 +118,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
 
   Future<void> _loadStudents() async {
     if (widget.halga.halagaID == null) {
-      print("halagaID is null");
+      debugPrint("halagaID is null");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('خطأ: معرف الحلقة غير متوفر')),
@@ -138,7 +137,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
         });
       }
     } catch (e) {
-      print("Error loading students: $e");
+      debugPrint("Error loading students: $e");
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -168,7 +167,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
         );
       }
     } catch (e) {
-      print("Error removing student: $e");
+      debugPrint("Error removing student: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('فشل في إلغاء ارتباط الطالب: $e')),
@@ -196,8 +195,8 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
         setState(() => _isLoading = true);
 
         // تسجيل للتشخيص
-        print("بدء عملية تحديث الحلقة...");
-        print("معرف المعلم المحدد: $selectedTeacherId");
+        debugPrint("بدء عملية تحديث الحلقة...");
+        debugPrint("معرف المعلم المحدد: $selectedTeacherId");
         String idTeacher = selectedTeacherId!;
 
         // بناء نموذج الحلقة المحدثة
@@ -209,14 +208,14 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
         );
 
         // طباعة بيانات الحلقة المحدثة للتشخيص
-        print(
+        debugPrint(
             "الحلقة المحدثة - الاسم: ${updatedHalaga.Name}, ID: ${updatedHalaga.halagaID}");
 
         // استدعاء دالة تحديث الحلقة مع تسجيلمرير معرف المعلم المحدد
         await halagaController.updateHalaga(updatedHalaga, 1);
         await halagaController.updateTeacherAssignment(
             updatedHalaga.halagaID!, idTeacher);
-        print("تم تحديث الحلقة بنجاح");
+        debugPrint("تم تحديث الحلقة بنجاح");
 
         setState(() => _isLoading = false);
 
@@ -231,7 +230,7 @@ class _EditHalagaScreenState extends State<EditHalagaScreen> {
         }
       } catch (e) {
         setState(() => _isLoading = false);
-        print("خطأ في تحديث الحلقة: $e");
+        debugPrint("خطأ في تحديث الحلقة: $e");
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

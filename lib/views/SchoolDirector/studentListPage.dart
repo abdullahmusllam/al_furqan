@@ -1,7 +1,11 @@
 // ignore_for_file: file_names
+import 'dart:developer';
+
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
+import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
+import 'package:al_furqan/models/provider/student_provider.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/models/users_model.dart';
@@ -10,6 +14,7 @@ import 'package:al_furqan/views/SchoolDirector/AddStudent.dart';
 import 'package:al_furqan/views/SchoolDirector/updateStudent.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:provider/provider.dart';
 
 class StudentsListPage extends StatefulWidget {
   final UserModel? user;
@@ -23,6 +28,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
   final sqlDb = SqlDb();
   final halagaController = HalagaController();
   List<StudentModel> students = [];
+  List<UserModel> fathers = [];
   Map<String?, String> halaqaNames = {}; // To store halaqat names by ID
   List<HalagaModel> halaqat = [];
   bool isLoading = false;
@@ -30,88 +36,136 @@ class _StudentsListPageState extends State<StudentsListPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<StudentProvider>(context, listen: false).loadStudentFromFirebase();
+    });
     _loadStudent();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  /// تتحقق من اتصال بالانترنت
   Future<bool> checkInternet() async {
     bool hasInternet = await InternetConnectionChecker().hasConnection;
     return hasInternet;
   }
 
+  /// تحمل آباء الطلاب
+  Future<void> _loadFathersStudents() async {
+    List<UserModel> temp = [];
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+    debugPrint("==> بداية تحميل آباء الطلاب <==");
+    for (var i = 0; i < students.length; i++) {
+      if (students[i].userID != null) {
+        final dad = await fathersController.getFatherByID(students[i].userID!);
+        temp.add(dad);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.red,
+            content: Text(
+              "المصفوفة فارغة أو معرف الطالب غير موجود!",
+            ),
+          ),
+        );
+      }
+    }
+    if (mounted) {
+      setState(() {
+        fathers = temp;
+        isLoading = false;
+      });
+    }
+    log(">>> Fathers length: ${fathers.length}");
+    for (var i = 0; i < fathers.length; i++) {
+      log("father[$i].userID = ${fathers[i].user_id}");
+    }
+  }
+
+  /// تحمل اسم الحلقة
   Future<void> _loadHalaqaNames(int schoolID) async {
     try {
       halaqat = await halagaController.getData(schoolID);
-      print("تم جلب ${halaqat.length} حلقة من المدرسة $schoolID");
-
+      debugPrint("تم جلب ${halaqat.length} حلقة من المدرسة $schoolID");
       Map<String?, String> names = {};
-
       for (var halqa in halaqat) {
         if (halqa.halagaID != null) {
           names[halqa.halagaID] = halqa.Name ?? 'حلقة بدون اسم';
-          print("إضافة حلقة: ${halqa.halagaID} -> ${halqa.Name}");
+          debugPrint("إضافة حلقة: ${halqa.halagaID} -> ${halqa.Name}");
         }
       }
-
       if (mounted) {
         setState(() {
           halaqaNames = names;
         });
       }
-
-      print("تم تحميل ${halaqaNames.length} حلقة في القاموس");
+      debugPrint("تم تحميل ${halaqaNames.length} حلقة في القاموس");
     } catch (e) {
-      print("خطأ في تحميل أسماء الحلقات: $e");
+      debugPrint("خطأ في تحميل أسماء الحلقات: $e");
     }
   }
 
+  /* تحمل الحلقات المرتبطة بالطالب */
   Future<void> _loadHalaqat(String halagaID) async {
     halaqat = await halagaController.getHalagaByHalagaID(halagaID);
   }
 
+  // تحمل الطلاب من باستخدام معرف المدرسة
   Future<void> _loadStudent() async {
     if (mounted) {
       setState(() {
         isLoading = true;
       });
     }
-
-    print("=== بداية تحميل بيانات الطلاب ===");
+    debugPrint("=== بداية تحميل بيانات الطلاب ===");
     int schoolID = widget.user!.schoolID!;
-    print("معرف المدرسة: $schoolID");
-
+    debugPrint("معرف المدرسة: $schoolID");
     // تحميل أسماء الحلقات أولاً
     await _loadHalaqaNames(schoolID);
     // تحميل البيانات من القاعدة المحلية فقط
-    print("جاري تحميل البيانات من قاعدة البيانات المحلية...");
+    debugPrint("جاري تحميل البيانات من قاعدة البيانات المحلية...");
     List<StudentModel>? loadedStudent =
         await studentController.getSchoolStudents(schoolID);
-    print(
+    debugPrint(
         "تم تحميل ${loadedStudent.length ?? 0} طالب من قاعدة البيانات المحلية");
-
     if (mounted) {
       setState(() {
-        students = loadedStudent ?? [];
+        students = loadedStudent;
+        log("student [father ID :\n ${loadedStudent.map((e) => e.userID).join('\n ')}]");
+
         isLoading = false;
-        print("تم تحديث واجهة المستخدم بـ ${students.length} طالب");
+        debugPrint("تم تحديث واجهة المستخدم بـ ${students.length} طالب");
       });
     }
-    print("=== انتهاء تحميل بيانات الطلاب ===");
+    debugPrint("=== انتهاء تحميل بيانات الطلاب ===");
+
+    await _loadFathersStudents();
   }
 
-  String getHalaqaName(String? halaqaId) {
-    if (halaqaId == null) {
-      print("الطالب بدون حلقة (معرف الحلقة: null)");
-      return 'بدون حلقة';
-    }
-    String halaqaName = halaqaNames[halaqaId] ?? 'بدون حلقة';
-    print(
-        "معرف الحلقة: $halaqaId، اسم الحلقة: $halaqaName، القاموس يحتوي على: ${halaqaNames.keys.toList()}");
-
-    return halaqaName;
-  }
+  // String getHalaqaName(String? halaqaId) {
+  //   if (halaqaId == null) {
+  //     debugPrint("الطالب بدون حلقة (معرف الحلقة: null)");
+  //     return 'بدون حلقة';
+  //   }
+  //   String halaqaName = halaqaNames[halaqaId] ?? 'بدون حلقة';
+  //   debugPrint(
+  //       "معرف الحلقة: $halaqaId، اسم الحلقة: $halaqaName، القاموس يحتوي على: ${halaqaNames.keys.toList()}");
+  //   return halaqaName;
+  // }
 
   @override
   Widget build(BuildContext context) {
+    // if (isLoading || fathers.length < students.length) {
+    //   return Center(child: CircularProgressIndicator());
+    // }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -126,7 +180,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
               icon: Icon(Icons.refresh, color: Colors.white))
         ],
       ),
-      body: isLoading
+      body: isLoading || fathers.length < students.length
           ? Center(child: CircularProgressIndicator(color: Colors.teal))
           : Column(
               children: [
@@ -158,6 +212,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
                           itemCount: students.length,
                           itemBuilder: (context, index) {
                             final student = students[index];
+                            final father = fathers[index];
                             // final halaqaName =
                             //     getHalaqaName(student.elhalaqaID);
 
@@ -236,9 +291,12 @@ class _StudentsListPageState extends State<StudentsListPage> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (context) =>
-                                                  EditStudentScreen(
-                                                      student: student)),
+                                            builder: (context) =>
+                                                EditStudentScreen(
+                                              student: student,
+                                              father: father,
+                                            ),
+                                          ),
                                         ).then((_) => _loadStudent());
                                       },
                                     ),
@@ -309,8 +367,11 @@ class _StudentsListPageState extends State<StudentsListPage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => EditStudentScreen(
-                                            student: student)),
+                                      builder: (context) => EditStudentScreen(
+                                        student: student,
+                                        father: father,
+                                      ),
+                                    ),
                                   ).then((_) => _loadStudent());
                                 },
                               ),

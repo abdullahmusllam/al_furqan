@@ -1,8 +1,12 @@
+import 'dart:developer';
+
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
+import 'package:al_furqan/main.dart';
+import 'package:al_furqan/models/provider/student_provider.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddHalaga.dart';
@@ -14,6 +18,7 @@ import 'package:al_furqan/views/SchoolDirector/teacher_management.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -33,9 +38,15 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   List<HalagaModel> _halaqatList = [];
   bool _isLoading = true;
   int _teacherCount = 0;
-  int _studentCount = 0;
+  // int _studentCount = 0;
   int _halqatCount = 0;
   int _unreadMessagesCount = 0;
+
+  // متغيّرات جديدة لحفظ الأوقات بالميلي ثانية
+  int _elapsedTotal = 0;
+  int _elapsedUserData = 0;
+  int _elapsedCounts = 0;
+  int _elapsedHalagat = 0;
 
   @override
   void initState() {
@@ -46,7 +57,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     initializeDateFormatting('ar', null).then((_) {
       _loadData();
     });
-    loadMessages();
+    // loadMessages();
   }
 
   @override
@@ -75,25 +86,41 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     final prefs = await SharedPreferences.getInstance();
     String? Id = prefs.getString('user_id');
     if (Id != null) {
-      print("User ID ==============> $Id");
+      debugPrint("User ID ==============> $Id");
       _unreadMessagesCount = await messageController.getUnreadMessagesCount(Id);
       setState(() {}); // تحديث واجهة المستخدم
     }
   }
 
   Future<void> _loadData() async {
+    // Start calc Time
+    final swTotal = Stopwatch()..start();
     if (mounted) {
       setState(() => _isLoading = true);
     }
     try {
+      final sw1 = Stopwatch()..start();
       await fetchUserData();
+      sw1.stop();
+      _elapsedUserData = sw1.elapsedMilliseconds;
+
+      final sw2 = Stopwatch()..start();
       await _fetchCounts();
+      sw2.stop();
+      _elapsedCounts = sw2.elapsedMilliseconds;
       // No longer calling _generateRecentActivities() as it's not needed
     } catch (e) {
-      print('Error loading data: $e');
+      debugPrint('Error loading data: $e');
     } finally {
+      swTotal.stop();
+      _elapsedTotal = swTotal.elapsedMilliseconds;
       if (mounted) {
         setState(() => _isLoading = false);
+        // أضف طباعة وقت التحميل في الـ log
+        log('⏱️ Total loadData: $_elapsedTotal ms');
+        log('- fetchUserData: $_elapsedUserData ms');
+        log('- _fetchCounts: $_elapsedCounts ms');
+        log('- getHalagatFromFirebase: $_elapsedHalagat ms');
       }
     }
   }
@@ -101,9 +128,9 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   Future<void> _fetchCounts() async {
     try {
       if (user != null && user!.schoolID != null) {
-        List<StudentModel> studentsList =
-            await studentController.getSchoolStudents(user!.schoolID!);
-        _studentCount = studentsList.length;
+        // List<StudentModel> studentsList =
+        //     await studentController.getSchoolStudents(user!.schoolID!);
+        // _studentCount = studentsList.length;
 
         _teacherCount = teachers.length;
 
@@ -111,7 +138,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
         _halqatCount = _halaqatList.length;
       }
     } catch (e) {
-      print('Error fetching counts: $e');
+      debugPrint('Error fetching counts: $e');
     }
   }
 
@@ -136,7 +163,10 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
           IconButton(
             onPressed: () {
               _loadData();
+              final sw3 = Stopwatch()..start();
               halagaController.getHalagatFromFirebase();
+              sw3.stop();
+              _elapsedHalagat = sw3.elapsedMilliseconds;
               updateNotificationCount(); // تحديث عدد الإشعارات عند الضغط على زر التحديث
             },
             icon: Icon(Icons.refresh, color: Colors.white),
@@ -146,6 +176,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
             onPressed: () async {
               final prefs = await SharedPreferences.getInstance();
               await prefs.clear();
+              await perf.clear();
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) => LoginScreen()));
             },
@@ -350,15 +381,15 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               ),
             ),
             SizedBox(width: 12),
-            Expanded(
+            Selector<StudentProvider, int>(builder: (context, prov, child) => Expanded(
               child: _buildStatCard(
                 'الطلاب',
-                '$_studentCount',
+                '$prov',
                 Icons.school,
                 Colors.green.shade700,
                 Colors.green.shade100,
               ),
-            ),
+            ), selector: (context, S) => S.studentCount),
             SizedBox(width: 12),
             Expanded(
               child: _buildStatCard(
@@ -392,13 +423,15 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               ),
             ),
             SizedBox(height: 10),
-            SizedBox(
+            Selector<StudentProvider, Map<String, dynamic>>(selector: (_, S) => {
+              'StCount': S.studentCount
+            } ,builder: (context, prov, child) => SizedBox(
               height: 250,
-              child: _studentCount > 0 || _teacherCount > 0
+              child: prov['StCount'] > 0 || _teacherCount > 0
                   ? BarChart(
                       BarChartData(
                         alignment: BarChartAlignment.spaceAround,
-                        maxY: _studentCount > 0 ? _studentCount * 1.2 : 10,
+                        maxY: prov['StCount'] > 0 ? prov['StCount'] * 1.2 : 10,
                         barTouchData: BarTouchData(enabled: false),
                         titlesData: FlTitlesData(
                           show: true,
@@ -471,7 +504,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                             x: 1,
                             barRods: [
                               BarChartRodData(
-                                toY: _studentCount.toDouble(),
+                                toY: prov['StCount'].toDouble(),
                                 color: Colors.green.shade700,
                                 width: 25,
                                 borderRadius: BorderRadius.only(
@@ -504,7 +537,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                         textAlign: TextAlign.center,
                       ),
                     ),
-            ),
+            )),
           ],
         ),
       ),

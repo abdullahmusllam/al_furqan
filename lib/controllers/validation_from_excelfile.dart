@@ -1,14 +1,16 @@
+import 'package:flutter/material.dart';
+
 class ExcelDataValidator {
   // تحويل الأرقام العربية إلى إنجليزية
   static String _convertArabicNumbers(String input) {
-    print("-----------------input is : $input, lengeth : ${input.length}");
+    debugPrint("-----------------input is : $input, lengeth : ${input.length}");
     const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
     const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     for (int i = 0; i < arabic.length; i++) {
       input = input.replaceAll(arabic[i], english[i]);
     }
-    print("-----------------input is : $input, lengeth : ${input.length}");
-    print("num Ar : $arabic");
+    debugPrint("-----------------input is : $input, lengeth : ${input.length}");
+    debugPrint("num Ar : $arabic");
     return input;
   }
 
@@ -28,7 +30,7 @@ class ExcelDataValidator {
 
     // التحقق من الحقول المطلوبة
     for (final field in requiredFields) {
-      print(
+      debugPrint(
           "-------------------------------------------------------------this's row $field : ${row[field]}");
       final value = row[field]?.toString().trim() ?? '';
       if (value.isEmpty) {
@@ -43,7 +45,7 @@ class ExcelDataValidator {
     } else {
       validated['email'] = email;
     }
-    print("-------------number phone filed: ${row['رقم الجوال']}");
+    debugPrint("-------------number phone filed: ${row['رقم الجوال']}");
     // التحقق من رقم الجوال
     final phone =
         _convertArabicNumbers(row['رقم الجوال']?.toString().trim() ?? '');
@@ -52,7 +54,7 @@ class ExcelDataValidator {
     } else {
       validated['phone'] = int.parse(phone);
     }
-    print(
+    debugPrint(
         "------بلابلا-------number Telephone filed: ${row['رقم الهاتف'].toString()}");
 
     // التحقق من رقم الهاتف

@@ -2,6 +2,7 @@ import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/controllers/some_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import '../models/messages_model.dart';
 
@@ -14,36 +15,45 @@ class FirebaseHelper {
     return conn;
   }
 
-  Future<void> loadMessagesFromFirestore(String receiverId) async {
+  Future<void> loadMessagesFromFirestore(String userId) async {
     try {
-      // جلب الرسائل من Firestore بناءً على receiverId
-      QuerySnapshot snapshot = await FirebaseFirestore.instance
+      // استعلام الرسائل التي أرسلها المستخدم
+      QuerySnapshot sentMessagesSnapshot = await FirebaseFirestore.instance
           .collection('messages')
-          .where('receiverId', isEqualTo: receiverId)
+          .where('senderId', isEqualTo: userId)
           .get();
 
-      if (snapshot.docs.isEmpty) {
-        print('============ فااااااارغ ============');
+      // استعلام الرسائل التي استلمها المستخدم
+      QuerySnapshot receivedMessagesSnapshot = await FirebaseFirestore.instance
+          .collection('messages')
+          .where('receiverId', isEqualTo: userId)
+          .get();
+
+      List<QueryDocumentSnapshot> allDocs = [
+        ...sentMessagesSnapshot.docs,
+        ...receivedMessagesSnapshot.docs
+      ];
+
+      if (allDocs.isEmpty) {
+        debugPrint('📭 لا توجد رسائل لهذا المستخدم');
       }
 
-      // حفظ الرسائل في قاعدة البيانات المحلية وتحويلها
-      for (var doc in snapshot.docs) {
+      for (var doc in allDocs) {
         Message message = Message.fromMap(doc.data() as Map<String, dynamic>);
 
         bool exists =
             await sqlDb.checkIfitemExists('messages', message.id!, 'id');
-        print('================== 1');
 
         if (exists) {
           await messageService.updateMessage(message, 0);
-          print('===== Find message (update) =====');
+          debugPrint('🟡 تم تحديث الرسالة (${message.id})');
         } else {
           await messageService.saveMessage(message, 0);
-          print('===== Find message (add) =====');
+          debugPrint('🟢 تم إضافة الرسالة (${message.id})');
         }
       }
     } catch (e) {
-      print('خطأ في جلب الرسائل من Firestore: $e');
+      debugPrint('❌ خطأ في جلب الرسائل من Firestore: $e');
     }
   }
 
@@ -62,12 +72,12 @@ class FirebaseHelper {
         // Save to local with sync = 0
         message.sync = 0;
         await messageController.saveMessage(message);
-        print('===== تم الاضافة لكن محليا =====');
+        debugPrint('===== تم الاضافة لكن محليا =====');
       }
     } else {
       await messageController.saveMessage(message);
     }
-    print('===== تم اضافة المحادثة بنجاح =====');
+    debugPrint('===== تم اضافة المحادثة بنجاح =====');
   }
 
   // Delete message from Firebase and local
@@ -90,7 +100,7 @@ class FirebaseHelper {
       } else {
         message.sync = 0;
         await messageController.updateMessage(message);
-        print('===== تم التعديل محليا =====');
+        debugPrint('===== تم التعديل محليا =====');
       }
     } else {
       await messageController.updateMessage(message);
@@ -118,10 +128,10 @@ class FirebaseHelper {
           updatedCount++;
         }
 
-        print('تم تحديث حالة قراءة $updatedCount رسالة في الفايربيس');
+        debugPrint('تم تحديث حالة قراءة $updatedCount رسالة في الفايربيس');
       }
     } catch (e) {
-      print('خطأ في تحديث حالة قراءة الرسائل في الفايربيس: $e');
+      debugPrint('خطأ في تحديث حالة قراءة الرسائل في الفايربيس: $e');
     }
   }
 }

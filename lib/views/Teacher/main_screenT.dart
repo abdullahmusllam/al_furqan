@@ -15,7 +15,7 @@ import '../../services/message_sevice.dart';
 import '../../services/sync.dart';
 
 class MainScreenT extends StatefulWidget {
-  const MainScreenT({Key? key}) : super(key: key);
+  const MainScreenT({super.key});
 
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -26,7 +26,7 @@ class _MainScreenState extends State<MainScreenT> {
 
   @override
   void initState() {
-    super.initState();
+    super.initState() ;
     load();
   }
 
@@ -65,11 +65,11 @@ class _MainScreenState extends State<MainScreenT> {
     try {
       final prefs = await SharedPreferences.getInstance();
       String? Id = prefs.getString('user_id');
-      print('===== ($Id) =====');
+      debugPrint('===== ($Id) =====');
       // تحميل الرسائل من فايربيس
       await messageService.loadMessagesFromFirestore(Id!);
     } catch (e) {
-      print('خطأ في تحميل الرسائل: $e');
+      debugPrint('خطأ في تحميل الرسائل: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('خطأ في تحميل الرسائل'),
@@ -86,11 +86,11 @@ class _MainScreenState extends State<MainScreenT> {
     try {
       final prefs = await SharedPreferences.getInstance();
       int? Id = prefs.getInt('halagaID');
-      print('===== halagaID ($Id) =====');
+      debugPrint('===== halagaID ($Id) =====');
       // تحميل الحلقات من فايربيس
       await halagaController.getHalagatFromFirebaseByID(Id!, 'halagaID');
     } catch (e) {
-      print('خطأ في تحميل الحلقات: $e');
+      debugPrint('خطأ في تحميل الحلقات: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('خطأ في تحميل الحلقات'),
@@ -107,11 +107,11 @@ class _MainScreenState extends State<MainScreenT> {
     try {
       final prefs = await SharedPreferences.getInstance();
       String? Id = prefs.getString('halagaID');
-      print('===== halagaID ($Id) =====');
+      debugPrint('===== halagaID ($Id) =====');
       // تحميل الرسائل من فايربيس
       await planController.getPlansFirebaseToLocal(Id!);
     } catch (e) {
-      print('خطأ في تحميل البيانات: $e');
+      debugPrint('خطأ في تحميل البيانات: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('خطأ في تحميل البيانات'),

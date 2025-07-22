@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
@@ -7,7 +9,6 @@ import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:intl/intl.dart';
-
 import '../../../controllers/TeacherController.dart';
 
 class AddHalaqaScreen extends StatefulWidget {
@@ -183,7 +184,12 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                 : teachers.map((teacher) {
                                     // التحقق مما إذا كان المعلم لديه حلقة بالفعل
                                     bool hasHalaga =
-                                        teacher.elhalagatID != null;
+                                        teacher.elhalagatID != 'null';
+                                    log("Teacher has Halaga : $hasHalaga,Teacher ID halaga ${teacher.elhalagatID}");
+                                    debugPrint(
+                                        "No Halaga : $hasHalaga, & has Halaga : ${!hasHalaga}");
+                                    debugPrint(
+                                        'value: ${teacher.elhalagatID}, type: ${teacher.elhalagatID.runtimeType}');
 
                                     return DropdownMenuItem<UserModel>(
                                       value: teacher,
@@ -269,7 +275,7 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                             ),
 
                           // إضافة رسالة عندما لا يوجد معلمين متاحين
-                          if (!teachers.any(
+                          if (!teachers.every(
                                   (teacher) => teacher.elhalagatID == null) &&
                               teachers.isNotEmpty)
                             Padding(
@@ -431,10 +437,10 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                     _halaqaModel.halagaID;
                                 await userController.updateUser(
                                     selectedTeacher!, 1);
-                                print(
+                                debugPrint(
                                     "تم تحديث المعلم ${selectedTeacher!.first_name} ${selectedTeacher!.last_name} بحلقة رقم ${_halaqaModel.halagaID}");
                               }
-
+                              if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('تم إضافة الحلقة بنجاح'),

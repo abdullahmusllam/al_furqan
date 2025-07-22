@@ -624,7 +624,7 @@ class _AddUserState extends State<AddUser> {
   }
 
   void _submitForm() {
-    print("here save user");
+    debugPrint("here save user");
     int phone = int.parse(_phone.text);
     int telephone = int.parse(_telephone.text);
     String password = (_password.text);

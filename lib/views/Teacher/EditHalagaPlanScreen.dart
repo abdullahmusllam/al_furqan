@@ -16,12 +16,12 @@ class EditHalagaPlanScreen extends StatefulWidget {
   final StudentModel student;
 
   const EditHalagaPlanScreen({
-    Key? key,
+    super.key,
     required this.halaga,
     required this.plan,
     required this.planType,
     required this.student,
-  }) : super(key: key);
+  });
 
   @override
   _EditHalagaPlanScreenState createState() => _EditHalagaPlanScreenState();
@@ -185,29 +185,35 @@ class _EditHalagaPlanScreenState extends State<EditHalagaPlanScreen> {
         plan.isSync = 0;
 
         // وضع معدل التنفيذ
-        print("DEBUG: plannedEndSurah = ${plan.plannedEndSurah}, executedEndSurah = ${plan.executedEndSurah}");
-        print("DEBUG: plannedEndAya = ${plan.plannedEndAya}, executedEndAya = ${plan.executedEndAya}");
-        
+        debugPrint(
+            "DEBUG: plannedEndSurah = ${plan.plannedEndSurah}, executedEndSurah = ${plan.executedEndSurah}");
+        debugPrint(
+            "DEBUG: plannedEndAya = ${plan.plannedEndAya}, executedEndAya = ${plan.executedEndAya}");
+
         // تحسين حساب معدل التنفيذ
         if (plan.executedEndSurah == plan.plannedEndSurah) {
-          print("DEBUG: السورة متطابقة، جاري حساب المعدل");
-          if (plan.plannedEndAya != null && plan.executedEndAya != null && plan.plannedEndAya! > 0) {
+          debugPrint("DEBUG: السورة متطابقة، جاري حساب المعدل");
+          if (plan.plannedEndAya != null &&
+              plan.executedEndAya != null &&
+              plan.plannedEndAya! > 0) {
             if (plan.plannedEndAya! >= plan.executedEndAya!) {
-              double executedRate = (plan.executedEndAya! / plan.plannedEndAya!) * 100;
+              double executedRate =
+                  (plan.executedEndAya! / plan.plannedEndAya!) * 100;
               plan.executedRate = executedRate;
-              print("DEBUG: تم حساب المعدل = ${plan.executedRate}%");
+              debugPrint("DEBUG: تم حساب المعدل = ${plan.executedRate}%");
             } else {
-              plan.executedRate = 100.0; // إذا كان المنفذ أكثر من المخطط، فقد تم تنفيذ 100%
-              print("DEBUG: المنفذ أكبر من المخطط، المعدل = 100%");
+              plan.executedRate =
+                  100.0; // إذا كان المنفذ أكثر من المخطط، فقد تم تنفيذ 100%
+              debugPrint("DEBUG: المنفذ أكبر من المخطط، المعدل = 100%");
             }
           } else {
             plan.executedRate = 0.0;
-            print("DEBUG: قيم الآيات غير صالحة، المعدل = 0%");
+            debugPrint("DEBUG: قيم الآيات غير صالحة، المعدل = 0%");
           }
         } else {
           // يمكن إضافة حساب أكثر تعقيدًا هنا للسور المختلفة
           plan.executedRate = 0.0;
-          print("DEBUG: السور مختلفة، المعدل = 0%");
+          debugPrint("DEBUG: السور مختلفة، المعدل = 0%");
         }
 
         // تحديث في قاعدة البيانات - سنستخدم updatePlan لأن updateConservationPlan غير معرف
@@ -234,29 +240,35 @@ class _EditHalagaPlanScreenState extends State<EditHalagaPlanScreen> {
         plan.isSync = 0;
 
         // وضع معدل التنفيذ
-        print("DEBUG: plannedEndSurah = ${plan.plannedEndSurah}, executedEndSurah = ${plan.executedEndSurah}");
-        print("DEBUG: plannedEndAya = ${plan.plannedEndAya}, executedEndAya = ${plan.executedEndAya}");
-        
+        debugPrint(
+            "DEBUG: plannedEndSurah = ${plan.plannedEndSurah}, executedEndSurah = ${plan.executedEndSurah}");
+        debugPrint(
+            "DEBUG: plannedEndAya = ${plan.plannedEndAya}, executedEndAya = ${plan.executedEndAya}");
+
         // تحسين حساب معدل التنفيذ
         if (plan.executedEndSurah == plan.plannedEndSurah) {
-          print("DEBUG: السورة متطابقة، جاري حساب المعدل");
-          if (plan.plannedEndAya != null && plan.executedEndAya != null && plan.plannedEndAya! > 0) {
+          debugPrint("DEBUG: السورة متطابقة، جاري حساب المعدل");
+          if (plan.plannedEndAya != null &&
+              plan.executedEndAya != null &&
+              plan.plannedEndAya! > 0) {
             if (plan.plannedEndAya! >= plan.executedEndAya!) {
-              double executedRate = (plan.executedEndAya! / plan.plannedEndAya!) * 100;
+              double executedRate =
+                  (plan.executedEndAya! / plan.plannedEndAya!) * 100;
               plan.executedRate = executedRate.roundToDouble();
-              print("DEBUG: تم حساب المعدل = ${plan.executedRate}%");
+              debugPrint("DEBUG: تم حساب المعدل = ${plan.executedRate}%");
             } else {
-              plan.executedRate = 100.0; // إذا كان المنفذ أكثر من المخطط، فقد تم تنفيذ 100%
-              print("DEBUG: المنفذ أكبر من المخطط، المعدل = 100%");
+              plan.executedRate =
+                  100.0; // إذا كان المنفذ أكثر من المخطط، فقد تم تنفيذ 100%
+              debugPrint("DEBUG: المنفذ أكبر من المخطط، المعدل = 100%");
             }
           } else {
             plan.executedRate = 0.0;
-            print("DEBUG: قيم الآيات غير صالحة، المعدل = 0%");
+            debugPrint("DEBUG: قيم الآيات غير صالحة، المعدل = 0%");
           }
         } else {
           // يمكن إضافة حساب أكثر تعقيدًا هنا للسور المختلفة
           plan.executedRate = 0.0;
-          print("DEBUG: السور مختلفة، المعدل = 0%");
+          debugPrint("DEBUG: السور مختلفة، المعدل = 0%");
         }
 
         // تحديث في قاعدة البيانات - سنستخدم updateEltlawahPlan2 لأن updateEltlawahPlan غير معرف
@@ -368,8 +380,8 @@ class _EditHalagaPlanScreenState extends State<EditHalagaPlanScreen> {
           children: [
             CircleAvatar(
               backgroundColor: Theme.of(context).primaryColor,
-              child: Icon(Icons.person, color: Colors.white),
               radius: 24,
+              child: Icon(Icons.person, color: Colors.white),
             ),
             SizedBox(width: 16),
             Expanded(

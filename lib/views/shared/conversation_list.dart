@@ -1,130 +1,130 @@
+import 'dart:developer';
+
 import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/models/messages_model.dart';
+import 'package:al_furqan/models/provider/message_provider.dart';
 import 'package:al_furqan/models/users_model.dart';
-import 'package:al_furqan/services/message_sevice.dart';
 import 'package:al_furqan/views/shared/message_screen.dart';
 import 'package:al_furqan/views/shared/users_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class ConversationsScreen extends StatefulWidget {
   final UserModel currentUser;
-  final List<UserModel> availableParents;
-  final List<UserModel> availableTeachers;
 
   const ConversationsScreen({
-    Key? key,
+    super.key,
     required this.currentUser,
-    required this.availableParents,
-    required this.availableTeachers,
-  }) : super(key: key);
+  });
 
   @override
   _ConversationsScreenState createState() => _ConversationsScreenState();
 }
 
 class _ConversationsScreenState extends State<ConversationsScreen> {
-  List<UserModel> conversationUsers = [];
+  // List<UserModel> conversationUsers = [];
 
   @override
   void initState() {
     super.initState();
-    loadConversations();
-  }
-
-  Future<void> loadConversations() async {
-    await messageService.loadMessagesFromFirestore(widget.currentUser.user_id!);
-    List<Message> messages = await messageController.getMessages();
-    List<String> userIds = [];
-    for (var message in messages) {
-      if (message.senderId == widget.currentUser.user_id) {
-        if (!userIds.contains(message.receiverId)) {
-          userIds.add(message.receiverId!);
-        }
-      } else if (message.receiverId == widget.currentUser.user_id) {
-        if (!userIds.contains(message.senderId)) {
-          userIds.add(message.senderId!);
-        }
-      }
-    }
-
-    List<UserModel> users = [];
-    for (String userId in userIds) {
-      UserModel? user;
-      for (var parent in widget.availableParents) {
-        if (parent.user_id == userId) {
-          user = parent;
-          break;
-        }
-      }
-      if (user == null) {
-        for (var teacher in widget.availableTeachers) {
-          if (teacher.user_id == userId) {
-            user = teacher;
-            break;
-          }
-        }
-      }
-
-      if (user == null) {
-        try {
-          var doc = await FirebaseFirestore.instance
-              .collection('Users')
-              .doc(userId.toString())
-              .get();
-          if (doc.exists) {
-            user = UserModel.fromJson(doc.data() as Map<String, dynamic>);
-          }
-        } catch (e) {
-          print('خطأ في جلب المستخدم $userId: $e');
-        }
-      }
-
-      if (user == null) {
-        user = UserModel(
-          user_id: userId,
-          first_name: 'مستخدم غير معروف',
-          roleID: 0,
-        );
-      }
-
-      users.add(user);
-    }
-    if (!mounted) return;
-    setState(() {
-      conversationUsers = users;
+    // loadConversations();
+    Future.microtask(() async {
+      var prov = Provider.of<MessageProvider>(context, listen: false);
+      await prov.loadMessageFromFirebase();
     });
   }
 
+  // Future<void> loadConversations() async {
+  //   await messageService.loadMessagesFromFirestore(widget.currentUser.user_id!);
+  //   List<Message> messages = await messageController.getMessages();
+  //   List<String> userIds = [];
+  //   for (var message in messages) {
+  //     if (message.senderId == widget.currentUser.user_id) {
+  //       if (!userIds.contains(message.receiverId)) {
+  //         userIds.add(message.receiverId!);
+  //       }
+  //     } else if (message.receiverId == widget.currentUser.user_id) {
+  //       if (!userIds.contains(message.senderId)) {
+  //         userIds.add(message.senderId!);
+  //       }
+  //     }
+  //   }
+  //
+  //   List<UserModel> users = [];
+  //   for (String userId in userIds) {
+  //     UserModel? user;
+  //     for (var parent in widget.availableParents) {
+  //       if (parent.user_id == userId) {
+  //         user = parent;
+  //         break;
+  //       }
+  //     }
+  //     if (user == null) {
+  //       for (var teacher in widget.availableTeachers) {
+  //         if (teacher.user_id == userId) {
+  //           user = teacher;
+  //           break;
+  //         }
+  //       }
+  //     }
+  //
+  //     if (user == null) {
+  //       try {
+  //         var doc = await FirebaseFirestore.instance
+  //             .collection('Users')
+  //             .doc(userId.toString())
+  //             .get();
+  //         if (doc.exists) {
+  //           user = UserModel.fromJson(doc.data() as Map<String, dynamic>);
+  //         }
+  //       } catch (e) {
+  //         log('خطأ في جلب المستخدم $userId: $e');
+  //       }
+  //     }
+  //
+  //     user ??= UserModel(
+  //       user_id: userId,
+  //       first_name: 'مستخدم غير معروف',
+  //       roleID: 0,
+  //     );
+  //
+  //     users.add(user);
+  //   }
+  //   if (!mounted) return;
+  //   setState(() {
+  //     conversationUsers = users;
+  //   });
+  // }
+
   // استخراج آخر رسالة لكل مستخدم
-  Future<Map<String, Message>> _getLastMessages() async {
-    List<Message> allMessages = await messageController.getMessages();
-    Map<String, Message> lastMessages = {};
-
-    for (var user in conversationUsers) {
-      if (user.user_id == null) continue;
-
-      // البحث عن آخر رسالة بين المستخدم الحالي والمستخدم في المحادثة
-      List<Message> userMessages = allMessages
-          .where((msg) =>
-              (msg.senderId == widget.currentUser.user_id &&
-                  msg.receiverId == user.user_id) ||
-              (msg.senderId == user.user_id &&
-                  msg.receiverId == widget.currentUser.user_id))
-          .toList();
-
-      if (userMessages.isNotEmpty) {
-        // ترتيب الرسائل حسب الوقت (الأحدث أولاً)
-        userMessages.sort((a, b) =>
-            DateTime.parse(b.timestamp).compareTo(DateTime.parse(a.timestamp)));
-
-        lastMessages[user.user_id!] = userMessages.first;
-      }
-    }
-
-    return lastMessages;
-  }
+  // Future<Map<String, Message>> _getLastMessages() async {
+  //   List<Message> allMessages = await messageController.getMessages();
+  //   Map<String, Message> lastMessages = {};
+  //
+  //   for (var user in conversationUsers) {
+  //     if (user.user_id == null) continue;
+  //
+  //     // البحث عن آخر رسالة بين المستخدم الحالي والمستخدم في المحادثة
+  //     List<Message> userMessages = allMessages
+  //         .where((msg) =>
+  //             (msg.senderId == widget.currentUser.user_id &&
+  //                 msg.receiverId == user.user_id) ||
+  //             (msg.senderId == user.user_id &&
+  //                 msg.receiverId == widget.currentUser.user_id))
+  //         .toList();
+  //
+  //     if (userMessages.isNotEmpty) {
+  //       // ترتيب الرسائل حسب الوقت (الأحدث أولاً)
+  //       userMessages.sort((a, b) =>
+  //           DateTime.parse(b.timestamp).compareTo(DateTime.parse(a.timestamp)));
+  //
+  //       lastMessages[user.user_id!] = userMessages.first;
+  //     }
+  //   }
+  //
+  //   return lastMessages;
+  // }
 
   // تنسيق التاريخ بشكل أفضل
   String _formatTimestamp(String timestamp) {
@@ -152,41 +152,41 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('المحادثات', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              // يمكن إضافة وظيفة البحث في المستقبل
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('سيتم إضافة البحث قريباً')));
+        appBar: AppBar(
+          title:
+              Text('المحادثات', style: TextStyle(fontWeight: FontWeight.bold)),
+          backgroundColor: Theme.of(context).primaryColor,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {
+                // يمكن إضافة وظيفة البحث في المستقبل
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('سيتم إضافة البحث قريباً')));
+              },
+              tooltip: 'بحث',
+            ),
+            Consumer<MessageProvider>(
+              builder: (context, prov, child) => IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: () {
+                  // prov.loadConversations();
+                  prov.loadMessageFromFirebase();
+                },
+                tooltip: 'تحديث المحادثات',
+              ),
+            )
+          ],
+        ),
+        body: Consumer<MessageProvider>(
+          builder: (context, prov, child) => RefreshIndicator(
+            onRefresh: () async {
+              await prov.loadMessageFromFirebase();
+              await prov.getLastMessages();
             },
-            tooltip: 'بحث',
-          ),
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: loadConversations,
-            tooltip: 'تحديث المحادثات',
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: loadConversations,
-        child: FutureBuilder<Map<String, Message>>(
-          future: _getLastMessages(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting &&
-                conversationUsers.isNotEmpty) {
-              return Center(child: CircularProgressIndicator());
-            }
-
-            final lastMessages = snapshot.data ?? {};
-
-            return conversationUsers.isEmpty
+            child: prov.users.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -197,9 +197,9 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                         Text(
                           'لا توجد محادثات',
                           style: TextStyle(
-                              fontSize: 18,
-                              color:
-                                  Theme.of(context).textTheme.bodyLarge?.color),
+                            fontSize: 18,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
+                          ),
                         ),
                         SizedBox(height: 24),
                         ElevatedButton.icon(
@@ -218,11 +218,12 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                               MaterialPageRoute(
                                 builder: (context) => UsersScreen(
                                   currentUser: widget.currentUser,
-                                  availableParents: widget.availableParents,
-                                  availableTeachers: widget.availableTeachers,
                                 ),
                               ),
-                            ).then((_) => loadConversations());
+                            ).then((_) async {
+                              await prov.loadMessageFromFirebase();
+                              await prov.getLastMessages();
+                            });
                           },
                         ),
                       ],
@@ -230,11 +231,11 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                   )
                 : ListView.separated(
                     padding: EdgeInsets.symmetric(vertical: 8),
-                    itemCount: conversationUsers.length,
+                    itemCount: prov.users.length,
                     separatorBuilder: (context, index) => Divider(height: 1),
                     itemBuilder: (context, index) {
-                      final user = conversationUsers[index];
-                      final lastMessage = lastMessages[user.user_id];
+                      final user = prov.users[index];
+                      final lastMessage = prov.lastMessages[user.user_id];
                       final hasUnreadMessage = lastMessage != null &&
                           lastMessage.senderId != widget.currentUser.user_id &&
                           lastMessage.isRead == 0;
@@ -249,7 +250,10 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                                 selectedUser: user,
                               ),
                             ),
-                          ).then((_) => loadConversations());
+                          ).then((_) async {
+                            await prov.loadMessageFromFirebase();
+                            await prov.getLastMessages();
+                          });
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(
@@ -257,7 +261,6 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                           color: hasUnreadMessage ? Colors.blue.shade50 : null,
                           child: Row(
                             children: [
-                              // صورة المستخدم
                               CircleAvatar(
                                 radius: 24,
                                 backgroundColor: user.roleID == 2
@@ -275,7 +278,6 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                                 ),
                               ),
                               SizedBox(width: 16),
-                              // معلومات المحادثة
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,7 +286,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            '${user.first_name!} ${user.middle_name ?? ''} ${user.last_name ?? ''}',
+                                            '${user.first_name ?? ''} ${user.middle_name ?? ''} ${user.last_name ?? ''}',
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: hasUnreadMessage
@@ -313,7 +315,6 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                                     SizedBox(height: 4),
                                     Row(
                                       children: [
-                                        // نوع المستخدم
                                         Container(
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 6, vertical: 2),
@@ -339,7 +340,6 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                                           ),
                                         ),
                                         SizedBox(width: 8),
-                                        // محتوى آخر رسالة
                                         Expanded(
                                           child: Text(
                                             lastMessage?.content ??
@@ -377,27 +377,25 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                         ),
                       );
                     },
-                  );
-          },
+                  ),
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => UsersScreen(
-                currentUser: widget.currentUser,
-                availableParents: widget.availableParents,
-                availableTeachers: widget.availableTeachers,
-              ),
-            ),
-          ).then((_) => loadConversations());
-        },
-        child: Icon(Icons.add_comment, color: Colors.white),
-        backgroundColor: Theme.of(context).primaryColor,
-        tooltip: 'محادثة جديدة',
-      ),
-    );
+        floatingActionButton: Consumer<MessageProvider>(
+          builder: (context, prov, child) => FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UsersScreen(
+                    currentUser: widget.currentUser,
+                  ),
+                ),
+              ).then((_) => prov.loadConversations());
+            },
+            backgroundColor: Theme.of(context).primaryColor,
+            tooltip: 'محادثة جديدة',
+            child: Icon(Icons.add_comment, color: Colors.white),
+          ),
+        ));
   }
 }

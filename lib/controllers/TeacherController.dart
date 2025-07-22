@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:flutter/material.dart';
 
 class TeacherController {
   final SqlDb _sqlDb = SqlDb();
@@ -8,22 +11,22 @@ class TeacherController {
 
   Future<void> getTeachers() async {
     try {
-      print("TeacherController: Fetching all teachers...");
+      debugPrint("TeacherController: Fetching all teachers...");
 
       List<Map> response =
           await _sqlDb.readData("SELECT * FROM Users WHERE roleID = 2");
-      print(
+      debugPrint(
           "TeacherController: Raw data received - ${response.length} records");
 
       teachers.clear();
       teachers.addAll(mapResponseToUserModel(response));
-      print("Teachers fetched (Local): ${teachers.length} teachers");
-      teachers.forEach((e) {
-        print(
+      debugPrint("Teachers fetched (Local): ${teachers.length} teachers");
+      for (var e in teachers) {
+        debugPrint(
             "Teacher: ${e.user_id}, RoleID: ${e.roleID}, Name: ${e.first_name}, schoolID: ${e.schoolID}");
-      });
+      }
     } catch (e) {
-      print("Error fetching teachers: $e");
+      log("Error fetching teachers: $e");
       teachers.clear();
       rethrow;
     }
@@ -31,38 +34,40 @@ class TeacherController {
 
   Future<void> getTeachersBySchoolID(int schoolID) async {
     try {
-      print("TeacherController: Fetching teachers for schoolID $schoolID...");
+      debugPrint(
+          "TeacherController: Fetching teachers for schoolID $schoolID...");
       List<Map> response = await _sqlDb.readData(
           "SELECT * FROM Users WHERE roleID = 2 AND schoolID = $schoolID");
-      print(
+      debugPrint(
           "TeacherController: Raw response for schoolID $schoolID - ${response.length} records");
 
       teachers.clear();
 
       teachers.addAll(mapResponseToUserModel(response));
-      print(
+      debugPrint(
           "Teachers fetched for schoolID $schoolID: ${teachers.length} teachers");
 
       if (teachers.isEmpty) {
-        print("WARNING: No teachers found for schoolID $schoolID");
+        log("WARNING: No teachers found for schoolID $schoolID");
       } else {
-        teachers.forEach((e) {
-          print(
+        for (var e in teachers) {
+          debugPrint(
               "Teacher: ${e.user_id}, RoleID: ${e.roleID}, Name: ${e.first_name}, schoolID: ${e.schoolID}, ElhalagatID: ${e.elhalagatID}");
-        });
+        }
       }
     } catch (e) {
-      print("Error fetching teachers for schoolID $schoolID: $e");
+      log("Error fetching teachers for schoolID $schoolID: $e");
       teachers.clear();
       rethrow;
     }
   }
 
   List<UserModel> mapResponseToUserModel(List<Map> response) {
-    print("TeacherController: Mapping ${response.length} records to UserModel");
+    debugPrint(
+        "TeacherController: Mapping ${response.length} records to UserModel");
 
     if (response.isEmpty) {
-      print("TeacherController: Response is empty, returning empty list");
+      debugPrint("TeacherController: Response is empty, returning empty list");
       return [];
     }
 
@@ -102,7 +107,7 @@ class TeacherController {
       await getTeachers();
     }
 
-    print(
+    debugPrint(
         "Teacher added successfully: ${teacherModel.first_name} ${teacherModel.last_name}");
   }
 }

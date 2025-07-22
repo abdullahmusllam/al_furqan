@@ -1,13 +1,11 @@
-import 'dart:math';
+import 'dart:developer';
 
-import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
-import 'package:al_furqan/views/login/login.dart';
+import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
 class FathersController {
@@ -25,10 +23,10 @@ class FathersController {
   Future<void> getFathersStudents(int schoolID) async {
     List<Map<String, dynamic>> response = await _sqlDb.readData(
         "SELECT * FROM USERS WHERE ROLEID = 3 AND schoolID = $schoolID");
-    print("Reponse into getFathersStudents method : ${response.isEmpty}");
+    log("Reponse into getFathersStudents method : ${response.isEmpty}");
     fathers.clear();
     fathers.addAll(teacherController.mapResponseToUserModel(response));
-    print("FathersList into getFathersStudents method : ${fathers.isEmpty}");
+    log("FathersList into getFathersStudents method : ${fathers.isEmpty}");
   }
 
   Future<UserModel> getFatherByID(String userID) async {
@@ -59,8 +57,7 @@ class FathersController {
     /// this's all for get user id into student
     List<Map<String, dynamic>> response = await _sqlDb
         .readData("SELECT * FROM Students WHERE StudentID = '$studentID'");
-    print(
-        "Response in getFathersStudentsByStudentID method : ${response.isEmpty}");
+    log("Response in getFathersStudentsByStudentID method : ${response.isEmpty}");
     for (var e in response) {
       fatherByID.user_id = e['userID'].toString();
       fatherByID.first_name = e['first_name'];
@@ -76,12 +73,12 @@ class FathersController {
       fatherByID.date = e['date'];
       fatherByID.isActivate = e['isActivate'];
 
-      print("User Id in FatherController : ${fatherByID.user_id}");
+      log("User Id in FatherController : ${fatherByID.user_id}");
     }
     try {
       fatherByID = await getFatherByID(fatherByID.user_id!);
     } catch (e) {
-      print("Error In Father Controller : $e ");
+      log("Error In Father Controller : $e ");
     }
   }
 
@@ -93,16 +90,16 @@ class FathersController {
       father.user_id = id;
       if (await connected()) {
         father.isSync = 1;
-        print("--------> Father Map in Add Father : ${father.toMap()}");
+        debugPrint("--------> Father Map in Add Father : ${father.toMap()}");
         int response = await db.insert('USERS', father.toMap());
-        print("Insert To Local : $response");
+        debugPrint("Insert To Local : $response");
         await userController.addFatherToFirebase(father);
         return id;
       } else {
         father.isSync = 0;
-        print("Father Map : ${father.toMap()}");
+        debugPrint("Father Map : ${father.toMap()}");
         int response = await db.insert('USERS', father.toMap());
-        print("Insert To Local : $response");
+        debugPrint("Insert To Local : $response");
         return id;
       }
     } else {
@@ -113,34 +110,34 @@ class FathersController {
     // VALUES ('${father.first_name}', '${father.middle_name}', '${father.grandfather_name}', '${father.last_name}', '${father.phone_number}', '${father.telephone_number}', '${father.email}', '${father.password}', ${father.roleID}, ${father.schoolID}, '${father.date}', 0);
     // ''');
     // father.user_id = response;
-    // print("Response into addFather method : $response");
+    // debugPrint("Response into addFather method : $response");
     return null;
   }
 
   Future<List<UserModel>> getFathersByElhalagaId(String elhalagatID) async {
-    print('getFathersByElhalagaId called with elhalagatID: $elhalagatID');
+    debugPrint('getFathersByElhalagaId called with elhalagatID: $elhalagatID');
     try {
       // المشكلة قد تكون في العلاقة بين الجداول - نستخدم استعلام مختلف
       // نحاول الحصول على آباء الطلاب في الحلقة المحددة
       List<Map<String, dynamic>> response =
           await _sqlDb.readData("""SELECT DISTINCT Users.* FROM Users 
            JOIN Students ON Users.user_id = Students.userID 
-           WHERE Students.ElhalagatID = $elhalagatID AND Users.roleID = 3""");
+           WHERE Students.ElhalagatID = '$elhalagatID' AND Users.roleID = 3""");
 
-      print("Query result count: ${response.length}");
+      log("Query result count: ${response.length}");
 
       if (response.isEmpty) {
         // محاولة استعلام بديل إذا كان الاستعلام الأول لا يعيد نتائج
         response = await _sqlDb.readData("""SELECT DISTINCT Users.* FROM Users 
              JOIN Students ON Users.user_id = Students.userID 
-             WHERE Students.ElhalagatID = $elhalagatID AND Users.roleID = 3""");
-        print("Alternative query result count: ${response.length}");
+             WHERE Students.ElhalagatID = '$elhalagatID' AND Users.roleID = 3""");
+        debugPrint("Alternative query result count: ${response.length}");
       }
 
       List<UserModel> fathers = [];
 
       for (var e in response) {
-        print("Processing user: ${e['first_name']} (ID: ${e['user_id']})");
+        debugPrint("Processing user: ${e['first_name']} (ID: ${e['user_id']})");
         UserModel father = UserModel(
           user_id: e['user_id'],
           first_name: e['first_name'],
@@ -154,16 +151,15 @@ class FathersController {
         fathers.add(father);
       }
 
-      print("Total fathers found: ${fathers.length}");
+      debugPrint("Total fathers found: ${fathers.length}");
       return fathers;
     } catch (e) {
-      print('Error in getFathersByElhalagaId: $e');
+      debugPrint('Error in getFathersByElhalagaId: $e');
       return [];
     }
   }
 
   Future<List<UserModel>> getFathersBySchoolId(int schoolID) async {
-    // print('========================================= father');
     try {
       List<Map<String, dynamic>> response =
           await _sqlDb.readData("SELECT * FROM Users "
@@ -177,24 +173,18 @@ class FathersController {
           user_id: e['user_id'],
           first_name: e['first_name'],
           middle_name: e['middle_name'],
-          // grandfather_name: e['grandfather_name'],
+          grandfather_name: e['grandfather_name'],
           last_name: e['last_name'],
-          phone_number: e['phone_number'],
-          telephone_number: e['telephone_number'],
-          email: e['email'],
-          // password: e['password'],
-          // roleID: e['roleID'],
-          // schoolID: e['schoolID'],
-          // date: e['date'],
-          // isActivate: e['isActivate'],
+          roleID: e['roleID'],
+          schoolID: e['schoolID'],
         );
 
         fathers.add(father);
       }
-      print('=================================== father');
+      debugPrint('=================================== father');
       return fathers;
     } catch (e) {
-      print('====$e');
+      debugPrint('====$e');
       return [];
     }
   }
