@@ -61,7 +61,8 @@ class _HalqatListPageState extends State<HalqatListPage> {
         }
         setState(() {}); // تحديث الواجهة بعد جلب البيانات
       } catch (e) {
-        print("خطأ أثناء تحميل الحلقات: $e");
+        debugPrint("خطأ أثناء تحميل الحلقات: $e");
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('حدث خطأ أثناء تحميل الحلقات: $e'),

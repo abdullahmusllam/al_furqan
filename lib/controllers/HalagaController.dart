@@ -170,7 +170,7 @@ class HalagaController {
         /// تعيين معلم جديد
         await firebasehelper.newTeacher(halagaId, teacherId);
         await _sqlDb.updateData(
-          "UPDATE Users SET ElhalagatID = $halagaId, isSync = 1 WHERE user_id = '$teacherId' AND roleID = 2",
+          "UPDATE Users SET ElhalagatID = '$halagaId', isSync = 1 WHERE user_id = '$teacherId' AND roleID = 2",
         );
         debugPrint("---------------->> here");
       } else {
@@ -180,7 +180,7 @@ class HalagaController {
 
         /// تعيين معلم جديد
         await _sqlDb.updateData(
-          "UPDATE Users SET ElhalagatID = $halagaId, isSync = 0 WHERE user_id = '$teacherId' AND roleID = 2",
+          "UPDATE Users SET ElhalagatID = '$halagaId', isSync = 0 WHERE user_id = '$teacherId' AND roleID = 2",
         );
       }
     } catch (e) {
