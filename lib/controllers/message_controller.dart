@@ -1,4 +1,5 @@
 import 'package:al_furqan/helper/sqldb.dart';
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:al_furqan/services/message_sevice.dart';
 
@@ -60,7 +61,7 @@ class MessageController {
       );
       return Sqflite.firstIntValue(result) ?? 0;
     } catch (e) {
-      print('خطأ في عد الرسائل غير المقروءة: $e');
+      debugPrint('خطأ في عد الرسائل غير المقروءة: $e');
       return 0; // إرجاع 0 في حالة حدوث خطأ
     }
   }
@@ -80,7 +81,7 @@ class MessageController {
       // تحديث قاعدة بيانات الفايربيس
       await messageService.updateMessagesReadStatus(receiverId);
     } catch (e) {
-      print('خطأ في تعليم الرسائل كمقروءة: $e');
+      debugPrint('خطأ في تعليم الرسائل كمقروءة: $e');
     }
   }
 

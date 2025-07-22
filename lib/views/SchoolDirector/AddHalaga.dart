@@ -183,25 +183,26 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                   ]
                                 : teachers.map((teacher) {
                                     // التحقق مما إذا كان المعلم لديه حلقة بالفعل
-                                    bool noHalaga = teacher.elhalagatID == null;
-                                    log("Teacher NO Halaga : $noHalaga,Teacher ID halaga ${teacher.elhalagatID}");
+                                    bool hasHalaga =
+                                        teacher.elhalagatID != 'null';
+                                    log("Teacher has Halaga : $hasHalaga,Teacher ID halaga ${teacher.elhalagatID}");
                                     debugPrint(
-                                        "No Halaga : $noHalaga, & has Halaga : ${!noHalaga}");
-                                    print(
+                                        "No Halaga : $hasHalaga, & has Halaga : ${!hasHalaga}");
+                                    debugPrint(
                                         'value: ${teacher.elhalagatID}, type: ${teacher.elhalagatID.runtimeType}');
 
                                     return DropdownMenuItem<UserModel>(
                                       value: teacher,
                                       // تعطيل المعلمين الذين لديهم حلقات
-                                      enabled: noHalaga,
+                                      enabled: !hasHalaga,
                                       child: Row(
                                         children: [
                                           // عرض أيقونة تشير إلى حالة المعلم
                                           Icon(
-                                            noHalaga
+                                            hasHalaga
                                                 ? Icons.person_off
                                                 : Icons.person_outlined,
-                                            color: noHalaga
+                                            color: hasHalaga
                                                 ? Colors.grey
                                                 : Colors.green,
                                             size: 20,
@@ -211,16 +212,16 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                           Text(
                                             '${teacher.first_name} ${teacher.last_name}',
                                             style: TextStyle(
-                                              color: noHalaga
+                                              color: hasHalaga
                                                   ? Colors.grey
                                                   : Colors.black,
-                                              fontWeight: noHalaga
+                                              fontWeight: hasHalaga
                                                   ? FontWeight.normal
                                                   : FontWeight.bold,
                                             ),
                                           ),
                                           // إضافة وصف للمعلمين الذين لديهم حلقات
-                                          if (!noHalaga)
+                                          if (hasHalaga)
                                             Expanded(
                                               child: Text(
                                                 ' (مرتبط بحلقة)',

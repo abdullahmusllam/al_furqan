@@ -11,7 +11,7 @@ import 'EditHalagaPlanScreen.dart';
 
 class HalagaPlansListScreen extends StatefulWidget {
   HalagaModel halaga;
-  HalagaPlansListScreen({Key? key, required this.halaga}) : super(key: key);
+  HalagaPlansListScreen({super.key, required this.halaga});
 
   @override
   _HalagaPlansListScreenState createState() =>
@@ -141,7 +141,7 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
 
   Widget _buildConservationPlansList() {
     List<ConservationPlanModel> planC = planController.conservationPlans;
-    List<StudentModel> _student = studentController.students;
+    List<StudentModel> student0 = studentController.students;
     if (planC.isEmpty) {
       return _buildEmptyState('لا توجد خطط حفظ متاحة', Icons.book_outlined);
     }
@@ -152,7 +152,7 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
             padding: const EdgeInsets.all(12.0),
             itemBuilder: (context, index) {
               final plan = planC[index];
-              final student = _student[index];
+              final student = student0[index];
               return _buildPlanCard(
                 title: "${student.firstName} ${student.lastName}", // اسم الطالب
                 content: [
@@ -411,6 +411,7 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
+            width: 100,
             child: Text(
               '$label:',
               style: const TextStyle(
@@ -418,7 +419,6 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
                 color: Colors.black87,
               ),
             ),
-            width: 100,
           ),
           Expanded(
             child: Text(
@@ -433,7 +433,8 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
 
   Widget _buildSyncStatus(int? isSync) {
     final bool synced = isSync == 1;
-    print("------------------------------------------------synced: $synced");
+    debugPrint(
+        "------------------------------------------------synced: $synced");
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: Container(
@@ -483,10 +484,10 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('إلغاء'),
             style: TextButton.styleFrom(
               foregroundColor: Colors.grey.shade800,
             ),
+            child: const Text('إلغاء'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -510,11 +511,11 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
                 Navigator.of(context).pop(false);
               }
             },
-            child: const Text('حذف'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
+            child: const Text('حذف'),
           ),
         ],
       ),

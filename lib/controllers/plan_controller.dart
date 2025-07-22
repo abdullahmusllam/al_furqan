@@ -4,6 +4,7 @@ import 'package:al_furqan/models/conservation_plan_model.dart';
 import 'package:al_furqan/models/eltlawah_plan_model.dart';
 import 'package:al_furqan/models/islamic_studies_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
+import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:intl/intl.dart';
 
@@ -22,15 +23,16 @@ class PlanController {
       String newConservationPlanID = await getMaxValue();
       plan.conservationPlanId = newConservationPlanID;
 
-      print(
+      debugPrint(
           "----------> studentId for ConservationPlans is :${plan.studentId}, newConservationPlanID: $newConservationPlanID");
 
       bool hasConnection = await InternetConnectionChecker().hasConnection;
       final Map<String, dynamic> planMap = plan.toMap();
-      print("-------------------> Plan Map: $planMap");
-      print("-------------------> Inserting into table: ConservationPlans");
+      debugPrint("-------------------> Plan Map: $planMap");
+      debugPrint(
+          "-------------------> Inserting into table: ConservationPlans");
       int result = await sqlDb.insertData2('ConservationPlans', planMap);
-      print(
+      debugPrint(
           "------------------> Add ConservationPlan is : ${result > 0 ? 'Done' : 'Failed'}");
 
       if (result > 0 && hasConnection) {
@@ -42,15 +44,15 @@ class PlanController {
           'ConservationPlanID = ?',
           [newConservationPlanID],
         );
-        print("------------------> isSync: Sync Done!");
+        debugPrint("------------------> isSync: Sync Done!");
       } else {
         plan.isSync = 0;
-        print("------------------> isSync: not Sync");
+        debugPrint("------------------> isSync: not Sync");
       }
 
       return result;
     } catch (e) {
-      print(
+      debugPrint(
           "------------------> Error in addConservationPlan in ((planController)) : $e");
       return -1;
     }
@@ -67,15 +69,16 @@ class PlanController {
       if (isForWholeHalaga) {
         plan.studentId =
             (-1) as String?; // قيمة خاصة تشير إلى أن الخطة للحلقة بأكملها
-        print("----------> Adding Eltlawah Plan for the whole Halaga");
+        debugPrint("----------> Adding Eltlawah Plan for the whole Halaga");
       } else {
-        print("----------> studentId for EltlawahPlans is :${plan.studentId}");
+        debugPrint(
+            "----------> studentId for EltlawahPlans is :${plan.studentId}");
       }
 
       bool hasConnection = await InternetConnectionChecker().hasConnection;
       final Map<String, dynamic> planMap = plan.toMap();
       int result = await sqlDb.insertData2('EltlawahPlans', planMap);
-      print(
+      debugPrint(
           "------------------> Add EltlawahPlan is : ${result > 0 ? 'Done' : 'Failed'}");
 
       if (result > 0 && hasConnection) {
@@ -87,15 +90,15 @@ class PlanController {
           'EltlawahPlanID = ?',
           [newEltlawahPlanID],
         );
-        print("------------------> isSync: Sync Done!");
+        debugPrint("------------------> isSync: Sync Done!");
       } else {
         plan.isSync = 0;
-        print("------------------> isSync: not Sync");
+        debugPrint("------------------> isSync: not Sync");
       }
 
       return result;
     } catch (e) {
-      print(
+      debugPrint(
           "------------------> Error in addEltlawahPlan in ((planController)) : $e");
       return -1;
     }
@@ -110,17 +113,18 @@ class PlanController {
 
       if (isForWholeHalaga) {
         plan.studentID = -1; // قيمة خاصة تشير إلى أن الخطة للحلقة بأكملها
-        print("----------> Adding IslamicStudy Plan for the whole Halaga");
+        debugPrint("----------> Adding IslamicStudy Plan for the whole Halaga");
       } else {
-        print(
+        debugPrint(
             "----------> studentId for IslamicStudy Plans is :${plan.studentID}");
       }
-      print("----------> studentId for IslamicStudy is :${plan.studentID}");
+      debugPrint(
+          "----------> studentId for IslamicStudy is :${plan.studentID}");
 
       bool hasConnection = await InternetConnectionChecker().hasConnection;
       final Map<String, dynamic> planMap = plan.toMap();
       int result = await sqlDb.insertData2('IslamicStudies', planMap);
-      print(
+      debugPrint(
           "------------------> Add IslamicStudy plan is : ${result > 0 ? 'Done' : 'Failed'}");
 
       if (result > 0 && hasConnection) {
@@ -132,15 +136,15 @@ class PlanController {
           'IslamicStudiesID = ?',
           [newIslamicStudiesID],
         );
-        print("------------------> isSync: Sync Done!");
+        debugPrint("------------------> isSync: Sync Done!");
       } else {
         plan.isSync = 0;
-        print("------------------> isSync: not Sync");
+        debugPrint("------------------> isSync: not Sync");
       }
 
       return result;
     } catch (e) {
-      print(
+      debugPrint(
           "------------------> Error in addIslamicStudies in ((planController)) : $e");
       return -1;
     }
@@ -155,7 +159,7 @@ class PlanController {
       whereArgs: [halagaId],
       orderBy: 'StudentID ASC',
     );
-    print("-----> studentsID from DB: $result");
+    debugPrint("-----> studentsID from DB: $result");
     return result.map((e) => e['StudentID'] as String).toList();
   }
 
@@ -164,9 +168,9 @@ class PlanController {
       await sqlDb.deleteData("DELETE FROM ConservationPlans");
       await sqlDb.deleteData("DELETE FROM EltlawahPlans");
       await sqlDb.deleteData("DELETE FROM IslamicStudies");
-      print("All plans deleted successfully");
+      debugPrint("All plans deleted successfully");
     } catch (e) {
-      print("Error clearing plans: $e");
+      debugPrint("Error clearing plans: $e");
     }
   }
 
@@ -202,11 +206,13 @@ class PlanController {
       islamicStudyPlans =
           islamicResult.map((e) => IslamicStudiesModel.fromMap(e)).toList();
 
-      print("-----> Loaded ${conservationPlans.length} Conservation Plans");
-      print("-----> Loaded ${eltlawahPlans.length} Eltlawah Plans");
-      print("-----> Loaded ${islamicStudyPlans.length} Islamic Studies Plans");
+      debugPrint(
+          "-----> Loaded ${conservationPlans.length} Conservation Plans");
+      debugPrint("-----> Loaded ${eltlawahPlans.length} Eltlawah Plans");
+      debugPrint(
+          "-----> Loaded ${islamicStudyPlans.length} Islamic Studies Plans");
     } catch (e) {
-      print("Error loading plans: $e");
+      debugPrint("Error loading plans: $e");
       throw Exception("Failed to load plans: $e");
     }
   }
@@ -214,14 +220,15 @@ class PlanController {
   /// جلب جميع الخطط من فايربيس وإضافتها إلى قاعدة البيانات المحلية
   Future<void> getPlansFirebaseToLocal(String halagaId) async {
     try {
-      print("-------------------> التحقق من اتصال الإنترنت");
+      debugPrint("-------------------> التحقق من اتصال الإنترنت");
       bool hasConnection = await InternetConnectionChecker().hasConnection;
       if (!hasConnection) {
-        print("-------------------> لا يوجد اتصال بالإنترنت");
+        debugPrint("-------------------> لا يوجد اتصال بالإنترنت");
         return;
       }
 
-      print("-------------------> بدء جلب الخطط من فايربيس للحلقة: $halagaId");
+      debugPrint(
+          "-------------------> بدء جلب الخطط من فايربيس للحلقة: $halagaId");
 
       // مسح البيانات القديمة
       await sqlDb.deleteData2(
@@ -232,19 +239,19 @@ class PlanController {
           'IslamicStudies', 'ElhalagatID', halagaId.toString());
 
       // جلب البيانات الجديدة من فايربيس
-      print("-------------------> جلب خطط الحفظ");
+      debugPrint("-------------------> جلب خطط الحفظ");
       var responseConservationPlan =
           await firebasehelper.getConservationPlans(halagaId);
-      print("-------------------> جلب خطط التلاوة");
+      debugPrint("-------------------> جلب خطط التلاوة");
       var responseEltlawahPlan =
           await firebasehelper.getEltlawahPlans(halagaId);
-      print("-------------------> جلب خطط العلوم الشرعية");
+      debugPrint("-------------------> جلب خطط العلوم الشرعية");
       var responseIslamicStudyPlan =
           await firebasehelper.getIslamicStudyPlans(halagaId);
 
       // إضافة البيانات إلى قاعدة البيانات المحلية
       if (responseConservationPlan.isNotEmpty) {
-        print(
+        debugPrint(
             "-------------------> إضافة ${responseConservationPlan.length} خطة حفظ");
         for (var plan in responseConservationPlan) {
           await sqlDb.insertData2('ConservationPlans', plan.toMap());
@@ -253,7 +260,7 @@ class PlanController {
       }
 
       if (responseEltlawahPlan.isNotEmpty) {
-        print(
+        debugPrint(
             "-------------------> إضافة ${responseEltlawahPlan.length} خطة تلاوة");
         for (var plan in responseEltlawahPlan) {
           await sqlDb.insertData2('EltlawahPlans', plan.toMap());
@@ -262,7 +269,7 @@ class PlanController {
       }
 
       if (responseIslamicStudyPlan.isNotEmpty) {
-        print(
+        debugPrint(
             "-------------------> إضافة ${responseIslamicStudyPlan.length} خطة علوم شرعية");
         for (var plan in responseIslamicStudyPlan) {
           await sqlDb.insertData2('IslamicStudies', plan.toMap());
@@ -270,9 +277,9 @@ class PlanController {
         islamicStudyPlans = responseIslamicStudyPlan; // تحديث القائمة المحلية
       }
 
-      print("-------------------> تم الانتهاء من مزامنة جميع الخطط بنجاح");
+      debugPrint("-------------------> تم الانتهاء من مزامنة جميع الخطط بنجاح");
     } catch (e) {
-      print("-------------------> خطأ في جلب وتخزين الخطط: $e");
+      debugPrint("-------------------> خطأ في جلب وتخزين الخطط: $e");
       throw Exception('فشل في مزامنة الخطط: $e');
     }
   }
@@ -281,7 +288,7 @@ class PlanController {
     try {
       int result = await sqlDb.deleteData2(table, column, planId);
       if (result > 0) {
-        print("-----> Deleted plan $planId from $table");
+        debugPrint("-----> Deleted plan $planId from $table");
         // إزالة الخطة من القائمة المحلية
         if (table == 'ConservationPlans') {
           conservationPlans
@@ -298,10 +305,10 @@ class PlanController {
           // await firebasehelper.deletePlan(planId.toString(), table);
         }
       } else {
-        print("-----> No plan found with $column = $planId in $table");
+        debugPrint("-----> No plan found with $column = $planId in $table");
       }
     } catch (e) {
-      print("Error deleting plan from $table: $e");
+      debugPrint("Error deleting plan from $table: $e");
       throw Exception("Failed to delete plan: $e");
     }
   }
@@ -321,7 +328,7 @@ class PlanController {
         [plan.conservationPlanId],
       );
 
-      print(
+      debugPrint(
           "------------------> Update ConservationPlan ${plan.conservationPlanId} is: ${result > 0 ? 'Done' : 'Failed'}");
 
       // مزامنة مع Firebase إذا كان متصلاً
@@ -337,7 +344,7 @@ class PlanController {
           'ConservationPlanID = ?',
           [plan.conservationPlanId],
         );
-        print("------------------> isSync: Sync Done for update!");
+        debugPrint("------------------> isSync: Sync Done for update!");
       } else {
         // تحديث علامة المزامنة إلى 0 إذا لم يتم المزامنة
         await sqlDb.updateData3(
@@ -346,7 +353,7 @@ class PlanController {
           'ConservationPlanID = ?',
           [plan.conservationPlanId],
         );
-        print("------------------> isSync: update not Sync");
+        debugPrint("------------------> isSync: update not Sync");
       }
 
       // تحديث الخطة في القائمة المحلية
@@ -360,7 +367,7 @@ class PlanController {
 
       return result;
     } catch (e) {
-      print(
+      debugPrint(
           "------------------> Error in updateConservationPlan in ((planController)) : $e");
       return -1;
     }
@@ -376,7 +383,7 @@ class PlanController {
         plan.studentId =
             (-1) as String?; // قيمة خاصة تشير إلى أن الخطة للحلقة بأكملها
         updateData['StudentID'] = -1;
-        print("----------> Updating Eltlawah Plan for the whole Halaga");
+        debugPrint("----------> Updating Eltlawah Plan for the whole Halaga");
       }
 
       // إزالة المعرف من البيانات لأنه لا يمكن تعديله
@@ -390,7 +397,7 @@ class PlanController {
         [plan.eltlawahPlanId],
       );
 
-      print(
+      debugPrint(
           "------------------> Update EltlawahPlan ${plan.eltlawahPlanId} is: ${result > 0 ? 'Done' : 'Failed'}");
 
       // مزامنة مع Firebase إذا كان متصلاً
@@ -405,7 +412,7 @@ class PlanController {
           'EltlawahPlanID = ?',
           [plan.eltlawahPlanId],
         );
-        print("------------------> isSync: Sync Done for update!");
+        debugPrint("------------------> isSync: Sync Done for update!");
       } else {
         // تحديث علامة المزامنة إلى 0 إذا لم يتم المزامنة
         await sqlDb.updateData3(
@@ -414,7 +421,7 @@ class PlanController {
           'EltlawahPlanID = ?',
           [plan.eltlawahPlanId],
         );
-        print("------------------> isSync: update not Sync");
+        debugPrint("------------------> isSync: update not Sync");
       }
 
       // تحديث الخطة في القائمة المحلية
@@ -428,7 +435,7 @@ class PlanController {
 
       return result;
     } catch (e) {
-      print(
+      debugPrint(
           "------------------> Error in updateEltlawahPlan in ((planController)) : $e");
       return -1;
     }
@@ -448,7 +455,7 @@ class PlanController {
         [plan.islamicStudiesID],
       );
 
-      print(
+      debugPrint(
           "------------------> Update IslamicStudies ${plan.islamicStudiesID} is: ${result > 0 ? 'Done' : 'Failed'}");
 
       // مزامنة مع Firebase إذا كان متصلاً
@@ -464,7 +471,7 @@ class PlanController {
           'IslamicStudiesID = ?',
           [plan.islamicStudiesID],
         );
-        print("------------------> isSync: Sync Done for update!");
+        debugPrint("------------------> isSync: Sync Done for update!");
       } else {
         // تحديث علامة المزامنة إلى 0 إذا لم يتم المزامنة
         await sqlDb.updateData3(
@@ -473,7 +480,7 @@ class PlanController {
           'IslamicStudiesID = ?',
           [plan.islamicStudiesID],
         );
-        print("------------------> isSync: update not Sync");
+        debugPrint("------------------> isSync: update not Sync");
       }
 
       // تحديث الخطة في القائمة المحلية
@@ -487,7 +494,7 @@ class PlanController {
 
       return result;
     } catch (e) {
-      print(
+      debugPrint(
           "------------------> Error in updateIslamicStudies in ((planController)) : $e");
       return -1;
     }

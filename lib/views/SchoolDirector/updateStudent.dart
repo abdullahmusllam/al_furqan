@@ -67,7 +67,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
   void initTextContoller() async {
     // تعبئة الحقول بالبيانات الحالية للطالب
     log("-------> this's initTextColtoller method");
-    print(
+    debugPrint(
         "----------> Student ID in initTextColtoller method : ${father.first_name}");
     firstNameController.text = widget.student.firstName ?? '';
     middleNameController.text = widget.student.middleName ?? '';
@@ -89,7 +89,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
   Future<void> _refreshData() async {
     List<StudentModel>? loadedStudent =
         await studentController.getSchoolStudents(widget.student.schoolId!);
-    print("Hi this's refreshing data");
+    debugPrint("Hi this's refreshing data");
   }
 
   void _submitForm() async {
@@ -127,7 +127,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
       if (!mounted) return;
       Navigator.of(context).pop(true);
     } else {
-      print("Form validation failed");
+      debugPrint("Form validation failed");
     }
   }
 

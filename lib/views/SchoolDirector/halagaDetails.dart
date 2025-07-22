@@ -44,7 +44,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
   Future<void> _loadStudents() async {
     final String? halagaID = widget.halqa.halagaID;
     if (halagaID == null) {
-      print("halagaID is null");
+      debugPrint("halagaID is null");
       if (mounted) {
         setState(() => students = []);
       }
@@ -59,11 +59,11 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
         setState(() {
           students = loadedStudents;
           _isLoading = false;
-          print("Loaded students: ${students.length}");
+          debugPrint("Loaded students: ${students.length}");
         });
       }
     } catch (e) {
-      print("Error loading students: $e");
+      debugPrint("Error loading students: $e");
       if (mounted) {
         setState(() {
           students = [];
@@ -91,16 +91,16 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
         });
       }
     } catch (e) {
-      print("Error loading halqa details: $e");
+      debugPrint("Error loading halqa details: $e");
       setState(() => _isLoading = false);
     }
   }
 
   Future<void> _loadPlanDetails() async {
     final String? halagaID = widget.halqa.halagaID;
-    print("------> halagaID: $halagaID");
+    debugPrint("------> halagaID: $halagaID");
     if (halagaID == null) {
-      print("------> halagaID is null, returning");
+      debugPrint("------> halagaID is null, returning");
       return;
     }
 
@@ -108,17 +108,18 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
       setState(() => _isLoading = true);
 
       // التحقق من وجود الحلقة في قاعدة البيانات
-      print("------> Attempting to load plans for halagaID: $halagaID");
+      debugPrint("------> Attempting to load plans for halagaID: $halagaID");
 
       // الحصول على تفاصيل الحلقة بما في ذلك خطة الحفظ والتلاوة والعلوم الشرعية
       await planController.getPlans(halagaID);
 
       // طباعة معلومات تصحيح للتحقق من البيانات
-      print("------> Loaded plans from controller");
-      print(
+      debugPrint("------> Loaded plans from controller");
+      debugPrint(
           "------> Conservation Plans: ${planController.conservationPlans.length}");
-      print("------> Eltlawah Plans: ${planController.eltlawahPlans.length}");
-      print(
+      debugPrint(
+          "------> Eltlawah Plans: ${planController.eltlawahPlans.length}");
+      debugPrint(
           "------> Islamic Study Plans: ${planController.islamicStudyPlans.length}");
 
       if (mounted) {
@@ -133,25 +134,26 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
           for (var plan in conservationPlans) {
             if (plan.studentId != null) {
               studentConservationPlans[plan.studentId!] = plan;
-              print("------> Added plan for student ID: ${plan.studentId}");
+              debugPrint(
+                  "------> Added plan for student ID: ${plan.studentId}");
             }
           }
 
           _isLoading = false;
 
           // طباعة معلومات تصحيح للتحقق من البيانات بعد التعيين
-          print("------> Updated state with plans");
-          print(
+          debugPrint("------> Updated state with plans");
+          debugPrint(
               "------> Local Conservation Plans: ${conservationPlans.length}");
-          print("------> Local Eltlawah Plans: ${eltlawahPlans.length}");
-          print(
+          debugPrint("------> Local Eltlawah Plans: ${eltlawahPlans.length}");
+          debugPrint(
               "------> Local Islamic Study Plans: ${islamicStudyPlans.length}");
-          print(
+          debugPrint(
               "------> Student Conservation Plans Map size: ${studentConservationPlans.length}");
         });
       }
     } catch (e) {
-      print("Error loading halqa details: $e");
+      debugPrint("Error loading halqa details: $e");
       setState(() => _isLoading = false);
     }
   }
@@ -924,7 +926,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
     String completionRate = '0%';
 
     // طباعة معلومات تصحيح للتحقق من البيانات
-    print(
+    debugPrint(
         "_buildRecitationPlanSection - eltlawahPlans length: ${eltlawahPlans.length}");
 
     // تحقق من وجود خطط تلاوة قبل محاولة الوصول إليها
@@ -1079,7 +1081,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
         : null;
 
     // طباعة معلومات تصحيح للتحقق من البيانات
-    print(
+    debugPrint(
         "------> Islamic Study Plans in _buildIslamicStudiesSection: ${islamicStudyPlans.length}");
 
     return Column(

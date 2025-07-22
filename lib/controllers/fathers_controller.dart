@@ -4,6 +4,7 @@ import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/users_model.dart';
+import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:uuid/uuid.dart';
 
@@ -89,16 +90,16 @@ class FathersController {
       father.user_id = id;
       if (await connected()) {
         father.isSync = 1;
-        print("--------> Father Map in Add Father : ${father.toMap()}");
+        debugPrint("--------> Father Map in Add Father : ${father.toMap()}");
         int response = await db.insert('USERS', father.toMap());
-        print("Insert To Local : $response");
+        debugPrint("Insert To Local : $response");
         await userController.addFatherToFirebase(father);
         return id;
       } else {
         father.isSync = 0;
-        print("Father Map : ${father.toMap()}");
+        debugPrint("Father Map : ${father.toMap()}");
         int response = await db.insert('USERS', father.toMap());
-        print("Insert To Local : $response");
+        debugPrint("Insert To Local : $response");
         return id;
       }
     } else {
@@ -109,12 +110,12 @@ class FathersController {
     // VALUES ('${father.first_name}', '${father.middle_name}', '${father.grandfather_name}', '${father.last_name}', '${father.phone_number}', '${father.telephone_number}', '${father.email}', '${father.password}', ${father.roleID}, ${father.schoolID}, '${father.date}', 0);
     // ''');
     // father.user_id = response;
-    // print("Response into addFather method : $response");
+    // debugPrint("Response into addFather method : $response");
     return null;
   }
 
   Future<List<UserModel>> getFathersByElhalagaId(String elhalagatID) async {
-    print('getFathersByElhalagaId called with elhalagatID: $elhalagatID');
+    debugPrint('getFathersByElhalagaId called with elhalagatID: $elhalagatID');
     try {
       // المشكلة قد تكون في العلاقة بين الجداول - نستخدم استعلام مختلف
       // نحاول الحصول على آباء الطلاب في الحلقة المحددة
@@ -130,13 +131,13 @@ class FathersController {
         response = await _sqlDb.readData("""SELECT DISTINCT Users.* FROM Users 
              JOIN Students ON Users.user_id = Students.userID 
              WHERE Students.ElhalagatID = $elhalagatID AND Users.roleID = 3""");
-        print("Alternative query result count: ${response.length}");
+        debugPrint("Alternative query result count: ${response.length}");
       }
 
       List<UserModel> fathers = [];
 
       for (var e in response) {
-        print("Processing user: ${e['first_name']} (ID: ${e['user_id']})");
+        debugPrint("Processing user: ${e['first_name']} (ID: ${e['user_id']})");
         UserModel father = UserModel(
           user_id: e['user_id'],
           first_name: e['first_name'],
@@ -150,10 +151,10 @@ class FathersController {
         fathers.add(father);
       }
 
-      print("Total fathers found: ${fathers.length}");
+      debugPrint("Total fathers found: ${fathers.length}");
       return fathers;
     } catch (e) {
-      print('Error in getFathersByElhalagaId: $e');
+      debugPrint('Error in getFathersByElhalagaId: $e');
       return [];
     }
   }
@@ -180,10 +181,10 @@ class FathersController {
 
         fathers.add(father);
       }
-      print('=================================== father');
+      debugPrint('=================================== father');
       return fathers;
     } catch (e) {
-      print('====$e');
+      debugPrint('====$e');
       return [];
     }
   }

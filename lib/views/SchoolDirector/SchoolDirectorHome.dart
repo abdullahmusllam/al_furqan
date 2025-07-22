@@ -83,7 +83,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     final prefs = await SharedPreferences.getInstance();
     String? Id = prefs.getString('user_id');
     if (Id != null) {
-      print("User ID ==============> $Id");
+      debugPrint("User ID ==============> $Id");
       _unreadMessagesCount = await messageController.getUnreadMessagesCount(Id);
       setState(() {}); // تحديث واجهة المستخدم
     }
@@ -107,7 +107,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
       _elapsedCounts = sw2.elapsedMilliseconds;
       // No longer calling _generateRecentActivities() as it's not needed
     } catch (e) {
-      print('Error loading data: $e');
+      debugPrint('Error loading data: $e');
     } finally {
       swTotal.stop();
       _elapsedTotal = swTotal.elapsedMilliseconds;
@@ -135,7 +135,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
         _halqatCount = _halaqatList.length;
       }
     } catch (e) {
-      print('Error fetching counts: $e');
+      debugPrint('Error fetching counts: $e');
     }
   }
 

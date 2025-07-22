@@ -30,7 +30,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
 
   Future<void> _loadSchoolName() async {
     if (widget.user?.schoolID == null) {
-      print("schoolID is null");
+      debugPrint("schoolID is null");
       if (mounted) {
         setState(() {
           _schoolName = 'غير متوفر';
@@ -50,7 +50,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
         });
       }
     } catch (e) {
-      print("Error loading school name: $e");
+      debugPrint("Error loading school name: $e");
       if (mounted) {
         setState(() {
           _schoolName = 'خطأ في الجلب';
@@ -129,7 +129,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     ),
                     SizedBox(height: 5),
                     _isLoading
-                        ? Container(
+                        ? SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(

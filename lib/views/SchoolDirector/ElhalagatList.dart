@@ -44,20 +44,20 @@ class _HalqatListPageState extends State<HalqatListPage> {
         // جلب الحلقات
         List<HalagaModel>? loadedHalaqat =
             await halagaController.getData(schoolID);
-        if (loadedHalaqat != null && loadedHalaqat.isNotEmpty) {
+        if (loadedHalaqat.isNotEmpty) {
           halaqat = loadedHalaqat;
 
-          print('تم تحميل ${halaqat.length} حلقة');
+          debugPrint('تم تحميل ${halaqat.length} حلقة');
 
           // جلب أسماء المعلمين لكل حلقة
           for (var halqa in halaqat) {
             halqa.teacherName =
                 await halagaController.getTeacher(halqa.halagaID!);
-            print(halqa.teacherName);
+            debugPrint(halqa.teacherName);
           }
         } else {
           halaqat = [];
-          print("لا يوجد حلقات");
+          debugPrint("لا يوجد حلقات");
         }
         setState(() {}); // تحديث الواجهة بعد جلب البيانات
       } catch (e) {
@@ -72,7 +72,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
         );
       }
     } else {
-      print("schoolID is null");
+      debugPrint("schoolID is null");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('معرف المدرسة غير متوفر'),

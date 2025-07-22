@@ -497,7 +497,7 @@
 //     }
 //   }
 //
-//   // Print the PDF to printer or show in preview
+//   // Print the PDF to debugPrinter or show in preview
 //   Future<void> printPdf(Uint8List pdfBytes, String documentName) async {
 //     await Printing.layoutPdf(
 //       onLayout: (PdfPageFormat format) async => pdfBytes,

@@ -85,12 +85,12 @@ class _LoginScreenState extends State<LoginScreen1> {
 
   /// التحقق من حالة تسجيل الدخول واستدعاء _loginPref إذا كان المستخدم مسجل الدخول
   void _checkLoginStatus() async {
-    print(
+    debugPrint(
         "----------------------Here check Login Status--------------------------");
     bool isLogin = await isUserLoggedIn();
-    print("-------------: $isLogin");
+    debugPrint("-------------: $isLogin");
     if (isLogin) {
-      print(
+      debugPrint(
           "----------------------Here if check Login Status--------------------------");
       _loginPref();
       // logoutUser();
