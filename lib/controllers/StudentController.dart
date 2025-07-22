@@ -372,6 +372,7 @@ class StudentController {
     if (await isConnected()) {
       List<StudentModel> responseFirebase =
           await firebasehelper.getStudentData(schoolId);
+
       debugPrint("responseFirebase = $responseFirebase");
 
       for (var student in responseFirebase) {

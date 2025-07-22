@@ -4,6 +4,7 @@ import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/plan_controller.dart';
+import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/models/halaga_model.dart'; // إضافة استيراد نموذج الحلقة
 import 'package:al_furqan/views/shared/Conversation_list.dart';
@@ -49,6 +50,7 @@ class _MainScreenState extends State<MainScreenD> {
 
   Future<void> load() async {
     if (await isConnected()) {
+
       final swTotal = Stopwatch()..start();
 
       final sw1 = Stopwatch()..start();
@@ -77,6 +79,7 @@ class _MainScreenState extends State<MainScreenD> {
 
       final sw5 = Stopwatch()..start();
       await loadHalagat();
+
       sw4.stop();
       timeLoadElhalagat = sw5.elapsedMilliseconds;
       log("Time Load Elhalagat is : $timeLoadElhalagat ms");
@@ -120,8 +123,7 @@ class _MainScreenState extends State<MainScreenD> {
   }
 
   Future<void> loadStudents() async {
-    final perfs = await SharedPreferences.getInstance();
-    int? schoolId = perfs.getInt('schoolId');
+    int? schoolId = perf.getInt('schoolId');
     print('===== schoolID ($schoolId) =====');
     // تحميل الطلاب من فايربيس
     await studentController.addToLocalOfFirebase(schoolId!);

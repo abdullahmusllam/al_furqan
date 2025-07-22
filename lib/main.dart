@@ -1,5 +1,7 @@
+import 'package:al_furqan/models/provider/message_provider.dart';
 import 'package:al_furqan/views/splashScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -10,7 +12,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   perf = await SharedPreferences.getInstance();
-  runApp(MyApp());
+  runApp(MultiProvider(
+    providers: [ChangeNotifierProvider(create: (_) => MessageProvider())],
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
