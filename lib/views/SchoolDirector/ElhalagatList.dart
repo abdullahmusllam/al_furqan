@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/halaga_model.dart';
@@ -390,7 +392,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
     } catch (e) {
       // إغلاق مؤشر التحميل في حالة حدوث خطأ
       Navigator.of(context).pop();
-
+      log('حدث خطأ أثناء حذف الحلقة: $e');
       // إظهار رسالة الخطأ
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
