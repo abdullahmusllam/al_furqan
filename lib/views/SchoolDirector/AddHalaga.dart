@@ -9,6 +9,7 @@ import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart';
 import '../../../controllers/TeacherController.dart';
 
 class AddHalaqaScreen extends StatefulWidget {
@@ -210,7 +211,7 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                           SizedBox(width: 8),
                                           // عرض اسم المعلم
                                           Text(
-                                            '${teacher.first_name} ${teacher.last_name}',
+                                            '${teacher.first_name} ${teacher.middle_name} ${teacher.last_name}',
                                             style: TextStyle(
                                               color: hasHalaga
                                                   ? Colors.grey
@@ -253,7 +254,7 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
 
                           // إضافة ملاحظة توضيحية حول المعلمين
                           if (teachers
-                              .any((teacher) => teacher.elhalagatID == null))
+                              .any((teacher) => teacher.elhalagatID == 'null'))
                             Padding(
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Row(
@@ -275,8 +276,8 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                             ),
 
                           // إضافة رسالة عندما لا يوجد معلمين متاحين
-                          if (!teachers.every(
-                                  (teacher) => teacher.elhalagatID == null) &&
+                          if (teachers.every(
+                                  (teacher) => teacher.elhalagatID != 'null') &&
                               teachers.isNotEmpty)
                             Padding(
                               padding: const EdgeInsets.only(top: 8.0),
@@ -362,7 +363,7 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                         return CheckboxListTile(
                           title: Text(
                               '${student.firstName} ${student.middleName} ${student.lastName}'),
-                          subtitle: Text('رقم الطالب: ${student.studentID}'),
+                          subtitle: Text('رقم الحلقة: ${student.elhalaqaID}'),
                           value: selectedStudents[student.studentID] ?? false,
                           activeColor: Theme.of(context).primaryColor,
                           onChanged: (bool? value) {
@@ -381,80 +382,88 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () async {
-                          // التحقق من صحة النموذج وعدد الطلاب المحددين
-                          if (_formKey.currentState!.validate()) {
-                            if (selectedStudentCount < 5) {
-                              setState(() {
-                                _errorMessage = "يجب اختيار 5 طلاب على الأقل";
-                              });
-                              return;
-                            }
+                        onPressed: _isLoading
+                            ? null
+                            : () async {
+                                // التحقق من صحة النموذج وعدد الطلاب المحددين
 
-                            // إضافة الحلقة مع البيانات
-                            _halaqaModel.SchoolID = schoolId;
-                            _halaqaModel.Name = halqaNameController.text;
+                                if (_formKey.currentState!.validate()) {
+                                  if (selectedStudentCount < 5) {
+                                    setState(() {
+                                      _errorMessage =
+                                          "يجب اختيار 5 طلاب على الأقل";
+                                    });
+                                    return;
+                                  }
 
-                            try {
-                              // تعيين عدد الطلاب في نموذج الحلقة
-                              int studentCount = selectedStudentCount;
-                              _halaqaModel.NumberStudent = studentCount;
+                                  // إضافة الحلقة مع البيانات
+                                  _halaqaModel.SchoolID = schoolId;
+                                  _halaqaModel.Name = halqaNameController.text;
+                                  
+                                  try {
+                                    // تعيين عدد الطلاب في نموذج الحلقة
+                                    int studentCount = selectedStudentCount;
+                                    _halaqaModel.NumberStudent = studentCount;
 
-                              // إضافة الحلقة
-                              await halagaController.addHalaga(_halaqaModel, 1);
+                                    // إضافة الحلقة
+                                    await halagaController.addHalaga(
+                                        _halaqaModel, 1);
 
-                              // الحصول على قائمة معرفات الطلاب المحددين
-                              List<String> selectedStudentIds = [];
-                              selectedStudents.forEach((studentId, isSelected) {
-                                if (isSelected) {
-                                  selectedStudentIds.add(studentId);
+                                    // الحصول على قائمة معرفات الطلاب المحددين
+                                    List<String> selectedStudentIds = [];
+                                    selectedStudents
+                                        .forEach((studentId, isSelected) {
+                                      if (isSelected) {
+                                        selectedStudentIds.add(studentId);
+                                      }
+                                    });
+
+                                    // إضافة الطلاب للحلقة
+                                    await studentController
+                                        .assignStudentsToHalaga(
+                                            selectedStudentIds,
+                                            _halaqaModel.halagaID!);
+
+                                    // إضافة المعلم للحلقة (إذا تم اختياره)
+                                    if (selectedTeacher != null) {
+                                      // التحقق من أن المعلم غير مرتبط بحلقة أخرى
+                                      if (selectedTeacher!.elhalagatID !=
+                                          'null') {
+                                        setState(() {
+                                          _errorMessage =
+                                              "المعلم المختار مرتبط بحلقة أخرى بالفعل";
+                                        });
+                                        return;
+                                      }
+                                      // تأكيد تعيين عدد الطلاب قبل تحديث الحلقة
+                                      _halaqaModel.NumberStudent = studentCount;
+                                      await halagaController.updateHalaga(
+                                          _halaqaModel, 1);
+                                      // await halagaController.updateTeacherAssignment(
+                                      //     selectedTeacher!.user_id!,
+                                      //     _halaqaModel.halagaID!);
+                                      // تحديث elhalagatID للمعلم
+                                      selectedTeacher!.elhalagatID =
+                                          _halaqaModel.halagaID;
+                                      await userController.updateUser(
+                                          selectedTeacher!, 1);
+                                      debugPrint(
+                                          "تم تحديث المعلم ${selectedTeacher!.first_name} ${selectedTeacher!.last_name} بحلقة رقم ${_halaqaModel.halagaID}");
+                                    }
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('تم إضافة الحلقة بنجاح'),
+                                      ),
+                                    );
+                                    Navigator.pop(context);
+                                  } catch (e) {
+                                    setState(() {
+                                      _errorMessage =
+                                          "حدث خطأ أثناء إضافة الحلقة: $e";
+                                    });
+                                  }
                                 }
-                              });
-
-                              // إضافة الطلاب للحلقة
-                              await studentController.assignStudentsToHalaga(
-                                  selectedStudentIds, _halaqaModel.halagaID!);
-
-                              // إضافة المعلم للحلقة (إذا تم اختياره)
-                              if (selectedTeacher != null) {
-                                // التحقق من أن المعلم غير مرتبط بحلقة أخرى
-                                if (selectedTeacher!.elhalagatID != null) {
-                                  setState(() {
-                                    _errorMessage =
-                                        "المعلم المختار مرتبط بحلقة أخرى بالفعل";
-                                  });
-                                  return;
-                                }
-                                // تأكيد تعيين عدد الطلاب قبل تحديث الحلقة
-                                _halaqaModel.NumberStudent = studentCount;
-                                await halagaController.updateHalaga(
-                                    _halaqaModel, 1);
-                                // await halagaController.updateTeacherAssignment(
-                                //     selectedTeacher!.user_id!,
-                                //     _halaqaModel.halagaID!);
-                                // تحديث elhalagatID للمعلم
-                                selectedTeacher!.elhalagatID =
-                                    _halaqaModel.halagaID;
-                                await userController.updateUser(
-                                    selectedTeacher!, 1);
-                                debugPrint(
-                                    "تم تحديث المعلم ${selectedTeacher!.first_name} ${selectedTeacher!.last_name} بحلقة رقم ${_halaqaModel.halagaID}");
-                              }
-                              if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('تم إضافة الحلقة بنجاح'),
-                                ),
-                              );
-                              Navigator.pop(context);
-                            } catch (e) {
-                              setState(() {
-                                _errorMessage =
-                                    "حدث خطأ أثناء إضافة الحلقة: $e";
-                              });
-                            }
-                          }
-                        },
+                              },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           foregroundColor: Theme.of(context).primaryColor,

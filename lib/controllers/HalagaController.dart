@@ -1,5 +1,7 @@
 // ignore_for_file: file_names
 
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -44,7 +46,6 @@ class HalagaController {
         int numberStudent =
             int.tryParse(data[i]['NumberStudent'].toString()) ?? 0;
         int? schoolID = data[i]['SchoolID'] as int?;
-
 
         halagaData.add(HalagaModel(
           halagaID: halagaID,
@@ -192,9 +193,9 @@ class HalagaController {
     try {
       // إلغاء ارتباط الطلاب والمعلمين
       await _sqlDb.updateData(
-          "UPDATE Students SET ElhalagatID = NULL WHERE ElhalagatID = '$halagaID'");
+          "UPDATE Students SET ElhalagatID = 'NULL' WHERE ElhalagatID = '$halagaID'");
       await _sqlDb.updateData(
-          "UPDATE Users SET ElhalagatID = NULL WHERE ElhalagatID = '$halagaID'");
+          "UPDATE Users SET ElhalagatID = 'NULL' WHERE ElhalagatID = '$halagaID'");
 
       // حذف الحلقة
       int response = await _sqlDb
@@ -204,7 +205,7 @@ class HalagaController {
         throw Exception("فشل في حذف الحلقة $halagaID");
       }
     } catch (e) {
-      debugPrint("خطأ في حذف الحلقة: $e");
+      log("خطأ في حذف الحلقة: $e");
       rethrow;
     }
   }
@@ -256,8 +257,8 @@ class HalagaController {
       var halagaData = response[0];
 
       // إذا كان هناك معلم مرتبط بالحلقة
-      if (halagaData['first_name'] != null && halagaData['last_name'] != null) {
-      }
+      if (halagaData['first_name'] != null &&
+          halagaData['last_name'] != null) {}
 
       HalagaModel halaga = HalagaModel(
         halagaID: halagaData['halagaID'],
