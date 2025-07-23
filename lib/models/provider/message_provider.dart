@@ -1,4 +1,5 @@
 import 'package:al_furqan/controllers/message_controller.dart';
+import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/messages_model.dart';
 import 'package:al_furqan/models/users_model.dart';
@@ -16,9 +17,13 @@ class MessageProvider with ChangeNotifier {
   List<UserModel> users = [];
   List<String> userIds = [];
   Map<String, Message> lastMessages = {};
+  UserModel? managerN;
+  int unreadMessagesCount = 0;
 
   get parentsList => parents;
   get teachersList => teachers;
+  int get unReadCount => unreadMessagesCount;
+  UserModel? get manager => managerN;
 
   final int? roleID = perf.getInt('roleID');
   final int? schoolID = perf.getInt('schoolId');
@@ -29,10 +34,18 @@ class MessageProvider with ChangeNotifier {
     init();
   }
   init() async {
+    print('===== تم تشغيل دالة البناء للرسائل =====');
     await loadUsers();
     await loadConversations();
     await getLastMessages();
     await loadMessageFromFirebase();
+    await loadUnreadMessage();
+  }
+
+  loadUnreadMessage() async {
+    unreadMessagesCount =
+        await messageController.getUnreadMessagesCount(userID!);
+    notifyListeners();
   }
 
   loadMessages() async {
@@ -72,6 +85,7 @@ class MessageProvider with ChangeNotifier {
               (await fathersController.getFathersByElhalagaId(elhalagatID!))
                   .where((user) => user.user_id != null && user.user_id != 0)
                   .toList();
+          managerN = await userController.loadManager(schoolID!);
           debugPrint(
               'Loaded ${parents.length} parents for teacher in halka $elhalagatID');
         } else {

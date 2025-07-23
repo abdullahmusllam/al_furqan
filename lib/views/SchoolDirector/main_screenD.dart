@@ -77,30 +77,30 @@ class _MainScreenState extends State<MainScreenD> {
       timeSyncStudents = sw3.elapsedMilliseconds;
       log("Time Sync Students is : $timeSyncStudents ms");
 
-      final sw4 = Stopwatch()..start();
-      await Provider.of<StudentProvider>(context, listen: false).loadStudents();
-      sw4.stop();
-      timeLoadStudents = sw4.elapsedMilliseconds;
-      log("Time Load Students is : $timeLoadStudents ms");
+      // final sw4 = Stopwatch()..start();
+      // await Provider.of<StudentProvider>(context, listen: false).loadStudents();
+      // sw4.stop();
+      // timeLoadStudents = sw4.elapsedMilliseconds;
+      // log("Time Load Students is : $timeLoadStudents ms");
 
       final sw5 = Stopwatch()..start();
       await loadHalagat();
 
-      sw4.stop();
-      timeLoadElhalagat = sw5.elapsedMilliseconds;
-      log("Time Load Elhalagat is : $timeLoadElhalagat ms");
+      // sw4.stop();
+      // timeLoadElhalagat = sw5.elapsedMilliseconds;
+      // log("Time Load Elhalagat is : $timeLoadElhalagat ms");
 
-      final sw6 = Stopwatch()..start();
-      await loadPlans();
-      sw6.stop();
-      timeLoadPlans = sw6.elapsedMilliseconds;
-      log("Time Load Plans is : $timeLoadPlans ms");
+      // final sw6 = Stopwatch()..start();
+      // await loadPlans();
+      // sw6.stop();
+      // timeLoadPlans = sw6.elapsedMilliseconds;
+      // log("Time Load Plans is : $timeLoadPlans ms");
 
-      final sw7 = Stopwatch()..start();
-      await Provider.of<MessageProvider>(context, listen: false).loadMessages();
-      sw7.stop();
-      timeLoadMessages = sw7.elapsedMilliseconds;
-      log("Time Load Messages is : $timeLoadMessages ms");
+      // final sw7 = Stopwatch()..start();
+      // await Provider.of<MessageProvider>(context, listen: false).loadMessages();
+      // sw7.stop();
+      // timeLoadMessages = sw7.elapsedMilliseconds;
+      // log("Time Load Messages is : $timeLoadMessages ms");
 
       final sw8 = Stopwatch()..start();
       await loadUsersFromFirebase();
