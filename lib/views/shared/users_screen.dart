@@ -44,12 +44,13 @@ class _UsersScreenState extends State<UsersScreen> {
           showUserTypeDialog();
         }
       }
+      if (widget.currentUser.roleID != 1) {
+        showUserTypeDialog();
+        // displayedUsers = prov.parents
+        //     .where((user) => user.user_id != null && user.user_id != 0)
+        //     .toList();
+      }
     });
-    if (widget.currentUser.roleID != 1) {
-      displayedUsers = prov.parents
-          .where((user) => user.user_id != null && user.user_id != 0)
-          .toList();
-    }
   }
 
   void showUserTypeDialog() {
@@ -93,7 +94,19 @@ class _UsersScreenState extends State<UsersScreen> {
                           });
                         },
                       ),
-                  selector: (_, S) => S.parentsList)
+                  selector: (_, S) => S.parentsList),
+              Selector<MessageProvider, UserModel?>(
+                  builder: (context, prov, child) => ListTile(
+                        title: Text('مراسلة المدير ',
+                            style: TextStyle(color: Colors.grey.shade700)),
+                        onTap: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            displayedUsers = prov != null ? [prov] : [];
+                          });
+                        },
+                      ),
+                  selector: (_, S) => S.manager)
             ],
           ),
           actions: [

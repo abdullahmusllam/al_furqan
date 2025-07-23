@@ -209,6 +209,21 @@ class UserController {
       debugPrint("حدث خطأ أثناء إضافة ولي الأمر إلى Firebase: $e");
     }
   }
+
+  Future<UserModel?> loadManager(int schoolID) async {
+    final db = await sqlDb.database;
+    final List<Map<String, dynamic>> result = await db.query(
+      'USERS',
+      where: 'roleID = ? AND school_id = ?',
+      whereArgs: [1, schoolID],
+    );
+
+    if (result.isNotEmpty) {
+      return UserModel.fromMap(result.first);
+    } else {
+      return null;
+    }
+  }
 }
 
 UserController userController = UserController();

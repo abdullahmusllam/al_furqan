@@ -43,7 +43,7 @@ class StudentController {
     List<Map<String, dynamic>> studentData = await _sqldb
         .readData("SELECT * FROM Students WHERE SchoolID = $schoolID");
 
-    debugPrint("الطلاب الذين تم جلبهم من القاعدة المحلية: $studentData");
+    // debugPrint("الطلاب الذين تم جلبهم من القاعدة المحلية: $studentData");
 
     if (studentData.isEmpty) {
       debugPrint("لا توجد بيانات للطلاب مع SchoolID: $schoolID");
@@ -86,10 +86,10 @@ class StudentController {
     debugPrint("عدد الطلاب الذين تم جلبهم: ${students.length}");
 
     // طباعة معلومات الحلقات للطلاب للتصحيح
-    for (var student in students) {
-      debugPrint(
-          "الطالب: ${student.firstName} ${student.lastName}, معرف الحلقة: ${student.elhalaqaID}, نوع معرف الحلقة: ${student.elhalaqaID?.runtimeType}");
-    }
+    // for (var student in students) {
+    //   debugPrint(
+    //       "الطالب: ${student.firstName} ${student.lastName}, معرف الحلقة: ${student.elhalaqaID}, نوع معرف الحلقة: ${student.elhalaqaID?.runtimeType}");
+    // }
 
     return students;
     // } catch (e) {
@@ -373,7 +373,7 @@ class StudentController {
       List<StudentModel> responseFirebase =
           await firebasehelper.getStudentData(schoolId);
 
-      debugPrint("responseFirebase = $responseFirebase");
+      // debugPrint("responseFirebase = $responseFirebase");
 
       for (var student in responseFirebase) {
         bool exists = await sqlDb.checkIfitemExists2(
