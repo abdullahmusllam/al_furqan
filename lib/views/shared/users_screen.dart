@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/provider/message_provider.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/shared/message_screen.dart';
@@ -23,6 +24,7 @@ class UsersScreen extends StatefulWidget {
 
 class _UsersScreenState extends State<UsersScreen> {
   List<UserModel> displayedUsers = [];
+  int? roleID = perf.getInt('roleID');
   bool hasDialogShown = false;
   @override
   void initState() {
@@ -65,21 +67,24 @@ class _UsersScreenState extends State<UsersScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Selector<MessageProvider, List<UserModel>>(
-                  selector: (context, S) => S.teachersList,
-                  builder: (context, prov, child) => ListTile(
-                        title: Text('مراسلة معلم',
-                            style: TextStyle(color: Colors.grey.shade700)),
-                        onTap: () {
-                          Navigator.pop(context);
-                          setState(() {
-                            displayedUsers = prov
-                                .where((user) =>
-                                    user.user_id != null && user.user_id != 0)
-                                .toList();
-                          });
-                        },
-                      )),
+              roleID == 2
+                  ? Container()
+                  : Selector<MessageProvider, List<UserModel>>(
+                      selector: (context, S) => S.teachersList,
+                      builder: (context, prov, child) => ListTile(
+                            title: Text('مراسلة معلم',
+                                style: TextStyle(color: Colors.grey.shade700)),
+                            onTap: () {
+                              Navigator.pop(context);
+                              setState(() {
+                                displayedUsers = prov
+                                    .where((user) =>
+                                        user.user_id != null &&
+                                        user.user_id != 0)
+                                    .toList();
+                              });
+                            },
+                          )),
               Selector<MessageProvider, List<UserModel>>(
                   builder: (context, prov, child) => ListTile(
                         title: Text('مراسلة ولي أمر',
@@ -95,18 +100,27 @@ class _UsersScreenState extends State<UsersScreen> {
                         },
                       ),
                   selector: (_, S) => S.parentsList),
-              Selector<MessageProvider, UserModel?>(
-                  builder: (context, prov, child) => ListTile(
-                        title: Text('مراسلة المدير ',
-                            style: TextStyle(color: Colors.grey.shade700)),
-                        onTap: () {
-                          Navigator.pop(context);
-                          setState(() {
-                            displayedUsers = prov != null ? [prov] : [];
-                          });
-                        },
-                      ),
-                  selector: (_, S) => S.manager)
+              roleID == 2
+                  ? Selector<MessageProvider, UserModel?>(
+                      builder: (context, prov, child) => ListTile(
+                            title: Text('مراسلة المدير ',
+                                style: TextStyle(color: Colors.grey.shade700)),
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.of(context).pop();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ChatScreen(
+                                    currentUser: widget.currentUser,
+                                    selectedUser: prov,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                      selector: (_, S) => S.manager)
+                  : Text('المدير ليس متاح')
             ],
           ),
           actions: [

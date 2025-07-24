@@ -3,7 +3,7 @@
 CREATE TABLE "Users" (
     "user_id" TEXT NOT NULL PRIMARY KEY ,
     "ActivityID" INTEGER NULL,
-    "ElhalagatID" INTEGER NULL,
+    "ElhalagatID" TEXT NULL,
     "first_name" TEXT NOT NULL,
     "middle_name" TEXT NOT NULL,
     "grandfather_name" TEXT NOT NULL,

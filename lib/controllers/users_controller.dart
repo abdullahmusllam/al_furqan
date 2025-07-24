@@ -214,7 +214,7 @@ class UserController {
     final db = await sqlDb.database;
     final List<Map<String, dynamic>> result = await db.query(
       'USERS',
-      where: 'roleID = ? AND school_id = ?',
+      where: 'roleID = ? AND schoolID = ?',
       whereArgs: [1, schoolID],
     );
 
