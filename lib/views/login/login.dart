@@ -1,6 +1,7 @@
 import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
+import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/schools_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
@@ -174,7 +175,21 @@ class _LoginScreenState extends State<LoginScreen> {
       await per.setString('halagaID', user.elhalagatID!);
     }
     debugPrint('===== save id ($id) =====');
-    await chooseScreen(context);
+    String? halagaId = perf.getString('halagaID');
+
+    if (user.roleID == 2) {
+      if (halagaId == null || halagaId == 'null' || halagaId == 'NULL') {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+        _showErrorDialog(context, "خطأ", "لا يوجد لديك حلقة تواصل مع الادارة");
+        per.clear();
+      } else {
+        await chooseScreen(context);
+      }
+    } else {
+      await chooseScreen(context);
+    }
   }
 
   /// اختيار الشاشة المناسبة للمستخدم بناءً على دوره

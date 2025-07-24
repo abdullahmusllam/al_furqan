@@ -227,6 +227,18 @@ class UserController {
       return null;
     }
   }
+
+  Future<UserModel?> getUserById(String userId) async {
+    final db = await sqlDb.database;
+
+    final result =
+        await db.query('User', where: 'user_id = ?', whereArgs: [userId]);
+    if (result.isNotEmpty) {
+      return UserModel.fromJson(result.first);
+    } else {
+      return null;
+    }
+  }
 }
 
 UserController userController = UserController();

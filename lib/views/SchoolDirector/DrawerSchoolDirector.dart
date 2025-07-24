@@ -214,8 +214,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                         CupertinoPageRoute(
                           builder: (context) => ConversationsScreen(
                             currentUser: widget.user!,
-                            availableParents: [],
-                            availableTeachers: [],
+                           
                           ),
                         ),
                       );

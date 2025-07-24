@@ -54,6 +54,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     super.initState();
     // إضافة مراقب دورة حياة التطبيق
     WidgetsBinding.instance.addObserver(this);
+    
 
     initializeDateFormatting('ar', null).then((_) {
       // ignore: use_build_context_synchronously
@@ -171,7 +172,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               _elapsedHalagat = sw3.elapsedMilliseconds;
               (context)
                   .read<MessageProvider>()
-                  .loadUnreadMessage(); // تحديث عدد الإشعارات عند الضغط على زر التحديث
+                  .loadMessageFromFirebase(); // تحديث عدد الإشعارات عند الضغط على زر التحديث
             },
             icon: Icon(Icons.refresh, color: Colors.white),
             tooltip: 'تحديث البيانات',
@@ -181,6 +182,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               final prefs = await SharedPreferences.getInstance();
               await prefs.clear();
               await perf.clear();
+              (context).read<MessageProvider>().clear();
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) => LoginScreen()));
             },

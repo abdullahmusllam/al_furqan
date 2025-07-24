@@ -4,6 +4,7 @@ import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
+import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/eltlawah_plan_model.dart';
 import 'package:al_furqan/models/islamic_studies_model.dart';
 import 'package:al_furqan/models/provider/message_provider.dart';
@@ -358,7 +359,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // تحديث عدد الإشعارات عند العودة للتطبيق
     if (state == AppLifecycleState.resumed) {
-      updateNotificationCount();
+      // updateNotificationCount();
     }
   }
 
@@ -377,23 +378,23 @@ class _TeacherDashboardState extends State<TeacherDashboard>
     await messageService.loadMessagesFromFirestore(Id!);
 
     // تحديث عدد الإشعارات
-    await updateNotificationCount();
-
+    // await updateNotificationCount();
+    int? schoolID = perf.getInt('schoolId');
     // تحميل بيانات الطلاب والمعلمين
     await studentController.addToLocalOfFirebase(schoolID!);
     await halagaController.getTeachers(schoolID!);
-    await fathersController.getFathersBySchoolId(schoolID!);
+    await fathersController.getFathersBySchoolId(schoolID);
   }
 
   // تحديث عدد الإشعارات
-  Future<void> updateNotificationCount() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? Id = prefs.getString('user_id');
-    if (Id != null) {
-      _unreadMessagesCount = await messageController.getUnreadMessagesCount(Id);
-      setState(() {}); // تحديث واجهة المستخدم
-    }
-  }
+  // Future<void> updateNotificationCount() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   String? Id = prefs.getString('user_id');
+  //   if (Id != null) {
+  //     _unreadMessagesCount = await messageController.getUnreadMessagesCount(Id);
+  //     setState(() {}); // تحديث واجهة المستخدم
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -415,11 +416,12 @@ class _TeacherDashboardState extends State<TeacherDashboard>
             child: IconButton(
               onPressed: () {
                 _loadTeacherHalaga();
-                updateNotificationCount();
+                (context).read<MessageProvider>().loadMessageFromFirebase();
+                // updateNotificationCount();
                 // استدعاء دالة تحديث البيانات مباشرة (ستقوم بتحديث حالة التحميل داخلياً)
                 fetchUserData().then((_) {
                   // تحديث عدد الإشعارات عند الضغط على زر التحديث
-                  updateNotificationCount();
+                  // updateNotificationCount();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Row(
@@ -459,16 +461,15 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                     content: Text('هل أنت متأكد من رغبتك في تسجيل الخروج؟'),
                     actions: [
                       TextButton(
-                        onPressed: () => Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LoginScreen())),
+                        onPressed: () => Navigator.pop(context),
                         child: Text('إلغاء'),
                       ),
                       ElevatedButton(
                         onPressed: () async {
                           final prefs = await SharedPreferences.getInstance();
                           await prefs.clear();
+                          perf.clear();
+                          (context).read<MessageProvider>().clear();
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
@@ -691,8 +692,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                                   color: Colors.white,
                                                   textColor: Theme.of(context)
                                                       .primaryColor,
-                                                  badgeCount:
-                                                      _unreadMessagesCount,
+                                                  badgeCount: prov,
                                                 ),
                                               ),
                                           selector: (_, s) => s.unReadCount)
