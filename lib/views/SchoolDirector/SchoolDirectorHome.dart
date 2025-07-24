@@ -6,6 +6,7 @@ import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/main.dart';
+import 'package:al_furqan/models/provider/message_provider.dart';
 import 'package:al_furqan/models/provider/student_provider.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
@@ -40,7 +41,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   int _teacherCount = 0;
   // int _studentCount = 0;
   int _halqatCount = 0;
-  int _unreadMessagesCount = 0;
+  // int _unreadMessagesCount = 0;
 
   // متغيّرات جديدة لحفظ الأوقات بالميلي ثانية
   int _elapsedTotal = 0;
@@ -71,26 +72,26 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // تحديث عدد الإشعارات عند العودة للتطبيق
     if (state == AppLifecycleState.resumed) {
-      updateNotificationCount();
+      // updateNotificationCount();
     }
   }
 
   // تحميل الرسائل
-  Future<void> loadMessages() async {
-    // تحديث عدد الإشعارات
-    await updateNotificationCount();
-  }
+  // Future<void> loadMessages() async {
+  //   // تحديث عدد الإشعارات
+  //   await updateNotificationCount();
+  // }
 
   // تحديث عدد الإشعارات
-  Future<void> updateNotificationCount() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? Id = prefs.getString('user_id');
-    if (Id != null) {
-      debugPrint("User ID ==============> $Id");
-      _unreadMessagesCount = await messageController.getUnreadMessagesCount(Id);
-      setState(() {}); // تحديث واجهة المستخدم
-    }
-  }
+  // Future<void> updateNotificationCount() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   String? Id = prefs.getString('user_id');
+  //   if (Id != null) {
+  //     debugPrint("User ID ==============> $Id");
+  //     _unreadMessagesCount = await messageController.getUnreadMessagesCount(Id);
+  //     setState(() {}); // تحديث واجهة المستخدم
+  //   }
+  // }
 
   Future<void> _loadData() async {
     // Start calc Time
@@ -167,7 +168,9 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               halagaController.getHalagatFromFirebase();
               sw3.stop();
               _elapsedHalagat = sw3.elapsedMilliseconds;
-              updateNotificationCount(); // تحديث عدد الإشعارات عند الضغط على زر التحديث
+              (context)
+                  .read<MessageProvider>()
+                  .loadUnreadMessage(); // تحديث عدد الإشعارات عند الضغط على زر التحديث
             },
             icon: Icon(Icons.refresh, color: Colors.white),
             tooltip: 'تحديث البيانات',
@@ -321,13 +324,15 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                     ),
                   ),
                   SizedBox(height: 4),
-                  Text(
-                    "لديك $_unreadMessagesCount رسائل جديدة",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withOpacity(0.9),
-                    ),
-                  ),
+                  Selector<MessageProvider, int>(
+                      builder: (context, prov, child) => Text(
+                            "لديك $prov رسائل جديدة",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white.withOpacity(0.9),
+                            ),
+                          ),
+                      selector: (_, S) => S.unReadCount)
                 ],
               ),
             ),
@@ -381,15 +386,17 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               ),
             ),
             SizedBox(width: 12),
-            Selector<StudentProvider, int>(builder: (context, prov, child) => Expanded(
-              child: _buildStatCard(
-                'الطلاب',
-                '$prov',
-                Icons.school,
-                Colors.green.shade700,
-                Colors.green.shade100,
-              ),
-            ), selector: (context, S) => S.studentCount),
+            Selector<StudentProvider, int>(
+                builder: (context, prov, child) => Expanded(
+                      child: _buildStatCard(
+                        'الطلاب',
+                        '$prov',
+                        Icons.school,
+                        Colors.green.shade700,
+                        Colors.green.shade100,
+                      ),
+                    ),
+                selector: (context, S) => S.studentCount),
             SizedBox(width: 12),
             Expanded(
               child: _buildStatCard(
@@ -423,121 +430,126 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               ),
             ),
             SizedBox(height: 10),
-            Selector<StudentProvider, Map<String, dynamic>>(selector: (_, S) => {
-              'StCount': S.studentCount
-            } ,builder: (context, prov, child) => SizedBox(
-              height: 250,
-              child: prov['StCount'] > 0 || _teacherCount > 0
-                  ? BarChart(
-                      BarChartData(
-                        alignment: BarChartAlignment.spaceAround,
-                        maxY: prov['StCount'] > 0 ? prov['StCount'] * 1.2 : 10,
-                        barTouchData: BarTouchData(enabled: false),
-                        titlesData: FlTitlesData(
-                          show: true,
-                          rightTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
-                          topTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              getTitlesWidget: (value, meta) {
-                                String text = '';
-                                switch (value.toInt()) {
-                                  case 0:
-                                    text = 'المعلمين';
-                                    break;
-                                  case 1:
-                                    text = 'الطلاب';
-                                    break;
-                                  case 2:
-                                    text = 'الحلقات';
-                                    break;
-                                }
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 4.0),
-                                  child: Text(
-                                    text,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 11,
+            Selector<StudentProvider, Map<String, dynamic>>(
+                selector: (_, S) => {'StCount': S.studentCount},
+                builder: (context, prov, child) => SizedBox(
+                      height: 250,
+                      child: prov['StCount'] > 0 || _teacherCount > 0
+                          ? BarChart(
+                              BarChartData(
+                                alignment: BarChartAlignment.spaceAround,
+                                maxY: prov['StCount'] > 0
+                                    ? prov['StCount'] * 1.2
+                                    : 10,
+                                barTouchData: BarTouchData(enabled: false),
+                                titlesData: FlTitlesData(
+                                  show: true,
+                                  rightTitles: AxisTitles(
+                                      sideTitles:
+                                          SideTitles(showTitles: false)),
+                                  topTitles: AxisTitles(
+                                      sideTitles:
+                                          SideTitles(showTitles: false)),
+                                  bottomTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      getTitlesWidget: (value, meta) {
+                                        String text = '';
+                                        switch (value.toInt()) {
+                                          case 0:
+                                            text = 'المعلمين';
+                                            break;
+                                          case 1:
+                                            text = 'الطلاب';
+                                            break;
+                                          case 2:
+                                            text = 'الحلقات';
+                                            break;
+                                        }
+                                        return Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 4.0),
+                                          child: Text(
+                                            text,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ),
-                                );
-                              },
+                                  leftTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      reservedSize: 30,
+                                      getTitlesWidget: (value, meta) {
+                                        if (value == 0) {
+                                          return const SizedBox();
+                                        }
+                                        return Text(
+                                          value.toInt().toString(),
+                                          style: TextStyle(fontSize: 12),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                borderData: FlBorderData(show: false),
+                                barGroups: [
+                                  BarChartGroupData(
+                                    x: 0,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: _teacherCount.toDouble(),
+                                        color: Colors.blue.shade700,
+                                        width: 25,
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(6),
+                                          topRight: Radius.circular(6),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  BarChartGroupData(
+                                    x: 1,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: prov['StCount'].toDouble(),
+                                        color: Colors.green.shade700,
+                                        width: 25,
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(6),
+                                          topRight: Radius.circular(6),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  BarChartGroupData(
+                                    x: 2,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: _halqatCount.toDouble(),
+                                        color: Colors.purple.shade700,
+                                        width: 25,
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(6),
+                                          topRight: Radius.circular(6),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            )
+                          : Center(
+                              child: Text(
+                                "لا توجد بيانات كافية لعرض الرسم البياني",
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                          ),
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 30,
-                              getTitlesWidget: (value, meta) {
-                                if (value == 0) {
-                                  return const SizedBox();
-                                }
-                                return Text(
-                                  value.toInt().toString(),
-                                  style: TextStyle(fontSize: 12),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        borderData: FlBorderData(show: false),
-                        barGroups: [
-                          BarChartGroupData(
-                            x: 0,
-                            barRods: [
-                              BarChartRodData(
-                                toY: _teacherCount.toDouble(),
-                                color: Colors.blue.shade700,
-                                width: 25,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(6),
-                                  topRight: Radius.circular(6),
-                                ),
-                              ),
-                            ],
-                          ),
-                          BarChartGroupData(
-                            x: 1,
-                            barRods: [
-                              BarChartRodData(
-                                toY: prov['StCount'].toDouble(),
-                                color: Colors.green.shade700,
-                                width: 25,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(6),
-                                  topRight: Radius.circular(6),
-                                ),
-                              ),
-                            ],
-                          ),
-                          BarChartGroupData(
-                            x: 2,
-                            barRods: [
-                              BarChartRodData(
-                                toY: _halqatCount.toDouble(),
-                                color: Colors.purple.shade700,
-                                width: 25,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(6),
-                                  topRight: Radius.circular(6),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    )
-                  : Center(
-                      child: Text(
-                        "لا توجد بيانات كافية لعرض الرسم البياني",
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-            )),
+                    )),
           ],
         ),
       ),
