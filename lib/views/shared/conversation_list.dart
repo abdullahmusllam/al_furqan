@@ -1,4 +1,8 @@
 
+import 'package:al_furqan/controllers/message_controller.dart';
+import 'package:al_furqan/main.dart';
+import 'package:al_furqan/models/messages_model.dart';
+
 import 'package:al_furqan/models/provider/message_provider.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/shared/message_screen.dart';
@@ -30,6 +34,8 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   void initState() {
     super.initState();
     // loadConversations();
+    int? r = perf.getInt('roleID');
+    print("====================== ${r}");
     Future.microtask(() async {
       var prov = Provider.of<MessageProvider>(context, listen: false);
       await prov.loadMessageFromFirebase();

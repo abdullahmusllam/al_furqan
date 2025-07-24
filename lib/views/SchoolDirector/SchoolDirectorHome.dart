@@ -56,6 +56,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     WidgetsBinding.instance.addObserver(this);
 
     initializeDateFormatting('ar', null).then((_) {
+      // ignore: use_build_context_synchronously
       _loadData();
     });
     // loadMessages();

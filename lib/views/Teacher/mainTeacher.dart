@@ -6,10 +6,12 @@ import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/eltlawah_plan_model.dart';
 import 'package:al_furqan/models/islamic_studies_model.dart';
+import 'package:al_furqan/models/provider/message_provider.dart';
 import 'package:al_furqan/services/message_sevice.dart';
 import 'package:al_furqan/views/Teacher/DrawerTeacher.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../controllers/plan_controller.dart';
@@ -678,18 +680,22 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                         ),
                                       ),
                                       SizedBox(width: 12),
-                                      Expanded(
-                                        child: _buildStatCard(
-                                          title: 'الإشعارات',
-                                          value:
-                                              '$_unreadMessagesCount رسائل جديدة',
-                                          icon: Icons.notifications_active,
-                                          color: Colors.white,
-                                          textColor:
-                                              Theme.of(context).primaryColor,
-                                          badgeCount: _unreadMessagesCount,
-                                        ),
-                                      ),
+                                      Selector<MessageProvider, int>(
+                                          builder: (context, prov, child) =>
+                                              Expanded(
+                                                child: _buildStatCard(
+                                                  title: 'الإشعارات',
+                                                  value: '$prov رسائل جديدة',
+                                                  icon: Icons
+                                                      .notifications_active,
+                                                  color: Colors.white,
+                                                  textColor: Theme.of(context)
+                                                      .primaryColor,
+                                                  badgeCount:
+                                                      _unreadMessagesCount,
+                                                ),
+                                              ),
+                                          selector: (_, s) => s.unReadCount)
                                     ],
                                   ),
                                 ],

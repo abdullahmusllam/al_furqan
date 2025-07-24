@@ -45,6 +45,7 @@ class MessageProvider with ChangeNotifier {
   loadUnreadMessage() async {
     unreadMessagesCount =
         await messageController.getUnreadMessagesCount(userID!);
+    print('===== تم تحميل الرسائل الغير مقروءة =====');
     notifyListeners();
   }
 
@@ -81,11 +82,12 @@ class MessageProvider with ChangeNotifier {
       } else if (roleID == 2) {
         // المعلم: يحمل فقط أولياء الأمور من الحلقة المعينة
         if (elhalagatID != null && elhalagatID!.isNotEmpty) {
-          parents =
-              (await fathersController.getFathersByElhalagaId(elhalagatID!))
-                  .where((user) => user.user_id != null && user.user_id != 0)
-                  .toList();
+          parents = (await fathersController
+                  .getFathersByElhalagaId(elhalagatID!))
+              .where((user) => user.user_id != null && user.user_id!.isNotEmpty)
+              .toList();
           managerN = await userController.loadManager(schoolID!);
+          print('===== تم تحميل المدير =====');
           debugPrint(
               'Loaded ${parents.length} parents for teacher in halka $elhalagatID');
         } else {
@@ -106,7 +108,7 @@ class MessageProvider with ChangeNotifier {
   }
 
   Future<void> loadConversations() async {
-    users.clear();
+    // users.clear();
     // await messageService.loadMessagesFromFirestore(userID!);
     await loadMessages();
     for (var message in messages) {
