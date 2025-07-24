@@ -2,6 +2,9 @@
 
 import 'dart:developer';
 
+import 'package:al_furqan/controllers/StudentController.dart';
+import 'package:al_furqan/controllers/TeacherController.dart';
+import 'package:al_furqan/models/student_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -192,15 +195,39 @@ class HalagaController {
   Future<void> deleteHalaga(String halagaID) async {
     try {
       // إلغاء ارتباط الطلاب والمعلمين
-      await _sqlDb.updateData(
-          "UPDATE Students SET ElhalagatID = 'NULL' WHERE ElhalagatID = '$halagaID'");
-      await _sqlDb.updateData(
-          "UPDATE Users SET ElhalagatID = 'NULL' WHERE ElhalagatID = '$halagaID'");
+      List<StudentModel> dataStudents = await studentController
+          .getStudents(halagaID); // to edit halagaID field
+      List<UserModel> dataTeacher =
+          await teacherController.getTeacherByHalagaID(halagaID);
 
+      int response1 = await _sqlDb.updateData(
+          "UPDATE Students SET ElhalagatID = 'NULL' WHERE ElhalagatID = '$halagaID'");
+      int response2 = await _sqlDb.updateData(
+          "UPDATE Users SET ElhalagatID = 'NULL' WHERE ElhalagatID = '$halagaID'");
+      log("message: Updated Students and Users, response1: $response1, response2: $response2");
+      // var response3 = await _sqlDb
+      //     .readData("SELECT * FROM Students WHERE ElhalagatID = 'NULL'");
+      // var response4 = await _sqlDb
+      //     .readData("SELECT *  FROM Users WHERE ElhalagatID = 'NULL'");
+      // log("message: Students : ${response3.length}, Users : ${response4.length}");
       // حذف الحلقة
       int response = await _sqlDb
           .deleteData("DELETE FROM Elhalagat WHERE halagaID = '$halagaID'");
+      if (await isConnected()) {
+        dataStudents.map((student) async {
+          student.isSync = 1;
+          student.elhalaqaID = 'NULL';
+          await firebasehelper.updateStudentByHalaga(halagaID, student);
+        });
+        dataTeacher.map((teacher) async {
+          teacher.isSync = 1;
+          teacher.elhalagatID = 'NULL';
+          await firebasehelper.updateTeacherByHalagaID(halagaID, teacher);
+        });
+      }
       debugPrint("تم حذف الحلقة $halagaID، الاستجابة: $response");
+      dataTeacher.clear();
+      dataStudents.clear();
       if (response == 0) {
         throw Exception("فشل في حذف الحلقة $halagaID");
       }

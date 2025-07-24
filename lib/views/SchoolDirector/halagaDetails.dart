@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/plan_controller.dart';
@@ -47,6 +49,7 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
       debugPrint("halagaID is null");
       if (mounted) {
         setState(() => students = []);
+        // log("Students list in halaga Details ${students.length}");
       }
       return;
     }
@@ -59,11 +62,11 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
         setState(() {
           students = loadedStudents;
           _isLoading = false;
-          debugPrint("Loaded students: ${students.length}");
+          log("Loaded students: ${students.length}");
         });
       }
     } catch (e) {
-      debugPrint("Error loading students: $e");
+      log("Error loading students: $e");
       if (mounted) {
         setState(() {
           students = [];
@@ -107,14 +110,10 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
     try {
       setState(() => _isLoading = true);
 
-      // التحقق من وجود الحلقة في قاعدة البيانات
-      debugPrint("------> Attempting to load plans for halagaID: $halagaID");
-
       // الحصول على تفاصيل الحلقة بما في ذلك خطة الحفظ والتلاوة والعلوم الشرعية
       await planController.getPlans(halagaID);
 
       // طباعة معلومات تصحيح للتحقق من البيانات
-      debugPrint("------> Loaded plans from controller");
       debugPrint(
           "------> Conservation Plans: ${planController.conservationPlans.length}");
       debugPrint(
@@ -466,14 +465,6 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
                                                               fontWeight:
                                                                   FontWeight
                                                                       .bold,
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            'رقم الهوية: ${student.studentID ?? "غير متوفر"}',
-                                                            style: TextStyle(
-                                                              fontSize: 12,
-                                                              color: Colors
-                                                                  .grey[600],
                                                             ),
                                                           ),
                                                         ],

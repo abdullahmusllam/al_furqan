@@ -8,6 +8,7 @@ import '../../controllers/fathers_controller.dart';
 import '../halaga_model.dart';
 
 class StudentProvider with ChangeNotifier {
+
   List<StudentModel> students = [];
   List<UserModel> fathers = [];
   Map<String?, String> halaqaNames = {}; // أسماء الحلقات حسب ID
