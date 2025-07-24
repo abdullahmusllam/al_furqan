@@ -95,14 +95,14 @@ class UserController {
         await firebasehelper.addUser(userModel);
         int response = await db.insert('Users', userModel.toMap());
         debugPrint(
-            "------------> add to local is ${response == 1 ? 'Done Added To Local' : 'Failed'}");
+            "------------> add to local is ${response >= 1 ? 'Done Added To Local' : 'Failed'}");
         debugPrint(
             "------------>Sync is : ${userModel.isSync == 1 ? 'Done  Sync' : 'Failed  Sync'}");
       } else {
         userModel.isSync = 0;
         int response = await db.insert('Users', userModel.toMap());
         debugPrint(
-            "------------> add to local is ${response == 1 ? 'Done Added To Local' : 'Failed Added To local'}\n"
+            "------------> add to local is ${response >= 1 ? 'Done Added To Local' : 'Failed Added To local'}\n"
             "------------> Sync is ${userModel.isSync == 0 ? 'Failed Sync' : 'Done'}");
       }
     } else {
@@ -115,9 +115,12 @@ class UserController {
   Future<void> deleteUser(String userId) async {
     int response =
         await _sqlDb.deleteData("DELETE FROM USERS WHERE user_id = '$userId'");
-    debugPrint("$response");
+    log("$response");
     await getDataUsers();
-    // await firebasehelper.deleteUser(userId);
+    if (await isConnected()) {
+      await firebasehelper.deleteUser(userId);
+      log("User with ID $userId deleted successfully");
+    }
   }
 
   // Method to activate a user

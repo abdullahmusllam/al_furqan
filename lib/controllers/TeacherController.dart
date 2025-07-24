@@ -11,25 +11,23 @@ class TeacherController {
 
   Future<void> getTeachers() async {
     try {
-      debugPrint("TeacherController: Fetching all teachers...");
-
       List<Map> response =
           await _sqlDb.readData("SELECT * FROM Users WHERE roleID = 2");
-      debugPrint(
-          "TeacherController: Raw data received - ${response.length} records");
-
       teachers.clear();
       teachers.addAll(mapResponseToUserModel(response));
       debugPrint("Teachers fetched (Local): ${teachers.length} teachers");
-      for (var e in teachers) {
-        debugPrint(
-            "Teacher: ${e.user_id}, RoleID: ${e.roleID}, Name: ${e.first_name}, schoolID: ${e.schoolID}");
-      }
     } catch (e) {
       log("Error fetching teachers: $e");
       teachers.clear();
       rethrow;
     }
+  }
+
+  Future<List<UserModel>> getTeacherByHalagaID(String halagaID) async {
+    List<UserModel> data = [];
+    List<Map<String, dynamic>> response = await _sqlDb.readData("SELECT * FROM Users WHERE ");
+    data.addAll(mapResponseToUserModel(response));
+    return data;
   }
 
   Future<void> getTeachersBySchoolID(int schoolID) async {

@@ -1,5 +1,4 @@
 import 'package:al_furqan/controllers/TeacherController.dart';
-import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +31,21 @@ class _AddTeacherState extends State<AddTeacher> with UserDataMixin {
   void initState() {
     super.initState();
     fetchUserData();
+  }
+
+  @override
+  void dispose() {
+    _firstname.dispose();
+    _fathername.dispose();
+    _grandfathername.dispose();
+    _lastname.dispose();
+    _phone.dispose();
+    _telephone.dispose();
+    _email.dispose();
+    _password.dispose();
+    _date.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -382,6 +396,7 @@ class _AddTeacherState extends State<AddTeacher> with UserDataMixin {
       int telephone = int.parse(_telephone.text);
       String password = (_password.text);
       int activate = _isActivate ? 1 : 0;
+      String elhagah = 'null';
 
       _userModel.first_name = _firstname.text;
       _userModel.middle_name = _fathername.text;
@@ -394,6 +409,7 @@ class _AddTeacherState extends State<AddTeacher> with UserDataMixin {
       _userModel.date = _date.text;
       _userModel.isActivate = activate;
       _userModel.schoolID = schoolID;
+      _userModel.elhalagatID = elhagah;
 
       await teacherController.addTeacher(_userModel);
 

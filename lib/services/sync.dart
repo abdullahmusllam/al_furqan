@@ -18,7 +18,6 @@ import 'package:flutter/material.dart';
 
 class Sync {
   Future<void> syncUsers() async {
-    final db = await sqlDb.database;
     debugPrint('===== sync Users =====');
     List<Map<String, dynamic>> map =
         await sqlDb.readDataID("Users", 'isSync', 0);
