@@ -210,10 +210,15 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     title: "الرسائل",
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.of(context).push(CupertinoPageRoute(
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(
                           builder: (context) => ConversationsScreen(
-                                currentUser: widget.user!,
-                              )));
+                            currentUser: widget.user!,
+                            availableParents: [],
+                            availableTeachers: [],
+                          ),
+                        ),
+                      );
                     },
                   ),
                   // Student Management Section

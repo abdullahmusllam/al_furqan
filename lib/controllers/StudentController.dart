@@ -1,5 +1,7 @@
 // ignore_for_file: file_names
 
+import 'dart:developer';
+
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
@@ -18,7 +20,7 @@ class StudentController {
 
   Future<List<StudentModel>> getStudents(String halagaID) async {
     List<Map> studentData = await _sqldb
-        .readData("SELECT * FROM Students WHERE ElhalagatID = $halagaID");
+        .readData("SELECT * FROM Students WHERE ElhalagatID = '$halagaID'");
 
     students = studentData.map((student) {
       return StudentModel(
@@ -346,8 +348,7 @@ class StudentController {
       final studentCount = count[0]['count'] as int;
       int halagaResponse = await _sqldb.updateData(
           "UPDATE Elhalagat SET NumberStudent = $studentCount, isSync = 0 WHERE halagaID = '$halqaID'");
-      debugPrint(
-          "Updated NumberStudent to $studentCount for halqa $halqaID, response: $halagaResponse");
+      log("Updated NumberStudent to $studentCount for halqa $halqaID, response: $halagaResponse");
     } catch (e) {
       debugPrint("Error assigning student to halqa: $e");
       rethrow;
@@ -414,7 +415,7 @@ class StudentController {
   Future<List<StudentModel>> getStudentsWithoutHalaga(int schoolID) async {
     try {
       List<Map<String, dynamic>> studentData = await _sqldb.readData(
-          "SELECT * FROM Students WHERE SchoolID = $schoolID AND (ElhalagatID IS NULL OR ElhalagatID = '' OR ElhalagatID = 'null')");
+          "SELECT * FROM Students WHERE SchoolID = $schoolID AND (ElhalagatID IS NULL OR ElhalagatID = '' OR ElhalagatID = 'null' OR ElhalagatID = 'NULL')");
 
       debugPrint(
           "Students without halaga for schoolID $schoolID: ${studentData.length}");
@@ -456,10 +457,9 @@ class StudentController {
       final studentCount = count[0]['count'] as int;
       int halagaResponse = await _sqldb.updateData(
           "UPDATE Elhalagat SET NumberStudent = $studentCount WHERE halagaID = '$halagaID'");
-      debugPrint(
-          "Updated NumberStudent to $studentCount for halqa $halagaID, response: $halagaResponse");
+      log("Updated NumberStudent to $studentCount for halqa $halagaID, response: $halagaResponse");
     } catch (e) {
-      debugPrint("Error assigning students to halaga: $e");
+      log("Error assigning students to halaga: $e");
       rethrow;
     }
   }

@@ -374,6 +374,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
 
       // حذف الحلقة من قاعدة البيانات
       await halagaController.deleteHalaga(halqa.halagaID!);
+      await firebasehelper.delete(halqa.halagaID!, 'Elhalaga');
 
       // إغلاق مؤشر التحميل
       Navigator.of(context).pop();
