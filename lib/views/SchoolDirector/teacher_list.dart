@@ -1,10 +1,13 @@
 import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/helper/current_user.dart';
 import 'package:al_furqan/helper/user_helper.dart';
+import 'package:al_furqan/models/provider/user_provider.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/views/SchoolDirector/edit_teacher.dart';
 import 'package:al_furqan/views/SchoolDirector/teacher_request.dart';
+import 'package:provider/provider.dart';
 
 class TeacherList extends StatefulWidget {
   const TeacherList({super.key});
@@ -13,8 +16,11 @@ class TeacherList extends StatefulWidget {
   State<TeacherList> createState() => _TeacherListState();
 }
 
-class _TeacherListState extends State<TeacherList> with UserDataMixin {
+class _TeacherListState extends State<TeacherList>
+// with UserDataMixin
+{
   String _searchQuery = '';
+  UserModel? user = CurrentUser.user;
   List<UserModel> _filteredTeachers = [];
   bool _isSearching = false;
   bool _isRefreshing = false; // Local loading state for refresh operations
@@ -30,17 +36,17 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
 
   Future<void> _initializeTeachers() async {
     debugPrint("TeacherList: _initializeTeachers started");
-    await fetchUserData();
+    // await fetchUserData();
 
     // If UserDataMixin didn't load teachers properly, load them directly
-    if (teacherController.teachers.isEmpty && schoolID != null) {
+    if (teacherController.teachers.isEmpty && user!.schoolID != null) {
       debugPrint(
           "TeacherList: No teachers found after mixin initialization, fetching directly");
-      await _directFetchTeachers();
+      // await _directFetchTeachers();
     } else {
       debugPrint(
           "TeacherList: ${teacherController.teachers.length} teachers found after mixin initialization");
-      _updateFilteredTeachers();
+      // _updateFilteredTeachers();
     }
 
     // التحقق من وجود طلبات تفعيل معلقة
@@ -54,11 +60,11 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
 
   // التحقق من وجود طلبات تفعيل معلقة
   Future<void> _checkPendingActivations() async {
-    if (schoolID != null) {
+    if (user!.schoolID != null) {
       try {
         // استخدام الدالة الثابتة من TeacherRequest للتحقق من طلبات التفعيل
         _pendingActivationsCount =
-            await TeacherRequest.checkPendingActivationsCount(schoolID!);
+            await TeacherRequest.checkPendingActivationsCount(user!.schoolID!);
         debugPrint(
             "TeacherList: Found $_pendingActivationsCount pending activations");
       } catch (e) {
@@ -70,102 +76,102 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
   }
 
   // Direct fetch method that doesn't rely on the mixin
-  Future<void> _directFetchTeachers() async {
-    if (schoolID == null) {
-      debugPrint("TeacherList: _directFetchTeachers - schoolID is null");
-      return;
-    }
+  // Future<void> _directFetchTeachers() async {
+  //   if (user!.schoolID == null) {
+  //     debugPrint("TeacherList: _directFetchTeachers - schoolID is null");
+  //     return;
+  //   }
 
-    setState(() {
-      _isRefreshing = true;
-    });
+  //   setState(() {
+  //     _isRefreshing = true;
+  //   });
 
-    debugPrint("TeacherList: Directly fetching teachers for schoolID: $schoolID");
-    try {
-      await teacherController.getTeachersBySchoolID(schoolID!);
-      _updateFilteredTeachers();
-      debugPrint(
-          "TeacherList: Direct fetch complete, found ${_filteredTeachers.length} teachers");
-    } catch (e) {
-      debugPrint("TeacherList: Error in direct fetch - $e");
-    } finally {
-      setState(() {
-        _isRefreshing = false;
-      });
-    }
-  }
+  //   debugPrint("TeacherList: Directly fetching teachers for schoolID: ${user!.schoolID}");
+  //   try {
+  //     await teacherController.getTeachersBySchoolID(user!.schoolID!);
+  //     _updateFilteredTeachers();
+  //     debugPrint(
+  //         "TeacherList: Direct fetch complete, found ${_filteredTeachers.length} teachers");
+  //   } catch (e) {
+  //     debugPrint("TeacherList: Error in direct fetch - $e");
+  //   } finally {
+  //     setState(() {
+  //       _isRefreshing = false;
+  //     });
+  //   }
+  // }
 
-  void _updateFilteredTeachers() {
-    // تصفية المعلمين أولاً بناءً على isActivate = 1
-    List<UserModel> activatedTeachers = teacherController.teachers
-        .where((teacher) => teacher.isActivate == 1)
-        .toList();
+  // void _updateFilteredTeachers() {
+  //   // تصفية المعلمين أولاً بناءً على isActivate = 1
+  //   List<UserModel> activatedTeachers = teacherController.teachers
+  //       .where((teacher) => teacher.isActivate == 1)
+  //       .toList();
 
-    if (_searchQuery.isEmpty) {
-      _filteredTeachers = List.from(activatedTeachers);
-    } else {
-      _filteredTeachers = activatedTeachers.where((teacher) {
-        final fullName =
-            '${teacher.first_name ?? ''} ${teacher.middle_name ?? ''} ${teacher.last_name ?? ''}'
-                .toLowerCase();
-        return fullName.contains(_searchQuery.toLowerCase());
-      }).toList();
-    }
-    // Debug print
-    debugPrint("Filtered teachers updated - count: ${_filteredTeachers.length}");
-    setState(() {});
-  }
+  //   if (_searchQuery.isEmpty) {
+  //     _filteredTeachers = List.from(activatedTeachers);
+  //   } else {
+  //     _filteredTeachers = activatedTeachers.where((teacher) {
+  //       final fullName =
+  //           '${teacher.first_name ?? ''} ${teacher.middle_name ?? ''} ${teacher.last_name ?? ''}'
+  //               .toLowerCase();
+  //       return fullName.contains(_searchQuery.toLowerCase());
+  //     }).toList();
+  //   }
+  //   // Debug print
+  //   debugPrint("Filtered teachers updated - count: ${_filteredTeachers.length}");
+  //   setState(() {});
+  // }
 
-  Future<void> _refreshTeachers() async {
-    if (schoolID != null) {
-      debugPrint("Refreshing teachers for schoolID: $schoolID");
-      setState(() {
-        _isRefreshing = true;
-      });
+  // Future<void> _refreshTeachers() async {
+  //   if (schoolID != null) {
+  //     debugPrint("Refreshing teachers for schoolID: $schoolID");
+  //     setState(() {
+  //       _isRefreshing = true;
+  //     });
 
-      try {
-        await teacherController.getTeachersBySchoolID(schoolID!);
-        debugPrint(
-            "Teachers refreshed - count: ${teacherController.teachers.length}");
-        _updateFilteredTeachers();
+  //     try {
+  //       await teacherController.getTeachersBySchoolID(schoolID!);
+  //       debugPrint(
+  //           "Teachers refreshed - count: ${teacherController.teachers.length}");
+  //       _updateFilteredTeachers();
 
-        // تحديث عدد طلبات التفعيل المعلقة
-        await _checkPendingActivations();
-      } catch (e) {
-        debugPrint("Error refreshing teachers: $e");
-      } finally {
-        setState(() {
-          _isRefreshing = false;
-        });
-      }
-    } else {
-      debugPrint("Cannot refresh - schoolID is null");
-    }
-  }
+  //       // تحديث عدد طلبات التفعيل المعلقة
+  //       await _checkPendingActivations();
+  //     } catch (e) {
+  //       debugPrint("Error refreshing teachers: $e");
+  //     } finally {
+  //       setState(() {
+  //         _isRefreshing = false;
+  //       });
+  //     }
+  //   } else {
+  //     debugPrint("Cannot refresh - schoolID is null");
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    // Debug prints
-    debugPrint(
-        "TeacherList build - isLoading: $isLoading, _isRefreshing: $_isRefreshing, _forceShowContent: $_forceShowContent, hasInitialized: $_hasInitialized");
-    debugPrint(
-        "TeacherList build - _filteredTeachers count: ${_filteredTeachers.length}");
+    // // Debug prints
+    // debugPrint(
+    //     "TeacherList build - isLoading: $isLoading, _isRefreshing: $_isRefreshing, _forceShowContent: $_forceShowContent, hasInitialized: $_hasInitialized");
+    // debugPrint(
+    //     "TeacherList build - _filteredTeachers count: ${_filteredTeachers.length}");
 
-    if (!_hasInitialized &&
-        !isLoading &&
-        !_isRefreshing &&
-        teacherController.teachers.isEmpty &&
-        schoolID != null) {
-      // If we've loaded but have no teachers, try to fetch them directly
-      Future.microtask(() => _directFetchTeachers());
-    }
+    // if (!_hasInitialized &&
+    //     !isLoading &&
+    //     !_isRefreshing &&
+    //     teacherController.teachers.isEmpty &&
+    //     schoolID != null) {
+    //   // If we've loaded but have no teachers, try to fetch them directly
+    //   Future.microtask(() => _directFetchTeachers());
+    // }
 
-    // تعيين _forceShowContent كـ true بعد الانتهاء من التحميل الأولي
-    if (_hasInitialized && !_forceShowContent) {
-      _forceShowContent = true;
-      // استخدام Future.microtask لتأخير setState حتى ينتهي build الحالي
-      Future.microtask(() => setState(() {}));
-    }
+    // // تعيين _forceShowContent كـ true بعد الانتهاء من التحميل الأولي
+    // if (_hasInitialized && !_forceShowContent) {
+    //   _forceShowContent = true;
+    //   // استخدام Future.microtask لتأخير setState حتى ينتهي build الحالي
+    //   Future.microtask(() => setState(() {}));
+    // }
 
     return Scaffold(
       body: Column(
@@ -174,42 +180,45 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
             padding: const EdgeInsets.all(16.0),
             child: _buildSearchBar(),
           ),
-          if (_forceShowContent ||
-              (!isLoading && !_isRefreshing)) // تعديل الشرط هنا
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'عدد المعلمين المفعلين: ${_filteredTeachers.length}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+          // if (_forceShowContent ||
+          //     (!isLoading && !_isRefreshing)) // تعديل الشرط هنا
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Selector<UserProvider, int>(
+                        builder: (context, prov, child) => Text(
+                              'عدد المعلمين المفعلين: $prov',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                        selector: (_, s) => s.teacherCount),
+                    const Text(
+                      '(يتم عرض المعلمين المفعلين فقط)',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.green,
+                        fontStyle: FontStyle.italic,
                       ),
-                      const Text(
-                        '(يتم عرض المعلمين المفعلين فقط)',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.green,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: _refreshTeachers,
-                    tooltip: 'تحديث البيانات',
-                    color: const Color.fromARGB(255, 1, 117, 70),
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () =>
+                      (context).read<UserProvider>().loadTeachers(),
+                  tooltip: 'تحديث البيانات',
+                  color: const Color.fromARGB(255, 1, 117, 70),
+                ),
+              ],
             ),
+          ),
           Expanded(
             child: (_isRefreshing && !_forceShowContent) // تعديل الشرط هنا
                 ? const Center(
@@ -230,75 +239,79 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
                       ],
                     ),
                   )
-                : _filteredTeachers.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.people_outline,
-                              size: 64,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              _searchQuery.isNotEmpty
-                                  ? 'لا يوجد معلمين مفعلين بهذا الاسم'
-                                  : 'لا يوجد معلمين مفعلين في هذه المدرسة',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            if (_searchQuery.isNotEmpty) ...[
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _searchQuery = '';
-                                    _isSearching = false;
-                                    _updateFilteredTeachers();
-                                  });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 1, 117, 70),
-                                  foregroundColor: Colors.white,
+                : Consumer<UserProvider>(
+                    builder: (context, prov, child) => prov.teachers.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.people_outline,
+                                  size: 64,
+                                  color: Colors.grey,
                                 ),
-                                child: const Text('إظهار جميع المعلمين'),
-                              ),
-                            ],
-                            // Add a refresh button when no teachers are found
-                            if (_searchQuery.isEmpty) ...[
-                              const SizedBox(height: 16),
-                              ElevatedButton.icon(
-                                onPressed: _directFetchTeachers,
-                                icon: const Icon(Icons.refresh),
-                                label: const Text('تحديث البيانات'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 1, 117, 70),
-                                  foregroundColor: Colors.white,
+                                const SizedBox(height: 16),
+                                Text(
+                                  _searchQuery.isNotEmpty
+                                      ? 'لا يوجد معلمين مفعلين بهذا الاسم'
+                                      : 'لا يوجد معلمين مفعلين في هذه المدرسة',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: _refreshTeachers,
-                        color: const Color.fromARGB(255, 1, 117, 70),
-                        child: ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          itemCount: _filteredTeachers.length,
-                          itemBuilder: (context, index) {
-                            final teacher = _filteredTeachers[index];
-                            return _buildTeacherCard(teacher);
-                          },
-                        ),
-                      ),
-          ),
+                                if (_searchQuery.isNotEmpty) ...[
+                                  const SizedBox(height: 16),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _searchQuery = '';
+                                        _isSearching = false;
+                                        // _updateFilteredTeachers();
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          const Color.fromARGB(255, 1, 117, 70),
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: const Text('إظهار جميع المعلمين'),
+                                  ),
+                                ],
+                                // Add a refresh button when no teachers are found
+                                if (_searchQuery.isEmpty) ...[
+                                  const SizedBox(height: 16),
+                                  ElevatedButton.icon(
+                                    onPressed: () {},
+                                    icon: const Icon(Icons.refresh),
+                                    label: const Text('تحديث البيانات'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          const Color.fromARGB(255, 1, 117, 70),
+                                      foregroundColor: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          )
+                        : RefreshIndicator(
+                            onRefresh: () =>
+                                (context).read<UserProvider>().loadTeachers(),
+                            color: const Color.fromARGB(255, 1, 117, 70),
+                            child: ListView.builder(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              itemCount: prov.teachers.length,
+                              itemBuilder: (context, index) {
+                                final UserModel? teacher = prov.teachers[index];
+                                return _buildTeacherCard(prov.teachers[index]!);
+                              },
+                            ),
+                          ),
+                  ),
+          )
         ],
       ),
     );
@@ -316,7 +329,7 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
                   setState(() {
                     _searchQuery = '';
                     _isSearching = false;
-                    _updateFilteredTeachers();
+                    // _updateFilteredTeachers();
                   });
                 },
               )
@@ -341,7 +354,7 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
         setState(() {
           _searchQuery = value;
           _isSearching = value.isNotEmpty;
-          _updateFilteredTeachers();
+          // _updateFilteredTeachers();
         });
       },
     );
@@ -510,7 +523,7 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
                     ).then((value) {
                       if (value == true) {
                         // Refresh the teacher list if edit was successful
-                        _refreshTeachers();
+                        (context).read<UserProvider>().loadTeachers();
                       }
                     });
                   },
@@ -637,7 +650,7 @@ class _TeacherListState extends State<TeacherList> with UserDataMixin {
         await userController.deleteUser(teacher.user_id!);
 
         // تحديث القائمة بعد الحذف
-        await _refreshTeachers();
+        await (context).read<UserProvider>().loadTeachers();
 
         // إغلاق مؤشر التحميل
         if (!mounted) return;

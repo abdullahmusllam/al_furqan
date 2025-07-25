@@ -103,7 +103,7 @@ class _MainScreenState extends State<MainScreenD> {
       // log("Time Load Messages is : $timeLoadMessages ms");
 
       final sw8 = Stopwatch()..start();
-      await loadUsersFromFirebase();
+      // await loadUsersFromFirebase();
       sw8.stop();
       timeLoadUsersFromFirebase = sw8.elapsedMilliseconds;
       log("Time Load Users From Firebase is : $timeLoadUsersFromFirebase ms");

@@ -50,7 +50,7 @@ class MessageProvider with ChangeNotifier {
   }
 
   loadMessages() async {
-    messages.clear();
+    // messages.clear();
     messages = await messageController.getMessages();
     notifyListeners();
   }
@@ -58,6 +58,7 @@ class MessageProvider with ChangeNotifier {
   loadMessageFromFirebase() async {
     await messageService.loadMessagesFromFirestore(userID!);
     await loadConversations();
+    await loadUnreadMessage();
   }
 
   loadUsers() async {
@@ -190,5 +191,16 @@ class MessageProvider with ChangeNotifier {
     }
     notifyListeners();
     return lastMessages;
+  }
+
+  void clear() {
+    messages.clear();
+    parents.clear();
+    teachers.clear();
+    users.clear();
+    userIds.clear();
+    lastMessages.clear();
+    unreadMessagesCount = 0;
+    notifyListeners();
   }
 }

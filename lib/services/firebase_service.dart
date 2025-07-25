@@ -240,6 +240,28 @@ class FirebaseHelper {
 
 // =========================== Start User ===============================
 
+  Future<UserModel?> getUserByPhone(String phone) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('Users')
+          .where('phone_number',
+              isEqualTo: int.parse(phone)) // البحث حسب رقم الهاتف
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final data = querySnapshot.docs.first.data();
+        return UserModel.fromMap(data); // تحويله إلى UserModel
+      } else {
+        print('❌ لا يوجد مستخدم بهذا الرقم');
+        return null;
+      }
+    } catch (e) {
+      print('⚠️ خطأ في جلب المستخدم: $e');
+      return null;
+    }
+  }
+
   addUser(UserModel user) async {
     debugPrint("addUser(UserModel user)");
     final docRef = _firestore.collection('Users');

@@ -120,7 +120,7 @@ class _UsersScreenState extends State<UsersScreen> {
                             },
                           ),
                       selector: (_, S) => S.manager)
-                  : Text('المدير ليس متاح')
+                  : Container()
             ],
           ),
           actions: [

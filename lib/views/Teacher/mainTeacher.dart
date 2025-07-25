@@ -3,14 +3,19 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/controllers/message_controller.dart';
+import 'package:al_furqan/helper/current_user.dart';
 import 'package:al_furqan/helper/user_helper.dart';
+import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/eltlawah_plan_model.dart';
 import 'package:al_furqan/models/islamic_studies_model.dart';
 import 'package:al_furqan/models/provider/message_provider.dart';
+import 'package:al_furqan/models/provider/user_provider.dart';
+import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/message_sevice.dart';
 import 'package:al_furqan/views/Teacher/DrawerTeacher.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,13 +30,16 @@ class TeacherDashboard extends StatefulWidget {
 }
 
 class _TeacherDashboardState extends State<TeacherDashboard>
-    with UserDataMixin, WidgetsBindingObserver {
+// with UserDataMixin, WidgetsBindingObserver
+{
   final HalagaController _halagaController = HalagaController();
-  int _unreadMessagesCount = 0;
+  UserModel? user = CurrentUser.user;
+  String? phone = perf.getString('phoneUser');
+  // int _unreadMessagesCount = 0;
   bool _isLoadingHalaga = false;
   String? _errorMessage;
   HalagaModel? _teacherHalaga;
-  bool _isLoading = true;
+  final bool _isLoading = true;
   List<EltlawahPlanModel>? eltlawahPlan;
   List<IslamicStudiesModel>? islamicPlan;
 
@@ -57,8 +65,8 @@ class _TeacherDashboardState extends State<TeacherDashboard>
 
   Future<void> _loadTeacherHalaga() async {
     debugPrint("MainTeacher - _loadTeacherHalaga started");
-    debugPrint(
-        "MainTeacher - User data: ${user != null ? 'Available' : 'Not available'}");
+    // debugPrint(
+    //     "MainTeacher - User data: ${user != null ? 'Available' : 'Not available'}");
 
     if (_isLoadingHalaga) {
       debugPrint("MainTeacher - Already loading halaga data, skipping");
@@ -67,7 +75,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
 
     if (user == null) {
       debugPrint("MainTeacher - User is null, trying to load user data first");
-      await fetchUserData(); // استدعاء دالة تحميل بيانات المستخدم أولاً
+      // await fetchUserData(); // استدعاء دالة تحميل بيانات المستخدم أولاً
       if (user == null) {
         debugPrint("MainTeacher - Still couldn't load user data");
         setState(() {
@@ -337,10 +345,9 @@ class _TeacherDashboardState extends State<TeacherDashboard>
   void initState() {
     super.initState();
     // إضافة مراقب دورة حياة التطبيق
-    WidgetsBinding.instance.addObserver(this);
-
+    // WidgetsBinding.instance.addObserver(this);
     // Initial data loading
-    fetchUserData();
+    // fetchUserData();
     // _loadPlans();
     loadMessagesAndStudent();
     halagaController.getHalagatFromFirebase();
@@ -350,7 +357,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
   @override
   void dispose() {
     // إزالة مراقب دورة حياة التطبيق
-    WidgetsBinding.instance.removeObserver(this);
+    // WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -358,7 +365,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // تحديث عدد الإشعارات عند العودة للتطبيق
     if (state == AppLifecycleState.resumed) {
-      updateNotificationCount();
+      // updateNotificationCount();
     }
   }
 
@@ -377,23 +384,23 @@ class _TeacherDashboardState extends State<TeacherDashboard>
     await messageService.loadMessagesFromFirestore(Id!);
 
     // تحديث عدد الإشعارات
-    await updateNotificationCount();
-
+    // await updateNotificationCount();
+    int? schoolID = perf.getInt('schoolId');
     // تحميل بيانات الطلاب والمعلمين
     await studentController.addToLocalOfFirebase(schoolID!);
     await halagaController.getTeachers(schoolID!);
-    await fathersController.getFathersBySchoolId(schoolID!);
+    await fathersController.getFathersBySchoolId(schoolID);
   }
 
   // تحديث عدد الإشعارات
-  Future<void> updateNotificationCount() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? Id = prefs.getString('user_id');
-    if (Id != null) {
-      _unreadMessagesCount = await messageController.getUnreadMessagesCount(Id);
-      setState(() {}); // تحديث واجهة المستخدم
-    }
-  }
+  // Future<void> updateNotificationCount() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   String? Id = prefs.getString('user_id');
+  //   if (Id != null) {
+  //     _unreadMessagesCount = await messageController.getUnreadMessagesCount(Id);
+  //     setState(() {}); // تحديث واجهة المستخدم
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -415,29 +422,31 @@ class _TeacherDashboardState extends State<TeacherDashboard>
             child: IconButton(
               onPressed: () {
                 _loadTeacherHalaga();
-                updateNotificationCount();
+                (context).read<MessageProvider>().loadMessageFromFirebase();
+                // updateNotificationCount();
                 // استدعاء دالة تحديث البيانات مباشرة (ستقوم بتحديث حالة التحميل داخلياً)
-                fetchUserData().then((_) {
-                  // تحديث عدد الإشعارات عند الضغط على زر التحديث
-                  updateNotificationCount();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Row(
-                        children: [
-                          Icon(Icons.check_circle, color: Colors.white),
-                          SizedBox(width: 10),
-                          Text('تم تحديث البيانات بنجاح'),
-                        ],
-                      ),
-                      duration: Duration(seconds: 2),
-                      backgroundColor: Colors.green,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                // fetchUserData().then((_) {
+                // تحديث عدد الإشعارات عند الضغط على زر التحديث
+                // updateNotificationCount();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.white),
+                        SizedBox(width: 10),
+                        Text('تم تحديث البيانات بنجاح'),
+                      ],
                     ),
-                  );
-                });
+                    duration: Duration(seconds: 2),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  // );
+                  // }
+                );
               },
               icon: Icon(Icons.refresh, color: Colors.white),
               tooltip: 'تحديث البيانات',
@@ -459,16 +468,15 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                     content: Text('هل أنت متأكد من رغبتك في تسجيل الخروج؟'),
                     actions: [
                       TextButton(
-                        onPressed: () => Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LoginScreen())),
+                        onPressed: () => Navigator.pop(context),
                         child: Text('إلغاء'),
                       ),
                       ElevatedButton(
                         onPressed: () async {
                           final prefs = await SharedPreferences.getInstance();
                           await prefs.clear();
+                          perf.clear();
+                          (context).read<MessageProvider>().clear();
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
@@ -489,7 +497,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
             ),
           ),
         ],
-        title: isLoading || user == null
+        title: _isLoading || user == null
             ? Row(
                 children: [
                   SizedBox(
@@ -523,7 +531,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
               ),
       ),
       drawer: user == null ? null : DrawerTeacher(),
-      body: isLoading
+      body: _isLoading
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -549,7 +557,9 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                       ),
                       SizedBox(height: 10),
                       ElevatedButton.icon(
-                        onPressed: () => fetchUserData(),
+                        onPressed: () => (context)
+                            .read<UserProvider>()
+                            .loadUsersFromFirebase(),
                         icon: Icon(Icons.refresh),
                         label: Text("إعادة المحاولة"),
                         style: ElevatedButton.styleFrom(
@@ -599,7 +609,9 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                             ),
                             SizedBox(height: 20),
                             ElevatedButton.icon(
-                              onPressed: () => fetchUserData(),
+                              onPressed: () => (context)
+                                  .read<UserProvider>()
+                                  .loadUsersFromFirebase(),
                               icon: Icon(Icons.refresh),
                               label: Text("تحديث البيانات"),
                               style: ElevatedButton.styleFrom(
@@ -691,8 +703,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                                   color: Colors.white,
                                                   textColor: Theme.of(context)
                                                       .primaryColor,
-                                                  badgeCount:
-                                                      _unreadMessagesCount,
+                                                  badgeCount: prov,
                                                 ),
                                               ),
                                           selector: (_, s) => s.unReadCount)

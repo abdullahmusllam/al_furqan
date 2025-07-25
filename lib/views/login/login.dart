@@ -1,6 +1,8 @@
 import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
+import 'package:al_furqan/main.dart';
+import 'package:al_furqan/models/provider/user_provider.dart';
 import 'package:al_furqan/models/schools_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
@@ -12,7 +14,10 @@ import 'package:al_furqan/views/login/signup_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../helper/current_user.dart';
 
 String id = "";
 
@@ -33,24 +38,25 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    _loadDataFromFirebase();
+    // _loadDataFromFirebase();
+    loadSchoolsFromFirebase();
   }
 
   /// تحميل المستخدمين من Firebase
-  Future<void> loadUsersFromFirebase() async {
-    List<UserModel> users = await firebasehelper.getUsers();
-    for (var user in users) {
-      bool exists =
-          await sqlDb.checkIfitemExists2("Users", user.user_id!, "user_id");
-      if (exists) {
-        await userController.updateUser(user, 0);
-        debugPrint('===== Find user (update) =====');
-      } else {
-        await userController.addUser(user, 0);
-        debugPrint('===== Find user (add) =====');
-      }
-    }
-  }
+  // Future<void> loadUsersFromFirebase() async {
+  //   List<UserModel> users = await firebasehelper.getUsers();
+  //   for (var user in users) {
+  //     bool exists =
+  //         await sqlDb.checkIfitemExists2("Users", user.user_id!, "user_id");
+  //     if (exists) {
+  //       await userController.updateUser(user, 0);
+  //       debugPrint('===== Find user (update) =====');
+  //     } else {
+  //       await userController.addUser(user, 0);
+  //       debugPrint('===== Find user (add) =====');
+  //     }
+  //   }
+  // }
 
   /// تحميل المدارس من Firebase
   Future<void> loadSchoolsFromFirebase() async {
@@ -72,40 +78,40 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   /// تحميل البيانات من Firebase
-  Future<void> _loadDataFromFirebase() async {
-    if (await isConnected()) {
-      if (mounted) {
-        setState(() => _isLoading = true);
-      }
-      try {
-        await loadUsersFromFirebase();
-        await loadSchoolsFromFirebase();
-      } catch (e) {
-        debugPrint("Error loading data from Firebase: $e");
-      } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
-      }
-    } else {
-      setState(() {
-        _isLoading = false;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('لا يوجد اتصال بالانترنت لتحديث البيانات'),
-          backgroundColor: Colors.red,
-        ));
-      });
-    }
-  }
+  // Future<void> _loadDataFromFirebase() async {
+  //   if (await isConnected()) {
+  //     if (mounted) {
+  //       setState(() => _isLoading = true);
+  //     }
+  //     try {
+  //       // await loadUsersFromFirebase();
+  //       await loadSchoolsFromFirebase();
+  //     } catch (e) {
+  //       debugPrint("Error loading data from Firebase: $e");
+  //     } finally {
+  //       if (mounted) {
+  //         setState(() => _isLoading = false);
+  //       }
+  //     }
+  //   } else {
+  //     setState(() {
+  //       _isLoading = false;
+  //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  //         content: Text('لا يوجد اتصال بالانترنت لتحديث البيانات'),
+  //         backgroundColor: Colors.red,
+  //       ));
+  //     });
+  //   }
+  // }
 
   /// حفظ بيانات تسجيل الدخول في SharedPreferences
   Future<void> saveUserLogin(
       String phoneUser, int roleId, int isActivate) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('phoneUser', phoneUser);
-    await prefs.setInt('roleID', roleId);
-    await prefs.setInt('isActivate', isActivate);
-    await prefs.setBool('isLoggedIn', true);
+    await perf.setString('phoneUser', phoneUser);
+    await perf.setInt('roleID', roleId);
+    await perf.setInt('isActivate', isActivate);
+    await perf.setBool('isLoggedIn', true);
+    // print('===== sdsc sdsefsdx =====');
   }
 
   /// تسجيل الدخول باستخدام رقم الهاتف وكلمة المرور
@@ -126,10 +132,16 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     /// التحقق من صحة بيانات تسجيل الدخول
-    final user = await sqlDb.getUser(phone, password);
+    UserModel? user = await firebasehelper.getUserByPhone(phone);
+    // (context).read<UserProvider>().user = user;
+    // await userController.addUser(user!, 0);
+    await userController.saveUserToPrefs(user!);
+    CurrentUser.user = user;
+    // print(user);
+    // sqlDb.getUser(phone, password);
 
     /// التحقق من أن المستخدم موجود
-    if (user == null || user.user_id == null) {
+    if (user == null || user.user_id == null || user.password != password) {
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -161,20 +173,34 @@ class _LoginScreenState extends State<LoginScreen> {
     id = user.user_id!;
     String name = "${user.first_name!} ${user.last_name!}";
     await saveUserLogin(phone, user.roleID!, user.isActivate!);
-    final per = await SharedPreferences.getInstance();
-    await per.setString('user_id', id);
+    // final per = await SharedPreferences.getInstance();
+    await perf.setString('user_id', id);
     if (user.roleID == 1 || user.roleID == 2) {
-      await per.setInt('schoolId', user.schoolID!);
+      await perf.setInt('schoolId', user.schoolID!);
     }
-    await per.setString('user_name', name);
+    await perf.setString('user_name', name);
     if (user.roleID == 2) {
       if (user.elhalagatID == null) {
         return;
       }
-      await per.setString('halagaID', user.elhalagatID!);
+      await perf.setString('halagaID', user.elhalagatID!);
     }
     debugPrint('===== save id ($id) =====');
-    await chooseScreen(context);
+    String? halagaId = perf.getString('halagaID');
+
+    if (user.roleID == 2) {
+      if (halagaId == null || halagaId == 'null' || halagaId == 'NULL') {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+        _showErrorDialog(context, "خطأ", "لا يوجد لديك حلقة تواصل مع الادارة");
+        perf.clear();
+      } else {
+        await chooseScreen(context);
+      }
+    } else {
+      await chooseScreen(context);
+    }
   }
 
   /// اختيار الشاشة المناسبة للمستخدم بناءً على دوره
