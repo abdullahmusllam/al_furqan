@@ -1,6 +1,8 @@
+import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/models/provider/message_provider.dart';
 import 'package:al_furqan/models/provider/student_provider.dart';
 import 'package:al_furqan/models/provider/user_provider.dart';
+import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/splashScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

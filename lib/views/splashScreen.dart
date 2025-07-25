@@ -1,3 +1,6 @@
+import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/helper/current_user.dart';
+import 'package:al_furqan/models/provider/user_provider.dart';
 import 'package:al_furqan/views/SchoolDirector/main_screenD.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
 import 'package:al_furqan/views/SchoolDirector/SchoolDirectorHome.dart';
@@ -6,6 +9,7 @@ import 'package:al_furqan/views/Teacher/main_screenT.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -19,7 +23,13 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    loadUser();
     _checkLoginStatus();
+  }
+
+  Future<void> loadUser() async {
+    CurrentUser.user = await userController.loadUserFromPrefs();
+    print(CurrentUser.user);
   }
 
   /// التحقق مما إذا كان المستخدم مسجل الدخول

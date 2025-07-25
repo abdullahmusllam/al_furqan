@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:al_furqan/helper/sqldb.dart';
+import 'package:al_furqan/main.dart';
 // import 'package:al_furqan/models/password_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
@@ -228,16 +230,31 @@ class UserController {
     }
   }
 
-  Future<UserModel?> getUserById(String userId) async {
+  Future<List<UserModel>> loadUserBySchoolId() async {
+    int? schoolID = perf.getInt('schoolId');
     final db = await sqlDb.database;
+    final List<Map<String, dynamic>> userList =
+        await db.query('Users', where: 'schoolID = ?', whereArgs: [schoolID]);
 
-    final result =
-        await db.query('User', where: 'user_id = ?', whereArgs: [userId]);
-    if (result.isNotEmpty) {
-      return UserModel.fromJson(result.first);
-    } else {
-      return null;
+    return userList.map((j) => UserModel.fromJson(j)).toList();
+  }
+
+  Future<void> saveUserToPrefs(UserModel user) async {
+    String userJson = jsonEncode(user.toMap()); // أو fromMap حسب هيكل موديلك
+    await perf.setString('user', userJson);
+    print('$userJson ======================');
+  }
+
+  Future<UserModel?> loadUserFromPrefs() async {
+    String? userJson = perf.getString('user');
+
+    if (userJson != null) {
+      Map<String, dynamic> userMap = jsonDecode(userJson);
+      print('$userMap=====');
+      return UserModel.fromJson(userMap); // أو fromMap حسب موديلك
     }
+
+    return null;
   }
 }
 

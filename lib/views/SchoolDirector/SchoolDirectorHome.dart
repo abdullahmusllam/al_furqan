@@ -4,12 +4,15 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/message_controller.dart';
+import 'package:al_furqan/helper/current_user.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/provider/message_provider.dart';
 import 'package:al_furqan/models/provider/student_provider.dart';
+import 'package:al_furqan/models/provider/user_provider.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
+import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddHalaga.dart';
 import 'package:al_furqan/views/SchoolDirector/DrawerSchoolDirector.dart';
 import 'package:al_furqan/views/SchoolDirector/ElhalagatList.dart';
@@ -33,8 +36,10 @@ class SchoolManagerScreen extends StatefulWidget {
 }
 
 class _SchoolManagerScreenState extends State<SchoolManagerScreen>
-    with UserDataMixin, WidgetsBindingObserver {
+// with UserDataMixin, WidgetsBindingObserver
+{
   final teachers = teacherController.teachers;
+  final UserModel? user = CurrentUser.user;
   // final students = studentController.students;
   List<HalagaModel> _halaqatList = [];
   bool _isLoading = true;
@@ -53,20 +58,21 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   void initState() {
     super.initState();
     // إضافة مراقب دورة حياة التطبيق
-    WidgetsBinding.instance.addObserver(this);
-    
+    // WidgetsBinding.instance.addObserver(this);
 
     initializeDateFormatting('ar', null).then((_) {
       // ignore: use_build_context_synchronously
+
       _loadData();
     });
+    Future.microtask(() => (context).read<UserProvider>().loadUserFromLocal());
     // loadMessages();
   }
 
   @override
   void dispose() {
     // إزالة مراقب دورة حياة التطبيق
-    WidgetsBinding.instance.removeObserver(this);
+    // WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -103,12 +109,12 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     }
     try {
       final sw1 = Stopwatch()..start();
-      await fetchUserData();
+      // await fetchUserData();
       sw1.stop();
       _elapsedUserData = sw1.elapsedMilliseconds;
 
       final sw2 = Stopwatch()..start();
-      await _fetchCounts();
+      // await _fetchCounts();
       sw2.stop();
       _elapsedCounts = sw2.elapsedMilliseconds;
       // No longer calling _generateRecentActivities() as it's not needed
@@ -128,22 +134,22 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     }
   }
 
-  Future<void> _fetchCounts() async {
-    try {
-      if (user != null && user!.schoolID != null) {
-        // List<StudentModel> studentsList =
-        //     await studentController.getSchoolStudents(user!.schoolID!);
-        // _studentCount = studentsList.length;
+  // Future<void> _fetchCounts() async {
+  //   try {
+  //     if (user != null && user!.schoolID != null) {
+  //       // List<StudentModel> studentsList =
+  //       //     await studentController.getSchoolStudents(user!.schoolID!);
+  //       // _studentCount = studentsList.length;
 
-        _teacherCount = teachers.length;
+  //       _teacherCount = teachers.length;
 
-        _halaqatList = await halagaController.getData(user!.schoolID!);
-        _halqatCount = _halaqatList.length;
-      }
-    } catch (e) {
-      debugPrint('Error fetching counts: $e');
-    }
-  }
+  //       _halaqatList = await halagaController.getData(user!.schoolID!);
+  //       _halqatCount = _halaqatList.length;
+  //     }
+  //   } catch (e) {
+  //     debugPrint('Error fetching counts: $e');
+  //   }
+  // }
 
   // Method removed as it's no longer needed
 
@@ -153,7 +159,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
         elevation: 0,
-        title: isLoading || user == null
+        title: _isLoading || user == null
             ? Text("جاري التحميل...",
                 style:
                     TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
@@ -379,15 +385,17 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
         ),
         Row(
           children: [
-            Expanded(
-              child: _buildStatCard(
-                'المعلمين',
-                '$_teacherCount',
-                Icons.person,
-                Colors.blue.shade700,
-                Colors.blue.shade100,
-              ),
-            ),
+            Selector<UserProvider, int>(
+                builder: (context, prov, child) => Expanded(
+                      child: _buildStatCard(
+                        'المعلمين',
+                        '$prov',
+                        Icons.person,
+                        Colors.blue.shade700,
+                        Colors.blue.shade100,
+                      ),
+                    ),
+                selector: (_, s) => s.teacherCount),
             SizedBox(width: 12),
             Selector<StudentProvider, int>(
                 builder: (context, prov, child) => Expanded(
