@@ -468,6 +468,7 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                         MaterialPageRoute(
                             builder: (context) => ConversationsScreen(
                                   currentUser: user!,
+                                  
                                 )),
                       );
                     },

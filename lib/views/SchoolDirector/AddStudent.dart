@@ -1,6 +1,7 @@
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/helper/new_id2.dart';
+import 'package:al_furqan/models/provider/student_provider.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/studentListPage.dart';
 // import 'package:al_furqan/views/SchoolDirector/handling_excel_file.dart';
@@ -10,6 +11,7 @@ import 'package:al_furqan/models/student_model.dart';
 import 'package:flutter/services.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../controllers/excel_testing.dart';
 import '../../controllers/users_controller.dart';
 
@@ -93,6 +95,10 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       studentModel.userID = fatherModel.user_id;
       //  ثالثًا: إضافة الطالب إلى قاعدة البيانات المحلية والسحابية
       // int studentID =getMaxValue();
+      // (context).read<StudentProvider>().students.add(value);
+      Provider.of<StudentProvider>(context, listen: false)
+          .students
+          .add(studentModel);
       String? studentID = await studentController.addStudent(studentModel, 1);
       debugPrint("تم إضافة الطالب محليًا بمعرف: $studentID");
 

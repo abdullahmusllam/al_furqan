@@ -20,8 +20,8 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
   final MobileScannerController _controller = MobileScannerController();
 
   // وقت التحضير المسموح (تقدر تغيره براحتك)
-  final int allowedStartHour = 7; // 7 صباحاً
-  final int allowedEndHour = 8; // 8 صباحاً
+  final int allowedStartHour = 18; // 7 صباحاً
+  final int allowedEndHour = 17; // 8 صباحاً
   final int lateMinuteThreshold =
       30; // يعتبر متأخر بعد 30 دقيقة من بداية الدوام
 
@@ -124,9 +124,10 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
       // إذا كان الوقت بعد الساعة 7:30 صباحاً يعتبر متأخراً
       // يمكنك تعديل هذه القيم حسب سياسة المدرسة
       // تم تعليق التحقق من الوقت للاختبار
-      /* if ((now.hour == allowedStartHour && now.minute > lateMinuteThreshold) || now.hour > allowedStartHour) {
+      if ((now.hour == allowedStartHour && now.minute > lateMinuteThreshold) ||
+          now.hour > allowedStartHour) {
         attendanceStatus = "متأخر";
-      } */
+      }
       // للاختبار، دائماً يعتبر حاضر
       attendanceStatus = "حاضر";
 
@@ -178,13 +179,13 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
       _controller.stop();
       final now = TimeOfDay.now();
       // تم تعليق التحقق من الوقت للاختبار
-      /* if (now.hour < allowedStartHour || (now.hour > allowedEndHour)) {
+      if (now.hour < allowedStartHour || (now.hour > allowedEndHour)) {
         _showDialog(
           "خارج الوقت المسموح",
           " يمكنك تسجيل الحضور فقط من الساعة ${allowedStartHour}:00 صباحاً إلى ${allowedEndHour}:30 صباحاً.",
         );
         return;
-      } */
+      }
 
       // استخراج كود الحضور من الرمز المقروء (الذي قد يحتوي على معرف المدرسة)
       String extractedCode = scannedCode;
@@ -213,11 +214,13 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
 
         // تحديد حالة الحضور
         // تم تعليق التحقق من الوقت للاختبار
-        /* if ((now.hour == allowedStartHour && now.minute > lateMinuteThreshold) || now.hour > allowedStartHour) {
+        if ((now.hour == allowedStartHour &&
+                now.minute > lateMinuteThreshold) ||
+            now.hour > allowedStartHour) {
           _attendanceStatus = "متأخر";
         } else {
           _attendanceStatus = "حاضر";
-        } */
+        }
         // للاختبار، دائماً يعتبر حاضر
         _attendanceStatus = "حاضر";
 

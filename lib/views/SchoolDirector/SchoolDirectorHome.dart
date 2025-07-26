@@ -4,12 +4,16 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/message_controller.dart';
+import 'package:al_furqan/helper/current_user.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/main.dart';
+import 'package:al_furqan/models/provider/halaqa_provider.dart';
 import 'package:al_furqan/models/provider/message_provider.dart';
 import 'package:al_furqan/models/provider/student_provider.dart';
+import 'package:al_furqan/models/provider/user_provider.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/halaga_model.dart';
+import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/AddHalaga.dart';
 import 'package:al_furqan/views/SchoolDirector/DrawerSchoolDirector.dart';
 import 'package:al_furqan/views/SchoolDirector/ElhalagatList.dart';
@@ -33,8 +37,10 @@ class SchoolManagerScreen extends StatefulWidget {
 }
 
 class _SchoolManagerScreenState extends State<SchoolManagerScreen>
-    with UserDataMixin, WidgetsBindingObserver {
+// with UserDataMixin, WidgetsBindingObserver
+{
   final teachers = teacherController.teachers;
+  final UserModel? user = CurrentUser.user;
   // final students = studentController.students;
   List<HalagaModel> _halaqatList = [];
   bool _isLoading = true;
@@ -53,18 +59,21 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   void initState() {
     super.initState();
     // إضافة مراقب دورة حياة التطبيق
-    WidgetsBinding.instance.addObserver(this);
+    // WidgetsBinding.instance.addObserver(this);
 
     initializeDateFormatting('ar', null).then((_) {
+      // ignore: use_build_context_synchronously
+
       _loadData();
     });
+    Future.microtask(() => (context).read<UserProvider>().loadUserFromLocal());
     // loadMessages();
   }
 
   @override
   void dispose() {
     // إزالة مراقب دورة حياة التطبيق
-    WidgetsBinding.instance.removeObserver(this);
+    // WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -101,12 +110,12 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     }
     try {
       final sw1 = Stopwatch()..start();
-      await fetchUserData();
+      // await fetchUserData();
       sw1.stop();
       _elapsedUserData = sw1.elapsedMilliseconds;
 
       final sw2 = Stopwatch()..start();
-      await _fetchCounts();
+      // await _fetchCounts();
       sw2.stop();
       _elapsedCounts = sw2.elapsedMilliseconds;
       // No longer calling _generateRecentActivities() as it's not needed
@@ -126,22 +135,22 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     }
   }
 
-  Future<void> _fetchCounts() async {
-    try {
-      if (user != null && user!.schoolID != null) {
-        // List<StudentModel> studentsList =
-        //     await studentController.getSchoolStudents(user!.schoolID!);
-        // _studentCount = studentsList.length;
+  // Future<void> _fetchCounts() async {
+  //   try {
+  //     if (user != null && user!.schoolID != null) {
+  //       // List<StudentModel> studentsList =
+  //       //     await studentController.getSchoolStudents(user!.schoolID!);
+  //       // _studentCount = studentsList.length;
 
-        _teacherCount = teachers.length;
+  //       _teacherCount = teachers.length;
 
-        _halaqatList = await halagaController.getData(user!.schoolID!);
-        _halqatCount = _halaqatList.length;
-      }
-    } catch (e) {
-      debugPrint('Error fetching counts: $e');
-    }
-  }
+  //       _halaqatList = await halagaController.getData(user!.schoolID!);
+  //       _halqatCount = _halaqatList.length;
+  //     }
+  //   } catch (e) {
+  //     debugPrint('Error fetching counts: $e');
+  //   }
+  // }
 
   // Method removed as it's no longer needed
 
@@ -151,7 +160,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
         elevation: 0,
-        title: isLoading || user == null
+        title: _isLoading || user == null
             ? Text("جاري التحميل...",
                 style:
                     TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
@@ -165,12 +174,13 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
             onPressed: () {
               _loadData();
               final sw3 = Stopwatch()..start();
-              halagaController.getHalagatFromFirebase();
+              (context).read<HalaqaProvider>().loadHalaqatFromFirebase();
               sw3.stop();
               _elapsedHalagat = sw3.elapsedMilliseconds;
               (context)
                   .read<MessageProvider>()
-                  .loadUnreadMessage(); // تحديث عدد الإشعارات عند الضغط على زر التحديث
+                  .loadMessageFromFirebase(); // تحديث عدد الإشعارات عند الضغط على زر التحديث
+              (context).read<UserProvider>().loadUsersFromFirebase();
             },
             icon: Icon(Icons.refresh, color: Colors.white),
             tooltip: 'تحديث البيانات',
@@ -180,6 +190,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               final prefs = await SharedPreferences.getInstance();
               await prefs.clear();
               await perf.clear();
+              (context).read<MessageProvider>().clear();
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) => LoginScreen()));
             },
@@ -252,11 +263,17 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                         SizedBox(height: 24),
 
                         // Recent activity
-                        _buildRecentActivitySection(),
+                        Consumer<HalaqaProvider>(
+                          builder: (context, prov, child) =>
+                              _buildRecentActivitySection(prov.halaqat),
+                        ),
                         SizedBox(height: 24),
 
                         // Teachers list
-                        _buildTeachersSection(),
+                        Consumer<UserProvider>(
+                          builder: (context, prov, child) =>
+                              _buildTeachersSection(prov.activeTeacher),
+                        )
                       ],
                     ),
                   ),
@@ -376,15 +393,17 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
         ),
         Row(
           children: [
-            Expanded(
-              child: _buildStatCard(
-                'المعلمين',
-                '$_teacherCount',
-                Icons.person,
-                Colors.blue.shade700,
-                Colors.blue.shade100,
-              ),
-            ),
+            Selector<UserProvider, int>(
+                builder: (context, prov, child) => Expanded(
+                      child: _buildStatCard(
+                        'المعلمين',
+                        '$prov',
+                        Icons.person,
+                        Colors.blue.shade700,
+                        Colors.blue.shade100,
+                      ),
+                    ),
+                selector: (_, s) => s.teacherCount),
             SizedBox(width: 12),
             Selector<StudentProvider, int>(
                 builder: (context, prov, child) => Expanded(
@@ -398,15 +417,17 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                     ),
                 selector: (context, S) => S.studentCount),
             SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                'الحلقات',
-                '$_halqatCount',
-                Icons.menu_book,
-                Colors.purple.shade700,
-                Colors.purple.shade100,
-              ),
-            ),
+            Selector<HalaqaProvider, int>(
+                builder: (context, prov, child) => Expanded(
+                      child: _buildStatCard(
+                        'الحلقات',
+                        '$prov',
+                        Icons.menu_book,
+                        Colors.purple.shade700,
+                        Colors.purple.shade100,
+                      ),
+                    ),
+                selector: (_, s) => s.halaqatCount)
           ],
         ),
       ],
@@ -430,133 +451,125 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               ),
             ),
             SizedBox(height: 10),
-            Selector<StudentProvider, Map<String, dynamic>>(
-                selector: (_, S) => {'StCount': S.studentCount},
-                builder: (context, prov, child) => SizedBox(
-                      height: 250,
-                      child: prov['StCount'] > 0 || _teacherCount > 0
-                          ? BarChart(
-                              BarChartData(
-                                alignment: BarChartAlignment.spaceAround,
-                                maxY: prov['StCount'] > 0
-                                    ? prov['StCount'] * 1.2
-                                    : 10,
-                                barTouchData: BarTouchData(enabled: false),
-                                titlesData: FlTitlesData(
-                                  show: true,
-                                  rightTitles: AxisTitles(
-                                      sideTitles:
-                                          SideTitles(showTitles: false)),
-                                  topTitles: AxisTitles(
-                                      sideTitles:
-                                          SideTitles(showTitles: false)),
-                                  bottomTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      getTitlesWidget: (value, meta) {
-                                        String text = '';
-                                        switch (value.toInt()) {
-                                          case 0:
-                                            text = 'المعلمين';
-                                            break;
-                                          case 1:
-                                            text = 'الطلاب';
-                                            break;
-                                          case 2:
-                                            text = 'الحلقات';
-                                            break;
-                                        }
-                                        return Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 4.0),
-                                          child: Text(
-                                            text,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 11,
-                                            ),
+            Selector<StudentProvider, int>(
+              selector: (_, studentProv) => studentProv.studentCount,
+              builder: (context, studentCount, _) {
+                return Selector<UserProvider, int>(
+                  selector: (_, teacherProv) => teacherProv.teacherCount,
+                  builder: (context, teacherCount, _) {
+                    return Selector<HalaqaProvider, int>(
+                      selector: (_, halagaProv) => halagaProv.halaqatCount,
+                      builder: (context, halagaCount, _) {
+                        return SizedBox(
+                          height: 250,
+                          child: (studentCount > 0 ||
+                                  teacherCount > 0 ||
+                                  halagaCount > 0)
+                              ? BarChart(
+                                  BarChartData(
+                                    alignment: BarChartAlignment.spaceAround,
+                                    maxY: [
+                                          studentCount.toDouble(),
+                                          teacherCount.toDouble(),
+                                          halagaCount.toDouble()
+                                        ].reduce((a, b) => a > b ? a : b) *
+                                        1.2,
+                                    barTouchData: BarTouchData(enabled: false),
+                                    titlesData: FlTitlesData(
+                                      show: true,
+                                      rightTitles: AxisTitles(
+                                          sideTitles:
+                                              SideTitles(showTitles: false)),
+                                      topTitles: AxisTitles(
+                                          sideTitles:
+                                              SideTitles(showTitles: false)),
+                                      bottomTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          getTitlesWidget: (value, meta) {
+                                            switch (value.toInt()) {
+                                              case 0:
+                                                return Text('المعلمين');
+                                              case 1:
+                                                return Text('الطلاب');
+                                              case 2:
+                                                return Text('الحلقات');
+                                              default:
+                                                return Text('');
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                      leftTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          reservedSize: 30,
+                                          getTitlesWidget: (value, _) =>
+                                              value == 0
+                                                  ? const SizedBox()
+                                                  : Text(
+                                                      value.toInt().toString()),
+                                        ),
+                                      ),
+                                    ),
+                                    borderData: FlBorderData(show: false),
+                                    barGroups: [
+                                      BarChartGroupData(
+                                        x: 0,
+                                        barRods: [
+                                          BarChartRodData(
+                                            toY: teacherCount.toDouble(),
+                                            color: Colors.blue,
+                                            width: 25,
+                                            borderRadius:
+                                                BorderRadius.circular(6),
                                           ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  leftTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      reservedSize: 30,
-                                      getTitlesWidget: (value, meta) {
-                                        if (value == 0) {
-                                          return const SizedBox();
-                                        }
-                                        return Text(
-                                          value.toInt().toString(),
-                                          style: TextStyle(fontSize: 12),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                borderData: FlBorderData(show: false),
-                                barGroups: [
-                                  BarChartGroupData(
-                                    x: 0,
-                                    barRods: [
-                                      BarChartRodData(
-                                        toY: _teacherCount.toDouble(),
-                                        color: Colors.blue.shade700,
-                                        width: 25,
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(6),
-                                          topRight: Radius.circular(6),
-                                        ),
+                                        ],
+                                      ),
+                                      BarChartGroupData(
+                                        x: 1,
+                                        barRods: [
+                                          BarChartRodData(
+                                            toY: studentCount.toDouble(),
+                                            color: Colors.green,
+                                            width: 25,
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                          ),
+                                        ],
+                                      ),
+                                      BarChartGroupData(
+                                        x: 2,
+                                        barRods: [
+                                          BarChartRodData(
+                                            toY: halagaCount.toDouble(),
+                                            color: Colors.purple,
+                                            width: 25,
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                  BarChartGroupData(
-                                    x: 1,
-                                    barRods: [
-                                      BarChartRodData(
-                                        toY: prov['StCount'].toDouble(),
-                                        color: Colors.green.shade700,
-                                        width: 25,
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(6),
-                                          topRight: Radius.circular(6),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  BarChartGroupData(
-                                    x: 2,
-                                    barRods: [
-                                      BarChartRodData(
-                                        toY: _halqatCount.toDouble(),
-                                        color: Colors.purple.shade700,
-                                        width: 25,
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(6),
-                                          topRight: Radius.circular(6),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            )
-                          : Center(
-                              child: Text(
-                                "لا توجد بيانات كافية لعرض الرسم البياني",
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                    )),
+                                )
+                              : Center(
+                                  child: Text(
+                                      "لا توجد بيانات كافية لعرض الرسم البياني")),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            )
           ],
         ),
       ),
     );
   }
 
-  Widget _buildRecentActivitySection() {
+  Widget _buildRecentActivitySection(prov) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -593,7 +606,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Padding(
             padding: EdgeInsets.all(12.0),
-            child: _halaqatList.isEmpty
+            child: prov.isEmpty
                 ? SizedBox(
                     height: 120,
                     child: Center(
@@ -630,8 +643,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                 : ListView.separated(
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
-                    itemCount:
-                        _halaqatList.length > 3 ? 3 : _halaqatList.length,
+                    itemCount: prov.length > 3 ? 3 : prov.length,
                     separatorBuilder: (context, index) => Divider(),
                     itemBuilder: (context, index) {
                       return ListTile(
@@ -641,11 +653,11 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                               color: Colors.purple.shade700),
                         ),
                         title: Text(
-                          _halaqatList[index].Name ?? 'حلقة بدون اسم',
+                          prov[index].Name ?? 'حلقة بدون اسم',
                           style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                         subtitle: Text(
-                            'عدد الطلاب: ${_halaqatList[index].NumberStudent ?? 0}'),
+                            'عدد الطلاب: ${prov[index].NumberStudent ?? 0}'),
                         // trailing: Row(
                         //   mainAxisSize: MainAxisSize.min,
                         //   children: [
@@ -672,7 +684,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     );
   }
 
-  Widget _buildTeachersSection() {
+  Widget _buildTeachersSection(prov) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -711,7 +723,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Padding(
             padding: EdgeInsets.all(12.0),
-            child: teachers.isEmpty
+            child: prov.isEmpty
                 ? SizedBox(
                     height: 120,
                     child: Center(
@@ -747,7 +759,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                 : ListView.separated(
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
-                    itemCount: teachers.length > 3 ? 3 : teachers.length,
+                    itemCount: prov.length > 3 ? 3 : prov.length,
                     separatorBuilder: (context, index) => Divider(),
                     itemBuilder: (context, index) {
                       return ListTile(
@@ -757,7 +769,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                               Icon(Icons.person, color: Colors.blue.shade700),
                         ),
                         title: Text(
-                          "${teachers[index].first_name ?? ''} ${teachers[index].middle_name ?? ''} ${teachers[index].last_name ?? ''}"
+                          "${prov[index]!.first_name ?? ''} ${prov[index]!.middle_name ?? ''} ${prov[index]!.last_name ?? ''}"
                               .trim(),
                           style: TextStyle(fontWeight: FontWeight.w500),
                         ),

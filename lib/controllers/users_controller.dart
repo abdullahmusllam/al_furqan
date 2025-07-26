@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:al_furqan/helper/sqldb.dart';
+import 'package:al_furqan/main.dart';
 // import 'package:al_furqan/models/password_model.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
@@ -95,14 +97,14 @@ class UserController {
         await firebasehelper.addUser(userModel);
         int response = await db.insert('Users', userModel.toMap());
         debugPrint(
-            "------------> add to local is ${response == 1 ? 'Done Added To Local' : 'Failed'}");
+            "------------> add to local is ${response >= 1 ? 'Done Added To Local' : 'Failed'}");
         debugPrint(
             "------------>Sync is : ${userModel.isSync == 1 ? 'Done  Sync' : 'Failed  Sync'}");
       } else {
         userModel.isSync = 0;
         int response = await db.insert('Users', userModel.toMap());
         debugPrint(
-            "------------> add to local is ${response == 1 ? 'Done Added To Local' : 'Failed Added To local'}\n"
+            "------------> add to local is ${response >= 1 ? 'Done Added To Local' : 'Failed Added To local'}\n"
             "------------> Sync is ${userModel.isSync == 0 ? 'Failed Sync' : 'Done'}");
       }
     } else {
@@ -115,9 +117,12 @@ class UserController {
   Future<void> deleteUser(String userId) async {
     int response =
         await _sqlDb.deleteData("DELETE FROM USERS WHERE user_id = '$userId'");
-    debugPrint("$response");
+    log("$response");
     await getDataUsers();
-    // await firebasehelper.deleteUser(userId);
+    if (await isConnected()) {
+      await firebasehelper.deleteUser(userId);
+      log("User with ID $userId deleted successfully");
+    }
   }
 
   // Method to activate a user
@@ -180,8 +185,10 @@ class UserController {
             await _sqlDb.checkIfitemExists2("Users", user.user_id!, "user_id");
         if (exists) {
           await updateUser(user, 0);
+          print('Find user (update)');
         } else {
           await addUser(user, 0);
+          print('Find user (add)');
         }
       }
     } else {
@@ -214,7 +221,7 @@ class UserController {
     final db = await sqlDb.database;
     final List<Map<String, dynamic>> result = await db.query(
       'USERS',
-      where: 'roleID = ? AND school_id = ?',
+      where: 'roleID = ? AND schoolID = ?',
       whereArgs: [1, schoolID],
     );
 
@@ -223,6 +230,33 @@ class UserController {
     } else {
       return null;
     }
+  }
+
+  Future<List<UserModel>> loadUserBySchoolId() async {
+    int? schoolID = perf.getInt('schoolId');
+    final db = await sqlDb.database;
+    final List<Map<String, dynamic>> userList =
+        await db.query('Users', where: 'schoolID = ?', whereArgs: [schoolID]);
+
+    return userList.map((j) => UserModel.fromJson(j)).toList();
+  }
+
+  Future<void> saveUserToPrefs(UserModel user) async {
+    String userJson = jsonEncode(user.toMap()); // أو fromMap حسب هيكل موديلك
+    await perf.setString('user', userJson);
+    // print('$userJson ======================');
+  }
+
+  Future<UserModel?> loadUserFromPrefs() async {
+    String? userJson = perf.getString('user');
+
+    if (userJson != null) {
+      Map<String, dynamic> userMap = jsonDecode(userJson);
+      print('$userMap=====');
+      return UserModel.fromJson(userMap); // أو fromMap حسب موديلك
+    }
+
+    return null;
   }
 }
 

@@ -1,18 +1,12 @@
 import 'package:al_furqan/controllers/HalagaController.dart';
-import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/plan_controller.dart';
-import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/Teacher/mainTeacher.dart';
-import 'package:al_furqan/views/shared/Conversation_list.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../controllers/users_controller.dart';
-import '../../helper/sqldb.dart';
-import '../../services/firebase_service.dart';
 import '../../services/message_sevice.dart';
-import '../../services/sync.dart';
+// import '../../services/sync.dart';
 
 class MainScreenT extends StatefulWidget {
   const MainScreenT({super.key});
@@ -26,7 +20,8 @@ class _MainScreenState extends State<MainScreenT> {
 
   @override
   void initState() {
-    super.initState() ;
+    super.initState();
+
     load();
   }
 
@@ -43,12 +38,14 @@ class _MainScreenState extends State<MainScreenT> {
 
   Future<void> load() async {
     if (await isConnected()) {
-      await sync.syncUsers();
-      await sync.syncElhalagat();
-      await sync.syncStudents();
-      await loadMessages();
-      await loadHalagat();
-      await loadPlans();
+      // await sync.syncUsers();
+      // await sync.syncElhalagat();
+      // await sync.syncStudents();
+      // await loadMessages();
+      // await loadHalagat();
+      // await loadPlans();
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => TeacherDashboard()));
     } else {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => TeacherDashboard()));
@@ -64,10 +61,10 @@ class _MainScreenState extends State<MainScreenT> {
   Future<void> loadMessages() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      String? Id = prefs.getString('user_id');
-      debugPrint('===== ($Id) =====');
+      String? id = prefs.getString('user_id');
+      debugPrint('===== ($id) =====');
       // تحميل الرسائل من فايربيس
-      await messageService.loadMessagesFromFirestore(Id!);
+      await messageService.loadMessagesFromFirestore(id!);
     } catch (e) {
       debugPrint('خطأ في تحميل الرسائل: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -78,7 +75,7 @@ class _MainScreenState extends State<MainScreenT> {
       );
     }
     setState(() {
-      isLoading = false;
+      isLoading = true;
     });
   }
 

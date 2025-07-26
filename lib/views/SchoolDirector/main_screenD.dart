@@ -2,21 +2,13 @@ import 'dart:developer';
 
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/StudentController.dart';
-import 'package:al_furqan/controllers/fathers_controller.dart';
 import 'package:al_furqan/controllers/plan_controller.dart';
 import 'package:al_furqan/main.dart';
-import 'package:al_furqan/models/provider/message_provider.dart';
-import 'package:al_furqan/models/provider/student_provider.dart';
-import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/models/halaga_model.dart'; // إضافة استيراد نموذج الحلقة
-import 'package:al_furqan/views/shared/Conversation_list.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../controllers/users_controller.dart';
-import '../../services/message_sevice.dart';
 import '../../services/sync.dart';
 import 'SchoolDirectorHome.dart';
 
@@ -83,8 +75,8 @@ class _MainScreenState extends State<MainScreenD> {
       // timeLoadStudents = sw4.elapsedMilliseconds;
       // log("Time Load Students is : $timeLoadStudents ms");
 
-      final sw5 = Stopwatch()..start();
-      await loadHalagat();
+      // final sw5 = Stopwatch()..start();
+      // await loadHalagat();
 
       // sw4.stop();
       // timeLoadElhalagat = sw5.elapsedMilliseconds;
@@ -103,7 +95,7 @@ class _MainScreenState extends State<MainScreenD> {
       // log("Time Load Messages is : $timeLoadMessages ms");
 
       final sw8 = Stopwatch()..start();
-      await loadUsersFromFirebase();
+      // await loadUsersFromFirebase();
       sw8.stop();
       timeLoadUsersFromFirebase = sw8.elapsedMilliseconds;
       log("Time Load Users From Firebase is : $timeLoadUsersFromFirebase ms");
@@ -124,9 +116,9 @@ class _MainScreenState extends State<MainScreenD> {
     }
   }
 
-  Future<void> loadUsersFromFirebase() async {
-    await userController.addToLocalOfFirebase();
-  }
+  // Future<void> loadUsersFromFirebase() async {
+  //   await userController.addToLocalOfFirebase();
+  // }
 
   Future<void> loadStudents() async {
     int? schoolId = perf.getInt('schoolId');
@@ -137,11 +129,11 @@ class _MainScreenState extends State<MainScreenD> {
 
   Future<void> loadMessages() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      String? id = prefs.getString('user_id');
-      debugPrint('===== ($id) =====');
-      // تحميل الرسائل من فايربيس
-      await messageService.loadMessagesFromFirestore(id!);
+      //     final prefs = await SharedPreferences.getInstance();
+      //     String? id = prefs.getString('user_id');
+      //     debugPrint('===== ($id) =====');
+      //     // تحميل الرسائل من فايربيس
+      //     await messageService.loadMessagesFromFirestore(id!);
     } catch (e) {
       debugPrint('خطأ في تحميل البيانات: $e');
       if (!mounted) return;
@@ -157,27 +149,27 @@ class _MainScreenState extends State<MainScreenD> {
     });
   }
 
-  Future<void> loadHalagat() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      int? schoolId = prefs.getInt('schoolId');
-      debugPrint('===== schoolID ($schoolId) =====');
-      // تحميل الحلقات من فايربيس
-      await halagaController.getHalagatFromFirebaseByID(schoolId!, 'schoolID');
-    } catch (e) {
-      debugPrint('خطأ في تحميل الحلقات: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('خطأ في تحميل الحلقات'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-    if (!mounted) return;
-    setState(() {
-      isLoading = false;
-    });
-  }
+  // Future<void> loadHalagat() async {
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+  //     int? schoolId = prefs.getInt('schoolId');
+  //     debugPrint('===== schoolID ($schoolId) =====');
+  //     // تحميل الحلقات من فايربيس
+  //     await halagaController.getHalagatFromFirebaseByID(schoolId!, 'schoolID');
+  //   } catch (e) {
+  //     debugPrint('خطأ في تحميل الحلقات: $e');
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('خطأ في تحميل الحلقات'),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //   }
+  //   if (!mounted) return;
+  //   setState(() {
+  //     isLoading = false;
+  //   });
+  // }
 
   Future<void> loadPlans() async {
     try {

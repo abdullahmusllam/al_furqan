@@ -3,12 +3,14 @@ import 'dart:developer';
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/halaga_model.dart';
+import 'package:al_furqan/models/provider/halaqa_provider.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/views/SchoolDirector/AddHalaga.dart';
 import 'package:al_furqan/views/Teacher/HalqaReportScreen.dart';
 import 'package:al_furqan/views/SchoolDirector/halagaDetails.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class HalqatListPage extends StatefulWidget {
@@ -29,6 +31,9 @@ class _HalqatListPageState extends State<HalqatListPage> {
   @override
   void initState() {
     super.initState();
+    Future.microtask(() {
+      (context).read<HalaqaProvider>().loadHalaqatFromFirebase();
+    });
     // استدعاء جلب الحلقات من Firebase وتحميل البيانات
     _loadHalaqat();
   }
@@ -374,6 +379,7 @@ class _HalqatListPageState extends State<HalqatListPage> {
 
       // حذف الحلقة من قاعدة البيانات
       await halagaController.deleteHalaga(halqa.halagaID!);
+      await firebasehelper.delete(halqa.halagaID!, 'Elhalaga');
 
       // إغلاق مؤشر التحميل
       Navigator.of(context).pop();

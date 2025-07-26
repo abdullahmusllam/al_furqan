@@ -185,7 +185,9 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                 : teachers.map((teacher) {
                                     // التحقق مما إذا كان المعلم لديه حلقة بالفعل
                                     bool hasHalaga =
-                                        teacher.elhalagatID != 'null';
+                                        teacher.elhalagatID != 'null' &&
+                                            teacher.elhalagatID != 'NULL' &&
+                                            teacher.elhalagatID != null;
                                     log("Teacher has Halaga : $hasHalaga,Teacher ID halaga ${teacher.elhalagatID}");
                                     debugPrint(
                                         "No Halaga : $hasHalaga, & has Halaga : ${!hasHalaga}");
@@ -253,8 +255,10 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                           ),
 
                           // إضافة ملاحظة توضيحية حول المعلمين
-                          if (teachers
-                              .any((teacher) => teacher.elhalagatID == 'null'))
+                          if (teachers.any((teacher) =>
+                              (teacher.elhalagatID == 'null' &&
+                                  teacher.elhalagatID != 'NULL' &&
+                                  teacher.elhalagatID != null)))
                             Padding(
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Row(
@@ -276,8 +280,10 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                             ),
 
                           // إضافة رسالة عندما لا يوجد معلمين متاحين
-                          if (teachers.every(
-                                  (teacher) => teacher.elhalagatID != 'null') &&
+                          if (teachers.every((teacher) =>
+                                  (teacher.elhalagatID != 'null' &&
+                                      teacher.elhalagatID != 'NULL' &&
+                                      teacher.elhalagatID != null)) &&
                               teachers.isNotEmpty)
                             Padding(
                               padding: const EdgeInsets.only(top: 8.0),
@@ -399,7 +405,7 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                   // إضافة الحلقة مع البيانات
                                   _halaqaModel.SchoolID = schoolId;
                                   _halaqaModel.Name = halqaNameController.text;
-                                  
+
                                   try {
                                     // تعيين عدد الطلاب في نموذج الحلقة
                                     int studentCount = selectedStudentCount;

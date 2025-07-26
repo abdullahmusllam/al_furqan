@@ -1,9 +1,11 @@
 import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/models/messages_model.dart';
+import 'package:al_furqan/models/provider/message_provider.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/message_sevice.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
   final UserModel currentUser;
@@ -27,6 +29,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    print(widget.selectedUser);
     if (widget.selectedUser != null) {
       loadMessages();
     } else {
@@ -37,6 +40,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (widget.currentUser.user_id != null) {
       markMessagesAsRead();
     }
+    (context).read<MessageProvider>().loadUnreadMessage();
   }
 
   // دالة لتحميل المحادثة بين المستخدم الحالي والمستخدم المختار

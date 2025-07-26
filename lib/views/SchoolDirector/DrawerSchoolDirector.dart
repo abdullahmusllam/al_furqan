@@ -1,4 +1,7 @@
+import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/school_controller.dart';
+import 'package:al_furqan/main.dart';
+import 'package:al_furqan/models/provider/user_provider.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/ElhalagatList.dart';
 import 'package:al_furqan/views/SchoolDirector/attendanceQrScreen.dart';
@@ -8,6 +11,7 @@ import 'package:al_furqan/views/SchoolDirector/teacher_management.dart';
 import 'package:al_furqan/views/SchoolDirector/teachers_attendance_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../shared/Conversation_list.dart';
 
@@ -175,6 +179,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     icon: Icons.manage_accounts,
                     title: "إدارة المعلمين",
                     onTap: () {
+                      (context).read<UserProvider>().loadUsersFromFirebase();
                       Navigator.pop(context);
                       Navigator.of(context).push(CupertinoPageRoute(
                           builder: (context) => TeacherManagement()));
@@ -210,10 +215,13 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     title: "الرسائل",
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.of(context).push(CupertinoPageRoute(
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(
                           builder: (context) => ConversationsScreen(
-                                currentUser: widget.user!,
-                              )));
+                            currentUser: widget.user!,
+                          ),
+                        ),
+                      );
                     },
                   ),
                   // Student Management Section
@@ -235,7 +243,9 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                   _buildMenuItem(
                     icon: Icons.groups,
                     title: 'إدارة الحلقات',
-                    onTap: () {
+                    onTap: () async {
+                      int? schoolID = perf.getInt('schoolId');
+                      await halagaController.getHalagatFromFirebaseByID(schoolID!, 'SchoolID');
                       Navigator.pop(context);
                       Navigator.push(
                         context,

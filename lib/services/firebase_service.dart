@@ -55,15 +55,39 @@ class FirebaseHelper {
     }
   }
 
-  updateStudentData(StudentModel Student) async {
-    Student.isSync = 1;
+  Future<void> updateStudentData(StudentModel student) async {
+    student.isSync = 1;
     final docRef =
-        _firestore.collection('Students').doc(Student.studentID.toString());
-    await docRef.update(Student.toMap()).then((_) {
+        _firestore.collection('Students').doc(student.studentID.toString());
+    await docRef.update(student.toMap()).then((_) {
       debugPrint('تم التعديل بنجاح');
     }).catchError((error) {
       debugPrint('حدث خطأ: $error');
     });
+  }
+
+  Future<void> updateStudentByHalaga(
+      String halagaID, StudentModel student) async {
+    try {
+      await _firestore
+          .collection("Students")
+          .doc(halagaID)
+          .update(student.toMap());
+    } on Exception catch (e) {
+      log("Error in Update Student By Halaga ID : $e");
+    }
+  }
+
+  Future<void> updateTeacherByHalagaID(
+      String halagaID, UserModel teacher) async {
+    try {
+      await _firestore
+          .collection("Users")
+          .doc(halagaID)
+          .update(teacher.toMap());
+    } on Exception catch (e) {
+      log("Error in Update Teacher By Halaga ID : $e");
+    }
   }
 
   assignStudentToHalqa(String studentId, String halqaID) async {
@@ -216,6 +240,28 @@ class FirebaseHelper {
 
 // =========================== Start User ===============================
 
+  Future<UserModel?> getUserByPhone(String phone) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('Users')
+          .where('phone_number',
+              isEqualTo: int.parse(phone)) // البحث حسب رقم الهاتف
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final data = querySnapshot.docs.first.data();
+        return UserModel.fromMap(data); // تحويله إلى UserModel
+      } else {
+        print('❌ لا يوجد مستخدم بهذا الرقم');
+        return null;
+      }
+    } catch (e) {
+      print('⚠️ خطأ في جلب المستخدم: $e');
+      return null;
+    }
+  }
+
   addUser(UserModel user) async {
     debugPrint("addUser(UserModel user)");
     final docRef = _firestore.collection('Users');
@@ -234,7 +280,7 @@ class FirebaseHelper {
     });
   }
 
-  deleteUser(int id) async {
+  deleteUser(String id) async {
     try {
       final docRef = _firestore.collection('Users').doc(id.toString());
       await docRef.delete();
@@ -498,24 +544,18 @@ class FirebaseHelper {
           });
         }
 
-        debugPrint(
-            "---------------> تم تحديث بيانات الحضور في Firestore بنجاح");
+        log("---------------> تم تحديث بيانات الحضور في Firestore بنجاح");
       } else {
-        debugPrint(
-            "---------------> لم يتم العثور على الطالب في Firestore برقم: $studentID");
+        log("---------------> لم يتم العثور على الطالب في Firestore برقم: $studentID");
       }
     } catch (e) {
-      debugPrint(
-          "---------------> خطأ في تحديث بيانات الحضور في Firestore: $e");
+      log("---------------> خطأ في تحديث بيانات الحضور في Firestore: $e");
     }
   }
 
   Future<List<ConservationPlanModel>> getConservationPlans(
       String halagaId) async {
     try {
-      debugPrint(
-          "-------------------> Fetching conservation plans from Firestore for halaga: $halagaId");
-
       // جلب الخطط من مجموعة ConservationPlans حيث elhalagatId يساوي halagaId
       final QuerySnapshot querySnapshot = await _firestore
           .collection('ConservationPlans')
@@ -546,10 +586,9 @@ class FirebaseHelper {
         );
       }).toList();
 
-      debugPrint("-------------------> Successfully converted plans to models");
       return plans;
     } catch (e) {
-      debugPrint("-------------------> Error fetching conservation plans: $e");
+      log("-------------------> Error fetching conservation plans: $e");
       throw Exception('فشل في جلب خطط الحفظ: $e');
     }
   }
@@ -557,9 +596,6 @@ class FirebaseHelper {
   /// جلب خطط التلاوة من Firestore
   Future<List<EltlawahPlanModel>> getEltlawahPlans(String halagaId) async {
     try {
-      debugPrint(
-          "-------------------> جاري جلب خطط التلاوة من Firestore للحلقة: $halagaId");
-
       // جلب الخطط من مجموعة EltlawahPlans حيث elhalagatId يساوي halagaId
       final QuerySnapshot querySnapshot = await _firestore
           .collection('EltlawahPlans')
@@ -590,7 +626,6 @@ class FirebaseHelper {
         );
       }).toList();
 
-      debugPrint("-------------------> تم تحويل خطط التلاوة بنجاح");
       return plans;
     } catch (e) {
       debugPrint("-------------------> خطأ في جلب خطط التلاوة: $e");
@@ -602,9 +637,6 @@ class FirebaseHelper {
   Future<List<IslamicStudiesModel>> getIslamicStudyPlans(
       String halagaId) async {
     try {
-      debugPrint(
-          "-------------------> جاري جلب خطط العلوم الشرعية من Firestore للحلقة: $halagaId");
-
       // جلب الخطط من مجموعة IslamicStudies حيث elhalagatId يساوي halagaId
       final QuerySnapshot querySnapshot = await _firestore
           .collection('IslamicStudies')
@@ -629,7 +661,6 @@ class FirebaseHelper {
         );
       }).toList();
 
-      debugPrint("-------------------> تم تحويل خطط العلوم الشرعية بنجاح");
       return plans;
     } catch (e) {
       debugPrint("-------------------> خطأ في جلب خطط العلوم الشرعية: $e");
@@ -641,8 +672,9 @@ class FirebaseHelper {
     try {
       final docRef = _firestore.collection(nameTable);
       docRef.doc(id).delete();
+      log("Firebase Delete : $nameTable with id $id");
     } on Exception catch (e) {
-      debugPrint("Error in Firebase Delete : $e");
+      log("Error in Firebase Delete : $e");
     }
   }
 } // End of FirebaseHelper class
