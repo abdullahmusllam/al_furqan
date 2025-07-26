@@ -75,7 +75,7 @@ class _MainScreenState extends State<MainScreenD> {
       // timeLoadStudents = sw4.elapsedMilliseconds;
       // log("Time Load Students is : $timeLoadStudents ms");
 
-      final sw5 = Stopwatch()..start();
+      // final sw5 = Stopwatch()..start();
       // await loadHalagat();
 
       // sw4.stop();
