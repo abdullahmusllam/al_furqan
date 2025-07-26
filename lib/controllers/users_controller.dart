@@ -185,8 +185,10 @@ class UserController {
             await _sqlDb.checkIfitemExists2("Users", user.user_id!, "user_id");
         if (exists) {
           await updateUser(user, 0);
+          print('Find user (update)');
         } else {
           await addUser(user, 0);
+          print('Find user (add)');
         }
       }
     } else {
@@ -242,7 +244,7 @@ class UserController {
   Future<void> saveUserToPrefs(UserModel user) async {
     String userJson = jsonEncode(user.toMap()); // أو fromMap حسب هيكل موديلك
     await perf.setString('user', userJson);
-    print('$userJson ======================');
+    // print('$userJson ======================');
   }
 
   Future<UserModel?> loadUserFromPrefs() async {
