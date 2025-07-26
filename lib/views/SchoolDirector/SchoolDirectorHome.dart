@@ -7,6 +7,7 @@ import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/helper/current_user.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/main.dart';
+import 'package:al_furqan/models/provider/halaqa_provider.dart';
 import 'package:al_furqan/models/provider/message_provider.dart';
 import 'package:al_furqan/models/provider/student_provider.dart';
 import 'package:al_furqan/models/provider/user_provider.dart';
@@ -173,12 +174,13 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
             onPressed: () {
               _loadData();
               final sw3 = Stopwatch()..start();
-              halagaController.getHalagatFromFirebase();
+              (context).read<HalaqaProvider>().loadHalaqatFromFirebase();
               sw3.stop();
               _elapsedHalagat = sw3.elapsedMilliseconds;
               (context)
                   .read<MessageProvider>()
                   .loadMessageFromFirebase(); // تحديث عدد الإشعارات عند الضغط على زر التحديث
+              (context).read<UserProvider>().loadUsersFromFirebase();
             },
             icon: Icon(Icons.refresh, color: Colors.white),
             tooltip: 'تحديث البيانات',
@@ -265,7 +267,11 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                         SizedBox(height: 24),
 
                         // Teachers list
-                        _buildTeachersSection(),
+                        Selector<UserProvider, List<UserModel?>>(
+                          selector: (_, s) => s.teachersList,
+                          builder: (context, prov, child) =>
+                              _buildTeachersSection(prov),
+                        )
                       ],
                     ),
                   ),
@@ -409,15 +415,17 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                     ),
                 selector: (context, S) => S.studentCount),
             SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                'الحلقات',
-                '$_halqatCount',
-                Icons.menu_book,
-                Colors.purple.shade700,
-                Colors.purple.shade100,
-              ),
-            ),
+            Selector<HalaqaProvider, int>(
+                builder: (context, prov, child) => Expanded(
+                      child: _buildStatCard(
+                        'الحلقات',
+                        '$prov',
+                        Icons.menu_book,
+                        Colors.purple.shade700,
+                        Colors.purple.shade100,
+                      ),
+                    ),
+                selector: (_, s) => s.halaqatCount)
           ],
         ),
       ],
@@ -441,126 +449,118 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               ),
             ),
             SizedBox(height: 10),
-            Selector<StudentProvider, Map<String, dynamic>>(
-                selector: (_, S) => {'StCount': S.studentCount},
-                builder: (context, prov, child) => SizedBox(
-                      height: 250,
-                      child: prov['StCount'] > 0 || _teacherCount > 0
-                          ? BarChart(
-                              BarChartData(
-                                alignment: BarChartAlignment.spaceAround,
-                                maxY: prov['StCount'] > 0
-                                    ? prov['StCount'] * 1.2
-                                    : 10,
-                                barTouchData: BarTouchData(enabled: false),
-                                titlesData: FlTitlesData(
-                                  show: true,
-                                  rightTitles: AxisTitles(
-                                      sideTitles:
-                                          SideTitles(showTitles: false)),
-                                  topTitles: AxisTitles(
-                                      sideTitles:
-                                          SideTitles(showTitles: false)),
-                                  bottomTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      getTitlesWidget: (value, meta) {
-                                        String text = '';
-                                        switch (value.toInt()) {
-                                          case 0:
-                                            text = 'المعلمين';
-                                            break;
-                                          case 1:
-                                            text = 'الطلاب';
-                                            break;
-                                          case 2:
-                                            text = 'الحلقات';
-                                            break;
-                                        }
-                                        return Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 4.0),
-                                          child: Text(
-                                            text,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 11,
-                                            ),
+            Selector<StudentProvider, int>(
+              selector: (_, studentProv) => studentProv.studentCount,
+              builder: (context, studentCount, _) {
+                return Selector<UserProvider, int>(
+                  selector: (_, teacherProv) => teacherProv.teacherCount,
+                  builder: (context, teacherCount, _) {
+                    return Selector<HalaqaProvider, int>(
+                      selector: (_, halagaProv) => halagaProv.halaqatCount,
+                      builder: (context, halagaCount, _) {
+                        return SizedBox(
+                          height: 250,
+                          child: (studentCount > 0 ||
+                                  teacherCount > 0 ||
+                                  halagaCount > 0)
+                              ? BarChart(
+                                  BarChartData(
+                                    alignment: BarChartAlignment.spaceAround,
+                                    maxY: [
+                                          studentCount.toDouble(),
+                                          teacherCount.toDouble(),
+                                          halagaCount.toDouble()
+                                        ].reduce((a, b) => a > b ? a : b) *
+                                        1.2,
+                                    barTouchData: BarTouchData(enabled: false),
+                                    titlesData: FlTitlesData(
+                                      show: true,
+                                      rightTitles: AxisTitles(
+                                          sideTitles:
+                                              SideTitles(showTitles: false)),
+                                      topTitles: AxisTitles(
+                                          sideTitles:
+                                              SideTitles(showTitles: false)),
+                                      bottomTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          getTitlesWidget: (value, meta) {
+                                            switch (value.toInt()) {
+                                              case 0:
+                                                return Text('المعلمين');
+                                              case 1:
+                                                return Text('الطلاب');
+                                              case 2:
+                                                return Text('الحلقات');
+                                              default:
+                                                return Text('');
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                      leftTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          reservedSize: 30,
+                                          getTitlesWidget: (value, _) =>
+                                              value == 0
+                                                  ? const SizedBox()
+                                                  : Text(
+                                                      value.toInt().toString()),
+                                        ),
+                                      ),
+                                    ),
+                                    borderData: FlBorderData(show: false),
+                                    barGroups: [
+                                      BarChartGroupData(
+                                        x: 0,
+                                        barRods: [
+                                          BarChartRodData(
+                                            toY: teacherCount.toDouble(),
+                                            color: Colors.blue,
+                                            width: 25,
+                                            borderRadius:
+                                                BorderRadius.circular(6),
                                           ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  leftTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      reservedSize: 30,
-                                      getTitlesWidget: (value, meta) {
-                                        if (value == 0) {
-                                          return const SizedBox();
-                                        }
-                                        return Text(
-                                          value.toInt().toString(),
-                                          style: TextStyle(fontSize: 12),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                borderData: FlBorderData(show: false),
-                                barGroups: [
-                                  BarChartGroupData(
-                                    x: 0,
-                                    barRods: [
-                                      BarChartRodData(
-                                        toY: _teacherCount.toDouble(),
-                                        color: Colors.blue.shade700,
-                                        width: 25,
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(6),
-                                          topRight: Radius.circular(6),
-                                        ),
+                                        ],
+                                      ),
+                                      BarChartGroupData(
+                                        x: 1,
+                                        barRods: [
+                                          BarChartRodData(
+                                            toY: studentCount.toDouble(),
+                                            color: Colors.green,
+                                            width: 25,
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                          ),
+                                        ],
+                                      ),
+                                      BarChartGroupData(
+                                        x: 2,
+                                        barRods: [
+                                          BarChartRodData(
+                                            toY: halagaCount.toDouble(),
+                                            color: Colors.purple,
+                                            width: 25,
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                  BarChartGroupData(
-                                    x: 1,
-                                    barRods: [
-                                      BarChartRodData(
-                                        toY: prov['StCount'].toDouble(),
-                                        color: Colors.green.shade700,
-                                        width: 25,
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(6),
-                                          topRight: Radius.circular(6),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  BarChartGroupData(
-                                    x: 2,
-                                    barRods: [
-                                      BarChartRodData(
-                                        toY: _halqatCount.toDouble(),
-                                        color: Colors.purple.shade700,
-                                        width: 25,
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(6),
-                                          topRight: Radius.circular(6),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            )
-                          : Center(
-                              child: Text(
-                                "لا توجد بيانات كافية لعرض الرسم البياني",
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                    )),
+                                )
+                              : Center(
+                                  child: Text(
+                                      "لا توجد بيانات كافية لعرض الرسم البياني")),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            )
           ],
         ),
       ),
@@ -599,91 +599,94 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
           ],
         ),
         Card(
-          elevation: 4,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          child: Padding(
-            padding: EdgeInsets.all(12.0),
-            child: _halaqatList.isEmpty
-                ? SizedBox(
-                    height: 120,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.menu_book_outlined,
-                              size: 32, color: Colors.grey),
-                          SizedBox(height: 8),
-                          Text(
-                            "لا توجد حلقات متاحة",
-                            style: TextStyle(color: Colors.grey.shade700),
+            elevation: 4,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            child: Padding(
+              padding: EdgeInsets.all(12.0),
+              child: Selector<HalaqaProvider, List<HalagaModel>>(
+                selector: (_, s) => s.halaqatList,
+                builder: (context, prov, child) => prov.isEmpty
+                    ? SizedBox(
+                        height: 120,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.menu_book_outlined,
+                                  size: 32, color: Colors.grey),
+                              SizedBox(height: 8),
+                              Text(
+                                "لا توجد حلقات متاحة",
+                                style: TextStyle(color: Colors.grey.shade700),
+                              ),
+                              SizedBox(height: 8),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  // Navigate to add halaqat
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              AddHalaqaScreen()));
+                                },
+                                icon: Icon(Icons.add),
+                                label: Text("إضافة حلقة"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Theme.of(context).primaryColor,
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 8),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              // Navigate to add halaqat
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => AddHalaqaScreen()));
-                            },
-                            icon: Icon(Icons.add),
-                            label: Text("إضافة حلقة"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              foregroundColor: Colors.white,
+                        ),
+                      )
+                    : ListView.separated(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: prov.length > 3 ? 3 : prov.length,
+                        separatorBuilder: (context, index) => Divider(),
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.purple.shade100,
+                              child: Icon(Icons.menu_book,
+                                  color: Colors.purple.shade700),
                             ),
-                          ),
-                        ],
+                            title: Text(
+                              prov[index].Name ?? 'حلقة بدون اسم',
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                            subtitle: Text(
+                                'عدد الطلاب: ${prov[index].NumberStudent ?? 0}'),
+                            // trailing: Row(
+                            //   mainAxisSize: MainAxisSize.min,
+                            //   children: [
+                            //     IconButton(
+                            //       icon: Icon(Icons.info, color: Colors.blue),
+                            //       onPressed: () {
+                            //         // عرض تفاصيل الحلقة
+                            //       },
+                            //     ),
+                            //     IconButton(
+                            //       icon: Icon(Icons.edit, color: Colors.orange),
+                            //       onPressed: () {
+                            //         // تعديل بيانات الحلقة
+                            //       },
+                            //     ),
+                            //   ],
+                            // ),
+                          );
+                        },
                       ),
-                    ),
-                  )
-                : ListView.separated(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount:
-                        _halaqatList.length > 3 ? 3 : _halaqatList.length,
-                    separatorBuilder: (context, index) => Divider(),
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.purple.shade100,
-                          child: Icon(Icons.menu_book,
-                              color: Colors.purple.shade700),
-                        ),
-                        title: Text(
-                          _halaqatList[index].Name ?? 'حلقة بدون اسم',
-                          style: TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                        subtitle: Text(
-                            'عدد الطلاب: ${_halaqatList[index].NumberStudent ?? 0}'),
-                        // trailing: Row(
-                        //   mainAxisSize: MainAxisSize.min,
-                        //   children: [
-                        //     IconButton(
-                        //       icon: Icon(Icons.info, color: Colors.blue),
-                        //       onPressed: () {
-                        //         // عرض تفاصيل الحلقة
-                        //       },
-                        //     ),
-                        //     IconButton(
-                        //       icon: Icon(Icons.edit, color: Colors.orange),
-                        //       onPressed: () {
-                        //         // تعديل بيانات الحلقة
-                        //       },
-                        //     ),
-                        //   ],
-                        // ),
-                      );
-                    },
-                  ),
-          ),
-        ),
+              ),
+            )),
       ],
     );
   }
 
-  Widget _buildTeachersSection() {
+  Widget _buildTeachersSection(prov) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -722,7 +725,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Padding(
             padding: EdgeInsets.all(12.0),
-            child: teachers.isEmpty
+            child: prov.isEmpty
                 ? SizedBox(
                     height: 120,
                     child: Center(
@@ -758,7 +761,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                 : ListView.separated(
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
-                    itemCount: teachers.length > 3 ? 3 : teachers.length,
+                    itemCount: prov.length > 3 ? 3 : prov.length,
                     separatorBuilder: (context, index) => Divider(),
                     itemBuilder: (context, index) {
                       return ListTile(
@@ -768,7 +771,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                               Icon(Icons.person, color: Colors.blue.shade700),
                         ),
                         title: Text(
-                          "${teachers[index].first_name ?? ''} ${teachers[index].middle_name ?? ''} ${teachers[index].last_name ?? ''}"
+                          "${prov[index]!.first_name ?? ''} ${prov[index]!.middle_name ?? ''} ${prov[index]!.last_name ?? ''}"
                               .trim(),
                           style: TextStyle(fontWeight: FontWeight.w500),
                         ),
