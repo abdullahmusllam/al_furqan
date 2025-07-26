@@ -21,13 +21,13 @@ class HalaqaProvider with ChangeNotifier {
     return conn;
   }
 
-  int? schoolID = perf.getInt('schoolId');
-  Future<void> loadHalaqatFromFirebase() async {
+  loadHalaqatFromFirebase() async {
+    int? schoolID = perf.getInt('schoolId');
     if (await connected()) {
       await halagaController.getHalagatFromFirebaseByID(schoolID!, 'SchoolID');
       await loadedHalaqatFromLocal();
     } else {
-      print('لا يوجد اتصال بالانتلرنت');
+      // print('لا يوجد اتصال بالانتلرنت');
       await loadedHalaqatFromLocal();
     }
   }
@@ -40,7 +40,8 @@ class HalaqaProvider with ChangeNotifier {
     halaqat.clear();
     halaqat.addAll(halaqatList);
     // print('$halaqatList 000000000000000000000000000000');
-    print('${CurrentUser.user!.first_name}00000000000000000000000');
+    // print('${CurrentUser.user!.first_name}00000000000000000000000');
     notifyListeners();
+    print(halaqat);
   }
 }

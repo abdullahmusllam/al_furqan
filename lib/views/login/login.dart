@@ -135,8 +135,10 @@ class _LoginScreenState extends State<LoginScreen> {
     UserModel? user = await firebasehelper.getUserByPhone(phone);
     // (context).read<UserProvider>().user = user;
     // await userController.addUser(user!, 0);
-    await userController.saveUserToPrefs(user!);
-    CurrentUser.user = user;
+    if (user != null) {
+      await userController.saveUserToPrefs(user);
+      CurrentUser.user = user;
+    }
     // print(user);
     // sqlDb.getUser(phone, password);
 

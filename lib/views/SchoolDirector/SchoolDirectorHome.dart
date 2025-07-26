@@ -263,14 +263,16 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
                         SizedBox(height: 24),
 
                         // Recent activity
-                        _buildRecentActivitySection(),
+                        Consumer<HalaqaProvider>(
+                          builder: (context, prov, child) =>
+                              _buildRecentActivitySection(prov.halaqat),
+                        ),
                         SizedBox(height: 24),
 
                         // Teachers list
-                        Selector<UserProvider, List<UserModel?>>(
-                          selector: (_, s) => s.teachersList,
+                        Consumer<UserProvider>(
                           builder: (context, prov, child) =>
-                              _buildTeachersSection(prov),
+                              _buildTeachersSection(prov.activeTeacher),
                         )
                       ],
                     ),
@@ -567,7 +569,7 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
     );
   }
 
-  Widget _buildRecentActivitySection() {
+  Widget _buildRecentActivitySection(prov) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -599,89 +601,85 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
           ],
         ),
         Card(
-            elevation: 4,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            child: Padding(
-              padding: EdgeInsets.all(12.0),
-              child: Selector<HalaqaProvider, List<HalagaModel>>(
-                selector: (_, s) => s.halaqatList,
-                builder: (context, prov, child) => prov.isEmpty
-                    ? SizedBox(
-                        height: 120,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.menu_book_outlined,
-                                  size: 32, color: Colors.grey),
-                              SizedBox(height: 8),
-                              Text(
-                                "لا توجد حلقات متاحة",
-                                style: TextStyle(color: Colors.grey.shade700),
-                              ),
-                              SizedBox(height: 8),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  // Navigate to add halaqat
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              AddHalaqaScreen()));
-                                },
-                                icon: Icon(Icons.add),
-                                label: Text("إضافة حلقة"),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      Theme.of(context).primaryColor,
-                                  foregroundColor: Colors.white,
-                                ),
-                              ),
-                            ],
+          elevation: 4,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          child: Padding(
+            padding: EdgeInsets.all(12.0),
+            child: prov.isEmpty
+                ? SizedBox(
+                    height: 120,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.menu_book_outlined,
+                              size: 32, color: Colors.grey),
+                          SizedBox(height: 8),
+                          Text(
+                            "لا توجد حلقات متاحة",
+                            style: TextStyle(color: Colors.grey.shade700),
                           ),
-                        ),
-                      )
-                    : ListView.separated(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: prov.length > 3 ? 3 : prov.length,
-                        separatorBuilder: (context, index) => Divider(),
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: Colors.purple.shade100,
-                              child: Icon(Icons.menu_book,
-                                  color: Colors.purple.shade700),
+                          SizedBox(height: 8),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              // Navigate to add halaqat
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AddHalaqaScreen()));
+                            },
+                            icon: Icon(Icons.add),
+                            label: Text("إضافة حلقة"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColor,
+                              foregroundColor: Colors.white,
                             ),
-                            title: Text(
-                              prov[index].Name ?? 'حلقة بدون اسم',
-                              style: TextStyle(fontWeight: FontWeight.w500),
-                            ),
-                            subtitle: Text(
-                                'عدد الطلاب: ${prov[index].NumberStudent ?? 0}'),
-                            // trailing: Row(
-                            //   mainAxisSize: MainAxisSize.min,
-                            //   children: [
-                            //     IconButton(
-                            //       icon: Icon(Icons.info, color: Colors.blue),
-                            //       onPressed: () {
-                            //         // عرض تفاصيل الحلقة
-                            //       },
-                            //     ),
-                            //     IconButton(
-                            //       icon: Icon(Icons.edit, color: Colors.orange),
-                            //       onPressed: () {
-                            //         // تعديل بيانات الحلقة
-                            //       },
-                            //     ),
-                            //   ],
-                            // ),
-                          );
-                        },
+                          ),
+                        ],
                       ),
-              ),
-            )),
+                    ),
+                  )
+                : ListView.separated(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: prov.length > 3 ? 3 : prov.length,
+                    separatorBuilder: (context, index) => Divider(),
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.purple.shade100,
+                          child: Icon(Icons.menu_book,
+                              color: Colors.purple.shade700),
+                        ),
+                        title: Text(
+                          prov[index].Name ?? 'حلقة بدون اسم',
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        subtitle: Text(
+                            'عدد الطلاب: ${prov[index].NumberStudent ?? 0}'),
+                        // trailing: Row(
+                        //   mainAxisSize: MainAxisSize.min,
+                        //   children: [
+                        //     IconButton(
+                        //       icon: Icon(Icons.info, color: Colors.blue),
+                        //       onPressed: () {
+                        //         // عرض تفاصيل الحلقة
+                        //       },
+                        //     ),
+                        //     IconButton(
+                        //       icon: Icon(Icons.edit, color: Colors.orange),
+                        //       onPressed: () {
+                        //         // تعديل بيانات الحلقة
+                        //       },
+                        //     ),
+                        //   ],
+                        // ),
+                      );
+                    },
+                  ),
+          ),
+        ),
       ],
     );
   }
