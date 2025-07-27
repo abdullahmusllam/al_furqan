@@ -17,8 +17,13 @@ class StudentProvider with ChangeNotifier {
 
   int? schoolID = perf.getInt('schoolId');
 
-  StudentProvider() {
-    loadStudents();
+  StudentProvider() {}
+
+  init() async {
+    int? role = perf.getInt('roleID') ?? 4;
+    if (role == 1) {
+      await loadStudents();
+    } else {}
   }
 
   Future<void> loadStudentFromFirebase() async {
