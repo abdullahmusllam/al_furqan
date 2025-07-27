@@ -47,12 +47,17 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> loadUserFromLocal() async {
+    // final sw3 = Stopwatch()..start();
+
     List<UserModel?> usersList = await userController.loadUserBySchoolId();
     users.clear();
     users.addAll(usersList);
     notifyListeners();
     print(users);
     await loadTeachers();
+    // sw3.stop();
+    // int timeSyncStudents = sw3.elapsedMilliseconds;
+    // debugPrint("Time load users is : $timeSyncStudents ms");
   }
 
   loadTeachers() {

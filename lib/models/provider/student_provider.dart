@@ -8,7 +8,6 @@ import '../../controllers/fathers_controller.dart';
 import '../halaga_model.dart';
 
 class StudentProvider with ChangeNotifier {
-
   List<StudentModel> students = [];
   List<UserModel> fathers = [];
   Map<String?, String> halaqaNames = {}; // أسماء الحلقات حسب ID
@@ -28,6 +27,8 @@ class StudentProvider with ChangeNotifier {
   }
 
   Future<void> loadStudents() async {
+    // final sw3 = Stopwatch()..start();
+
     debugPrint("=== بداية تحميل بيانات الطلاب ===");
     debugPrint("معرف المدرسة: $schoolID");
 
@@ -55,6 +56,9 @@ class StudentProvider with ChangeNotifier {
     debugPrint("=== انتهاء تحميل بيانات الطلاب ===");
 
     notifyListeners();
+    // sw3.stop();
+    // int timeSyncStudents = sw3.elapsedMilliseconds;
+    // debugPrint("Time load Students is : $timeSyncStudents ms");
   }
 
   Future<void> _loadHalaqaNames(int schoolID) async {

@@ -1,5 +1,7 @@
 // ignore: file_names
 
+import 'package:al_furqan/helper/current_user.dart';
+import 'package:al_furqan/models/provider/halaqa_provider.dart';
 import 'package:al_furqan/views/Teacher/HalagaPlansListScreen.dart';
 import 'package:al_furqan/views/Teacher/attendTeacherScreen.dart';
 import 'package:al_furqan/views/Teacher/islamic_studies_plans_list.dart';
@@ -10,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
+import 'package:provider/provider.dart';
 
 import '../shared/Conversation_list.dart';
 
@@ -24,8 +27,8 @@ class DrawerTeacher extends StatefulWidget {
 
 class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
   final HalagaController _halagaController = HalagaController();
-  HalagaModel? _teacherHalaga;
-  bool _isLoadingHalaga = false;
+  // HalagaModel? _teacherHalaga;
+  // bool _isLoadingHalaga = true;
   String? _errorMessage;
 
   @override
@@ -33,11 +36,11 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
     super.initState();
     debugPrint("DrawerTeacher - initState called");
     // نضيف مؤقت صغير للتأكد من أن بيانات المستخدم تم تحميلها قبل تحميل الحلقة
-    Future.delayed(Duration(milliseconds: 500), () {
-      if (mounted) {
-        _loadTeacherHalaga();
-      }
-    });
+    // Future.delayed(Duration(milliseconds: 500), () {
+    //   if (mounted) {
+    //     _loadTeacherHalaga();
+    //   }
+    // });
   }
 
   @override
@@ -47,132 +50,133 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
     // لن نستدعي _loadTeacherHalaga هنا لتجنب التكرار، سيتم استدعاؤها من initState
   }
 
-  Future<void> _loadTeacherHalaga() async {
-    debugPrint("DrawerTeacher - _loadTeacherHalaga started");
-    debugPrint(
-        "DrawerTeacher - User data: ${user != null ? 'Available' : 'Not available'}");
+  // Future<void> _loadTeacherHalaga() async {
+  //   debugPrint("DrawerTeacher - _loadTeacherHalaga started");
+  //   debugPrint(
+  //       "DrawerTeacher - User data: ${user != null ? 'Available' : 'Not available'}");
 
-    if (_isLoadingHalaga) {
-      debugPrint("DrawerTeacher - Already loading halaga data, skipping");
-      return;
-    }
+  //   if (_isLoadingHalaga) {
+  //     debugPrint("DrawerTeacher - Already loading halaga data, skipping");
+  //     return;
+  //   }
 
-    if (user == null) {
-      debugPrint(
-          "DrawerTeacher - User is null, trying to load user data first");
-      await fetchUserData(); // استدعاء دالة تحميل بيانات المستخدم أولاً
-      if (user == null) {
-        debugPrint("DrawerTeacher - Still couldn't load user data");
-        setState(() {
-          _errorMessage = "فشل في تحميل بيانات المستخدم";
-        });
-        return;
-      }
-    }
+  //   if (user == null) {
+  //     debugPrint(
+  //         "DrawerTeacher - User is null, trying to load user data first");
+  //     await fetchUserData(); // استدعاء دالة تحميل بيانات المستخدم أولاً
+  //     if (user == null) {
+  //       debugPrint("DrawerTeacher - Still couldn't load user data");
+  //       setState(() {
+  //         _errorMessage = "فشل في تحميل بيانات المستخدم";
+  //       });
+  //       return;
+  //     }
+  //   }
 
-    debugPrint("DrawerTeacher - User elhalagatID: ${user?.elhalagatID}");
+  //   debugPrint("DrawerTeacher - User elhalagatID: ${user?.elhalagatID}");
 
-    if (user!.elhalagatID == null || user!.elhalagatID == 0) {
-      debugPrint("DrawerTeacher - User has no halaga assigned");
-      setState(() {
-        _errorMessage = "لم يتم تعيين حلقة للمعلم";
-      });
-      return;
-    }
+  //   if (user!.elhalagatID == null || user!.elhalagatID == 0) {
+  //     debugPrint("DrawerTeacher - User has no halaga assigned");
+  //     setState(() {
+  //       _errorMessage = "لم يتم تعيين حلقة للمعلم";
+  //     });
+  //     return;
+  //   }
 
-    setState(() {
-      _isLoadingHalaga = true;
-    });
+  //   setState(() {
+  //     _isLoadingHalaga = true;
+  //   });
 
-    try {
-      debugPrint(
-          "DrawerTeacher - Fetching halaga details for ID: ${user!.elhalagatID}");
-      // Get the teacher's halaga details using the halagaID (elhalagatID) from user data
-      _teacherHalaga =
-          await _halagaController.getHalqaDetails(user!.elhalagatID!);
+  //   try {
+  //     debugPrint(
+  //         "DrawerTeacher - Fetching halaga details for ID: ${user!.elhalagatID}");
+  //     // Get the teacher's halaga details using the halagaID (elhalagatID) from user data
+  //     _teacherHalaga =
+  //         await _halagaController.getHalqaDetails(user!.elhalagatID!);
 
-      debugPrint(
-          "DrawerTeacher - Halaga response: ${_teacherHalaga != null ? 'Found' : 'Not found'}");
+  //     debugPrint(
+  //         "DrawerTeacher - Halaga response: ${_teacherHalaga != null ? 'Found' : 'Not found'}");
 
-      if (_teacherHalaga != null) {
-        debugPrint(
-            "DrawerTeacher - Fetched teacher's halaga: ${_teacherHalaga?.Name}, ID: ${_teacherHalaga?.halagaID}");
-      } else {
-        debugPrint(
-            "DrawerTeacher - Halaga not found for ID: ${user!.elhalagatID}");
-        setState(() {
-          _errorMessage =
-              "لم يتم العثور على بيانات الحلقة رقم ${user!.elhalagatID}";
-        });
-      }
-    } catch (e) {
-      debugPrint("DrawerTeacher - Error fetching teacher's halaga: $e");
-      setState(() {
-        _errorMessage = "خطأ أثناء جلب بيانات الحلقة: $e";
-      });
-    } finally {
-      if (mounted) {
-        // نتحقق من أن الكائن لا يزال موجوداً
-        setState(() {
-          _isLoadingHalaga = false;
-        });
-      }
-    }
-  }
+  //     if (_teacherHalaga != null) {
+  //       debugPrint(
+  //           "DrawerTeacher - Fetched teacher's halaga: ${_teacherHalaga?.Name}, ID: ${_teacherHalaga?.halagaID}");
+  //     } else {
+  //       debugPrint(
+  //           "DrawerTeacher - Halaga not found for ID: ${user!.elhalagatID}");
+  //       setState(() {
+  //         _errorMessage =
+  //             "لم يتم العثور على بيانات الحلقة رقم ${user!.elhalagatID}";
+  //       });
+  //     }
+  //   } catch (e) {
+  //     debugPrint("DrawerTeacher - Error fetching teacher's halaga: $e");
+  //     setState(() {
+  //       _errorMessage = "خطأ أثناء جلب بيانات الحلقة: $e";
+  //     });
+  //   } finally {
+  //     if (mounted) {
+  //       // نتحقق من أن الكائن لا يزال موجوداً
+  //       setState(() {
+  //         _isLoadingHalaga = false;
+  //       });
+  //     }
+  //   }
+  // }
 
-  void _showDiagnosticInfo() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('معلومات تشخيصية'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('معرف المستخدم: ${user?.user_id ?? 'غير متوفر'}'),
-              Text(
-                  'اسم المستخدم: ${user != null ? '${user!.first_name} ${user!.last_name}' : 'غير متوفر'}'),
-              Text('معرف الحلقة: ${user?.elhalagatID ?? 'غير متوفر'}'),
-              Divider(),
-              Text(
-                  'حالة تحميل الحلقة: ${_isLoadingHalaga ? 'جار التحميل' : 'مكتمل'}'),
-              Text(
-                  'بيانات الحلقة: ${_teacherHalaga != null ? 'متوفرة' : 'غير متوفرة'}'),
-              if (_teacherHalaga != null) ...[
-                Text('اسم الحلقة: ${_teacherHalaga!.Name ?? 'غير متوفر'}'),
-                Text('معرف الحلقة: ${_teacherHalaga!.halagaID ?? 'غير متوفر'}'),
-              ],
-              if (_errorMessage != null) ...[
-                Divider(),
-                Text('رسالة الخطأ:',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(_errorMessage!, style: TextStyle(color: Colors.red)),
-              ],
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('إغلاق'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _loadTeacherHalaga(); // إعادة محاولة تحميل البيانات
-            },
-            child: Text('إعادة المحاولة'),
-          ),
-        ],
-      ),
-    );
-  }
+  // void _showDiagnosticInfo() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: Text('معلومات تشخيصية'),
+  //       content: SingleChildScrollView(
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Text('معرف المستخدم: ${user?.user_id ?? 'غير متوفر'}'),
+  //             Text(
+  //                 'اسم المستخدم: ${user != null ? '${user!.first_name} ${user!.last_name}' : 'غير متوفر'}'),
+  //             Text('معرف الحلقة: ${user?.elhalagatID ?? 'غير متوفر'}'),
+  //             Divider(),
+  //             Text(
+  //                 'حالة تحميل الحلقة: ${_isLoadingHalaga ? 'جار التحميل' : 'مكتمل'}'),
+  //             Text(
+  //                 'بيانات الحلقة: ${_teacherHalaga != null ? 'متوفرة' : 'غير متوفرة'}'),
+  //             if (_teacherHalaga != null) ...[
+  //               Text('اسم الحلقة: ${_teacherHalaga!.Name ?? 'غير متوفر'}'),
+  //               Text('معرف الحلقة: ${_teacherHalaga!.halagaID ?? 'غير متوفر'}'),
+  //             ],
+  //             if (_errorMessage != null) ...[
+  //               Divider(),
+  //               Text('رسالة الخطأ:',
+  //                   style: TextStyle(fontWeight: FontWeight.bold)),
+  //               Text(_errorMessage!, style: TextStyle(color: Colors.red)),
+  //             ],
+  //           ],
+  //         ),
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context),
+  //           child: Text('إغلاق'),
+  //         ),
+  //         ElevatedButton(
+  //           onPressed: () {
+  //             Navigator.pop(context);
+  //             _loadTeacherHalaga(); // إعادة محاولة تحميل البيانات
+  //           },
+  //           child: Text('إعادة المحاولة'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(
-        "DrawerTeacher - Build called, teacherHalaga: ${_teacherHalaga != null ? 'Available' : 'Null'}");
+    HalagaModel? h = (context).read<HalaqaProvider>().halaga;
+    // debugPrint(
+    //     "DrawerTeacher - Build called, teacherHalaga: ${_teacherHalaga != null ? 'Available' : 'Null'}");
     return Drawer(
       elevation: 16.0,
       child: Container(
@@ -223,10 +227,10 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                     ),
                   ),
                   SizedBox(height: 15),
-                  isLoading || user == null
+                  CurrentUser.user == null
                       ? CircularProgressIndicator(color: Colors.white)
                       : Text(
-                          '${user!.first_name} ${user!.last_name}',
+                          '${CurrentUser.user!.first_name} ${CurrentUser.user!.last_name}',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -249,66 +253,66 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                       ),
                     ),
                   ),
-                  if (_isLoadingHalaga)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  else if (_teacherHalaga != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '${_teacherHalaga!.Name}',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: InkWell(
-                        onTap: _loadTeacherHalaga,
-                        child: Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            _errorMessage ?? 'اضغط لتحميل بيانات الحلقة',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                  // if (_isLoadingHalaga)
+                  //   Padding(
+                  //     padding: const EdgeInsets.only(top: 8.0),
+                  //     child: CircularProgressIndicator(
+                  //       color: Colors.white,
+                  //       strokeWidth: 2,
+                  //     ),
+                  //   ),
+                  // // else if (_teacherHalaga != null)
+                  //   Padding(
+                  //     padding: const EdgeInsets.only(top: 8.0),
+                  //     child: Container(
+                  //       padding:
+                  //           EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  //       decoration: BoxDecoration(
+                  //         color: Colors.white.withOpacity(0.3),
+                  //         borderRadius: BorderRadius.circular(20),
+                  //       ),
+                  //       child: Text(
+                  //         '${CurrentUser.user!.first_name}',
+                  //         style: TextStyle(
+                  //           color: Colors.white,
+                  //           fontSize: 14,
+                  //           fontWeight: FontWeight.bold,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   )
+                  // else
+                  //   Padding(
+                  //     padding: const EdgeInsets.only(top: 8.0),
+                  //     child: InkWell(
+                  //       // onTap: _loadTeacherHalaga,
+                  //       child: Container(
+                  //         padding:
+                  //             EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  //         decoration: BoxDecoration(
+                  //           color: Colors.orange.withOpacity(0.3),
+                  //           borderRadius: BorderRadius.circular(20),
+                  //         ),
+                  //         child: Text(
+                  //           _errorMessage ?? 'اضغط لتحميل بيانات الحلقة',
+                  //           style: TextStyle(
+                  //             color: Colors.white,
+                  //             fontSize: 14,
+                  //             fontWeight: FontWeight.bold,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
 
                   // زر لعرض معلومات تشخيصية
-                  TextButton(
-                    onPressed: _showDiagnosticInfo,
-                    child: Text(
-                      'فحص حالة البيانات',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  ),
+                  // TextButton(
+                  //   onPressed: _showDiagnosticInfo,
+                  //   child: Text(
+                  //     'فحص حالة البيانات',
+                  //     style: TextStyle(color: Colors.white70),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -324,7 +328,7 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                   _buildMenuItem(
                     context,
                     icon: Icons.refresh,
-                    title: 'تحديث البيانات',
+                    title: 'مزامنة البيانات',
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
@@ -385,17 +389,17 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                     title: 'خطة الحفظ والتلاوة',
                     onTap: () {
                       Navigator.pop(context);
-                      if (_isLoadingHalaga) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                'جار تحميل بيانات الحلقة، يرجى الانتظار...'),
-                            backgroundColor: Colors.orange,
-                          ),
-                        );
-                        return;
-                      }
-                      if (_teacherHalaga == null) {
+                      // if (_isLoadingHalaga) {
+                      //   ScaffoldMessenger.of(context).showSnackBar(
+                      //     SnackBar(
+                      //       content: Text(
+                      //           'جار تحميل بيانات الحلقة، يرجى الانتظار...'),
+                      //       backgroundColor: Colors.orange,
+                      //     ),
+                      //   );
+                      //   return;
+                      // }
+                      if (CurrentUser.user == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(_errorMessage ??
@@ -404,7 +408,7 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                             action: SnackBarAction(
                               label: 'إعادة المحاولة',
                               onPressed: () {
-                                _loadTeacherHalaga();
+                                // _loadTeacherHalaga();
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content:
@@ -424,13 +428,13 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                         context,
                         MaterialPageRoute(
                           builder: (context) => HalagaPlansListScreen(
-                            halaga: _teacherHalaga!,
+                            halaga: CurrentUser.halaga!,
                           ),
                         ),
                       ).then((value) {
                         // إعادة تحميل البيانات عند العودة
                         if (value == true) {
-                          _loadTeacherHalaga();
+                          // _loadTeacherHalaga();
                         }
                       });
                     },
@@ -446,13 +450,13 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                         context,
                         MaterialPageRoute(
                           builder: (context) => IslamicStudiesPlansListScreen(
-                            halaga: _teacherHalaga!,
+                            halaga: CurrentUser.halaga!,
                           ),
                         ),
                       ).then((value) {
                         // إعادة تحميل البيانات عند العودة
                         if (value == true) {
-                          _loadTeacherHalaga();
+                          // _loadTeacherHalaga();
                         }
                       });
                     },
@@ -468,13 +472,12 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                         MaterialPageRoute(
                             builder: (context) => ConversationsScreen(
                                   currentUser: user!,
-                                  
                                 )),
                       );
                     },
                   ),
-                  _buildDivider(),
-                  _buildMenuCategory('الإعدادات'),
+                  // _buildDivider(),
+                  // _buildMenuCategory('الإعدادات'),
                   // _buildMenuItem(
                   //   context,
                   //   icon: Icons.settings,
@@ -484,21 +487,21 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                   //     // الانتقال إلى شاشة الإعدادات
                   //   },
                   // ),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.refresh,
-                    title: 'تحديث البيانات',
-                    onTap: () {
-                      Navigator.pop(context);
-                      _loadTeacherHalaga();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('جار تحديث البيانات...'),
-                          backgroundColor: Colors.blue,
-                        ),
-                      );
-                    },
-                  ),
+                  // _buildMenuItem(
+                  //   context,
+                  //   icon: Icons.refresh,
+                  //   title: 'تحديث البيانات',
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //     // _loadTeacherHalaga();
+                  //     ScaffoldMessenger.of(context).showSnackBar(
+                  //       SnackBar(
+                  //         content: Text('جار تحديث البيانات...'),
+                  //         backgroundColor: Colors.blue,
+                  //       ),
+                  //     );
+                  //   },
+                  // ),
                 ],
               ),
             ),

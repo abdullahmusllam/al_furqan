@@ -314,10 +314,13 @@ class HalagaController {
     }
   }
 
-  Future<List<HalagaModel>> getHalagaByHalagaID(String halagaID) async {
+  Future<HalagaModel?> getHalagaByHalagaID(String halagaID) async {
     List<Map<String, dynamic>> halagaData = await _sqlDb
         .readData("SELECT * FROM Elhalagat WHERE halagaID = '$halagaID'");
-    return halagaData.map((halaga) => HalagaModel.fromJson(halaga)).toList();
+    if (halagaData.isNotEmpty) {
+      return HalagaModel.fromJson(halagaData.first);
+    }
+    return null;
   }
 
   Future<String> getTeacher(String halagaId) async {

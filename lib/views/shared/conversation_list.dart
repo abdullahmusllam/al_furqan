@@ -244,6 +244,28 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                           lastMessage.isRead == 0;
 
                       return InkWell(
+                        onLongPress: () => showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                  title: Text('حذف المحادثه'),
+                                  actions: [
+                                    MaterialButton(
+                                      onPressed: () async {
+// await messageController.deleteMessage(id)
+                                      },
+                                      color: Colors.amber,
+                                      child: Text('حذف محلي'),
+                                    ),
+                                    SizedBox(
+                                      width: 20,
+                                    ),
+                                    MaterialButton(
+                                      onPressed: () {},
+                                      color: Colors.red,
+                                      child: Text('حذف نهائي'),
+                                    )
+                                  ],
+                                )),
                         onTap: () {
                           Navigator.push(
                             context,
