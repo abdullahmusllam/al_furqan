@@ -34,31 +34,31 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
     super.initState();
     syncData();
     _refreshData();
-    _loadAdditionalData();
+    // _loadAdditionalData();
   }
 
-  Future<void> _loadAdditionalData() async {
-    try {
-      // Commented out message-related code for future use
-      // final prefs = await SharedPreferences.getInstance();
-      // int? userId = prefs.getInt('user_id');
-      // if (userId != null) {
-      //   // Get unread messages count
-      //   _unreadMessages = await messageController.getUnreadMessagesCount(userId);
-      // }
-
-      // Calculate attendance data (simulated since we don't have the actual data)
-      // In a real implementation, this would come from the attendance database
-      _calculateAttendanceData();
-
-      // Calculate activities completion rate (simulated)
-      _calculateActivitiesData();
-
-      setState(() {});
-    } catch (e) {
-      debugPrint("Error loading additional data: $e");
-    }
-  }
+  // Future<void> _loadAdditionalData() async {
+  //   try {
+  //     // Commented out message-related code for future use
+  //     // final prefs = await SharedPreferences.getInstance();
+  //     // int? userId = prefs.getInt('user_id');
+  //     // if (userId != null) {
+  //     //   // Get unread messages count
+  //     //   _unreadMessages = await messageController.getUnreadMessagesCount(userId);
+  //     // }
+  //
+  //     // Calculate attendance data (simulated since we don't have the actual data)
+  //     // In a real implementation, this would come from the attendance database
+  //     _calculateAttendanceData();
+  //
+  //     // Calculate activities completion rate (simulated)
+  //     _calculateActivitiesData();
+  //
+  //     setState(() {});
+  //   } catch (e) {
+  //     debugPrint("Error loading additional data: $e");
+  //   }
+  // }
 
   void _calculateAttendanceData() {
     // Simulate teacher attendance data based on current time
@@ -129,6 +129,7 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
             ),
           );
         }).then((value) {
+      if (!mounted) return;
       Navigator.pop(context);
     });
   }
@@ -141,7 +142,7 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
       _totalStudents = await studentController.getTotalStudents();
 
       // Update additional data
-      await _loadAdditionalData();
+      // await _loadAdditionalData();
 
       // Update current date
       _currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -168,6 +169,9 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
       );
     } catch (e) {
       debugPrint("Error refreshing admin data: $e");
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(

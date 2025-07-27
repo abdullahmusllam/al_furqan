@@ -25,7 +25,8 @@ class TeacherController {
 
   Future<List<UserModel>> getTeacherByHalagaID(String halagaID) async {
     List<UserModel> data = [];
-    List<Map<String, dynamic>> response = await _sqlDb.readData("SELECT * FROM Users WHERE ");
+    List<Map<String, dynamic>> response = await _sqlDb
+        .readData("SELECT * FROM Users WHERE ElhalagatID = '$halagaID'");
     data.addAll(mapResponseToUserModel(response));
     return data;
   }
