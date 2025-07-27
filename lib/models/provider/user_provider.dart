@@ -17,7 +17,14 @@ class UserProvider with ChangeNotifier {
   int? schoolID = perf.getInt('schoolId');
 
   UserProvider() {
-    loadUserFromLocal();
+    init();
+  }
+
+  init() async {
+    int? role = perf.getInt('roleID') ?? 4;
+    if (role == 1) {
+      await loadUserFromLocal();
+    } else {}
   }
 
   Future<void> loadUsersFromFirebase() async {
