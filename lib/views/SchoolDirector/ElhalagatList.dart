@@ -175,6 +175,8 @@ class _HalqatListPageState extends State<HalqatListPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Theme.of(context).primaryColor,
+        tooltip: 'إضافة حلقة جديدة',
         onPressed: () {
           Navigator.push(context,
                   MaterialPageRoute(builder: (context) => AddHalaqaScreen()))
@@ -188,7 +190,6 @@ class _HalqatListPageState extends State<HalqatListPage> {
             );
           });
         },
-        backgroundColor: Colors.teal,
         child: Icon(Icons.add, color: Colors.white),
       ),
     );
