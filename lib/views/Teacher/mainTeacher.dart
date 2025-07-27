@@ -39,19 +39,31 @@ class _TeacherDashboardState extends State<TeacherDashboard>
   // bool _isLoadingHalaga = false;
   // String? _errorMessage;
   // HalagaModel? _teacherHalaga;
-  final bool _isLoading = false;
-  List<EltlawahPlanModel>? eltlawahPlan;
-  List<IslamicStudiesModel>? islamicPlan;
+  // final bool _isLoading = false;
+  EltlawahPlanModel? eltlawahPlan;
+  IslamicStudiesModel? islamicPlan;
 
-  // Future<void> _loadPlans() async {
-  //   setState(() => _isLoading = true);
-  //   try {
-  //     await planController.getPlans(_teacherHalaga!.halagaID!);
-  //     await studentController.getStudents(_teacherHalaga!.halagaID!);
-  //     debugPrint("------------------------->> planController.eltlawahPlans : ${ planController.eltlawahPlans.isEmpty}");
-  //     eltlawahPlan = await planController.eltlawahPlans;
-  //     islamicPlan = await planController.islamicStudyPlans;
-  //   } catch (e) {
+  Future<void> _loadPlans() async {
+    //   setState(() => _isLoading = true);
+    //   try {
+    await planController.getPlans(CurrentUser.halaga!.halagaID!);
+    await studentController.getStudents(CurrentUser.halaga!.halagaID!);
+    debugPrint(
+        "------------------------->> planController.eltlawahPlans : ${planController.eltlawahPlans.isEmpty}");
+    EltlawahPlanModel? eltlawahPlanB = planController.eltlawahPlans.isNotEmpty
+        ? planController.eltlawahPlans.last
+        : null;
+    IslamicStudiesModel? islamicPlanB =
+        planController.islamicStudyPlans.isNotEmpty
+            ? planController.islamicStudyPlans.last
+            : null;
+    // ignore: unnecessary_null_comparison
+    if (eltlawahPlanB != null || islamicPlanB != null) {
+      eltlawahPlan = eltlawahPlanB;
+      islamicPlan = islamicPlanB;
+    }
+  }
+  //catch (e) {
   //     ScaffoldMessenger.of(context).showSnackBar(
   //       SnackBar(
   //         content: Text('حدث خطأ في تحميل الخطط: $e'),
@@ -348,7 +360,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
     // WidgetsBinding.instance.addObserver(this);
     // Initial data loading
     // fetchUserData();
-    // _loadPlans();
+    _loadPlans();
     // loadMessagesAndStudent();
     // halagaController.getHalagatFromFirebase();
     // _loadTeacherHalaga();
@@ -405,8 +417,9 @@ class _TeacherDashboardState extends State<TeacherDashboard>
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
-              onPressed: () {
+              onPressed: () async {
                 // _loadTeacherHalaga();
+                await _loadPlans();
                 (context).read<HalaqaProvider>().loadHalagaFromFirebase();
                 (context).read<MessageProvider>().loadMessageFromFirebase();
                 // updateNotificationCount();
@@ -763,7 +776,9 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                       SizedBox(width: 4),
                                       Flexible(
                                         child: Text(
-                                          'نسبة التنفيذ: %',
+                                          eltlawahPlan != null
+                                              ? 'نسبة التنفيذ: ${eltlawahPlan!.executedRate}%'
+                                              : 'نسبة التنفيذ: %',
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
                                             color: Colors.green,
@@ -798,7 +813,13 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                       Expanded(
                                         child: _buildPlanField(
                                           label: 'من',
-                                          value: 'سورة البقرة - الآية 1',
+                                          value: eltlawahPlan != null
+                                              ? eltlawahPlan!
+                                                      .plannedStartSurah! +
+                                                  'الاية' +
+                                                  eltlawahPlan!.plannedStartAya
+                                                      .toString()
+                                              : 'لا توجد خطه',
                                           icon: Icons.arrow_right,
                                           color: Colors.blue,
                                         ),
@@ -807,7 +828,9 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                       Expanded(
                                         child: _buildPlanField(
                                           label: 'إلى',
-                                          value: 'سورة البقرة - الآية 20',
+                                          value: eltlawahPlan == null
+                                              ? 'لا توجد خطه'
+                                              : ' ${eltlawahPlan!.plannedEndSurah} - الآية ${eltlawahPlan!.plannedEndAya}',
                                           icon: Icons.arrow_left,
                                           color: Colors.red,
                                         ),
@@ -838,7 +861,9 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                       Expanded(
                                         child: _buildPlanField(
                                           label: 'من',
-                                          value: 'سورة البقرة - الآية 1',
+                                          value: eltlawahPlan == null
+                                              ? 'لا توجد خطه'
+                                              : ' ${eltlawahPlan!.executedStartSurah} - الآية ${eltlawahPlan!.executedStartAya}',
                                           icon: Icons.arrow_right,
                                           color: Colors.blue,
                                         ),
@@ -847,7 +872,9 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                       Expanded(
                                         child: _buildPlanField(
                                           label: 'إلى',
-                                          value: 'سورة البقرة - الآية 16',
+                                          value: eltlawahPlan == null
+                                              ? 'لا توجد خطه'
+                                              : ' ${eltlawahPlan!.executedEndSurah} - الآية ${eltlawahPlan!.executedEndAya}',
                                           icon: Icons.arrow_left,
                                           color: Colors.red,
                                         ),
