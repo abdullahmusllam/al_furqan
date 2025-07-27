@@ -29,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> loadUser() async {
     CurrentUser.user = await userController.loadUserFromPrefs();
-    print(CurrentUser.user);
+    // print(CurrentUser.user);
   }
 
   /// التحقق مما إذا كان المستخدم مسجل الدخول

@@ -1,4 +1,6 @@
+import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/school_controller.dart';
+import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/provider/user_provider.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/SchoolDirector/ElhalagatList.dart';
@@ -241,7 +243,9 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                   _buildMenuItem(
                     icon: Icons.groups,
                     title: 'إدارة الحلقات',
-                    onTap: () {
+                    onTap: () async {
+                      int? schoolID = perf.getInt('schoolId');
+                      await halagaController.getHalagatFromFirebaseByID(schoolID!, 'SchoolID');
                       Navigator.pop(context);
                       Navigator.push(
                         context,

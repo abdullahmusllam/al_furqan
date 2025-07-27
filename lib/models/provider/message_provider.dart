@@ -62,31 +62,37 @@ class MessageProvider with ChangeNotifier {
   }
 
   loadUsers() async {
-    parents.clear();
-    teachers.clear();
     try {
-      debugPrint('RoleID: $roleID');
-      debugPrint('SchoolID: $schoolID');
-      debugPrint('ElhalagatID: $elhalagatID');
+      // debugPrint('RoleID: $roleID');
+      // debugPrint('SchoolID: $schoolID');
+      // debugPrint('ElhalagatID: $elhalagatID');
+      List<UserModel> parentsList;
+      List<UserModel> teachersList;
 
       if (roleID == 1) {
         // المدير: يحمل كل أولياء الأمور في المدرسة
-        parents = (await fathersController.getFathersBySchoolId(schoolID!))
+        parentsList = (await fathersController.getFathersBySchoolId(schoolID!))
             .where((user) => user.user_id != null && user.user_id != 0)
             .toList();
+        parents.clear();
+        parents.addAll(parentsList);
         debugPrint('Loaded ${parents.length} parents for manager');
 
-        teachers = (await halagaController.getTeachers(schoolID!))
+        teachersList = (await halagaController.getTeachers(schoolID!))
             .where((user) => user.user_id != null && user.user_id != 0)
             .toList();
+        teachers.clear();
+        teachers.addAll(teachersList);
         debugPrint('Loaded ${teachers.length} teachers for manager');
       } else if (roleID == 2) {
         // المعلم: يحمل فقط أولياء الأمور من الحلقة المعينة
         if (elhalagatID != null && elhalagatID!.isNotEmpty) {
-          parents = (await fathersController
+          parentsList = (await fathersController
                   .getFathersByElhalagaId(elhalagatID!))
               .where((user) => user.user_id != null && user.user_id!.isNotEmpty)
               .toList();
+          parents.clear();
+          parents.addAll(parentsList);
           managerN = await userController.loadManager(schoolID!);
           print('===== تم تحميل المدير =====');
           debugPrint(
