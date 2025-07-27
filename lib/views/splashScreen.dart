@@ -1,5 +1,7 @@
+import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/current_user.dart';
+import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/provider/user_provider.dart';
 import 'package:al_furqan/views/SchoolDirector/main_screenD.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
@@ -23,12 +25,14 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    loadUser();
+
     _checkLoginStatus();
   }
 
-  Future<void> loadUser() async {
+  Future<void> loadUserAndHalaga() async {
+    String? hID = perf.getString('halagaID');
     CurrentUser.user = await userController.loadUserFromPrefs();
+    CurrentUser.halaga = await halagaController.getHalagaByHalagaID(hID!);
     // print(CurrentUser.user);
   }
 
@@ -91,6 +95,7 @@ class _SplashScreenState extends State<SplashScreen> {
       _showErrorDialog(context, "خطأ", "فشل في تحديد دور المستخدم.");
       return;
     }
+    await loadUserAndHalaga();
     switch (roleId) {
       case 0:
         Navigator.pushReplacement(context,

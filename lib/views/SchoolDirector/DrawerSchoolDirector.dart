@@ -163,7 +163,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                   _buildSectionTitle('إدارة البيانات'),
                   _buildMenuItem(
                     icon: Icons.update,
-                    title: 'تحديث البيانات ',
+                    title: 'مزامنة البيانات ',
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
@@ -245,7 +245,8 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     title: 'إدارة الحلقات',
                     onTap: () async {
                       int? schoolID = perf.getInt('schoolId');
-                      await halagaController.getHalagatFromFirebaseByID(schoolID!, 'SchoolID');
+                      await halagaController.getHalagatFromFirebaseByID(
+                          schoolID!, 'SchoolID');
                       Navigator.pop(context);
                       Navigator.push(
                         context,

@@ -158,6 +158,27 @@ class FirebaseHelper {
 
 // =========================== Start Elhalaga ===========================
 
+  Future<HalagaModel?> getElhalaga(String halagaID) async {
+    try {
+      QuerySnapshot query = await _firestore
+          .collection('Elhalaga')
+          .where('halagaID', isEqualTo: halagaID)
+          .get();
+
+      if (query.docs.isNotEmpty) {
+        debugPrint('تم العثور على حلقة');
+        return HalagaModel.fromJson(
+            query.docs.first.data() as Map<String, dynamic>);
+      } else {
+        debugPrint('لا توجد حلقة تطابق الشرط');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('خطأ أثناء جلب بيانات الحلقة: $e');
+      return null;
+    }
+  }
+
 //get data from elhalaga collection on schoolID
   Future<List<Map<String, dynamic>>> getElhalagaData(int schoolID) async {
     try {

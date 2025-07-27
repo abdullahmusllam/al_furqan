@@ -6,6 +6,7 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../services/message_sevice.dart';
+import '../../services/sync.dart';
 // import '../../services/sync.dart';
 
 class MainScreenT extends StatefulWidget {
@@ -16,13 +17,13 @@ class MainScreenT extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreenT> {
-  bool isLoading = true;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
 
-    load();
+    // load();
   }
 
   @override
@@ -38,12 +39,12 @@ class _MainScreenState extends State<MainScreenT> {
 
   Future<void> load() async {
     if (await isConnected()) {
-      // await sync.syncUsers();
-      // await sync.syncElhalagat();
-      // await sync.syncStudents();
+      await sync.syncUsers();
+      await sync.syncElhalagat();
+      await sync.syncStudents();
       // await loadMessages();
       // await loadHalagat();
-      // await loadPlans();
+      await loadPlans();
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => TeacherDashboard()));
     } else {
@@ -58,26 +59,26 @@ class _MainScreenState extends State<MainScreenT> {
     }
   }
 
-  Future<void> loadMessages() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      String? id = prefs.getString('user_id');
-      debugPrint('===== ($id) =====');
-      // تحميل الرسائل من فايربيس
-      await messageService.loadMessagesFromFirestore(id!);
-    } catch (e) {
-      debugPrint('خطأ في تحميل الرسائل: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('خطأ في تحميل الرسائل'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-    setState(() {
-      isLoading = true;
-    });
-  }
+  // Future<void> loadMessages() async {
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+  //     String? id = prefs.getString('user_id');
+  //     debugPrint('===== ($id) =====');
+  //     // تحميل الرسائل من فايربيس
+  //     await messageService.loadMessagesFromFirestore(id!);
+  //   } catch (e) {
+  //     debugPrint('خطأ في تحميل الرسائل: $e');
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('خطأ في تحميل الرسائل'),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //   }
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+  // }
 
   Future<void> loadHalagat() async {
     try {
@@ -95,9 +96,6 @@ class _MainScreenState extends State<MainScreenT> {
         ),
       );
     }
-    setState(() {
-      isLoading = false;
-    });
   }
 
   Future<void> loadPlans() async {
@@ -116,9 +114,6 @@ class _MainScreenState extends State<MainScreenT> {
         ),
       );
     }
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override

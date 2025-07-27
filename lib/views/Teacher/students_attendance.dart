@@ -1,3 +1,5 @@
+import 'package:al_furqan/helper/current_user.dart';
+import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:al_furqan/models/student_model.dart';
@@ -12,8 +14,10 @@ class StudentsAttendance extends StatefulWidget {
 }
 
 class _StudentsAttendanceState extends State<StudentsAttendance>
-    with UserDataMixin {
+// with UserDataMixin
+{
   final StudentController _studentController = StudentController();
+  UserModel? user = CurrentUser.user;
   List<StudentModel> _students = [];
   bool _isLoading = true;
   String? _errorMessage;
@@ -39,16 +43,16 @@ class _StudentsAttendanceState extends State<StudentsAttendance>
     });
 
     try {
-      if (user == null || user!.elhalagatID == null) {
-        await fetchUserData();
-        if (user == null || user!.elhalagatID == null) {
-          setState(() {
-            _errorMessage = "لم يتم العثور على بيانات المستخدم أو الحلقة";
-            _isLoading = false;
-          });
-          return;
-        }
-      }
+      // if (user == null || user!.elhalagatID == null) {
+      //   await fetchUserData();
+      //   if (user == null || user!.elhalagatID == null) {
+      //     setState(() {
+      //       _errorMessage = "لم يتم العثور على بيانات المستخدم أو الحلقة";
+      //       _isLoading = false;
+      //     });
+      //     return;
+      //   }
+      // }
 
       // تحميل الطلاب من حلقة المعلم
       final students = await _studentController.getStudents(user!.elhalagatID!);

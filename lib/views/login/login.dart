@@ -207,8 +207,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   /// اختيار الشاشة المناسبة للمستخدم بناءً على دوره
   Future<void> chooseScreen(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    int? roleId = prefs.getInt('roleID');
+    
+    int? roleId = perf.getInt('roleID');
     if (roleId == null) {
       if (mounted) {
         setState(() => _isLoading = false);
