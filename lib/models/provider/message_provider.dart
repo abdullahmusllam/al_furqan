@@ -35,11 +35,16 @@ class MessageProvider with ChangeNotifier {
   }
   init() async {
     print('===== تم تشغيل دالة البناء للرسائل =====');
+    // final sw3 = Stopwatch()..start();
+
     await loadUsers();
     await loadConversations();
     await getLastMessages();
     await loadMessageFromFirebase();
     await loadUnreadMessage();
+    // sw3.stop();
+    // int timeSyncStudents = sw3.elapsedMilliseconds;
+    // debugPrint("Time load messages is : $timeSyncStudents ms");
   }
 
   loadUnreadMessage() async {

@@ -7,10 +7,8 @@ import 'package:al_furqan/models/islamic_studies_model.dart';
 import 'package:al_furqan/models/schools_model.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/models/users_model.dart';
-import 'package:al_furqan/models/verification_code_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class FirebaseHelper {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -66,29 +64,29 @@ class FirebaseHelper {
     });
   }
 
-  Future<void> updateStudentByHalaga(
-      String halagaID, StudentModel student) async {
-    try {
-      await _firestore
-          .collection("Students")
-          .doc(halagaID)
-          .update(student.toMap());
-    } on Exception catch (e) {
-      log("Error in Update Student By Halaga ID : $e");
-    }
-  }
+  // Future<void> updateStudentByHalaga(
+  //     String halagaID, StudentModel student) async {
+  //   try {
+  //     await _firestore
+  //         .collection("Students")
+  //         .doc(halagaID)
+  //         .update(student.toMap());
+  //   } on Exception catch (e) {
+  //     log("Error in Update Student By Halaga ID : $e");
+  //   }
+  // }
 
-  Future<void> updateTeacherByHalagaID(
-      String halagaID, UserModel teacher) async {
-    try {
-      await _firestore
-          .collection("Users")
-          .doc(halagaID)
-          .update(teacher.toMap());
-    } on Exception catch (e) {
-      log("Error in Update Teacher By Halaga ID : $e");
-    }
-  }
+  // Future<void> updateTeacherByHalagaID(
+  //     String halagaID, UserModel teacher) async {
+  //   try {
+  //     await _firestore
+  //         .collection("Users")
+  //         .doc(halagaID)
+  //         .update(teacher.toMap());
+  //   } on Exception catch (e) {
+  //     log("Error in Update Teacher By Halaga ID : $e");
+  //   }
+  // }
 
   assignStudentToHalqa(String studentId, String halqaID) async {
     try {
@@ -160,6 +158,27 @@ class FirebaseHelper {
 
 // =========================== Start Elhalaga ===========================
 
+  Future<HalagaModel?> getElhalaga(String halagaID) async {
+    try {
+      QuerySnapshot query = await _firestore
+          .collection('Elhalaga')
+          .where('halagaID', isEqualTo: halagaID)
+          .get();
+
+      if (query.docs.isNotEmpty) {
+        debugPrint('تم العثور على حلقة');
+        return HalagaModel.fromJson(
+            query.docs.first.data() as Map<String, dynamic>);
+      } else {
+        debugPrint('لا توجد حلقة تطابق الشرط');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('خطأ أثناء جلب بيانات الحلقة: $e');
+      return null;
+    }
+  }
+
 //get data from elhalaga collection on schoolID
   Future<List<Map<String, dynamic>>> getElhalagaData(int schoolID) async {
     try {
@@ -197,6 +216,26 @@ class FirebaseHelper {
       docRef.doc(halaga.halagaID.toString()).update(halaga.toMap());
     } catch (e) {
       debugPrint('error ==== $e');
+    }
+  }
+
+  Future<void> studentCancel(String halagaID) async {
+    try {
+      final docRef = _firestore.collection("Students");
+
+      final qureySnapshot =
+          await docRef.where('ElhalagatID', isEqualTo: halagaID).get();
+      if (qureySnapshot.docs.isNotEmpty) {
+        for (var doc in qureySnapshot.docs) {
+          // تحديث ElhalagatID إلى null لكل طالب مرتبط بهذه الحلقة
+          await docRef.doc(doc.id).update({'ElhalagatID': null});
+        }
+        debugPrint('تم إلغاء ارتباط الطلاب بالحلفة بنجاح من Firebase');
+      } else {
+        debugPrint('لا يوجد طلاب مرتبطين بهذه الحلقة');
+      }
+    } catch (e) {
+      log("### Error in Cancel Students : $e");
     }
   }
 

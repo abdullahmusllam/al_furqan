@@ -382,12 +382,14 @@ class _HalqatListPageState extends State<HalqatListPage> {
       await firebasehelper.delete(halqa.halagaID!, 'Elhalaga');
 
       // إغلاق مؤشر التحميل
+      if (!mounted) return;
       Navigator.of(context).pop();
 
       // تحديث القائمة
       await _loadHalaqat();
 
       // إظهار رسالة نجاح الحذف
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('تم حذف الحلقة "${halqa.Name}" بنجاح'),

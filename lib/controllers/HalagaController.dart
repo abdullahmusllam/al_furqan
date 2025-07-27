@@ -213,17 +213,27 @@ class HalagaController {
       // حذف الحلقة
       int response = await _sqlDb
           .deleteData("DELETE FROM Elhalagat WHERE halagaID = '$halagaID'");
-      if (await isConnected()) {
-        dataStudents.map((student) async {
-          student.isSync = 1;
-          student.elhalaqaID = 'NULL';
-          await firebasehelper.updateStudentByHalaga(halagaID, student);
-        });
-        dataTeacher.map((teacher) async {
-          teacher.isSync = 1;
-          teacher.elhalagatID = 'NULL';
-          await firebasehelper.updateTeacherByHalagaID(halagaID, teacher);
-        });
+      try {
+        log("Connection is : ${await isConnected()}");
+        // إذا كان هناك اتصال بالإنترنت
+        if (await isConnected()) {
+          log("Here isConnected Function <---------------------------");
+          // إلغاء ارتباط الطلاب في Firebase
+          for (var student in dataStudents) {
+            student.isSync = 1;
+            student.elhalaqaID = 'NULL';
+            await firebasehelper.studentCancel(halagaID);
+          }
+          // إلغاء ارتباط المعلمين في Firebase
+          for (var teacher in dataTeacher) {
+            teacher.isSync = 1;
+            teacher.elhalagatID = 'NULL';
+            await firebasehelper.teacherCancel(halagaID);
+          }
+          log("message: إلغاء ارتباط الطلاب والمعلمين في Firebase");
+        }
+      } on Exception catch (e) {
+        log("Error in the Connection");
       }
       debugPrint("تم حذف الحلقة $halagaID، الاستجابة: $response");
       dataTeacher.clear();
@@ -304,10 +314,13 @@ class HalagaController {
     }
   }
 
-  Future<List<HalagaModel>> getHalagaByHalagaID(String halagaID) async {
+  Future<HalagaModel?> getHalagaByHalagaID(String halagaID) async {
     List<Map<String, dynamic>> halagaData = await _sqlDb
         .readData("SELECT * FROM Elhalagat WHERE halagaID = '$halagaID'");
-    return halagaData.map((halaga) => HalagaModel.fromJson(halaga)).toList();
+    if (halagaData.isNotEmpty) {
+      return HalagaModel.fromJson(halagaData.first);
+    }
+    return null;
   }
 
   Future<String> getTeacher(String halagaId) async {

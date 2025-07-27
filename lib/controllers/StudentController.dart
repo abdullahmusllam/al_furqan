@@ -183,7 +183,6 @@ class StudentController {
 
   Future<void> updateStudent(StudentModel student, int type) async {
     final db = await sqlDb.database;
-    debugPrint("---------> Update Student [Father ID is : ${student.userID}]");
     try {
       if (type == 1) {
         if (await isConnected()) {

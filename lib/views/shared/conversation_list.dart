@@ -1,19 +1,20 @@
-import 'package:al_furqan/controllers/message_controller.dart';
-import 'package:al_furqan/main.dart';
-import 'package:al_furqan/models/messages_model.dart';
-
-import 'package:al_furqan/models/provider/message_provider.dart';
-import 'package:al_furqan/models/users_model.dart';
-import 'package:al_furqan/views/shared/message_screen.dart';
-import 'package:al_furqan/views/shared/users_screen.dart';
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import 'package:al_furqan/controllers/message_controller.dart';
+import 'package:al_furqan/main.dart';
+import 'package:al_furqan/models/messages_model.dart';
+import 'package:al_furqan/models/provider/message_provider.dart';
+import 'package:al_furqan/models/users_model.dart';
+import 'package:al_furqan/views/shared/message_screen.dart';
+import 'package:al_furqan/views/shared/users_screen.dart';
+
 class ConversationsScreen extends StatefulWidget {
   final UserModel currentUser;
 
-  ConversationsScreen({
+  const ConversationsScreen({
     super.key,
     required this.currentUser,
   });
@@ -30,7 +31,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     super.initState();
     // loadConversations();
     int? r = perf.getInt('roleID');
-    print("====================== ${r}");
+    print("====================== $r");
     Future.microtask(() async {
       var prov = Provider.of<MessageProvider>(context, listen: false);
       await prov.loadMessageFromFirebase();
@@ -243,6 +244,28 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                           lastMessage.isRead == 0;
 
                       return InkWell(
+                        onLongPress: () => showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                  title: Text('حذف المحادثه'),
+                                  actions: [
+                                    MaterialButton(
+                                      onPressed: () async {
+// await messageController.deleteMessage(id)
+                                      },
+                                      color: Colors.amber,
+                                      child: Text('حذف محلي'),
+                                    ),
+                                    SizedBox(
+                                      width: 20,
+                                    ),
+                                    MaterialButton(
+                                      onPressed: () {},
+                                      color: Colors.red,
+                                      child: Text('حذف نهائي'),
+                                    )
+                                  ],
+                                )),
                         onTap: () {
                           Navigator.push(
                             context,

@@ -308,6 +308,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
                                 ),
                                 IconButton(
                                   onPressed: () async {
+                                    if (!mounted) return;
                                     bool confirm = await showDialog(
                                           context: context,
                                           builder: (BuildContext context) {
@@ -337,13 +338,16 @@ class _StudentsListPageState extends State<StudentsListPage> {
                                         false;
                                     if (confirm) {
                                       try {
+                                        final messenger =
+                                            ScaffoldMessenger.maybeOf(context);
                                         await studentController
                                             .delete(student.studentID!);
                                         if (await checkInternet()) {
                                           await firebasehelper.delete(
                                               student.studentID!, "Students");
                                         }
-                                        if (!mounted) return;
+                                        if (!context.mounted) return;
+                                        if (messenger == null) return;
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
                                           SnackBar(
@@ -352,6 +356,12 @@ class _StudentsListPageState extends State<StudentsListPage> {
                                         );
                                         await prov.loadStudents();
                                       } catch (e) {
+                                        final messenger =
+                                            ScaffoldMessenger.maybeOf(context);
+                                        if (!context.mounted ||
+                                            messenger == null) {
+                                          return;
+                                        }
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
                                           SnackBar(

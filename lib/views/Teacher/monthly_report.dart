@@ -1,7 +1,9 @@
 import 'package:al_furqan/controllers/plan_controller.dart';
+import 'package:al_furqan/helper/current_user.dart';
 import 'package:al_furqan/models/conservation_plan_model.dart';
 import 'package:al_furqan/models/eltlawah_plan_model.dart';
 import 'package:al_furqan/models/islamic_studies_model.dart';
+import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/Teacher/printing_report.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -18,7 +20,8 @@ class MonthlyReportScreen extends StatefulWidget {
 }
 
 class _MonthlyReportScreenState extends State<MonthlyReportScreen>
-    with UserDataMixin {
+// with UserDataMixin
+{
   final StudentController _studentController = StudentController();
   final PlanController planController = PlanController();
   List<StudentModel> _students = [];
@@ -28,6 +31,7 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
   bool _isLoading = true;
   String? _errorMessage;
   DateTime _selectedMonth = DateTime.now();
+  UserModel? user = CurrentUser.user;
 
   // بيانات التقرير
   Map<String?, Map<String, dynamic>> _reportData = {};
@@ -126,16 +130,16 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
     });
 
     try {
-      if (user == null || user!.elhalagatID == null) {
-        await fetchUserData();
-        if (user == null || user!.elhalagatID == null) {
-          setState(() {
-            _errorMessage = "لم يتم العثور على بيانات المستخدم أو الحلقة";
-            _isLoading = false;
-          });
-          return;
-        }
-      }
+      // if (user == null || user!.elhalagatID == null) {
+      //   await fetchUserData();
+      //   if (user == null || user!.elhalagatID == null) {
+      //     setState(() {
+      //       _errorMessage = "لم يتم العثور على بيانات المستخدم أو الحلقة";
+      //       _isLoading = false;
+      //     });
+      //     return;
+      //   }
+      // }
 
       // تحميل الطلاب من حلقة المعلم
       final students = await _studentController.getStudents(user!.elhalagatID!);
