@@ -201,18 +201,15 @@ class HalagaController {
           await teacherController.getTeacherByHalagaID(halagaID);
 
       int response1 = await _sqlDb.updateData(
-          "UPDATE Students SET ElhalagatID = 'NULL' WHERE ElhalagatID = '$halagaID'");
+          "UPDATE Students SET ElhalagatID = NULL WHERE ElhalagatID = '$halagaID'");
       int response2 = await _sqlDb.updateData(
-          "UPDATE Users SET ElhalagatID = 'NULL' WHERE ElhalagatID = '$halagaID'");
+          "UPDATE Users SET ElhalagatID = NULL WHERE ElhalagatID = '$halagaID'");
       log("message: Updated Students and Users, response1: $response1, response2: $response2");
-      // var response3 = await _sqlDb
-      //     .readData("SELECT * FROM Students WHERE ElhalagatID = 'NULL'");
-      // var response4 = await _sqlDb
-      //     .readData("SELECT *  FROM Users WHERE ElhalagatID = 'NULL'");
-      // log("message: Students : ${response3.length}, Users : ${response4.length}");
+
       // حذف الحلقة
       int response = await _sqlDb
           .deleteData("DELETE FROM Elhalagat WHERE halagaID = '$halagaID'");
+
       try {
         log("Connection is : ${await isConnected()}");
         // إذا كان هناك اتصال بالإنترنت
@@ -221,20 +218,23 @@ class HalagaController {
           // إلغاء ارتباط الطلاب في Firebase
           for (var student in dataStudents) {
             student.isSync = 1;
-            student.elhalaqaID = 'NULL';
+            student.elhalaqaID = null;
             await firebasehelper.studentCancel(halagaID);
+            log("Updated ElhalagatID for teacher with ID ${student.studentID}: ${student.elhalaqaID}");
           }
           // إلغاء ارتباط المعلمين في Firebase
           for (var teacher in dataTeacher) {
             teacher.isSync = 1;
-            teacher.elhalagatID = 'NULL';
+            teacher.elhalagatID = null;
             await firebasehelper.teacherCancel(halagaID);
+            log("Updated ElhalagatID for teacher with ID ${teacher.user_id}: ${teacher.elhalagatID}");
           }
           log("message: إلغاء ارتباط الطلاب والمعلمين في Firebase");
         }
-      } on Exception catch (e) {
+      } on Exception {
         log("Error in the Connection");
       }
+
       debugPrint("تم حذف الحلقة $halagaID، الاستجابة: $response");
       dataTeacher.clear();
       dataStudents.clear();
