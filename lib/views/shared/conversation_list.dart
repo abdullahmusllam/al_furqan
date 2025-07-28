@@ -11,6 +11,8 @@ import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/views/shared/message_screen.dart';
 import 'package:al_furqan/views/shared/users_screen.dart';
 
+import '../../helper/current_user.dart';
+
 class ConversationsScreen extends StatefulWidget {
   final UserModel currentUser;
 
@@ -240,7 +242,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                       final user = prov.users[index];
                       final lastMessage = prov.lastMessages[user.user_id];
                       final hasUnreadMessage = lastMessage != null &&
-                          lastMessage.senderId != widget.currentUser.user_id &&
+                          lastMessage.senderId != CurrentUser.user!.user_id &&
                           lastMessage.isRead == 0;
 
                       return InkWell(

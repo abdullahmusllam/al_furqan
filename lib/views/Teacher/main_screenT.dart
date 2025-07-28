@@ -43,7 +43,7 @@ class _MainScreenState extends State<MainScreenT> {
       await sync.syncElhalagat();
       await sync.syncStudents();
       // await loadMessages();
-      // await loadHalagat();
+      await loadHalagat();
       await loadPlans();
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => TeacherDashboard()));
@@ -83,7 +83,7 @@ class _MainScreenState extends State<MainScreenT> {
   Future<void> loadHalagat() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      int? Id = prefs.getInt('halagaID');
+      String? Id = prefs.getString('halagaID');
       debugPrint('===== halagaID ($Id) =====');
       // تحميل الحلقات من فايربيس
       await halagaController.getHalagatFromFirebaseByID(Id!, 'halagaID');

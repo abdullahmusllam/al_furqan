@@ -1,5 +1,6 @@
 import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
+import 'package:al_furqan/helper/current_user.dart';
 import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/messages_model.dart';
 import 'package:al_furqan/models/users_model.dart';
@@ -36,12 +37,9 @@ class MessageProvider with ChangeNotifier {
   init() async {
     print('===== تم تشغيل دالة البناء للرسائل =====');
     // final sw3 = Stopwatch()..start();
-
-    await loadUsers();
-    await loadConversations();
-    await getLastMessages();
-    await loadMessageFromFirebase();
-    await loadUnreadMessage();
+    if (CurrentUser.user != null) {
+      await loadMessageFromFirebase();
+    }
     // sw3.stop();
     // int timeSyncStudents = sw3.elapsedMilliseconds;
     // debugPrint("Time load messages is : $timeSyncStudents ms");
@@ -55,15 +53,38 @@ class MessageProvider with ChangeNotifier {
   }
 
   loadMessages() async {
-    // messages.clear();
-    messages = await messageController.getMessages();
+    List<Message> messagesList = await messageController.getMessages();
+    messages.clear();
+    messages.addAll(messagesList);
     notifyListeners();
   }
 
-  loadMessageFromFirebase() async {
+  Future<void> loadMessageFromFirebase() async {
+    // تحميل الرسائل من فايربيس
+    if (userID == null) {
+    // print("❌ userID is null. Cannot load messages.");
+    return;
+  }
     await messageService.loadMessagesFromFirestore(userID!);
+
+    // تحديث قائمة الرسائل في الذاكرة
+    await loadMessages();
+
+    // تحميل المستخدمين المرتبطين (آباء/معلمين)
+    await loadUsers();
+
+    // إنشاء قائمة المستخدمين الذين يوجد بينهم محادثات
     await loadConversations();
+
+    // جلب آخر رسالة لكل مستخدم
+    await getLastMessages();
+    notifyListeners();
+
+    // حساب عدد الرسائل غير المقروءة
     await loadUnreadMessage();
+
+    // إعلام الواجهة بالتحديث
+    notifyListeners();
   }
 
   loadUsers() async {
@@ -200,7 +221,7 @@ class MessageProvider with ChangeNotifier {
         lastMessages[user.user_id!] = userMessages.first;
       }
     }
-    notifyListeners();
+
     return lastMessages;
   }
 

@@ -52,6 +52,45 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
     _loadTeachers(); // استدعاء دالة تحميل المعلمين
   }
 
+  // void _loadTeachers() async {
+  //   if (mounted) {
+  //     setState(() {
+  //       _isLoading = true;
+  //     });
+  //   }
+  //   try {
+  //     // جلب المعلمين حسب SchoolID
+  //     await teacherController.getTeachersBySchoolID(schoolId!);
+
+  //     // ترتيب المعلمين: المتاحين أولاً ثم المرتبطين بحلقات
+  //     List<UserModel> availableTeachers = [];
+  //     List<UserModel> assignedTeachers = [];
+
+  //     for (var teacher in teacherController.teachers) {
+  //       if (teacher.elhalagatID == null) {
+  //         availableTeachers.add(teacher);
+  //       } else {
+  //         assignedTeachers.add(teacher);
+  //       }
+  //     }
+
+  //     // دمج القائمتين مع وضع المتاحين أولاً
+  //     if (mounted) {
+  //       setState(() {
+  //         teachers = [...availableTeachers, ...assignedTeachers];
+  //         _isLoading = false;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     if (mounted) {
+  //       setState(() {
+  //         _errorMessage = "حدث خطأ أثناء جلب المعلمين: $e";
+  //         _isLoading = false;
+  //       });
+  //     }
+  //   }
+  // }
+
   void _loadTeachers() async {
     if (mounted) {
       setState(() {
@@ -59,25 +98,18 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
       });
     }
     try {
-      // جلب المعلمين حسب SchoolID
       await teacherController.getTeachersBySchoolID(schoolId!);
 
-      // ترتيب المعلمين: المتاحين أولاً ثم المرتبطين بحلقات
-      List<UserModel> availableTeachers = [];
-      List<UserModel> assignedTeachers = [];
-
-      for (var teacher in teacherController.teachers) {
-        if (teacher.elhalagatID == null) {
-          availableTeachers.add(teacher);
-        } else {
-          assignedTeachers.add(teacher);
-        }
-      }
-
-      // دمج القائمتين مع وضع المتاحين أولاً
+      // تصفية المعلمين الذين ليس لديهم حلقة
+      List<UserModel> availableTeachers =
+          teacherController.teachers.where((teacher) {
+        return teacher.elhalagatID == null ||
+            teacher.elhalagatID.toString().toLowerCase() == 'null';
+      }).toList();
+      log("message : teacher List Length : ${availableTeachers.length}");
       if (mounted) {
         setState(() {
-          teachers = [...availableTeachers, ...assignedTeachers];
+          teachers = availableTeachers;
           _isLoading = false;
         });
       }
@@ -129,10 +161,10 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
   }
 
   // تنسيق التاريخ
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'لم يتم التحديد';
-    return DateFormat('yyyy-MM-dd').format(date);
-  }
+  // String _formatDate(DateTime? date) {
+  //   if (date == null) return 'لم يتم التحديد';
+  //   return DateFormat('yyyy-MM-dd').format(date);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -171,75 +203,35 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                         children: [
                           DropdownButtonFormField<UserModel>(
                             value: selectedTeacher,
-                            items: teachers.isEmpty
-                                ? [
-                                    DropdownMenuItem<UserModel>(
-                                      enabled: false,
-                                      value: null,
-                                      child: Text(
-                                        'لا يوجد معلمين متاحين',
-                                        style: TextStyle(color: Colors.grey),
+                            items: teachers
+                                .where((teacher) =>
+                                    teacher.elhalagatID == null ||
+                                    teacher.elhalagatID
+                                            .toString()
+                                            .toLowerCase() ==
+                                        'null')
+                                .map((teacher) {
+                              return DropdownMenuItem<UserModel>(
+                                value: teacher,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.person_outlined,
+                                      color: Colors.green,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      '${teacher.first_name} ${teacher.middle_name} ${teacher.last_name}',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                    )
-                                  ]
-                                : teachers.map((teacher) {
-                                    // التحقق مما إذا كان المعلم لديه حلقة بالفعل
-                                    bool hasHalaga =
-                                        teacher.elhalagatID != 'null' &&
-                                            teacher.elhalagatID != 'NULL' &&
-                                            teacher.elhalagatID != null;
-                                    log("Teacher has Halaga : $hasHalaga,Teacher ID halaga ${teacher.elhalagatID}");
-                                    debugPrint(
-                                        "No Halaga : $hasHalaga, & has Halaga : ${!hasHalaga}");
-                                    debugPrint(
-                                        'value: ${teacher.elhalagatID}, type: ${teacher.elhalagatID.runtimeType}');
-
-                                    return DropdownMenuItem<UserModel>(
-                                      value: teacher,
-                                      // تعطيل المعلمين الذين لديهم حلقات
-                                      enabled: !hasHalaga,
-                                      child: Row(
-                                        children: [
-                                          // عرض أيقونة تشير إلى حالة المعلم
-                                          Icon(
-                                            hasHalaga
-                                                ? Icons.person_off
-                                                : Icons.person_outlined,
-                                            color: hasHalaga
-                                                ? Colors.grey
-                                                : Colors.green,
-                                            size: 20,
-                                          ),
-                                          SizedBox(width: 8),
-                                          // عرض اسم المعلم
-                                          Text(
-                                            '${teacher.first_name} ${teacher.middle_name} ${teacher.last_name}',
-                                            style: TextStyle(
-                                              color: hasHalaga
-                                                  ? Colors.grey
-                                                  : Colors.black,
-                                              fontWeight: hasHalaga
-                                                  ? FontWeight.normal
-                                                  : FontWeight.bold,
-                                            ),
-                                          ),
-                                          // إضافة وصف للمعلمين الذين لديهم حلقات
-                                          if (hasHalaga)
-                                            Expanded(
-                                              child: Text(
-                                                ' (مرتبط بحلقة)',
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 12,
-                                                  fontStyle: FontStyle.italic,
-                                                ),
-                                                textAlign: TextAlign.end,
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
                             onChanged: (value) {
                               setState(() {
                                 selectedTeacher = value; // تعيين المعلم المختار
@@ -391,22 +383,47 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                         onPressed: _isLoading
                             ? null
                             : () async {
-                                // التحقق من صحة النموذج وعدد الطلاب المحددين
+                                late BuildContext dialogContext;
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext ctx) {
+                                    dialogContext = ctx;
+                                    return PopScope(
+                                      canPop: false,
+                                      child: AlertDialog(
+                                        content: Row(
+                                          children: [
+                                            CircularProgressIndicator(),
+                                            SizedBox(width: 16),
+                                            Expanded(
+                                              child: Text(
+                                                  'جاري إضافة البيانات...\nيرجى الانتظار'),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
 
-                                if (_formKey.currentState!.validate()) {
-                                  if (selectedStudentCount < 5) {
-                                    setState(() {
-                                      _errorMessage =
-                                          "يجب اختيار 5 طلاب على الأقل";
-                                    });
-                                    return;
-                                  }
+                                try {
+                                  // التحقق من صحة النموذج وعدد الطلاب المحددين
 
-                                  // إضافة الحلقة مع البيانات
-                                  _halaqaModel.SchoolID = schoolId;
-                                  _halaqaModel.Name = halqaNameController.text;
+                                  if (_formKey.currentState!.validate()) {
+                                    if (selectedStudentCount < 5) {
+                                      setState(() {
+                                        _errorMessage =
+                                            "يجب اختيار 5 طلاب على الأقل";
+                                      });
+                                      return;
+                                    }
 
-                                  try {
+                                    // إضافة الحلقة مع البيانات
+                                    _halaqaModel.SchoolID = schoolId;
+                                    _halaqaModel.Name =
+                                        halqaNameController.text;
+
                                     // تعيين عدد الطلاب في نموذج الحلقة
                                     int studentCount = selectedStudentCount;
                                     _halaqaModel.NumberStudent = studentCount;
@@ -434,7 +451,11 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                     if (selectedTeacher != null) {
                                       // التحقق من أن المعلم غير مرتبط بحلقة أخرى
                                       if (selectedTeacher!.elhalagatID !=
-                                          'null') {
+                                              null &&
+                                          selectedTeacher!.elhalagatID
+                                                  .toString()
+                                                  .toLowerCase() !=
+                                              'null') {
                                         setState(() {
                                           _errorMessage =
                                               "المعلم المختار مرتبط بحلقة أخرى بالفعل";
@@ -453,21 +474,22 @@ class _AddHalaqaScreenState extends State<AddHalaqaScreen> {
                                           _halaqaModel.halagaID;
                                       await userController.updateUser(
                                           selectedTeacher!, 1);
-                                      debugPrint(
-                                          "تم تحديث المعلم ${selectedTeacher!.first_name} ${selectedTeacher!.last_name} بحلقة رقم ${_halaqaModel.halagaID}");
+                                      log("تم تحديث المعلم ${selectedTeacher!.first_name} ${selectedTeacher!.last_name} بحلقة رقم ${_halaqaModel.halagaID}");
                                     }
+                                    Navigator.of(dialogContext).pop();
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('تم إضافة الحلقة بنجاح'),
                                       ),
                                     );
                                     Navigator.pop(context);
-                                  } catch (e) {
-                                    setState(() {
-                                      _errorMessage =
-                                          "حدث خطأ أثناء إضافة الحلقة: $e";
-                                    });
                                   }
+                                } catch (e) {
+                                  Navigator.of(dialogContext).pop();
+                                  setState(() {
+                                    _errorMessage =
+                                        "حدث خطأ أثناء إضافة الحلقة: $e";
+                                  });
                                 }
                               },
                         style: ElevatedButton.styleFrom(

@@ -244,7 +244,6 @@ class UserController {
   Future<void> saveUserToPrefs(UserModel user) async {
     String userJson = jsonEncode(user.toMap()); // أو fromMap حسب هيكل موديلك
     await perf.setString('user', userJson);
-    // print('$userJson ======================');
   }
 
   Future<UserModel?> loadUserFromPrefs() async {
@@ -252,7 +251,7 @@ class UserController {
 
     if (userJson != null) {
       Map<String, dynamic> userMap = jsonDecode(userJson);
-      print('$userMap=====');
+      // print('$userMap=====');
       return UserModel.fromJson(userMap); // أو fromMap حسب موديلك
     }
 
