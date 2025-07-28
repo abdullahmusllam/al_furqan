@@ -884,26 +884,26 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                 ],
                               ),
                             ),
-                            SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed: () {},
-                                  icon: Icon(Icons.edit),
-                                  label: Text('تعديل'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 10),
-                                  ),
-                                ),
-                              ],
-                            ),
+                            // SizedBox(height: 12),
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.end,
+                            //   children: [
+                            //     ElevatedButton.icon(
+                            //       onPressed: () {},
+                            //       icon: Icon(Icons.edit),
+                            //       label: Text('تعديل'),
+                            //       style: ElevatedButton.styleFrom(
+                            //         backgroundColor: Colors.blue,
+                            //         foregroundColor: Colors.white,
+                            //         shape: RoundedRectangleBorder(
+                            //           borderRadius: BorderRadius.circular(8),
+                            //         ),
+                            //         padding: EdgeInsets.symmetric(
+                            //             horizontal: 16, vertical: 10),
+                            //       ),
+                            //     ),
+                            //   ],
+                            // ),
                           ],
                         ),
                       ),
@@ -947,33 +947,33 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                   ],
                                 ),
                                 SizedBox(height: 8),
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.purple.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.trending_up,
-                                          color: Colors.purple, size: 16),
-                                      SizedBox(width: 4),
-                                      Flexible(
-                                        child: Text(
-                                          'نسبة التنفيذ: 75%',
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: Colors.purple,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                // Container(
+                                //   padding: EdgeInsets.symmetric(
+                                //       horizontal: 12, vertical: 6),
+                                //   decoration: BoxDecoration(
+                                //     color: Colors.purple.withOpacity(0.1),
+                                //     borderRadius: BorderRadius.circular(20),
+                                //   ),
+                                //   child: Row(
+                                //     mainAxisSize: MainAxisSize.min,
+                                //     children: [
+                                //       // Icon(Icons.trending_up,
+                                //       //     color: Colors.purple, size: 16),
+                                //       // SizedBox(width: 4),
+                                //       // Flexible(
+                                //       //   child: Text(
+                                //       //     'نسبة التنفيذ: ${islamicPlan.}%',
+                                //       //     overflow: TextOverflow.ellipsis,
+                                //       //     style: TextStyle(
+                                //       //       color: Colors.purple,
+                                //       //       fontWeight: FontWeight.bold,
+                                //       //       fontSize: 12,
+                                //       //     ),
+                                //       //   ),
+                                //       // ),
+                                //     ],
+                                //   ),
+                                // ),
                               ],
                             ),
                             SizedBox(height: 16),
@@ -1089,7 +1089,9 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                                     .withOpacity(0.3)),
                                           ),
                                           child: Text(
-                                            'الفصل الأول - الدرس الثالث',
+                                            islamicPlan == null
+                                                ? 'لا يوجد'
+                                                : '${islamicPlan!.plannedContent}',
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
@@ -1143,7 +1145,9 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                                     .withOpacity(0.3)),
                                           ),
                                           child: Text(
-                                            'الفصل الأول - الدرس الثاني',
+                                            islamicPlan == null
+                                                ? 'لا يوجد'
+                                                : '${islamicPlan!.executedContent}',
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
@@ -1156,77 +1160,77 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            // SizedBox(height: 16),
 
                             // شريط التقدم
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('نسبة التقدم',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.grey[700])),
-                                    Text('75%',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.purple)),
-                                  ],
-                                ),
-                                SizedBox(height: 8),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(4),
-                                  child: LinearProgressIndicator(
-                                    value: 0.75,
-                                    backgroundColor: Colors.grey[200],
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.purple),
-                                    minHeight: 8,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 16),
+                            // Column(
+                            //   crossAxisAlignment: CrossAxisAlignment.start,
+                            //   children: [
+                            //     Row(
+                            //       mainAxisAlignment:
+                            //           MainAxisAlignment.spaceBetween,
+                            //       children: [
+                            //         Text('نسبة التقدم',
+                            //             style: TextStyle(
+                            //                 fontWeight: FontWeight.bold,
+                            //                 color: Colors.grey[700])),
+                            //         Text('${}%',
+                            //             style: TextStyle(
+                            //                 fontWeight: FontWeight.bold,
+                            //                 color: Colors.purple)),
+                            //       ],
+                            //     ),
+                            //     SizedBox(height: 8),
+                            //     ClipRRect(
+                            //       borderRadius: BorderRadius.circular(4),
+                            //       child: LinearProgressIndicator(
+                            //         value: 0.75,
+                            //         backgroundColor: Colors.grey[200],
+                            //         valueColor: AlwaysStoppedAnimation<Color>(
+                            //             Colors.purple),
+                            //         minHeight: 8,
+                            //       ),
+                            //     ),
+                            //   ],
+                            // ),
+                            // SizedBox(height: 16),
 
                             // أزرار الإجراءات
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                OutlinedButton.icon(
-                                  onPressed: () {},
-                                  icon: Icon(Icons.delete_outline),
-                                  label: Text('حذف'),
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: Colors.red,
-                                    side: BorderSide(
-                                        color: Colors.red.withOpacity(0.5)),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 10),
-                                  ),
-                                ),
-                                SizedBox(width: 12),
-                                ElevatedButton.icon(
-                                  onPressed: () {},
-                                  icon: Icon(Icons.edit),
-                                  label: Text('تعديل'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.purple,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 10),
-                                  ),
-                                ),
-                              ],
-                            ),
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.end,
+                            //   children: [
+                            //     OutlinedButton.icon(
+                            //       onPressed: () {},
+                            //       icon: Icon(Icons.delete_outline),
+                            //       label: Text('حذف'),
+                            //       style: OutlinedButton.styleFrom(
+                            //         foregroundColor: Colors.red,
+                            //         side: BorderSide(
+                            //             color: Colors.red.withOpacity(0.5)),
+                            //         shape: RoundedRectangleBorder(
+                            //           borderRadius: BorderRadius.circular(8),
+                            //         ),
+                            //         padding: EdgeInsets.symmetric(
+                            //             horizontal: 16, vertical: 10),
+                            //       ),
+                            //     ),
+                            //     SizedBox(width: 12),
+                            //     ElevatedButton.icon(
+                            //       onPressed: () {},
+                            //       icon: Icon(Icons.edit),
+                            //       label: Text('تعديل'),
+                            //       style: ElevatedButton.styleFrom(
+                            //         backgroundColor: Colors.purple,
+                            //         foregroundColor: Colors.white,
+                            //         shape: RoundedRectangleBorder(
+                            //           borderRadius: BorderRadius.circular(8),
+                            //         ),
+                            //         padding: EdgeInsets.symmetric(
+                            //             horizontal: 16, vertical: 10),
+                            //       ),
+                            //     ),
+                            //   ],
+                            // ),
                           ],
                         ),
                       ),
