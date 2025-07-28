@@ -1,7 +1,9 @@
+import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/main.dart';
+import 'package:al_furqan/models/provider/halaqa_provider.dart';
 import 'package:al_furqan/models/provider/user_provider.dart';
 import 'package:al_furqan/models/schools_model.dart';
 import 'package:al_furqan/models/users_model.dart';
@@ -138,8 +140,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (user != null) {
       await userController.saveUserToPrefs(user);
       CurrentUser.user = user;
+      print('${CurrentUser.user}======================');
+      print('$user ======================');
+      if (user.roleID == 2) {
+        await halagaController.getHalagatFromFirebaseByID(user.elhalagatID, 'halagaID');
+      }
     }
-    // print(user);
     // sqlDb.getUser(phone, password);
 
     /// التحقق من أن المستخدم موجود
@@ -207,7 +213,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   /// اختيار الشاشة المناسبة للمستخدم بناءً على دوره
   Future<void> chooseScreen(BuildContext context) async {
-    
     int? roleId = perf.getInt('roleID');
     if (roleId == null) {
       if (mounted) {

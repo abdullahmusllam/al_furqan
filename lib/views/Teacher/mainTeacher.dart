@@ -46,8 +46,9 @@ class _TeacherDashboardState extends State<TeacherDashboard>
   Future<void> _loadPlans() async {
     //   setState(() => _isLoading = true);
     //   try {
-    await planController.getPlans(CurrentUser.halaga!.halagaID!);
-    await studentController.getStudents(CurrentUser.halaga!.halagaID!);
+    // print("------------------------->> CurrentUser.halaga!.halagaID : ${CurrentUser.halaga!.halagaID}");
+    // await planController.getPlans(CurrentUser.halaga!.halagaID!);
+    // await studentController.getStudents(CurrentUser.halaga!.halagaID!);
     debugPrint(
         "------------------------->> planController.eltlawahPlans : ${planController.eltlawahPlans.isEmpty}");
     EltlawahPlanModel? eltlawahPlanB = planController.eltlawahPlans.isNotEmpty

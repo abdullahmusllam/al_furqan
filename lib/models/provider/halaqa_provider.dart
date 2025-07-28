@@ -20,6 +20,7 @@ class HalaqaProvider with ChangeNotifier {
   }
 
   init() async {
+    // print('======================');
     int? role = perf.getInt('roleID') ?? 4;
     if (role == 1) {
       await loadedHalaqatFromLocal();
@@ -67,6 +68,7 @@ class HalaqaProvider with ChangeNotifier {
     String? id = perf.getString('halagaID');
     halaga = await halagaController.getHalagaByHalagaID(id!);
     CurrentUser.halaga = halaga;
+    print('===== ${CurrentUser.halaga} ====55555555555555555555');
     notifyListeners();
   }
 

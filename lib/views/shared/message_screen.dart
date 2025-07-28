@@ -213,7 +213,7 @@ class _ChatScreenState extends State<ChatScreen> {
             width: 100,
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: widget.selectedUser!.roleID == 2
+              color: widget.selectedUser!.roleID == 2 || widget.selectedUser!.roleID == 1
                   ? Colors.blue.shade50
                   : Colors.green.shade50,
               borderRadius: BorderRadius.circular(12),
@@ -227,7 +227,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         : 'ولي أمر',
                 style: TextStyle(
                   fontSize: 12,
-                  color: widget.selectedUser!.roleID == 2
+                  color: widget.selectedUser!.roleID == 2 || widget.selectedUser!.roleID == 1
                       ? Colors.blue.shade700
                       : Colors.green.shade700,
                 ),

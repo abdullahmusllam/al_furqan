@@ -44,9 +44,9 @@ class _SchoolManagerScreenState extends State<SchoolManagerScreen>
   // final students = studentController.students;
   List<HalagaModel> _halaqatList = [];
   bool _isLoading = true;
-  int _teacherCount = 0;
+  // int _teacherCount = 0;
   // int _studentCount = 0;
-  int _halqatCount = 0;
+  // int _halqatCount = 0;
   // int _unreadMessagesCount = 0;
 
   // متغيّرات جديدة لحفظ الأوقات بالميلي ثانية
