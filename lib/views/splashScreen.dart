@@ -25,14 +25,23 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    // loadUserAndHalaga();
+    // _checkLoginStatus();
+    init();
+  }
 
+  init() async {
+    await loadUserAndHalaga();
     _checkLoginStatus();
   }
 
   Future<void> loadUserAndHalaga() async {
     String? hID = perf.getString('halagaID');
     CurrentUser.user = await userController.loadUserFromPrefs();
-    CurrentUser.halaga = await halagaController.getHalagaByHalagaID(hID!);
+    if (hID != null) {
+      // print('====== 1111111111111111111111111111111111111111111 ======');
+      CurrentUser.halaga = await halagaController.getHalagaByHalagaID(hID);
+    }
     // print(CurrentUser.user);
   }
 
@@ -95,7 +104,6 @@ class _SplashScreenState extends State<SplashScreen> {
       _showErrorDialog(context, "خطأ", "فشل في تحديد دور المستخدم.");
       return;
     }
-    await loadUserAndHalaga();
     switch (roleId) {
       case 0:
         Navigator.pushReplacement(context,

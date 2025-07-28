@@ -25,7 +25,9 @@ class DrawerTeacher extends StatefulWidget {
   State<DrawerTeacher> createState() => _DrawerTeacherState();
 }
 
-class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
+class _DrawerTeacherState extends State<DrawerTeacher>
+//  with UserDataMixin 
+ {
   final HalagaController _halagaController = HalagaController();
   // HalagaModel? _teacherHalaga;
   // bool _isLoadingHalaga = true;
@@ -471,7 +473,7 @@ class _DrawerTeacherState extends State<DrawerTeacher> with UserDataMixin {
                         context,
                         MaterialPageRoute(
                             builder: (context) => ConversationsScreen(
-                                  currentUser: user!,
+                                  currentUser: CurrentUser.user!,
                                 )),
                       );
                     },

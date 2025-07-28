@@ -17,7 +17,9 @@ class StudentProvider with ChangeNotifier {
 
   int? schoolID = perf.getInt('schoolId');
 
-  StudentProvider() {}
+  StudentProvider() {
+    init();
+  }
 
   init() async {
     int? role = perf.getInt('roleID') ?? 4;

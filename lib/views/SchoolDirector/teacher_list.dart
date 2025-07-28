@@ -296,19 +296,14 @@ class _TeacherListState extends State<TeacherList>
                               ],
                             ),
                           )
-                        : RefreshIndicator(
-                            onRefresh: () =>
-                                (context).read<UserProvider>().loadTeachers(),
-                            color: const Color.fromARGB(255, 1, 117, 70),
-                            child: ListView.builder(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              itemCount: prov.teachers.length,
-                              itemBuilder: (context, index) {
-                                final UserModel? teacher = prov.teachers[index];
-                                return _buildTeacherCard(prov.teachers[index]!);
-                              },
-                            ),
+                        : ListView.builder(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            itemCount: prov.teachers.length,
+                            itemBuilder: (context, index) {
+                              final UserModel? teacher = prov.teachers[index];
+                              return _buildTeacherCard(prov.teachers[index]!);
+                            },
                           ),
                   ),
           )

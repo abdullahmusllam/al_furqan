@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/TeacherController.dart';
+import 'package:al_furqan/helper/current_user.dart';
 import 'package:al_furqan/models/student_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -375,7 +376,7 @@ class HalagaController {
     }
   }
 
-  Future<void> getHalagatFromFirebaseByID(int id, String name) async {
+  Future<void> getHalagatFromFirebaseByID(dynamic id, String name) async {
     try {
       if (await isConnected()) {
         final snapshot = await FirebaseFirestore.instance
@@ -392,6 +393,7 @@ class HalagaController {
             debugPrint('===== updateHalaga =====');
           } else {
             await addHalaga(halaga, 0);
+            CurrentUser.halaga = halaga;
             halagatId.add(halaga.halagaID!);
             debugPrint('===== addHalaga =====');
           }
