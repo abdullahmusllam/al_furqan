@@ -142,6 +142,7 @@ class FathersController {
           user_id: e['user_id'],
           first_name: e['first_name'],
           middle_name: e['middle_name'],
+          grandfather_name: e['grandfather_name'],
           last_name: e['last_name'],
           phone_number: e['phone_number'],
           telephone_number: e['telephone_number'],
