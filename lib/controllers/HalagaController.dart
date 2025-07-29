@@ -388,12 +388,13 @@ class HalagaController {
           bool exists = await _sqlDb.checkIfitemExists2(
               'Elhalagat', halaga.halagaID!, 'halagaID');
           if (exists) {
+            CurrentUser.halaga = halaga;
             await updateHalaga(halaga, 0);
             halagatId.add(halaga.halagaID!);
             debugPrint('===== updateHalaga =====');
           } else {
-            await addHalaga(halaga, 0);
             CurrentUser.halaga = halaga;
+            await addHalaga(halaga, 0);
             halagatId.add(halaga.halagaID!);
             debugPrint('===== addHalaga =====');
           }

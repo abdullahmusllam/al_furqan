@@ -18,18 +18,20 @@ class ChatScreen extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   List<Message> messages = [];
   List<Message> receivedMessages = [];
 
   @override
   void initState() {
     super.initState();
-    print(widget.selectedUser);
+    // print(widget.selectedUser);
     if (widget.selectedUser != null) {
       loadMessages();
     } else {
@@ -59,6 +61,12 @@ class _ChatScreenState extends State<ChatScreen> {
               (msg.senderId == widget.selectedUser!.user_id &&
                   msg.receiverId == widget.currentUser.user_id))
           .toList();
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
     });
 
     // Mark messages as read after loading
@@ -119,14 +127,17 @@ class _ChatScreenState extends State<ChatScreen> {
       await messageService.saveMessage(message, 1);
       _controller.clear();
       loadMessages(); // تحديث الرسائل بعد الإرسال
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('تم إرسال الرسالة'),
+          // ignore: use_build_context_synchronously
           backgroundColor: Theme.of(context).primaryColor,
         ),
       );
     } catch (e) {
       debugPrint('خطأ في إرسال الرسالة: $e');
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('فشل إرسال الرسالة'),
@@ -195,8 +206,10 @@ class _ChatScreenState extends State<ChatScreen> {
         showReceivedMessages ? receivedMessages : messages;
 
     // ترتيب الرسائل حسب الوقت (الأحدث أولاً)
-    displayMessages.sort((a, b) =>
-        DateTime.parse(b.timestamp).compareTo(DateTime.parse(a.timestamp)));
+    displayMessages.sort(
+      (a, b) =>
+          DateTime.parse(a.timestamp).compareTo(DateTime.parse(b.timestamp)),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -213,7 +226,9 @@ class _ChatScreenState extends State<ChatScreen> {
             width: 100,
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: widget.selectedUser!.roleID == 2 || widget.selectedUser!.roleID == 1
+              color: (widget.selectedUser != null &&
+                      (widget.selectedUser!.roleID == 2 ||
+                          widget.selectedUser!.roleID == 1))
                   ? Colors.blue.shade50
                   : Colors.green.shade50,
               borderRadius: BorderRadius.circular(12),
@@ -227,7 +242,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         : 'ولي أمر',
                 style: TextStyle(
                   fontSize: 12,
-                  color: widget.selectedUser!.roleID == 2 || widget.selectedUser!.roleID == 1
+                  color: widget.selectedUser!.roleID == 2 ||
+                          widget.selectedUser!.roleID == 1
                       ? Colors.blue.shade700
                       : Colors.green.shade700,
                 ),
@@ -286,6 +302,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     )
                   : ListView.builder(
+                      controller: _scrollController,
                       padding:
                           EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       reverse: false, // Keep messages in chronological order
@@ -341,6 +358,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     borderRadius: BorderRadius.circular(18),
                                     boxShadow: [
                                       BoxShadow(
+                                        // ignore: deprecated_member_use
                                         color: Colors.black.withOpacity(0.05),
                                         blurRadius: 2,
                                         offset: Offset(0, 1),
@@ -391,6 +409,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
+                    // ignore: deprecated_member_use
                     color: Colors.black.withOpacity(0.05),
                     blurRadius: 3,
                     offset: Offset(0, -1),

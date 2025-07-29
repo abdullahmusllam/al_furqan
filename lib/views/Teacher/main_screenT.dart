@@ -45,6 +45,7 @@ class _MainScreenState extends State<MainScreenT> {
       // await loadMessages();
       await loadHalagat();
       await loadPlans();
+
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => TeacherDashboard()));
     } else {

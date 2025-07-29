@@ -143,7 +143,9 @@ class _LoginScreenState extends State<LoginScreen> {
       print('${CurrentUser.user}======================');
       print('$user ======================');
       if (user.roleID == 2) {
-        await halagaController.getHalagatFromFirebaseByID(user.elhalagatID, 'halagaID');
+        print('object');
+        await halagaController.getHalagatFromFirebaseByID(
+            user.elhalagatID, 'halagaID');
       }
     }
     // sqlDb.getUser(phone, password);
