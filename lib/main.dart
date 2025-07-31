@@ -14,6 +14,17 @@ import 'package:firebase_core/firebase_core.dart';
 late SharedPreferences perf;
 
 void main() async {
+  // ErrorWidget.builder = (FlutterErrorDetails details) {
+  //   return Material(
+  //     child: Center(
+  //       child: Text(
+  //         'حدث خطا ما الرجاء اعادة تشغيل التطبيق',
+  //         style: TextStyle(color: Colors.red, fontSize: 20),
+  //         textDirection: TextDirection.rtl,
+  //       ),
+  //     ),
+  //   );
+  // };
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   perf = await SharedPreferences.getInstance();

@@ -53,6 +53,29 @@ class FirebaseHelper {
     }
   }
 
+  Future<List<StudentModel>> getStudentHalaqa(String id) async {
+    try {
+      QuerySnapshot snapshot = await _firestore
+          .collection('Students')
+          .where('ElhalagatID', isEqualTo: id)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        debugPrint('تم العثور على مستند');
+        return snapshot.docs
+            .map((doc) =>
+                StudentModel.fromJson(doc.data() as Map<String, dynamic>))
+            .toList();
+      } else {
+        debugPrint('لا توجد مستندات تطابق الشرط');
+        return [];
+      }
+    } catch (e) {
+      debugPrint('خطأ أثناء جلب البيانات: $e');
+      return [];
+    }
+  }
+
   Future<void> updateStudentData(StudentModel student) async {
     student.isSync = 1;
     final docRef =
@@ -620,10 +643,14 @@ class FirebaseHelper {
           executedEndSurah: data['ExecutedEndSurah'],
           executedEndAya: data['ExecutedEndAya'],
           executedRate: data['executedRate']?.toDouble(),
-          planMonth: data['planMonth'],
+          planMonth: data['PlanMonth'],
           isSync: data['isSync'] ?? 1,
         );
       }).toList();
+
+      // for (var element in plans) {
+      //   print('${element.planMonth} ============================');
+      // }
 
       return plans;
     } catch (e) {

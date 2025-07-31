@@ -26,8 +26,8 @@ class DrawerTeacher extends StatefulWidget {
 }
 
 class _DrawerTeacherState extends State<DrawerTeacher>
-//  with UserDataMixin 
- {
+//  with UserDataMixin
+{
   final HalagaController _halagaController = HalagaController();
   // HalagaModel? _teacherHalaga;
   // bool _isLoadingHalaga = true;
@@ -247,12 +247,26 @@ class _DrawerTeacherState extends State<DrawerTeacher>
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(
-                      'معلم الحلقة',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'معلم الحلقة',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          '${CurrentUser.halaga!.Name}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   // if (_isLoadingHalaga)
