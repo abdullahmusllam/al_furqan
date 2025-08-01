@@ -677,7 +677,6 @@ class FirebaseHelper {
         return EltlawahPlanModel(
           eltlawahPlanId: data['EltlawahPlanID'],
           elhalagatId: data['ElhalagatID'],
-          studentId: data['StudentID'],
           plannedStartSurah: data['PlannedStartSurah'],
           plannedStartAya: data['PlannedStartAya'],
           plannedEndSurah: data['PlannedEndSurah'],
@@ -718,7 +717,6 @@ class FirebaseHelper {
         return IslamicStudiesModel(
           islamicStudiesID: data['IslamicStudiesID'],
           elhalagatID: data['ElhalagatID'],
-          studentID: data['StudentID'],
           subject: data['Subject'],
           plannedContent: data['PlannedContent'],
           executedContent: data['ExecutedContent'],

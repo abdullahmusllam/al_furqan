@@ -103,10 +103,10 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
     print("عدد خطط التلاوة: ${planController.eltlawahPlans.length}");
 
     // طباعة تنسيق التاريخ لكل خطة تلاوة للتحقق
-    for (var plan in planController.eltlawahPlans) {
-      print(
-          "خطة التلاوة - planMonth: '${plan.planMonth}' للطالب: ${plan.studentId}");
-    }
+    // for (var plan in planController.eltlawahPlans) {
+    //   print(
+    //       "خطة التلاوة - planMonth: '${plan.planMonth}' للطالب: ${plan.studentId}");
+    // }
 
     for (var eltlawahPlan in planController.eltlawahPlans) {
       if (eltlawahPlan.planMonth == currentMonthFormat) {
@@ -374,10 +374,12 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
                                     icon: Icons.import_contacts,
                                     color: Colors.green,
                                     items: [
-                                      _buildPlanItem(
-                                          eltlawahPlan!.executedEndSurah!,
-                                          'الآيات 1-${eltlawahPlan!.executedEndAya!}',
-                                          '${eltlawahPlan!.executedRate!}%'),
+                                      eltlawahPlan == null
+                                          ? SizedBox()
+                                          : _buildPlanItem(
+                                              eltlawahPlan!.executedEndSurah!,
+                                              'الآيات 1-${eltlawahPlan!.executedEndAya!}',
+                                              '${eltlawahPlan!.executedRate!}%'),
                                     ],
                                   ),
                                   SizedBox(height: 16),

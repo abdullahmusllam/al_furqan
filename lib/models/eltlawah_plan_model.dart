@@ -1,7 +1,6 @@
 class EltlawahPlanModel {
   String? eltlawahPlanId;
   String? elhalagatId;
-  String? studentId;
   String? plannedStartSurah;
   int? plannedStartAya;
   String? plannedEndSurah;
@@ -20,7 +19,6 @@ class EltlawahPlanModel {
   EltlawahPlanModel(
       {this.eltlawahPlanId,
       required this.elhalagatId,
-      this.studentId,
       required this.plannedStartSurah,
       required this.plannedStartAya,
       required this.plannedEndSurah,
@@ -38,7 +36,6 @@ class EltlawahPlanModel {
     return {
       'EltlawahPlanID': eltlawahPlanId,
       'ElhalagatID': elhalagatId,
-      'StudentID': studentId,
       'PlannedStartSurah': plannedStartSurah,
       'PlannedStartAya': plannedStartAya,
       'PlannedEndSurah': plannedEndSurah,
@@ -58,7 +55,6 @@ class EltlawahPlanModel {
     return EltlawahPlanModel(
         eltlawahPlanId: map['EltlawahPlanID'],
         elhalagatId: map['ElhalagatID'],
-        studentId: map['StudentID'],
         plannedStartSurah: map['PlannedStartSurah'],
         plannedStartAya: map['PlannedStartAya'],
         plannedEndSurah: map['PlannedEndSurah'],

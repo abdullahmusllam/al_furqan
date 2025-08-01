@@ -543,7 +543,7 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
       studentId = plan.studentId!;
     } else if (plan is EltlawahPlanModel) {
       planType = "tlawah";
-      studentId = plan.studentId!;
+      // studentId = plan.studentId!;
     }
 
     // البحث عن الطالب المناسب
@@ -561,7 +561,7 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
       }
     }
 
-    if (!foundStudent) {
+    if (!foundStudent && planType == 'conservation') {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content:

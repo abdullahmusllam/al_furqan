@@ -1,7 +1,10 @@
 // ignore: file_names
 
+import 'package:al_furqan/controllers/StudentController.dart';
+import 'package:al_furqan/controllers/plan_controller.dart';
 import 'package:al_furqan/helper/current_user.dart';
 import 'package:al_furqan/models/provider/halaqa_provider.dart';
+import 'package:al_furqan/models/student_model.dart';
 import 'package:al_furqan/views/Teacher/HalagaPlansListScreen.dart';
 import 'package:al_furqan/views/Teacher/attendTeacherScreen.dart';
 import 'package:al_furqan/views/Teacher/islamic_studies_plans_list.dart';
@@ -9,7 +12,6 @@ import 'package:al_furqan/views/Teacher/main_screenT.dart';
 import 'package:al_furqan/views/Teacher/monthly_report.dart';
 import 'package:al_furqan/views/Teacher/students_attendance.dart';
 import 'package:flutter/material.dart';
-import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/halaga_model.dart';
 import 'package:al_furqan/controllers/HalagaController.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +34,7 @@ class _DrawerTeacherState extends State<DrawerTeacher>
   // HalagaModel? _teacherHalaga;
   // bool _isLoadingHalaga = true;
   String? _errorMessage;
+  List<StudentModel> students = [];
 
   @override
   void initState() {
@@ -43,6 +46,13 @@ class _DrawerTeacherState extends State<DrawerTeacher>
     //     _loadTeacherHalaga();
     //   }
     // });
+
+    planController.getPlans(CurrentUser.halaga!.halagaID!);
+  }
+
+  Future<void> loadStudents() async {
+    students =
+        await studentController.getStudents(CurrentUser.halaga!.halagaID!);
   }
 
   @override
@@ -388,7 +398,27 @@ class _DrawerTeacherState extends State<DrawerTeacher>
                     context,
                     icon: Icons.assessment,
                     title: 'التقرير الشهري',
-                    onTap: () {
+                    onTap: () async {
+                      if (planController.conservationPlans.isEmpty ||
+                          planController.eltlawahPlans.isEmpty ||
+                          planController.islamicStudyPlans.isEmpty ||
+                          students.isEmpty) {
+                        return showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                  title: Row(
+                                    children: [
+                                      Icon(Icons.error_outline),
+                                      Text(
+                                        'غير جاهز',
+                                        style: TextStyle(
+                                            fontSize: 20, color: Colors.red),
+                                        textDirection: TextDirection.rtl,
+                                      ),
+                                    ],
+                                  ),
+                                ));
+                      }
                       Navigator.push(
                         context,
                         MaterialPageRoute(

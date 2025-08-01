@@ -222,7 +222,7 @@ class StudentController {
       try {
         // التحقق من القيمة الحالية لأيام الحضور
         List<Map> currentData = await _sqldb.readData(
-            "SELECT AttendanceDays FROM Students WHERE StudentID = $studentID");
+            "SELECT AttendanceDays FROM Students WHERE StudentID = '$studentID'");
 
         if (currentData.isNotEmpty) {
           var currentAttendance = currentData[0]['AttendanceDays'];
@@ -230,7 +230,7 @@ class StudentController {
               (currentAttendance == null) ? 1 : currentAttendance + 1;
 
           int response = await _sqldb.updateData(
-              "UPDATE Students SET AttendanceDays = $newAttendance, isSync = $syncValue WHERE StudentID = $studentID");
+              "UPDATE Students SET AttendanceDays = $newAttendance, isSync = $syncValue WHERE StudentID = '$studentID'");
           if (syncValue == 1) {
             await firebasehelper.updateAttendance(
                 studentID, isPresent, absenceReasons);
@@ -251,14 +251,14 @@ class StudentController {
 
         // التحقق من القيمة الحالية لأيام الغياب
         List<Map> currentData = await _sqldb.readData(
-            "SELECT AbsenceDays FROM Students WHERE StudentID = $studentID");
+            "SELECT AbsenceDays FROM Students WHERE StudentID = '$studentID'");
 
         if (currentData.isNotEmpty) {
           var currentAbsence = currentData[0]['AbsenceDays'];
           int newAbsence = (currentAbsence == null) ? 1 : currentAbsence + 1;
 
           int response = await _sqldb.updateData(
-              "UPDATE Students SET AbsenceDays = $newAbsence, ReasonAbsence = '$absenceReasons', isSync = $syncValue WHERE StudentID = $studentID");
+              "UPDATE Students SET AbsenceDays = $newAbsence, ReasonAbsence = '$absenceReasons', isSync = $syncValue WHERE StudentID = '$studentID'");
           if (syncValue == 1) {
             await firebasehelper.updateAttendance(
                 studentID, isPresent, absenceReasons);
