@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'HalagaPlansScreen.dart';
 import 'EditHalagaPlanScreen.dart';
 
+// ignore: must_be_immutable
 class HalagaPlansListScreen extends StatefulWidget {
   HalagaModel halaga;
   HalagaPlansListScreen({super.key, required this.halaga});
@@ -173,7 +174,7 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
                             color: Colors.blue, size: 18),
                         const SizedBox(width: 8),
                         Text(
-                          "خطة شهر ${plan.planMonth}",
+                          'خطة شهر ${plan.planMonth}',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.blue.shade800,
@@ -542,7 +543,7 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
       studentId = plan.studentId!;
     } else if (plan is EltlawahPlanModel) {
       planType = "tlawah";
-      studentId = plan.studentId!;
+      // studentId = plan.studentId!;
     }
 
     // البحث عن الطالب المناسب
@@ -560,7 +561,7 @@ class _HalagaPlansListScreenState extends State<HalagaPlansListScreen> {
       }
     }
 
-    if (!foundStudent) {
+    if (!foundStudent && planType == 'conservation') {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content:

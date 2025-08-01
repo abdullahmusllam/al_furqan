@@ -1,10 +1,4 @@
-import 'package:al_furqan/controllers/HalagaController.dart';
-import 'package:al_furqan/controllers/StudentController.dart';
-import 'package:al_furqan/controllers/fathers_controller.dart';
-import 'package:al_furqan/controllers/users_controller.dart';
-import 'package:al_furqan/controllers/message_controller.dart';
 import 'package:al_furqan/helper/current_user.dart';
-import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/main.dart';
 import 'package:al_furqan/models/eltlawah_plan_model.dart';
 import 'package:al_furqan/models/islamic_studies_model.dart';
@@ -12,16 +6,12 @@ import 'package:al_furqan/models/provider/halaqa_provider.dart';
 import 'package:al_furqan/models/provider/message_provider.dart';
 import 'package:al_furqan/models/provider/user_provider.dart';
 import 'package:al_furqan/models/users_model.dart';
-import 'package:al_furqan/services/message_sevice.dart';
 import 'package:al_furqan/views/Teacher/DrawerTeacher.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../controllers/plan_controller.dart';
-import '../../models/halaga_model.dart';
 
 class TeacherDashboard extends StatefulWidget {
   const TeacherDashboard({super.key});
@@ -33,15 +23,37 @@ class TeacherDashboard extends StatefulWidget {
 class _TeacherDashboardState extends State<TeacherDashboard>
 // with UserDataMixin, WidgetsBindingObserver
 {
-  final HalagaController _halagaController = HalagaController();
   UserModel? user = CurrentUser.user;
   // String? phone = perf.getString('phoneUser');
   // bool _isLoadingHalaga = false;
   // String? _errorMessage;
   // HalagaModel? _teacherHalaga;
   // final bool _isLoading = false;
+  String pContent = '';
+  String eContent = '';
   EltlawahPlanModel? eltlawahPlan;
-  IslamicStudiesModel? islamicPlan;
+  List<IslamicStudiesModel?> islamicPlan = [];
+  IslamicStudiesModel? islamicPlanSelected;
+
+  Future<void> selectedIslamicSubject(String subject) async {
+    try {
+      final match = islamicPlan.firstWhere(
+        (s) => s?.subject != null && s!.subject == subject,
+      );
+
+      setState(() {
+        islamicPlanSelected = match;
+        pContent = match!.plannedContent!;
+        eContent = match.executedContent!;
+      });
+    } catch (e) {
+      // لم يتم العثور على المادة
+      setState(() {
+        islamicPlanSelected = null;
+      });
+      print("Error selecting subject: $e");
+    }
+  }
 
   Future<void> _loadPlans() async {
     //   setState(() => _isLoading = true);
@@ -54,10 +66,20 @@ class _TeacherDashboardState extends State<TeacherDashboard>
     EltlawahPlanModel? eltlawahPlanB = planController.eltlawahPlans.isNotEmpty
         ? planController.eltlawahPlans.last
         : null;
-    IslamicStudiesModel? islamicPlanB =
+
+    final now = DateTime.now();
+    final month = '${now.year}-${now.month.toString().padLeft(2, '0')}';
+    List<IslamicStudiesModel?> islamicPlanB =
         planController.islamicStudyPlans.isNotEmpty
-            ? planController.islamicStudyPlans.last
-            : null;
+            ? planController.islamicStudyPlans.where(
+                (element) {
+                  if (element == null || element.planMonth == null) {
+                    return false;
+                  }
+                  return element.planMonth == month;
+                },
+              ).toList()
+            : [];
     // ignore: unnecessary_null_comparison
     if (eltlawahPlanB != null || islamicPlanB != null) {
       eltlawahPlan = eltlawahPlanB;
@@ -423,6 +445,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                 await _loadPlans();
                 (context).read<HalaqaProvider>().loadHalagaFromFirebase();
                 (context).read<MessageProvider>().loadMessageFromFirebase();
+                await _loadPlans();
                 // updateNotificationCount();
                 // استدعاء دالة تحديث البيانات مباشرة (ستقوم بتحديث حالة التحميل داخلياً)
                 // fetchUserData().then((_) {
@@ -815,11 +838,7 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                         child: _buildPlanField(
                                           label: 'من',
                                           value: eltlawahPlan != null
-                                              ? eltlawahPlan!
-                                                      .plannedStartSurah! +
-                                                  'الاية' +
-                                                  eltlawahPlan!.plannedStartAya
-                                                      .toString()
+                                              ? '${eltlawahPlan!.plannedStartSurah!}الاية${eltlawahPlan!.plannedStartAya}'
                                               : 'لا توجد خطه',
                                           icon: Icons.arrow_right,
                                           color: Colors.blue,
@@ -1021,13 +1040,21 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                         border: InputBorder.none,
                                         hintText: 'اختر المقرر',
                                       ),
-                                      value: 'مقرر 1',
-                                      onChanged: (String? newValue) {},
+                                      value: 'التفسير',
+                                      onChanged: (String? newValue) async {
+                                        if (newValue != null) {
+                                          await selectedIslamicSubject(
+                                              newValue);
+                                        }
+                                      },
                                       items: [
-                                        'مقرر 1',
-                                        'مقرر 2',
-                                        'مقرر 3',
-                                        'مقرر 4',
+                                        'التفسير',
+                                        'الحديث',
+                                        'الفقه',
+                                        'السيرة النبوية',
+                                        'القصص',
+                                        'العقيدة',
+                                        'الأخلاق',
                                       ].map<DropdownMenuItem<String>>(
                                           (String value) {
                                         return DropdownMenuItem<String>(
@@ -1090,9 +1117,9 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                                     .withOpacity(0.3)),
                                           ),
                                           child: Text(
-                                            islamicPlan == null
+                                            islamicPlanSelected == null
                                                 ? 'لا يوجد'
-                                                : '${islamicPlan!.plannedContent}',
+                                                : pContent,
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
@@ -1146,9 +1173,9 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                                                     .withOpacity(0.3)),
                                           ),
                                           child: Text(
-                                            islamicPlan == null
+                                            islamicPlanSelected == null
                                                 ? 'لا يوجد'
-                                                : '${islamicPlan!.executedContent}',
+                                                : eContent,
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,

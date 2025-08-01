@@ -1,11 +1,14 @@
 import 'package:al_furqan/controllers/HalagaController.dart';
+import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/plan_controller.dart';
+import 'package:al_furqan/main.dart';
+import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/views/Teacher/mainTeacher.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../services/message_sevice.dart';
+// import '../../services/message_sevice.dart';
 import '../../services/sync.dart';
 // import '../../services/sync.dart';
 
@@ -22,8 +25,7 @@ class _MainScreenState extends State<MainScreenT> {
   @override
   void initState() {
     super.initState();
-
-    // load();
+    load();
   }
 
   @override
@@ -43,7 +45,8 @@ class _MainScreenState extends State<MainScreenT> {
       await sync.syncElhalagat();
       await sync.syncStudents();
       // await loadMessages();
-      await loadHalagat();
+      // await loadHalagat();
+      await loadStudent();
       await loadPlans();
 
       Navigator.pushReplacement(
@@ -81,21 +84,31 @@ class _MainScreenState extends State<MainScreenT> {
   //   });
   // }
 
-  Future<void> loadHalagat() async {
+  // Future<void> loadHalagat() async {
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+  //     String? Id = prefs.getString('halagaID');
+  //     debugPrint('===== halagaID ($Id) =====');
+  //     // تحميل الحلقات من فايربيس
+  //     await halagaController.getHalagatFromFirebaseByID(Id!, 'halagaID');
+  //   } catch (e) {
+  //     debugPrint('خطأ في تحميل الحلقات: $e');
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('خطأ في تحميل الحلقات'),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //   }
+  // }
+
+  Future<void> loadStudent() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      String? Id = prefs.getString('halagaID');
-      debugPrint('===== halagaID ($Id) =====');
-      // تحميل الحلقات من فايربيس
-      await halagaController.getHalagatFromFirebaseByID(Id!, 'halagaID');
+      String? halagaID = perf.getString('halagaID');
+      await studentController.addToLocalStudentH(halagaID!);
+      await studentController.getStudents(halagaID);
     } catch (e) {
-      debugPrint('خطأ في تحميل الحلقات: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('خطأ في تحميل الحلقات'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      print(e);
     }
   }
 
