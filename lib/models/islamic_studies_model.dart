@@ -1,7 +1,6 @@
 class IslamicStudiesModel {
   String? islamicStudiesID;
   String? elhalagatID;
-  int? studentID;
   String? subject;
   String? plannedContent;
   String? executedContent;
@@ -11,7 +10,6 @@ class IslamicStudiesModel {
   IslamicStudiesModel({
     this.islamicStudiesID,
     required this.elhalagatID,
-    this.studentID,
     required this.subject,
     required this.plannedContent,
     this.executedContent,
@@ -24,7 +22,6 @@ class IslamicStudiesModel {
     return IslamicStudiesModel(
         islamicStudiesID: plan['IslamicStudiesID'],
         elhalagatID: plan['ElhalagatID'],
-        studentID: plan['StudentID'],
         subject: plan['Subject'],
         plannedContent: plan['PlannedContent'],
         executedContent: plan['ExecutedContent'],
@@ -37,7 +34,6 @@ class IslamicStudiesModel {
     return {
       'IslamicStudiesID': islamicStudiesID,
       'ElhalagatID': elhalagatID,
-      'StudentID': studentID,
       'Subject': subject,
       'PlannedContent': plannedContent,
       'ExecutedContent': executedContent,

@@ -595,8 +595,8 @@ class _IslamicStudiesPlansListScreenState
   void _navigateToAddPlan(BuildContext context) {
     // التنقل إلى شاشة إضافة خطة جديدة
     // نستخدم طالب افتراضي لأن الخطة للحلقة بأكملها
-    StudentModel dummyStudent = StudentModel(
-        firstName: "الحلقة", lastName: "بأكملها", studentID: -1 as String);
+    // StudentModel dummyStudent = StudentModel(
+    //     firstName: "الحلقة", lastName: "بأكملها", studentID: -1 as String);
 
     Navigator.of(context)
         .push(
@@ -604,7 +604,7 @@ class _IslamicStudiesPlansListScreenState
         builder: (context) => EditHalagaPlanScreen(
           halaga: widget.halaga,
           planType: "islamic",
-          student: dummyStudent,
+          student: StudentModel(),
           plan: null,
         ),
       ),
@@ -619,8 +619,8 @@ class _IslamicStudiesPlansListScreenState
   void _editPlan(IslamicStudiesModel plan) {
     // الانتقال إلى شاشة تعديل الخطة
     // نستخدم طالب افتراضي لأن الخطة للحلقة بأكملها
-    StudentModel dummyStudent = StudentModel(
-        firstName: "الحلقة", lastName: "بأكملها", studentID: -1 as String);
+    // StudentModel dummyStudent = StudentModel(
+    //     firstName: "الحلقة", lastName: "بأكملها", studentID: -1 as String);
 
     Navigator.of(context)
         .push(
@@ -629,7 +629,7 @@ class _IslamicStudiesPlansListScreenState
           halaga: widget.halaga,
           plan: plan,
           planType: "islamic",
-          student: dummyStudent,
+          student: StudentModel(),
         ),
       ),
     )

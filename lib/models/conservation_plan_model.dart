@@ -71,7 +71,7 @@ class ConservationPlanModel {
       executedRate: map['ExecutedRate'] != null
           ? (map['ExecutedRate'] as num).toDouble()
           : 0.0,
-      planMonth: map['PlanMonth'],
+      planMonth: map['PlanMonth'] ,
       isSync: map['isSync'],
     );
   }

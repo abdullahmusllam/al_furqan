@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 
-import 'dart:developer';
+import 'dart:developer' as developer;
+import 'dart:math';
 
 import 'package:al_furqan/helper/sqldb.dart';
 import 'package:al_furqan/models/student_model.dart';
@@ -221,7 +222,7 @@ class StudentController {
       try {
         // التحقق من القيمة الحالية لأيام الحضور
         List<Map> currentData = await _sqldb.readData(
-            "SELECT AttendanceDays FROM Students WHERE StudentID = $studentID");
+            "SELECT AttendanceDays FROM Students WHERE StudentID = '$studentID'");
 
         if (currentData.isNotEmpty) {
           var currentAttendance = currentData[0]['AttendanceDays'];
@@ -229,7 +230,7 @@ class StudentController {
               (currentAttendance == null) ? 1 : currentAttendance + 1;
 
           int response = await _sqldb.updateData(
-              "UPDATE Students SET AttendanceDays = $newAttendance, isSync = $syncValue WHERE StudentID = $studentID");
+              "UPDATE Students SET AttendanceDays = $newAttendance, isSync = $syncValue WHERE StudentID = '$studentID'");
           if (syncValue == 1) {
             await firebasehelper.updateAttendance(
                 studentID, isPresent, absenceReasons);
@@ -250,14 +251,14 @@ class StudentController {
 
         // التحقق من القيمة الحالية لأيام الغياب
         List<Map> currentData = await _sqldb.readData(
-            "SELECT AbsenceDays FROM Students WHERE StudentID = $studentID");
+            "SELECT AbsenceDays FROM Students WHERE StudentID = '$studentID'");
 
         if (currentData.isNotEmpty) {
           var currentAbsence = currentData[0]['AbsenceDays'];
           int newAbsence = (currentAbsence == null) ? 1 : currentAbsence + 1;
 
           int response = await _sqldb.updateData(
-              "UPDATE Students SET AbsenceDays = $newAbsence, ReasonAbsence = '$absenceReasons', isSync = $syncValue WHERE StudentID = $studentID");
+              "UPDATE Students SET AbsenceDays = $newAbsence, ReasonAbsence = '$absenceReasons', isSync = $syncValue WHERE StudentID = '$studentID'");
           if (syncValue == 1) {
             await firebasehelper.updateAttendance(
                 studentID, isPresent, absenceReasons);
@@ -347,7 +348,7 @@ class StudentController {
       final studentCount = count[0]['count'] as int;
       int halagaResponse = await _sqldb.updateData(
           "UPDATE Elhalagat SET NumberStudent = $studentCount, isSync = 0 WHERE halagaID = '$halqaID'");
-      log("Updated NumberStudent to $studentCount for halqa $halqaID, response: $halagaResponse");
+      // log("Updated NumberStudent to $studentCount for halqa $halqaID, response: $halagaResponse");
     } catch (e) {
       debugPrint("Error assigning student to halqa: $e");
       rethrow;
@@ -388,6 +389,31 @@ class StudentController {
       }
     } else {
       debugPrint("لا يوجد اتصال بالانترنت");
+    }
+  }
+
+  Future<void> addToLocalStudentH(String halagaID) async {
+    try {
+      if (await isConnected()) {
+        List<StudentModel> responseFirebase =
+            await firebasehelper.getStudentHalaqa(halagaID);
+        // debugPrint("responseFirebase = $responseFirebase");
+        for (var student in responseFirebase) {
+          bool exists = await sqlDb.checkIfitemExists2(
+              "Students", student.studentID!, "StudentID");
+          if (exists) {
+            await updateStudent(student, 0);
+            debugPrint('===== Find student (update) =====');
+          } else {
+            await addStudent(student, 0);
+            debugPrint('===== Find student (add) =====');
+          }
+        }
+      } else {
+        debugPrint("لا يوجد اتصال بالانترنت");
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -456,9 +482,10 @@ class StudentController {
       final studentCount = count[0]['count'] as int;
       int halagaResponse = await _sqldb.updateData(
           "UPDATE Elhalagat SET NumberStudent = $studentCount WHERE halagaID = '$halagaID'");
-      log("Updated NumberStudent to $studentCount for halqa $halagaID, response: $halagaResponse");
+      developer.log(
+          "Updated NumberStudent to $studentCount for halqa $halagaID, response: $halagaResponse");
     } catch (e) {
-      log("Error assigning students to halaga: $e");
+      developer.log("Error assigning students to halaga: $e");
       rethrow;
     }
   }

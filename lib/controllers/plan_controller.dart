@@ -65,15 +65,15 @@ class PlanController {
       String newEltlawahPlanID = await getMaxValue();
       plan.eltlawahPlanId = newEltlawahPlanID;
 
-      // إذا كانت الخطة للحلقة بأكملها، نضع قيمة خاصة لـ studentId
-      if (isForWholeHalaga) {
-        plan.studentId =
-            (-1) as String?; // قيمة خاصة تشير إلى أن الخطة للحلقة بأكملها
-        debugPrint("----------> Adding Eltlawah Plan for the whole Halaga");
-      } else {
-        debugPrint(
-            "----------> studentId for EltlawahPlans is :${plan.studentId}");
-      }
+      // // إذا كانت الخطة للحلقة بأكملها، نضع قيمة خاصة لـ studentId
+      // if (isForWholeHalaga) {
+      //   plan.studentId =
+      //       (-1) as String?; // قيمة خاصة تشير إلى أن الخطة للحلقة بأكملها
+      //   debugPrint("----------> Adding Eltlawah Plan for the whole Halaga");
+      // } else {
+      //   debugPrint(
+      //       "----------> studentId for EltlawahPlans is :${plan.studentId}");
+      // }
 
       bool hasConnection = await InternetConnectionChecker().hasConnection;
       final Map<String, dynamic> planMap = plan.toMap();
@@ -111,15 +111,15 @@ class PlanController {
       String newIslamicStudiesID = await getMaxValue();
       plan.islamicStudiesID = newIslamicStudiesID;
 
-      if (isForWholeHalaga) {
-        plan.studentID = -1; // قيمة خاصة تشير إلى أن الخطة للحلقة بأكملها
-        debugPrint("----------> Adding IslamicStudy Plan for the whole Halaga");
-      } else {
-        debugPrint(
-            "----------> studentId for IslamicStudy Plans is :${plan.studentID}");
-      }
-      debugPrint(
-          "----------> studentId for IslamicStudy is :${plan.studentID}");
+      // if (isForWholeHalaga) {
+      //   plan.studentID = -1; // قيمة خاصة تشير إلى أن الخطة للحلقة بأكملها
+      //   debugPrint("----------> Adding IslamicStudy Plan for the whole Halaga");
+      // } else {
+      //   debugPrint(
+      //       "----------> studentId for IslamicStudy Plans is :${plan.studentID}");
+      // }
+      // debugPrint(
+      //     "----------> studentId for IslamicStudy is :${plan.studentID}");
 
       bool hasConnection = await InternetConnectionChecker().hasConnection;
       final Map<String, dynamic> planMap = plan.toMap();
@@ -379,12 +379,12 @@ class PlanController {
       final Map<String, dynamic> updateData = plan.toMap();
 
       // إذا كانت الخطة للحلقة بأكملها، نضع قيمة خاصة لـ studentId
-      if (isForWholeHalaga) {
-        plan.studentId =
-            (-1) as String?; // قيمة خاصة تشير إلى أن الخطة للحلقة بأكملها
-        updateData['StudentID'] = -1;
-        debugPrint("----------> Updating Eltlawah Plan for the whole Halaga");
-      }
+      // if (isForWholeHalaga) {
+      //   plan.studentId =
+      //       (-1) as String?; // قيمة خاصة تشير إلى أن الخطة للحلقة بأكملها
+      //   updateData['StudentID'] = -1;
+      //   debugPrint("----------> Updating Eltlawah Plan for the whole Halaga");
+      // }
 
       // إزالة المعرف من البيانات لأنه لا يمكن تعديله
       updateData.remove('EltlawahPlanID');
