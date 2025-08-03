@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 class FirebaseHelper {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   //  UserColl = _firestore.collection('Users');
-
   // ======================= Start Student ==============
   Future<void> addStudent(StudentModel StudentData) async {
     final StudentRef = _firestore.collection('Students');
@@ -415,6 +414,8 @@ class FirebaseHelper {
   // Generate verification code for a request
 
   // تحديث كلمة المرور في Firestore
+
+  Future<void> getAllTeacher() async {}
 
   // =========================== End User =================================
 

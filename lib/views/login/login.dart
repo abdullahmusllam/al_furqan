@@ -10,6 +10,7 @@ import 'package:al_furqan/models/users_model.dart';
 import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/views/SchoolDirector/main_screenD.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
+import 'package:al_furqan/views/Supervisor/mainScreenSupervisor.dart';
 import 'package:al_furqan/views/Teacher/main_screenT.dart';
 import 'package:al_furqan/views/auth/forgot_password_screen.dart';
 import 'package:al_furqan/views/login/signup_screen.dart';
@@ -229,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> {
     switch (roleId) {
       case 0:
         Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => DashboardScreen()));
+            MaterialPageRoute(builder: (context) => MainScreenSupervisor()));
         break;
       case 1:
         Navigator.pushReplacement(
