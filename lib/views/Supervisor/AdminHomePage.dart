@@ -11,6 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
+import '../../helper/current_user.dart';
+import '../../models/users_model.dart';
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -18,7 +21,9 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
+class _DashboardScreenState extends State<DashboardScreen>
+//  with UserDataMixin 
+ {
   final _schools = schoolController.schools;
   final _teachers = teacherController.teachers;
   int _totalStudents = 0;
@@ -28,11 +33,12 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
   double _attendanceRate = 0.0;
   double _activitiesCompletionRate = 0.0;
   String _currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  UserModel? user = CurrentUser.user;
 
   @override
   void initState() {
     super.initState();
-    syncData();
+    // syncData();
     _refreshData();
     // _loadAdditionalData();
   }
@@ -93,9 +99,9 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
     _activitiesCompletionRate = (dayOfMonth / daysInMonth) * 100;
   }
 
-  Future<void> syncData() async {
-    sync.syncUsers;
-  }
+  // Future<void> syncData() async {
+  //   sync.syncUsers;
+  // }
 
   void _showLoadingDialog() {
     showDialog(
@@ -252,9 +258,8 @@ class _DashboardScreenState extends State<DashboardScreen> with UserDataMixin {
       ),
       body: RefreshIndicator(
         onRefresh: _refreshData,
-        child: isLoading
-            ? Center(child: CircularProgressIndicator())
-            : user == null
+        child: 
+            user == null
                 ? Center(child: Text("فشل في جلب بيانات المستخدم"))
                 : SingleChildScrollView(
                     padding: EdgeInsets.all(16.0),

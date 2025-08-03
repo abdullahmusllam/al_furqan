@@ -6,6 +6,7 @@ import 'package:al_furqan/models/provider/user_provider.dart';
 import 'package:al_furqan/views/SchoolDirector/main_screenD.dart';
 import 'package:al_furqan/views/Supervisor/AdminHomePage.dart';
 import 'package:al_furqan/views/SchoolDirector/SchoolDirectorHome.dart';
+import 'package:al_furqan/views/Supervisor/mainScreenSupervisor.dart';
 import 'package:al_furqan/views/Teacher/mainTeacher.dart';
 import 'package:al_furqan/views/Teacher/main_screenT.dart';
 import 'package:al_furqan/views/login/login.dart';
@@ -107,7 +108,7 @@ class _SplashScreenState extends State<SplashScreen> {
     switch (roleId) {
       case 0:
         Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => DashboardScreen()));
+            MaterialPageRoute(builder: (context) => MainScreenSupervisor()));
         break;
       case 1:
         Navigator.pushReplacement(
