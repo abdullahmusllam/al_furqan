@@ -55,8 +55,9 @@ class SchoolController {
   /// إضافة مدرسة جديدة
   Future<void> addSchool(SchoolModel schoolModel, int type) async {
     try {
-      schoolModel.schoolID = await someController.newId("Schools", "SchoolID");
       if (type == 1) {
+        schoolModel.schoolID =
+            await someController.newId("Schools", "SchoolID");
         // إضافة المدرسة مع وضع isSync = 0 للمزامنة لاحقًا
         int response = await _sqlDb.insertData('''
         INSERT INTO Schools (SchoolID, school_name, school_location, isSync)

@@ -20,8 +20,8 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
   final MobileScannerController _controller = MobileScannerController();
 
   // وقت التحضير المسموح (تقدر تغيره براحتك)
-  final int allowedStartHour = 18; // 7 صباحاً
-  final int allowedEndHour = 17; // 8 صباحاً
+  final int allowedStartHour = 18; //
+  final int allowedEndHour = 18; //
   final int lateMinuteThreshold =
       30; // يعتبر متأخر بعد 30 دقيقة من بداية الدوام
 
@@ -182,7 +182,7 @@ class _AttendanceScannerPageState extends State<AttendanceScannerPage> {
       if (now.hour < allowedStartHour || (now.hour > allowedEndHour)) {
         _showDialog(
           "خارج الوقت المسموح",
-          " يمكنك تسجيل الحضور فقط من الساعة ${allowedStartHour}:00 صباحاً إلى ${allowedEndHour}:30 صباحاً.",
+          "يمكنك تسجيل الحضور من الساعه $allowedStartHour الى الساعة $allowedEndHour",
         );
         return;
       }

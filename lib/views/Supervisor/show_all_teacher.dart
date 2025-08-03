@@ -50,18 +50,20 @@ class _ShowAllTeacherState extends State<ShowAllTeacher> {
   }
 
   // Find school name by schoolID
-  String _getSchoolName(int? schoolID) {
-    if (schoolID == null) return 'غير معروف';
-    final school = schoolController.schools.firstWhere(
-      (school) => school.schoolID == schoolID,
-      orElse: () => SchoolModel(schoolID: -1, school_name: 'غير معروف'),
-    );
-    return school.school_name ?? 'غير معروف';
-  }
+  // String _getSchoolName(int? schoolID) {
+  //   print(schoolID);
+  //   if (schoolID == null) return 'غير معروف';
+  //   final school = schoolController.schools.firstWhere(
+  //     (school) => school.schoolID == schoolID,
+  //     orElse: () => SchoolModel(schoolID: -1, school_name: 'غير معروف'),
+  //   );
+  //   return school.school_name ?? 'غير معروف';
+  // }
 
   @override
   Widget build(BuildContext context) {
     final filteredTeachers = _filterTeachers();
+      List<SchoolModel> schools = schoolController.schools;
 
     return Scaffold(
       appBar: AppBar(
@@ -100,14 +102,16 @@ class _ShowAllTeacherState extends State<ShowAllTeacher> {
               textAlign: TextAlign.right,
               decoration: InputDecoration(
                 hintText: 'بحث عن معلم...',
-                prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
+                prefixIcon:
+                    Icon(Icons.search, color: Theme.of(context).primaryColor),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
                 fillColor: Colors.white,
-                contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               ),
               onChanged: (value) {
                 setState(() {
@@ -118,19 +122,25 @@ class _ShowAllTeacherState extends State<ShowAllTeacher> {
           ),
           Expanded(
             child: _isLoading
-                ? Center(child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                ? Center(
+                    child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).primaryColor),
                   ))
                 : filteredTeachers.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.person_off, size: 64, color: Colors.grey),
+                            Icon(Icons.person_off,
+                                size: 64, color: Colors.grey),
                             SizedBox(height: 16),
                             Text(
                               'لا يوجد معلمين',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[700]),
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[700]),
                             ),
                           ],
                         ),
@@ -140,14 +150,19 @@ class _ShowAllTeacherState extends State<ShowAllTeacher> {
                         itemCount: filteredTeachers.length,
                         itemBuilder: (context, index) {
                           final teacher = filteredTeachers[index];
-                          final schoolName = _getSchoolName(teacher.schoolID);
-                          
+                          final school = schools.firstWhere(
+                            (element) => element.schoolID == teacher.schoolID,
+                          );
+                          // _getSchoolName(teacher.schoolID);
+
                           return Card(
                             elevation: 2,
                             margin: EdgeInsets.only(bottom: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
                             child: ListTile(
-                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               leading: CircleAvatar(
                                 backgroundColor: Theme.of(context).primaryColor,
                                 foregroundColor: Colors.white,
@@ -158,7 +173,8 @@ class _ShowAllTeacherState extends State<ShowAllTeacher> {
                               ),
                               title: Text(
                                 '${teacher.first_name ?? ''} ${teacher.middle_name ?? ''} ${teacher.last_name ?? ''}',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,12 +182,14 @@ class _ShowAllTeacherState extends State<ShowAllTeacher> {
                                   SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      Icon(Icons.school, size: 16, color: Colors.grey),
+                                      Icon(Icons.school,
+                                          size: 16, color: Colors.grey),
                                       SizedBox(width: 4),
                                       Expanded(
                                         child: Text(
-                                          schoolName,
-                                          style: TextStyle(color: Colors.grey[700]),
+                                          school.school_name!,
+                                          style: TextStyle(
+                                              color: Colors.grey[700]),
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
@@ -179,14 +197,18 @@ class _ShowAllTeacherState extends State<ShowAllTeacher> {
                                   ),
                                 ],
                               ),
-                              trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                              trailing: Icon(Icons.arrow_forward_ios,
+                                  size: 16, color: Colors.grey),
                               onTap: () {
                                 // Handle teacher selection
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('تم اختيار ${teacher.first_name}'),
+                                    content:
+                                        Text('تم اختيار ${teacher.first_name}'),
                                     behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
                                   ),
                                 );
                               },
