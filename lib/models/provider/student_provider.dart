@@ -8,12 +8,14 @@ import '../../controllers/fathers_controller.dart';
 import '../halaga_model.dart';
 
 class StudentProvider with ChangeNotifier {
+  Set<StudentModel> totalStudent = {};
   List<StudentModel> students = [];
   List<UserModel> fathers = [];
   Map<String?, String> halaqaNames = {}; // أسماء الحلقات حسب ID
   List<HalagaModel> halaqat = [];
 
   get studentCount => students.length;
+  get totalStudentCount => totalStudent.length;
 
   int? schoolID = perf.getInt('schoolId');
 
@@ -26,6 +28,16 @@ class StudentProvider with ChangeNotifier {
     if (role == 1) {
       await loadStudents();
     } else {}
+  }
+
+  Future<void> loadTotalStudents() async {
+    await studentController.addToLocalOfFire();
+    await totalStudents();
+  }
+
+  Future<void> totalStudents() async {
+    totalStudent = await studentController.getGlobalStudents();
+    notifyListeners();
   }
 
   Future<void> loadStudentFromFirebase() async {

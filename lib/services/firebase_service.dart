@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 class FirebaseHelper {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   //  UserColl = _firestore.collection('Users');
+
   // ======================= Start Student ==============
   Future<void> addStudent(StudentModel StudentData) async {
     final StudentRef = _firestore.collection('Students');
@@ -26,6 +27,26 @@ class FirebaseHelper {
           'تمت إضافة/تحديث الطالب بالرقم ${StudentData.studentID} بنجاح ');
     } catch (e) {
       debugPrint('خطأ أثناء إضافة الطالب إلى Firebase: $e');
+    }
+  }
+
+  Future<List<StudentModel>> getTotalStudents() async {
+    try {
+      QuerySnapshot snapshot = await _firestore.collection('Students').get();
+
+      if (snapshot.docs.isNotEmpty) {
+        debugPrint('تم العثور على مستند');
+        return snapshot.docs
+            .map((doc) =>
+                StudentModel.fromJson(doc.data() as Map<String, dynamic>))
+            .toList();
+      } else {
+        debugPrint('لا توجد مستندات تطابق الشرط');
+        return [];
+      }
+    } catch (e) {
+      debugPrint('خطأ أثناء جلب البيانات: $e');
+      return [];
     }
   }
 

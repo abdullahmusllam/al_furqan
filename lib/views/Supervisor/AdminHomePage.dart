@@ -2,12 +2,14 @@ import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/helper/user_helper.dart';
+import 'package:al_furqan/models/provider/student_provider.dart';
 import 'package:al_furqan/services/sync.dart';
 import 'package:al_furqan/views/login/login.dart';
 import 'package:al_furqan/widgets/chart_card.dart';
 import 'package:al_furqan/widgets/drawer_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
@@ -22,8 +24,8 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen>
-//  with UserDataMixin 
- {
+//  with UserDataMixin
+{
   final _schools = schoolController.schools;
   final _teachers = teacherController.teachers;
   int _totalStudents = 0;
@@ -34,6 +36,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   double _activitiesCompletionRate = 0.0;
   String _currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   UserModel? user = CurrentUser.user;
+  final bool _isLoading = false;
 
   @override
   void initState() {
@@ -43,6 +46,29 @@ class _DashboardScreenState extends State<DashboardScreen>
     // _loadAdditionalData();
   }
 
+  Future<void> loadStudentsWithDialog(BuildContext context) async {
+    // عرض الـ Dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        content: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 16),
+            Expanded(child: Text("الرجاء الانتظار حتى تحميل البيانات")),
+          ],
+        ),
+      ),
+    );
+
+    // تحميل البيانات
+    await context.read<StudentProvider>().loadTotalStudents();
+
+    // إغلاق الـ Dialog
+    // ignore: use_build_context_synchronously
+    Navigator.pop(context);
+  }
   // Future<void> _loadAdditionalData() async {
   //   try {
   //     // Commented out message-related code for future use
@@ -103,42 +129,42 @@ class _DashboardScreenState extends State<DashboardScreen>
   //   sync.syncUsers;
   // }
 
-  void _showLoadingDialog() {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            content: Padding(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              child: Row(
-                children: [
-                  CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(context).primaryColor),
-                  ),
-                  SizedBox(width: 20),
-                  Expanded(
-                    child: Text(
-                      'الرجاء الانتظار حتى رفع البيانات',
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }).then((value) {
-      if (!mounted) return;
-      Navigator.pop(context);
-    });
-  }
+  // void _showLoadingDialog() {
+  //   showDialog(
+  //       context: context,
+  //       barrierDismissible: false,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           backgroundColor: Colors.white,
+  //           shape:
+  //               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  //           content: Padding(
+  //             padding: EdgeInsets.symmetric(vertical: 20),
+  //             child: Row(
+  //               children: [
+  //                 CircularProgressIndicator(
+  //                   valueColor: AlwaysStoppedAnimation<Color>(
+  //                       Theme.of(context).primaryColor),
+  //                 ),
+  //                 SizedBox(width: 20),
+  //                 Expanded(
+  //                   child: Text(
+  //                     'الرجاء الانتظار حتى رفع البيانات',
+  //                     style: TextStyle(
+  //                       color: Colors.black87,
+  //                       fontWeight: FontWeight.bold,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         );
+  //       }).then((value) {
+  //     if (!mounted) return;
+  //     Navigator.pop(context);
+  //   });
+  // }
 
   Future<void> _refreshData() async {
     try {
@@ -252,36 +278,38 @@ class _DashboardScreenState extends State<DashboardScreen>
       drawer: user == null ? null : DrawerList(user: user),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).primaryColor,
-        onPressed: () => _refreshData(),
+        onPressed: () async {
+          loadStudentsWithDialog(context);
+          _refreshData();
+        },
         tooltip: 'تحديث البيانات',
         child: Icon(Icons.refresh),
       ),
       body: RefreshIndicator(
         onRefresh: _refreshData,
-        child: 
-            user == null
-                ? Center(child: Text("فشل في جلب بيانات المستخدم"))
-                : SingleChildScrollView(
-                    padding: EdgeInsets.all(16.0),
-                    physics: AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildWelcomeSection(),
-                        SizedBox(height: 24),
-                        _buildStatCards(),
-                        SizedBox(height: 24),
+        child: user == null
+            ? Center(child: Text("فشل في جلب بيانات المستخدم"))
+            : SingleChildScrollView(
+                padding: EdgeInsets.all(16.0),
+                physics: AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildWelcomeSection(),
+                    SizedBox(height: 24),
+                    _buildStatCards(),
+                    SizedBox(height: 24),
 
-                        _buildSectionTitle('الإحصائيات', Icons.analytics),
-                        SizedBox(height: 8),
-                        // _buildChartCard('نسبة تنفيذ الأنشطة', Colors.blue, _activitiesCompletionRate),
-                        SizedBox(height: 16),
-                        _buildChartCard('نسبة حضور المعلمين', Colors.green,
-                            _attendanceRate),
-                        SizedBox(height: 24),
-                      ],
-                    ),
-                  ),
+                    _buildSectionTitle('الإحصائيات', Icons.analytics),
+                    SizedBox(height: 8),
+                    // _buildChartCard('نسبة تنفيذ الأنشطة', Colors.blue, _activitiesCompletionRate),
+                    SizedBox(height: 16),
+                    _buildChartCard(
+                        'نسبة حضور المعلمين', Colors.green, _attendanceRate),
+                    SizedBox(height: 24),
+                  ],
+                ),
+              ),
       ),
     );
   }
