@@ -392,6 +392,29 @@ class StudentController {
     }
   }
 
+  Future<void> addToLocalOfFire() async {
+    if (await isConnected()) {
+      List<StudentModel> responseFirebase =
+          await firebasehelper.getTotalStudents();
+
+      // debugPrint("responseFirebase = $responseFirebase");
+
+      for (var student in responseFirebase) {
+        bool exists = await sqlDb.checkIfitemExists2(
+            "Students", student.studentID!, "StudentID");
+        if (exists) {
+          await updateStudent(student, 0);
+          debugPrint('===== Find student (update) =====');
+        } else {
+          await addStudent(student, 0);
+          debugPrint('===== Find student (add) =====');
+        }
+      }
+    } else {
+      debugPrint("لا يوجد اتصال بالانترنت");
+    }
+  }
+
   Future<void> addToLocalStudentH(String halagaID) async {
     try {
       if (await isConnected()) {
@@ -488,6 +511,12 @@ class StudentController {
       developer.log("Error assigning students to halaga: $e");
       rethrow;
     }
+  }
+
+  Future<Set<StudentModel>> getGlobalStudents() async {
+    final db = await sqlDb.database;
+    List<Map<String, dynamic>> request = await db.query('Students');
+    return request.map((m) => StudentModel.fromJson(m)).toSet();
   }
 }
 
