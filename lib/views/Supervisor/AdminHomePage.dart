@@ -171,7 +171,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       sync.syncSchool();
       await schoolController.getData();
       await teacherController.getTeachers();
-      _totalStudents = await studentController.getTotalStudents();
+      // _totalStudents = await studentController.getTotalStudents();
 
       // Update additional data
       // await _loadAdditionalData();
@@ -423,8 +423,10 @@ class _DashboardScreenState extends State<DashboardScreen>
             'عدد المدارس', '${_schools.length}', Icons.school, Colors.blue),
         _buildStatCard(
             'عدد المعلمين', '${_teachers.length}', Icons.person, Colors.green),
-        _buildStatCard(
-            'عدد الطلاب', '$_totalStudents', Icons.people, Colors.orange),
+        Selector<StudentProvider, int>(
+            builder: (context, prov, child) => _buildStatCard(
+                'عدد الطلاب', '$prov', Icons.people, Colors.orange),
+            selector: (_, s) => s.totalStudentCount),
         // تم تعليق بطاقة الرسائل غير المقروءة للاستخدام المستقبلي
         // _buildStatCard('الرسائل غير المقروءة', '$_unreadMessages', Icons.mail, Colors.red),
         _buildStatCard('نسبة الحضور', '${_attendanceRate.toStringAsFixed(1)}%',
