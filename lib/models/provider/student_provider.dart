@@ -27,6 +27,8 @@ class StudentProvider with ChangeNotifier {
     int? role = perf.getInt('roleID') ?? 4;
     if (role == 1) {
       await loadStudents();
+    } else if (role == 0) {
+      await totalStudents();
     } else {}
   }
 
