@@ -166,7 +166,7 @@ class _DrawerSchoolDirectorState extends State<DrawerSchoolDirector> {
                     title: 'مزامنة البيانات ',
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => MainScreenD(),

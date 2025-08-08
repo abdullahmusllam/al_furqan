@@ -36,7 +36,7 @@ class SchoolController {
       final response = await _sqlDb
           .readData("SELECT * FROM Schools WHERE SchoolID = $schoolID");
       if (response.isEmpty) {
-        debugPrint("No school found for SchoolID: $schoolID");
+        debugPrint("No school found for SchoolID: $schoolID , $response");
         return null;
       }
       final school = SchoolModel(
@@ -44,7 +44,7 @@ class SchoolController {
         school_name: response[0]['school_name'] as String?,
         school_location: response[0]['school_location'] as String?,
       );
-      debugPrint("Fetched school: ${school.school_name}");
+      debugPrint("Fetched school: ${school.school_name}, $response");
       return school;
     } catch (e) {
       debugPrint("Error fetching school by SchoolID $schoolID: $e");
