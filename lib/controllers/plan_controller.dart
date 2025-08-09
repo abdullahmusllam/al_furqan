@@ -499,6 +499,55 @@ class PlanController {
       return -1;
     }
   }
+
+  Future<void> saveInLocal(String halagaId) async {
+    final db = await sqlDb.database;
+    List<ConservationPlanModel> cp = [];
+    List<EltlawahPlanModel> ep = [];
+    List<IslamicStudiesModel> ip = [];
+    try {
+      cp = await firebasehelper.getConservationPlans(halagaId);
+      ep = await firebasehelper.getEltlawahPlans(halagaId);
+      ip = await firebasehelper.getIslamicStudyPlans(halagaId);
+
+      /// Conservation plan
+      for (var c in cp) {
+        bool exists = await sqlDb.checkIfitemExists2(
+            'ConservationPlans', c.conservationPlanId!, 'ConservationPlanID');
+        print(exists);
+        exists
+            ? await db.update(
+                'ConservationPlans', c.toMap()..remove('ConservationPlanID'),
+                where: 'ConservationPlanID = ?',
+                whereArgs: [c.conservationPlanId])
+            : await db.insert('ConservationPlans', c.toMap());
+      }
+
+      for (var e in ep) {
+        bool exists = await sqlDb.checkIfitemExists2(
+            'EltlawahPlans', e.eltlawahPlanId!, 'EltlawahPlanID');
+        print(exists);
+        exists
+            ? await db.update(
+                'EltlawahPlans', e.toMap()..remove('EltlawahPlanID'),
+                where: 'EltlawahPlanID = ?', whereArgs: [e.eltlawahPlanId])
+            : await db.insert('EltlawahPlans', e.toMap());
+      }
+
+      for (var i in ip) {
+        bool exists = await sqlDb.checkIfitemExists2(
+            'IslamicStudies', i.islamicStudiesID!, 'IslamicStudiesID');
+        print(exists);
+        exists
+            ? await db.update(
+                'IslamicStudies', i.toMap()..remove('IslamicStudiesID'),
+                where: 'IslamicStudiesID = ?', whereArgs: [i.islamicStudiesID])
+            : await db.insert('IslamicStudies', i.toMap());
+      }
+    } catch (e) {
+      debugPrint('$e');
+    }
+  }
 }
 
 PlanController planController = PlanController();

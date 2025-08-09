@@ -640,6 +640,7 @@ class FirebaseHelper {
   Future<List<ConservationPlanModel>> getConservationPlans(
       String halagaId) async {
     try {
+      print('0000000000000000000000000000000000');
       // جلب الخطط من مجموعة ConservationPlans حيث elhalagatId يساوي halagaId
       final QuerySnapshot querySnapshot = await _firestore
           .collection('ConservationPlans')
