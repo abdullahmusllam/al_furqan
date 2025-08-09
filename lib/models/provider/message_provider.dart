@@ -62,9 +62,9 @@ class MessageProvider with ChangeNotifier {
   Future<void> loadMessageFromFirebase() async {
     // تحميل الرسائل من فايربيس
     if (userID == null) {
-    // print("❌ userID is null. Cannot load messages.");
-    return;
-  }
+      // print("❌ userID is null. Cannot load messages.");
+      return;
+    }
     await messageService.loadMessagesFromFirestore(userID!);
 
     // تحديث قائمة الرسائل في الذاكرة
@@ -223,6 +223,11 @@ class MessageProvider with ChangeNotifier {
     }
 
     return lastMessages;
+  }
+
+  Future<void> delete(String senderId, String receiverId) async {
+    await messageController.deleteConversation(senderId, receiverId);
+    await loadMessageFromFirebase();
   }
 
   void clear() {

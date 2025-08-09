@@ -247,27 +247,64 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
 
                       return InkWell(
                         onLongPress: () => showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                                  title: Text('حذف المحادثه'),
-                                  actions: [
-                                    MaterialButton(
-                                      onPressed: () async {
-// await messageController.deleteMessage(id)
-                                      },
-                                      color: Colors.amber,
-                                      child: Text('حذف محلي'),
-                                    ),
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                    MaterialButton(
-                                      onPressed: () {},
-                                      color: Colors.red,
-                                      child: Text('حذف نهائي'),
-                                    )
-                                  ],
-                                )),
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            title: Row(
+                              children: [
+                                Icon(Icons.delete_forever,
+                                    color: Colors.red, size: 28),
+                                SizedBox(width: 8),
+                                Text(
+                                  'حذف المحادثة',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            content: Text(
+                              'هل أنت متأكد أنك تريد حذف هذه المحادثة نهائيًا؟\n'
+                              'لن تتمكن من استعادتها لاحقًا.',
+                              style: TextStyle(fontSize: 16, height: 1.5),
+                            ),
+                            actionsPadding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text(
+                                  'إلغاء',
+                                  style: TextStyle(color: Colors.grey[700]),
+                                ),
+                              ),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 10),
+                                ),
+                                icon: Icon(Icons.delete, color: Colors.white),
+                                label: Text(
+                                  'حذف نهائي',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                onPressed: () {
+                                  // 🔹 ضع هنا دالة الحذف
+                                  (context).read<MessageProvider>().delete(
+                                      user.user_id!,
+                                      CurrentUser.user!.user_id!);
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                         onTap: () {
                           Navigator.push(
                             context,

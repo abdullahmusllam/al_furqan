@@ -1,7 +1,5 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/sync.dart';
 import 'SchoolDirectorHome.dart';
 
