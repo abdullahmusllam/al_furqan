@@ -7,12 +7,11 @@ import 'package:al_furqan/models/conservation_plan_model.dart';
 import 'package:al_furqan/models/eltlawah_plan_model.dart';
 import 'package:al_furqan/models/islamic_studies_model.dart';
 import 'package:al_furqan/models/student_model.dart';
+import 'package:al_furqan/services/firebase_service.dart';
 import 'package:al_furqan/views/SchoolDirector/EditHalaga.dart';
 import 'package:al_furqan/views/Teacher/HalqaReportScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:al_furqan/models/halaga_model.dart';
-import 'package:al_furqan/views/SchoolDirector/add_students_to_halqa_screen.dart';
-import 'package:al_furqan/views/Teacher/HalagaPlansScreen.dart';
 
 class HalqaDetailsPage extends StatefulWidget {
   final HalagaModel halqa;
@@ -38,9 +37,22 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
   @override
   void initState() {
     super.initState();
+    init();
+  }
+
+  init() async {
     _loadStudents();
     _loadHalqaDetails();
-    _loadPlanDetails();
+    await _loadPlanDetails();
+    loadPlanFromFirebase();
+  }
+
+  Future<void> loadPlanFromFirebase() async {
+    await planController.saveInLocal(widget.halqa.halagaID!);
+    planController.conservationPlans.clear();
+    planController.eltlawahPlans.clear();
+    planController.islamicStudyPlans.clear();
+    await _loadPlanDetails();
   }
 
   Future<void> _loadStudents() async {
@@ -108,7 +120,9 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
     }
 
     try {
-      setState(() => _isLoading = true);
+      if (mounted) {
+        setState(() => _isLoading = true);
+      }
 
       // الحصول على تفاصيل الحلقة بما في ذلك خطة الحفظ والتلاوة والعلوم الشرعية
       await planController.getPlans(halagaID);
@@ -153,7 +167,9 @@ class _HalqaDetailsPageState extends State<HalqaDetailsPage> {
       }
     } catch (e) {
       debugPrint("Error loading halqa details: $e");
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
