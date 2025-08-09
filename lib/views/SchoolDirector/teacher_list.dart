@@ -1,7 +1,6 @@
 import 'package:al_furqan/controllers/TeacherController.dart';
 import 'package:al_furqan/controllers/users_controller.dart';
 import 'package:al_furqan/helper/current_user.dart';
-import 'package:al_furqan/helper/user_helper.dart';
 import 'package:al_furqan/models/provider/user_provider.dart';
 import 'package:al_furqan/models/users_model.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +20,7 @@ class _TeacherListState extends State<TeacherList>
 {
   String _searchQuery = '';
   UserModel? user = CurrentUser.user;
-  List<UserModel> _filteredTeachers = [];
+  // List<UserModel> _filteredTeachers = [];
   bool _isSearching = false;
   bool _isRefreshing = false; // Local loading state for refresh operations
   bool _hasInitialized = false;
@@ -151,28 +150,7 @@ class _TeacherListState extends State<TeacherList>
 
   @override
   Widget build(BuildContext context) {
-    // // Debug prints
-    // debugPrint(
-    //     "TeacherList build - isLoading: $isLoading, _isRefreshing: $_isRefreshing, _forceShowContent: $_forceShowContent, hasInitialized: $_hasInitialized");
-    // debugPrint(
-    //     "TeacherList build - _filteredTeachers count: ${_filteredTeachers.length}");
-
-    // if (!_hasInitialized &&
-    //     !isLoading &&
-    //     !_isRefreshing &&
-    //     teacherController.teachers.isEmpty &&
-    //     schoolID != null) {
-    //   // If we've loaded but have no teachers, try to fetch them directly
-    //   Future.microtask(() => _directFetchTeachers());
-    // }
-
-    // // تعيين _forceShowContent كـ true بعد الانتهاء من التحميل الأولي
-    // if (_hasInitialized && !_forceShowContent) {
-    //   _forceShowContent = true;
-    //   // استخدام Future.microtask لتأخير setState حتى ينتهي build الحالي
-    //   Future.microtask(() => setState(() {}));
-    // }
-
+    
     return Scaffold(
       body: Column(
         children: [
@@ -180,8 +158,7 @@ class _TeacherListState extends State<TeacherList>
             padding: const EdgeInsets.all(16.0),
             child: _buildSearchBar(),
           ),
-          // if (_forceShowContent ||
-          //     (!isLoading && !_isRefreshing)) // تعديل الشرط هنا
+          
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(

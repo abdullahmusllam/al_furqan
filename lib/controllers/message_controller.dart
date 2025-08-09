@@ -85,6 +85,23 @@ class MessageController {
     }
   }
 
+  Future<void> deleteConversation(String senderId, String receiverId) async {
+    try {
+      // 🔹 حذف من SQLite
+      final db = await sqlDb.database;
+      await db.delete(
+        'Messages',
+        where: 'senderId = ? AND receiverId = ?',
+        whereArgs: [senderId, receiverId],
+      );
+      print('📌 تم حذف الرسائل من SQLite بين $senderId و $receiverId');
+
+      await messageService.deleteConversationFire(senderId, receiverId);
+    } catch (e) {
+      print('❌ خطأ أثناء حذف المحادثة: $e');
+    }
+  }
+
   Future close() async {
     final db = await sqlDb.database;
     db.close();

@@ -134,6 +134,23 @@ class FirebaseHelper {
       debugPrint('خطأ في تحديث حالة قراءة الرسائل في الفايربيس: $e');
     }
   }
+
+  Future<void> deleteConversationFire(String senderId, String receiverId) async {
+    try {
+      final messages = await FirebaseFirestore.instance
+          .collection('Messages')
+          .where('senderId', isEqualTo: senderId)
+          .where('receiverId', isEqualTo: receiverId)
+          .get();
+
+      for (var doc in messages.docs) {
+        await doc.reference.delete();
+      }
+      print('📌 تم حذف الرسائل من Firestore بين $senderId و $receiverId');
+    } catch (e) {
+      print('❌ خطأ أثناء حذف المحادثة: $e');
+    }
+  }
 }
 
 FirebaseHelper messageService = FirebaseHelper();
