@@ -1338,101 +1338,101 @@ class _TeacherDashboardState extends State<TeacherDashboard>
                     ),
 
                     // الطلاب المتميزون
-                    Container(
-                      margin: EdgeInsets.only(top: 20, bottom: 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 8.0, horizontal: 4.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.orange.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Icon(Icons.star,
-                                          color: Colors.orange),
-                                    ),
-                                    SizedBox(width: 10),
-                                    Text('الطلاب المتميزون',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18)),
-                                  ],
-                                ),
-                                TextButton.icon(
-                                  onPressed: () {},
-                                  icon: Icon(Icons.people, size: 16),
-                                  label: Text('عرض الكل'),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.blue,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Container(
-                            height: 120,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: 5,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  width: 100,
-                                  margin: EdgeInsets.only(right: 12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.1),
-                                        spreadRadius: 1,
-                                        blurRadius: 4,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 30,
-                                        backgroundColor:
-                                            Colors.orange.withOpacity(0.1),
-                                        child: Text(
-                                          'ط${index + 1}',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.orange,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(height: 8),
-                                      Text('الطالب ${index + 1}',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold)),
-                                      Text('95%',
-                                          style: TextStyle(
-                                              color: Colors.green,
-                                              fontSize: 12)),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    // Container(
+                    //   margin: EdgeInsets.only(top: 20, bottom: 10),
+                    //   child: Column(
+                    //     crossAxisAlignment: CrossAxisAlignment.start,
+                    //     children: [
+                    //       Padding(
+                    //         padding: const EdgeInsets.symmetric(
+                    //             vertical: 8.0, horizontal: 4.0),
+                    //         child: Row(
+                    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //           children: [
+                    //             Row(
+                    //               children: [
+                    //                 Container(
+                    //                   padding: EdgeInsets.all(8),
+                    //                   decoration: BoxDecoration(
+                    //                     color: Colors.orange.withOpacity(0.1),
+                    //                     borderRadius: BorderRadius.circular(8),
+                    //                   ),
+                    //                   child: Icon(Icons.star,
+                    //                       color: Colors.orange),
+                    //                 ),
+                    //                 SizedBox(width: 10),
+                    //                 Text('الطلاب المتميزون',
+                    //                     style: TextStyle(
+                    //                         fontWeight: FontWeight.bold,
+                    //                         fontSize: 18)),
+                    //               ],
+                    //             ),
+                    //             TextButton.icon(
+                    //               onPressed: () {},
+                    //               icon: Icon(Icons.people, size: 16),
+                    //               label: Text('عرض الكل'),
+                    //               style: TextButton.styleFrom(
+                    //                 foregroundColor: Colors.blue,
+                    //               ),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //       SizedBox(height: 10),
+                    //       Container(
+                    //         height: 120,
+                    //         child: ListView.builder(
+                    //           scrollDirection: Axis.horizontal,
+                    //           itemCount: 5,
+                    //           itemBuilder: (context, index) {
+                    //             return Container(
+                    //               width: 100,
+                    //               margin: EdgeInsets.only(right: 12),
+                    //               decoration: BoxDecoration(
+                    //                 color: Colors.white,
+                    //                 borderRadius: BorderRadius.circular(12),
+                    //                 boxShadow: [
+                    //                   BoxShadow(
+                    //                     color: Colors.grey.withOpacity(0.1),
+                    //                     spreadRadius: 1,
+                    //                     blurRadius: 4,
+                    //                     offset: Offset(0, 2),
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //               child: Column(
+                    //                 mainAxisAlignment: MainAxisAlignment.center,
+                    //                 children: [
+                    //                   CircleAvatar(
+                    //                     radius: 30,
+                    //                     backgroundColor:
+                    //                         Colors.orange.withOpacity(0.1),
+                    //                     child: Text(
+                    //                       'ط${index + 1}',
+                    //                       style: TextStyle(
+                    //                         fontWeight: FontWeight.bold,
+                    //                         color: Colors.orange,
+                    //                         fontSize: 18,
+                    //                       ),
+                    //                     ),
+                    //                   ),
+                    //                   SizedBox(height: 8),
+                    //                   Text('الطالب ${index + 1}',
+                    //                       style: TextStyle(
+                    //                           fontWeight: FontWeight.bold)),
+                    //                   Text('95%',
+                    //                       style: TextStyle(
+                    //                           color: Colors.green,
+                    //                           fontSize: 12)),
+                    //                 ],
+                    //               ),
+                    //             );
+                    //           },
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
