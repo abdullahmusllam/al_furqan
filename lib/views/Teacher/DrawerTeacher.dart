@@ -48,6 +48,7 @@ class _DrawerTeacherState extends State<DrawerTeacher>
     // });
 
     planController.getPlans(CurrentUser.halaga!.halagaID!);
+    loadStudents();
   }
 
   Future<void> loadStudents() async {
@@ -399,6 +400,13 @@ class _DrawerTeacherState extends State<DrawerTeacher>
                     icon: Icons.assessment,
                     title: 'التقرير الشهري',
                     onTap: () async {
+                      print(
+                          'Conservation Plans: ${planController.conservationPlans.length}');
+                      print(
+                          'Eltlawah Plans: ${planController.eltlawahPlans.length}');
+                      print(
+                          'Islamic Study Plans: ${planController.islamicStudyPlans.length}');
+                      print('Students: ${students.length}');
                       if (planController.conservationPlans.isEmpty ||
                           planController.eltlawahPlans.isEmpty ||
                           planController.islamicStudyPlans.isEmpty ||
@@ -418,13 +426,14 @@ class _DrawerTeacherState extends State<DrawerTeacher>
                                     ],
                                   ),
                                 ));
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MonthlyReportScreen(),
+                          ),
+                        );
                       }
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MonthlyReportScreen(),
-                        ),
-                      );
                     },
                   ),
                   _buildDivider(),
