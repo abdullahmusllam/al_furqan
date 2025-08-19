@@ -35,4 +35,14 @@ class Utils {
   static Color getAccentColor(BuildContext context) {
     return Theme.of(context).colorScheme.secondary;
   }
+
+  static void showDialogLoading({required BuildContext context}) {
+    showDialog(
+      context: context,
+      builder: (_) => const AlertDialog(
+        title: Text('يتم تحميل البيانات'),
+        content: CircularProgressIndicator(),
+      ),
+    );
+  }
 }

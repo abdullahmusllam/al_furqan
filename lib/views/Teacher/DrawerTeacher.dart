@@ -1,5 +1,3 @@
-// ignore: file_names
-
 import 'package:al_furqan/controllers/StudentController.dart';
 import 'package:al_furqan/controllers/plan_controller.dart';
 import 'package:al_furqan/helper/current_user.dart';
