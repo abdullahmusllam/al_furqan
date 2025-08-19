@@ -1,12 +1,11 @@
 import 'package:al_furqan/controllers/school_controller.dart';
 import 'package:al_furqan/models/schools_model.dart';
-import 'package:al_furqan/views/Supervisor/pdf.dart';
+import 'package:al_furqan/utils/utils.dart';
 import 'package:al_furqan/views/Supervisor/report.dart';
-import 'package:al_furqan/views/Supervisor/show_all_schools.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../SchoolDirector/ElhalagatList.dart';
+import '../../controllers/StudentController.dart';
+import '../../controllers/TeacherController.dart';
 
 class SchoolReports extends StatefulWidget {
   const SchoolReports({super.key});
@@ -18,11 +17,26 @@ class SchoolReports extends StatefulWidget {
 class _SchoolReports extends State<SchoolReports> {
   String _searchQuery = '';
   bool _isLoading = false;
+  int numberStudent = 0;
+  int numberTeacher = 0;
+
+  Future<void> schoolData(int schoolID) async {
+    Utils.showDialogLoading(context: context);
+    List numberStudentOfSchool =
+        await studentController.getSchoolStudents(schoolID);
+    await teacherController.getTeachersBySchoolID(schoolID);
+    List teacher = teacherController.teachers;
+    setState(() {
+      numberStudent = numberStudentOfSchool.length;
+      numberTeacher = teacher.length;
+    });
+    Navigator.of(context, rootNavigator: true).pop();
+  }
 
   List<SchoolModel> _filterSchools() {
     if (_searchQuery.isEmpty) return schoolController.schools;
     return schoolController.schools.where((school) {
-      final fullName = '${school.school_name ?? ''}'.toLowerCase();
+      final fullName = (school.school_name ?? '').toLowerCase();
       return fullName.contains(_searchQuery.toLowerCase());
     }).toList();
   }
@@ -43,7 +57,6 @@ class _SchoolReports extends State<SchoolReports> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _refreshData();
   }
@@ -155,8 +168,17 @@ class _SchoolReports extends State<SchoolReports> {
                               ),
                               child: ListTile(
                                   onTap: () async {
-                                    await PdfGenerator()
-                                        .generateReport(context);
+                                    await schoolData(school.schoolID!);
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => SchoolReportPage(
+                                          schoolModel: school,
+                                          numberS: numberStudent,
+                                          numberT: numberTeacher,
+                                        ),
+                                      ),
+                                    );
                                   },
                                   contentPadding: const EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 8),
@@ -199,12 +221,18 @@ class _SchoolReports extends State<SchoolReports> {
                                     ],
                                   ),
                                   trailing: IconButton(
-                                      onPressed: () {
-                                        Navigator.push(
+                                      onPressed: () async {
+                                        await schoolData(school.schoolID!);
+                                        await Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (context) =>
-                                                  HalqaReportPage()),
+                                            builder: (context) =>
+                                                SchoolReportPage(
+                                              schoolModel: school,
+                                              numberS: numberStudent,
+                                              numberT: numberTeacher,
+                                            ),
+                                          ),
                                         );
                                       },
                                       icon: Icon(Icons.picture_as_pdf))

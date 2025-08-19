@@ -195,7 +195,6 @@ class _ShowAllSchoolsState extends State<ShowAllSchools> {
                                   color: primaryColor,
                                   onPressed: () {
                                     // يمكن إضافة عرض تفاصيل المدرسة هنا
-
                                     _showSchoolDetails(context, school);
                                   },
                                 ),
